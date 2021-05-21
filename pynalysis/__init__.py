@@ -1,7 +1,7 @@
 """
 Pynalysis Package version 1.01
 
-Coded by YH. W
+Author YH. W
 Last Update: 2021/05/06
 
 """

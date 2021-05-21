@@ -2,7 +2,7 @@
 '''
 
 调用MMPBSA.py计算吉布斯自由能变(MM-GB/SA方法) 
-vesion 1.02
+Version 1.02
 
 Author YH. W
 Last update: 2021/05/21

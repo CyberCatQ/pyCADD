@@ -1,7 +1,8 @@
 #!/usr/bin/python
 '''
 
-Python MD Prepare 主程序 vesion 1.00
+Python MD Prepare 主程序 
+Version 1.00
 
 Author YH. W
 Last Update: 2021/05/18

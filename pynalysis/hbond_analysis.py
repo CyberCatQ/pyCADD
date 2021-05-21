@@ -1,7 +1,8 @@
 #!/usr/bin/python
 '''
 
-MD轨迹氢键数据分析与导出 vesion 1.01
+MD轨迹氢键数据分析与导出 
+Version 1.01
 
 Author YH. W
 Last update: 2021/05/21

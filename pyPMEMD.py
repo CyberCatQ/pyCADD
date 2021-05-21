@@ -2,7 +2,7 @@
 '''
 
 Python Script For AMBER Molecular Dynamics Simulation
-主程序 vesion 1.03
+主程序 Version 1.03
 
 Author YH. W
 Last Update: 2021/05/20

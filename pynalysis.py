@@ -1,7 +1,8 @@
 #!/usr/bin/python
 '''
 
-Python分析MD轨迹 主程序 vesion 1.02
+Python分析MD轨迹 主程序 
+Version 1.02
 
 Author YH. W
 Last Update: 2021/05/21

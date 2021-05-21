@@ -1,7 +1,8 @@
 #!/usr/bin/python
 '''
 
-MD轨迹最低能量（势能）构象提取 vesion 1.01
+MD轨迹最低能量（势能）构象提取 
+Version 1.01
 
 Author YH. W
 Last update: 2021/05/21

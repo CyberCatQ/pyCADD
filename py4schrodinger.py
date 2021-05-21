@@ -3,7 +3,7 @@
 '''
 
 Python Script For Schrodinger Suite Analysis 
-Vesion 1.04
+Version 1.04
 
 Author YH. W
 Last Update: 2021/05/19

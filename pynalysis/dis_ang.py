@@ -2,10 +2,10 @@
 '''
 
 MD轨迹任意指定原子键长键角二面角分析与导出 
-vesion 1.01
+Version 1.01
 
 Author YH. W
-Last update: 2020/05/07
+Last update: 2021/05/21
 
 '''
 

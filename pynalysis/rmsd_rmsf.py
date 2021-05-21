@@ -1,7 +1,8 @@
 #!/usr/bin/python
 '''
 
-计算MD轨迹RMSD/F vesion 1.02
+计算MD轨迹RMSD/F 
+Version 1.02
 
 Author YH. W
 Last update: 2021/05/21
