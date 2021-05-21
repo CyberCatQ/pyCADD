@@ -8,10 +8,10 @@ Try to automate Schrodinger Suite preparation &amp; docking, AMBER molecular dyn
 ## Platform  
 * Linux  
 ## Required    
-* Schrodinger Suite 2018-2 or newer vision  
-* AMBER 18 or newer vision  
+* Schrodinger Suite 2018-2 or newer version  
+* AMBER 18 or newer version  
 * Multiwfn  
-#### Python Vision
+#### Python Version
 3.5.2 or newer
 #### Python Packages  
 * pytray  
