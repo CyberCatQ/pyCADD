@@ -11,6 +11,8 @@ Try to automate Schrodinger Suite preparation &amp; docking, AMBER molecular dyn
 * Schrodinger Suite 2018-2 or newer vision  
 * AMBER 18 or newer vision  
 * Multiwfn  
+#### Python Vision
+3.5.2 or newer
 #### Python Packages  
 * pytray  
 * xlsxwriter  
