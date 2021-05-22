@@ -18,9 +18,8 @@ Try to automate Schrodinger Suite preparation &amp; docking, AMBER molecular dyn
 * xlsxwriter  
   
 * * *
-I learned Python myself and tried to write these scripts.  
 For study and criticism only, please do not use for other purposes.  
-#### All rights of each required other application and script belongs to the original author.
+#### The rights of each required other application and script belongs to the original author.
 
 
 Code comments contain Chinese only.
