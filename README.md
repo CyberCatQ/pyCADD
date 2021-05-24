@@ -20,9 +20,9 @@ automatedMD
 | -----------------  | -------- |
 |*py4schrodinger.py* | 自动执行PDB晶体获取、优化、格点文件生成、对接等命令(请使用$schrodinger/run运行此脚本) |
 |*pyMDprepare.py*    | 准备AMBER MD必要文件(拓扑及坐标、力场参数等文件)   
-|*RESP2.sh*          | 调用Gaussian执行坐标优化并计算RESP2(0.5)电荷(已集成于pyMDprepare.py)  |
+|*RESP2.sh*          | 调用Gaussian执行坐标优化并计算RESP2(0.5)电荷(已集成于 pyMDprepare.py)  |
 |*pyPMEMD.py*        | 调用AMBER PMEMD(GPU加速)执行能量最小化、体系加热与分子动力学模拟  |
-|*runPMEMD.sh*       | 选择要运行MD的GPU并启动pyPMEMD.py   |
+|*runPMEMD.sh*       | 选择要运行MD的GPU并启动 pyPMEMD.py   |
 |*pynalysis.py*      | MD轨迹分析 输出RMSD/RMSF、氢键、二面角等变化情况 提取最低势能构象  调用MMPBSA计算吉布斯自由能变/熵变  |
 |*pynalysis/*        | pynalysis.py所需模块包|
 
