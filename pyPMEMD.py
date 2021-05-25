@@ -223,7 +223,8 @@ def main():
     nvt_prepare()
     npt_prepare()
     print('\nStart to MD Process...')
-
+    
+    #使用CPU并行版本 请将pmemd.cuda改为sander.MPI
     mina_cmd = 'pmemd.cuda -O -i ./mina/mina.in -o ./mina/mina.out -p %scomsolvate.prmtop -c %scomsolvate.inpcrd -r ./mina/mina.rst -ref %scomsolvate.inpcrd' % (pdb,pdb,pdb)
     minb_cmd = 'pmemd.cuda -O -i ./minb/minb.in -o ./minb/minb.out -p %scomsolvate.prmtop -c ./mina/mina.rst -r ./minb/minb.rst -ref ./mina/mina.rst' % pdb
     minc_cmd = 'pmemd.cuda -O -i ./minc/minc.in -o ./minc/minc.out -p %scomsolvate.prmtop -c ./minb/minb.rst -r ./minc/minc.rst' % pdb
