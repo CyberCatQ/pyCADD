@@ -12,7 +12,7 @@ automatedMD
 ### Python Version
 3.5.2 or Higher
 ### Python Packages  
-* pytray  
+* pytraj  
 * xlsxwriter  
   
 ## Script Function

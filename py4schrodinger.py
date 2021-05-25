@@ -432,10 +432,12 @@ def main():
 
     elif flag == '1':
         minimized(pdb, pdb_file)
+        split_com(pdb, lig_name, minimized_file)
 
     elif flag == '2':
 
         minimized_file = minimized(pdb, pdb_file)
+        split_com(pdb, lig_name, minimized_file)
         grid_generate(pdb, lig_name, minimized_file)
 
     elif flag == '3':
