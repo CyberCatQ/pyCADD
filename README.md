@@ -27,7 +27,8 @@ automatedMD
 |*pynalysis/*        | pynalysis.py所需模块包|
 
 ## How to Use
-将 `automatedMD/` 内所有脚本文件及`pynalysis/`文件夹移入需要分析的PDB晶体文件夹根目录下(不需要额外文件)  
+将 `automatedMD/` 内所有脚本文件及`pynalysis/`文件夹移入需要分析的PDB晶体文件夹(以其ID命名)根目录下  
+(不需要额外文件)
 
 以PDBID 1XLS为例：  
 
@@ -41,8 +42,11 @@ automatedMD
     ./pyMDprepare.py
     ./runPMEMD.sh   
     ./pynalysis.py
-    
-为了顺利运行所有脚本功能  
+### NOTE
+* 如需进行外源性小分子与靶点蛋白的分子动力学模拟 请将小分子、受体蛋白及二者复合物PDB格式文件依次命名为`xxxlig.pdb` `xxxpro.pdb` `xxxcom.pdb`  (xxx为命名的任意代号 至少三位字母或数字)  
+并移至脚本所在文件夹根目录下 在提示输入PDB ID时手动输入xxx即可
+
+* 为了顺利运行所有脚本功能  
 请按照 `py4schrodinger.py` → `pyMDprepare.py` → `runPMEMD.sh` → `pynalysis.py` 依次运行脚本。
 * * *
 此脚本仅限于学习和批评使用，请勿用作其他用途。   
