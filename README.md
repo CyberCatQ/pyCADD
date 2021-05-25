@@ -31,6 +31,7 @@ automatedMD
 
     mkdir 1XLS
     cp -r automatedMD/* 1XLS/
+    cd 1XLS/
     chmod +x *
 
     #根据需要运行
