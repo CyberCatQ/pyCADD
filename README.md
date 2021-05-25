@@ -10,7 +10,7 @@ automatedMD
 * Gaussian 09.D01 或更高版本 
 * Multiwfn 3.7
 ### Python Version
-3.5.2 or Higher
+* 3.5.2 or Higher
 ### Python Packages  
 * pytraj  
 * xlsxwriter  
