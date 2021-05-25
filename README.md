@@ -6,7 +6,7 @@ automatedMD
 * Linux  
 ## Required    
 * Schrodier Suite 2018-2 或更高版本
-* AMBER 18 或更高版本
+* AMBER 18 或更高版本(要使用PMEMD 请安装CUDA 9.0或以上版本)
 * Gaussian 09.D01 或更高版本 
 * Multiwfn 3.7
 ### Python Version
