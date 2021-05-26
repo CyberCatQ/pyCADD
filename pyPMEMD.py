@@ -166,7 +166,7 @@ def npt_prepare():
     text += 'ntp=1, taup=2.0,\n'
     text += 'ntb=2,ntc=2,ntf=2,\n'
     text += 'nstlim=50000000, dt=0.002,\n'  #MD步数50000000步 步长0.002ps 总模拟时间=50000000*0.002=100000ps=100ns
-    text += 'ntx=5,irest=1,\n'  #继续加热体系计算
+    text += 'ntx=1,irest=0,\n'  #继续加热体系计算 但从STEP 0开始
     text += 'ntpr=1000, ntwr=1000, ntwx=1000,\n'
     text += '/'
     text += '\nEND'
