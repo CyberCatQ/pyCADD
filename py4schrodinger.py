@@ -10,12 +10,14 @@ Last Update: 2021/05/19
 
 '''
 
+from getopt import GetoptError, getopt
 import os
 import re
 import sys
 import multiprocessing
 import platform
 import csv
+import getopt
 from schrodinger.protein import getpdb
 from schrodinger.job import jobcontrol as jc
 from schrodinger import structure as struc
@@ -71,6 +73,18 @@ def convert_mae_to_pdb(file):
     '''
     st = load_st(file)
     st.write(file.split('.')[0]+'.pdb')
+
+def convert_pdb_to_mae(file):
+    '''
+    pdb格式转换为mae格式
+
+    Parmeters
+    ----------
+    file: 需要转换的pdb文件PATH
+
+    '''
+    st = load_st(file)
+    st.write(file.split('.')[0]+'.mae')
 
 
 def check_ligname(ligname):
@@ -340,14 +354,56 @@ def dock(pdb_code, lig_file, grid_file, precision='SP', calc_rmsd=False):
     print('\nDocking Result File:', '%s_glide_dock_%s.maegz Saved.\n' %
           (pdb_code, precision))
 
+def dock_one_to_n(pdb_code, ligand_file, precision):
+    '''
+    一对多 外源配体自动对接 for multidock
 
-def extra_data(pdb, precision, ligand):
+    Parameters
+    ----------
+    pdb_code: 要对接到的受体PDB ID字符串
+    ligand_file: 要对接的外源配体文件PATH
+    precision: 对接精度
+
+    '''
+
+    ligname = ligand_file.strip().split('.')[0]
+    convert_pdb_to_mae(ligand_file)
+    os.chdir(pdb_code)
+    grid_file = '%s_glide_grid.zip' % pdb_code
+    lig_file = '../' + ligname + '.mae'
+
+    print('\nPDB ID:', pdb_code, end='\n')
+    print('Ligand Name:', ligname)
+    print('Grid File:', grid_file)
+    
+    print('Prepare to Docking...\n')
+
+    with open('%s_glide_dock_%s.in' % (ligname, precision), 'w') as input_file:
+        input_file.write('GRIDFILE %s\n' % grid_file)
+        input_file.write('LIGANDFILE %s\n' % lig_file)
+        input_file.write('PRECISION %s\n' % precision)  # HTVS SP XP
+        if precision == 'XP':
+            input_file.write('WRITE_XP_DESC False\n')
+            input_file.write('POSTDOCK_XP_DELE 0.5\n')
+
+    launch('glide %s_glide_dock_%s.in -JOBNAME %s-Glide-Dock-On-%s-%s' %
+           (ligname, precision, ligname, pdb_code, precision))
+    os.system('mv %s-Glide-Dock-On-%s-%s_pv.maegz %s_glide_dock_on_%s_%s.maegz' %
+              (ligname, pdb_code, precision, ligname, pdb_code, precision))
+    print('\nDocking Result File:', '%s_glide_dock_on_%s_%s.maegz Saved.\n' %
+          (ligname, pdb_code, precision))
+          
+    print('%s Docking on %s Job Complete.\n' % (ligand_file, pdb_code))
+    print(''.center(80, '-'), end='\n')
+
+
+def extra_data(path, precision, ligand):
     '''
     从对接完成的Maestro文件中提取数据
 
     Parameters
     ----------
-    pdb: PDB ID字符串
+    path: 对接完成的文件PATH
     precision: 已完成的对接精度
     ligand: 参与对接的配体名称
 
@@ -356,8 +412,8 @@ def extra_data(pdb, precision, ligand):
     字典 Properties : Values
 
     '''
-    file = struc.StructureReader(
-        './%s/%s_glide_dock_%s.maegz' % (pdb, pdb, precision))
+    file = struc.StructureReader(path)
+    pdb = path.split('/')[1]
     pro_st = next(file)
     lig_st = next(file)
     prop_dic = {}
@@ -380,7 +436,10 @@ def extra_data(pdb, precision, ligand):
     prop_dic['energy'] = lig_st.property['r_i_glide_energy']
     prop_dic['einternal'] = lig_st.property['r_i_glide_einternal']
     # 对接结果与输入配体空间位置比较的RMSD值
-    prop_dic['rmsd'] = lig_st.property['r_i_glide_rmsd_to_input']
+    try:
+        prop_dic['rmsd'] = lig_st.property['r_i_glide_rmsd_to_input']
+    except KeyError:
+        pass
     prop_dic['precision'] = precision
 
     return prop_dic
@@ -517,16 +576,18 @@ def main():
 
         lig_file = input('请输入配体文件PATH(单一文件 可包含多个小分子):')
         precision = input('请输入对接精度(HTVS|SP|XP):')
+        convert_pdb_to_mae(lig_file)
+
         if not os.path.exists(grid_file):
             grid_file = grid_generate(pdb, lig_name, minimized_file)
-        dock(pdb, lig_file, grid_file, precision)
+        dock(pdb, lig_file.split('.')[0]+ '.mae', grid_file, precision)
 
     print(''.center(80, '-'), end='\n')
 
 
 def autodock(pdb, lig_name, precision):
     '''
-    自动化对接 for multidock
+    自动化内源配体对接 for multidock
 
     Parameters
     ----------
@@ -558,11 +619,11 @@ def autodock(pdb, lig_name, precision):
         grid_file = grid_generate(pdb, lig_name, minimized_file)
     print('Grid File:', grid_file)
     dock(pdb, lig_file, grid_file, precision, True)
-    print('%s Docking Job Complete.\n' % pdb)
+    print('%s Self-Docking Job Complete.\n' % pdb)
     print(''.center(80, '-'), end='\n')
 
 
-def multidock(pdb_list):
+def multidock(argv):
     '''
     自动多进程处理多个PDB晶体并完成自动对接 提取对接结果数据并保存为CSV文件
 
@@ -571,21 +632,61 @@ def multidock(pdb_list):
     pdb_list: 包含多个pdb晶体ID的列表
 
     '''
+
+    ligand_file = ''
+
+    try:
+        opts, argvs = getopt.getopt(argv,'-hr:l:')
+    except getopt.GetoptError:
+        print("usage: run py4schrodinger -r <receptors list file> -l <ligand file>\nUse run py4schrodinger.py -h for more information.")
+        sys.exit(2)
+
+    for opt, arg in opts:
+
+        if opt == '-h':
+            print(
+                'usage: run py4schrodinger -r <receptors list file> [ -l <ligand file> ]')
+            print('''
+    Options
+    ----------
+    -r 包含所有需要对接的受体PDB ID的列表文件(.txt)
+    -l 需要对接的配体文件(.pdb)
+
+            ''')
+            sys.exit(1)
+        
+        elif opt == '-r':
+            list_file = arg
+        elif opt == '-l':
+            ligand_file = arg
+    
+    try:
+        with open(list_file, 'r') as f:
+            pdbs = f.readlines()
+    except FileNotFoundError:
+        print('Error: 未找到列表文件!')
+        sys.exit(2)
+
+    pdb_list = []
+    for i in pdbs:
+        j = i.strip().upper()
+        pdb_list.append(j)
+
     print_title()
     print('\nProcessing Input List...\n')
     print('All Crystals to be Processed:',
           ''.join(str(x)+' ' for x in pdb_list))
     flag = input('\nContinue to Dock ? (Y/N)\n').strip().upper()
-    if flag == 'N':
-        sys.exit(0)
 
-    elif flag == 'Y':
+    if flag == 'Y':
         precision = input('请输入对接精度(HTVS|SP|XP):').strip().upper()
         print('\nNumber of Total CPU:', multiprocessing.cpu_count(), end='\n')
         cpus = int(input('请输入需要使用的CPU核心数量:'))
 
-        pool = multiprocessing.Pool(cpus)
+        pool1 = multiprocessing.Pool(cpus)
+        pool2 = multiprocessing.Pool(cpus)
         dic = {}
+
         for pdb in pdb_list:
             if not os.path.exists(pdb + '.pdb'):  # 下载PDB文件
                 getpdb.get_pdb(pdb)
@@ -596,19 +697,32 @@ def multidock(pdb_list):
             dic[pdb] = get_ligname(pdb)  # 如列表中有晶体存在多个配体 首先核对并确定唯一配体分子名
 
         for pdb_code, ligand in dic.items():  # 采用进程池控制多线程运行
-            pool.apply_async(autodock, (pdb_code, ligand, precision,))
-        pool.close()  # 进程池关闭 不再提交新任务
-        pool.join()  # 阻塞进程 等待全部子进程结束
+            pool1.apply_async(autodock, (pdb_code, ligand, precision,))
+
+        pool1.close()  # 进程池关闭 不再提交新任务
+        pool1.join()  # 阻塞进程 等待全部子进程结束
+        
+        if ligand_file:
+            for pdb_code in pdb_list:
+                pool2.apply_async(dock_one_to_n,(pdb_code, ligand_file, precision,))
+            
+            pool2.close()
+            pool2.join()
 
         prop = ['PDB', 'Ligand' ,'Docking_Score', 'rmsd', 'precision', 'rotatable_bonds', 'lipo', 'hbond', 'metal', 'rewards',
                 'evdw', 'ecoul', 'erotb', 'esite', 'emodel', 'energy', 'einternal']
         data = []
 
         for pdb in pdb_list:
-            ligand = dic[pdb]
-            prop_dic = extra_data(pdb, precision, ligand)
-            data.append(prop_dic)
 
+            pro_ligand = dic[pdb]
+            prop_dic = extra_data('./%s/%s_glide_dock_%s.maegz' % (pdb, pdb, precision), precision, pro_ligand)
+            data.append(prop_dic)
+            if ligand_file:
+                ligname = ligand_file.strip().split('.')[0]
+                ex_dic = extra_data('./%s/%s_glide_dock_%s.maegz' % (pdb, ligname, precision),precision, ligname)
+                data.append(ex_dic)
+            
         with open('FINAL_RESULTS.csv', 'w', encoding='UTF-8', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=prop)
             writer.writeheader()
@@ -626,15 +740,4 @@ if __name__ == '__main__':
         main()
 
     else:  # 自动处理多晶体模式
-        list_file = sys.argv[1]
-        try:
-            with open(list_file, 'r') as f:
-                pdbs = f.readlines()
-        except FileNotFoundError:
-            print('Error: 未找到列表文件!')
-            sys.exit(2)
-        pdb_list = []
-        for i in pdbs:
-            j = i.strip().upper()
-            pdb_list.append(j)
-        multidock(pdb_list)
+        multidock(sys.argv[1:])
