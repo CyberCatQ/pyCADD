@@ -645,12 +645,14 @@ def multidock(argv):
 
         if opt == '-h':
             print(
-                'usage: run py4schrodinger -r <receptors list file> [ -l <ligand file> ]')
+                'usage: run py4schrodinger -r <receptors list file> [-l <ligand file>]')
             print('''
     Options
     ----------
     -r 包含所有需要对接的受体PDB ID的列表文件(.txt)
-    -l 需要对接的配体文件(.pdb)
+    -l 需要对接的外源配体文件(.pdb)
+    
+    *当没有-l参数传入时，脚本仅执行受体列表内的晶体获取、处理与内源配体对接，而不会将任何外源配体对接到列表中的受体
 
             ''')
             sys.exit(1)

@@ -7,8 +7,9 @@ automatedMD
 ## Required    
 * Schrodier Suite 2018-2 或更高版本
 * AMBER 18 或更高版本(要使用PMEMD 请安装CUDA 9.0或以上版本)
-* Gaussian 09.D01 或更高版本 
-* Multiwfn 3.7
+* Gaussian 09.D01 或更高版本 (脚本默认使用g16)
+* Multiwfn 3.7 (用以计算RESP2电荷)
+* Openbabel (用以完成MD文件准备)
 ### Python Version
 * 3.5.2 or Higher
 ### Python Packages  
@@ -18,7 +19,7 @@ automatedMD
 ## Script Function
 |        Name        | Function |
 | -----------------  | -------- |
-|*py4schrodinger.py* | 自动执行PDB晶体获取、优化、格点文件生成、对接等命令(请使用$schrodinger/run运行此脚本) |
+|*py4schrodinger.py* | 自动执行PDB晶体获取、优化、格点文件生成、对接等命令(请使用$SCHRODINGER/run运行此脚本) |
 |*pyMDprepare.py*    | 准备AMBER MD必要文件(拓扑及坐标、力场参数等文件)   
 |*RESP2.sh*          | 调用Gaussian执行坐标优化并计算RESP2(0.5)电荷(已集成于 *pyMDprepare.py*)  |
 |*pyPMEMD.py*        | 调用AMBER PMEMD(GPU加速)执行能量最小化、体系加热与分子动力学模拟  |
@@ -42,6 +43,48 @@ automatedMD
     ./pyMDprepare.py
     ./runPMEMD.sh   
     ./pynalysis.py
+
+## Schrodinger 多重对接
+除直接执行 `py4schrodinger.py` 并使用UI操作外， 脚本可还进行自动一对多、多对一对接工作。  
+
+### 要使用多对一(多种配体对接一个受体)对接功能
+请将包含多个配体的单一`.mae`或`.maegz`文件与脚本置于*被命名为PDBID*的文件夹内，按照一对一对接相同的操作：直接运行`py4schrodinger.py` 并选择 功能6 , 按照提示输入文件名即可。
+
+### 要使用一对多(一种配体对接多种受体)功能
+请将此脚本文件至于一个单独的文件夹中, 并在文件夹中额外准备：
+
+* 一个分行列出的受体蛋白所属PDB ID的列表文本文件 *.txt* 
+* 需要对接的外源配体 3D结构文件  *.pdb* & *.mae*或其他Schrodinger支持的格式 (可选)
+  
+以下是一个示例 *example.txt*
+
+    3OAP
+    1XLS
+    4K6I
+
+然后 请使用额外参数运行`py4schrodinger.py`脚本：  
+
+    run py4schrodinger.py -r <receptors list file> [-l <ligand file>] 
+
+参数含义如下：
+
+* -r <受体蛋白所属PDB ID的列表文本文件路径>
+* -l <外源配体文件路径(可选)>
+  
+当没有-l参数传入时，脚本仅执行受体列表内的晶体获取、处理与内源配体对接，而不会将任何外源配体对接到列表中的受体。  
+
+也可通过
+
+    run py4schrodinger.py -h  
+
+命令获取详情。  
+
+脚本将自动识别.txt文本文件中每一行的PDB ID并自行批量下载、处理蛋白并执行内源配体对接 计算对接结果的RMSD值  
+此后，脚本按照指定的精度将外源配体对接到列表中的所有受体上(如果有)
+
+所有对接工作完成后，脚本还将自动提取重要的对接结果数据，并保存在`FINAL_RESULTS.csv`文件内。
+
+
 ### NOTE
 * 如需进行外源性小分子与靶点蛋白的分子动力学模拟 请将小分子、受体蛋白及二者复合物PDB格式文件依次命名为`xxxlig.pdb` `xxxpro.pdb` `xxxcom.pdb`  (xxx为命名的任意代号 至少三位字母或数字)  
 并移至脚本所在文件夹根目录下 在提示输入PDB ID时手动输入xxx即可
