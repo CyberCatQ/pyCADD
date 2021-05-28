@@ -1,4 +1,4 @@
-#Please Run this Script with command 'run py4schrodinger.py'
+# Please Run this Script with command 'run py4schrodinger.py'
 #!/home/omnisky/schrodinger2020-3/run
 '''
 
@@ -15,6 +15,7 @@ import re
 import sys
 import multiprocessing
 import platform
+import csv
 from schrodinger.protein import getpdb
 from schrodinger.job import jobcontrol as jc
 from schrodinger import structure as struc
@@ -340,6 +341,51 @@ def dock(pdb_code, lig_file, grid_file, precision='SP', calc_rmsd=False):
           (pdb_code, precision))
 
 
+def extra_data(pdb, precision, ligand):
+    '''
+    从对接完成的Maestro文件中提取数据
+
+    Parameters
+    ----------
+    pdb: PDB ID字符串
+    precision: 已完成的对接精度
+    ligand: 参与对接的配体名称
+
+    Return
+    ----------
+    字典 Properties : Values
+
+    '''
+    file = struc.StructureReader(
+        './%s/%s_glide_dock_%s.maegz' % (pdb, pdb, precision))
+    pro_st = next(file)
+    lig_st = next(file)
+    prop_dic = {}
+
+    # 需要提取的Property
+    prop_dic['PDB'] = pdb
+    prop_dic['Ligand'] = ligand
+    prop_dic['Docking_Score'] = lig_st.property['r_i_docking_score']  # 对接分数
+    # 可旋转键数
+    prop_dic['rotatable_bonds'] = lig_st.property['i_i_glide_rotatable_bonds']
+    prop_dic['lipo'] = lig_st.property['r_i_glide_lipo']
+    prop_dic['hbond'] = lig_st.property['r_i_glide_hbond']
+    prop_dic['metal'] = lig_st.property['r_i_glide_metal']
+    prop_dic['rewards'] = lig_st.property['r_i_glide_rewards']
+    prop_dic['evdw'] = lig_st.property['r_i_glide_evdw']
+    prop_dic['ecoul'] = lig_st.property['r_i_glide_ecoul']
+    prop_dic['erotb'] = lig_st.property['r_i_glide_erotb']
+    prop_dic['esite'] = lig_st.property['r_i_glide_esite']
+    prop_dic['emodel'] = lig_st.property['r_i_glide_emodel']
+    prop_dic['energy'] = lig_st.property['r_i_glide_energy']
+    prop_dic['einternal'] = lig_st.property['r_i_glide_einternal']
+    # 对接结果与输入配体空间位置比较的RMSD值
+    prop_dic['rmsd'] = lig_st.property['r_i_glide_rmsd_to_input']
+    prop_dic['precision'] = precision
+
+    return prop_dic
+
+
 def get_flag():
 
     while True:
@@ -518,7 +564,7 @@ def autodock(pdb, lig_name, precision):
 
 def multidock(pdb_list):
     '''
-    自动多进程处理多个PDB晶体并完成自动对接
+    自动多进程处理多个PDB晶体并完成自动对接 提取对接结果数据并保存为CSV文件
 
     Parameters
     ----------
@@ -547,12 +593,26 @@ def multidock(pdb_list):
                 os.makedirs(pdb)
             except FileExistsError:
                 pass
-            dic['%s' % pdb] = get_ligname(pdb)  # 如列表中有晶体存在多个配体 首先核对并确定唯一配体分子名
+            dic[pdb] = get_ligname(pdb)  # 如列表中有晶体存在多个配体 首先核对并确定唯一配体分子名
 
         for pdb_code, ligand in dic.items():  # 采用进程池控制多线程运行
             pool.apply_async(autodock, (pdb_code, ligand, precision,))
         pool.close()  # 进程池关闭 不再提交新任务
         pool.join()  # 阻塞进程 等待全部子进程结束
+
+        prop = ['PDB', 'Ligand' ,'Docking_Score', 'rmsd', 'precision', 'rotatable_bonds', 'lipo', 'hbond', 'metal', 'rewards',
+                'evdw', 'ecoul', 'erotb', 'esite', 'emodel', 'energy', 'einternal']
+        data = []
+
+        for pdb in pdb_list:
+            ligand = dic[pdb]
+            prop_dic = extra_data(pdb, precision, ligand)
+            data.append(prop_dic)
+
+        with open('FINAL_RESULTS.csv', 'w', encoding='UTF-8', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=prop)
+            writer.writeheader()
+            writer.writerows(data)
 
         print('\nAll Docking Jobs Done.\n')
 
