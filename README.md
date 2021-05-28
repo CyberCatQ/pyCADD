@@ -44,13 +44,13 @@ automatedMD
     ./runPMEMD.sh   
     ./pynalysis.py
 
-## Schrodinger 多重对接
+## Schrodinger Multiple Docking
 除直接执行 `py4schrodinger.py` 并使用UI操作外， 脚本可还进行自动一对多、多对一对接工作。  
 
-### 要使用多对一(多种配体对接一个受体)对接功能
+### Docking of Many-to-One Function
 请将包含多个配体的单一`.mae`或`.maegz`文件与脚本置于*被命名为PDBID*的文件夹内，按照一对一对接相同的操作：直接运行`py4schrodinger.py` 并选择 功能6 , 按照提示输入文件名即可。
 
-### 要使用一对多(一种配体对接多种受体)功能
+### Docking of One-to-Many Function
 请将此脚本文件至于一个单独的文件夹中, 并在文件夹中额外准备：
 
 * 一个分行列出的受体蛋白所属PDB ID的列表文本文件 *.txt* 
