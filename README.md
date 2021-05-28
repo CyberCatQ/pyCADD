@@ -15,7 +15,9 @@ automatedMD
 ### Python Packages  
 * pytraj  
 * xlsxwriter  
-  
+
+如果缺少python库 请使用`pip install <package>`命令安装
+
 ## Script Function
 |        Name        | Function |
 | -----------------  | -------- |
