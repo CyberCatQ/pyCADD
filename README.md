@@ -50,7 +50,7 @@ automatedMD
 除直接执行 `py4schrodinger.py` 并使用UI操作外， 脚本可还进行自动一对多、多对一对接工作。  
 
 ### Docking of Many-to-One Function
-请将包含多个配体的单一`.mae`或`.maegz`文件与脚本置于*被命名为PDBID*的文件夹内，按照一对一对接相同的操作：直接运行`py4schrodinger.py` 并选择 功能6 , 按照提示输入文件名即可。
+请将包含多个配体的单一`.mae`或`.maegz`文件与脚本置于被命名为 *PDBID* 的文件夹内，按照一对一对接相同的操作：直接运行`py4schrodinger.py` 并选择 功能6 , 按照提示输入文件名即可。
 
 ### Docking of One-to-Many Function
 请将此脚本文件至于一个单独的文件夹中, 并在文件夹中额外准备：
