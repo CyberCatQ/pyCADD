@@ -12,7 +12,7 @@ automatedMD
 * Openbabel (用以完成MD文件准备)
 ### Python Version
 * 3.5.2 or Higher
-### Python Packages  
+### Python Modules  
 * pytraj  
 * xlsxwriter  
 
