@@ -722,7 +722,7 @@ def multidock(argv):
             data.append(prop_dic)
             if ligand_file:
                 ligname = ligand_file.strip().split('.')[0]
-                ex_dic = extra_data('./%s/%s_glide_dock_%s.maegz' % (pdb, ligname, precision),precision, ligname)
+                ex_dic = extra_data('./%s/%s_glide_dock_on_%s_%s.maegz' % (pdb, ligname, pdb, precision),precision, ligname)
                 data.append(ex_dic)
             
         with open('FINAL_RESULTS.csv', 'w', encoding='UTF-8', newline='') as f:
