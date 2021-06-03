@@ -205,7 +205,7 @@ def minimized(pdb_code, pdb_file):
     if os.path.exists(minimized_file):
         return minimized_file
 
-    prepwizard_command = 'prepwizard -f 3 -r 0.3 -propka_pH 7.0 -s -j %s-Minimize %s %s' % (pdb_code,
+    prepwizard_command = 'prepwizard -f 3 -r 0.3 -propka_pH 7.0 -disulfides -s -j %s-Minimize %s %s' % (pdb_code,
                                                                                             pdb_file, minimized_file)
     launch(prepwizard_command)
     print('\nPDB Minimized File', minimized_file, 'Saved.\n')
