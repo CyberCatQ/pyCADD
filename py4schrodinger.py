@@ -16,8 +16,8 @@ import re
 import sys
 import multiprocessing
 import csv
-import time
 import getopt
+import time
 from schrodinger.protein import getpdb
 from schrodinger.job import jobcontrol as jc
 from schrodinger import structure as struc
@@ -73,6 +73,7 @@ def convert_mae_to_pdb(file):
     '''
     st = load_st(file)
     st.write(file.split('.')[0]+'.pdb')
+
 
 def convert_pdb_to_mae(file):
     '''
@@ -207,7 +208,7 @@ def minimized(pdb_code, pdb_file):
         return minimized_file
 
     prepwizard_command = 'prepwizard -f 3 -r 0.3 -propka_pH 7.0 -disulfides -s -j %s-Minimize %s %s' % (pdb_code,
-                                                                                            pdb_file, minimized_file)
+                                                                                                        pdb_file, minimized_file)
     launch(prepwizard_command)
     print('\nPDB Minimized File', minimized_file, 'Saved.\n')
     return minimized_file
@@ -243,7 +244,7 @@ def get_lig_info(minimized_file, lig_name):
 
     if len(mol.residue) != 1:  # 判断该molecule是否仅包括小分子本身(是否存在共价连接)
         print('Error: %s in %s 配体分子与蛋白残基可能存在共价连接 请手动删除共价键后重试' % (lig_name, minimized_file))
-        sys.exit(2)
+        raise ValueError
 
     return (mol, chain, residue)
 
@@ -306,14 +307,13 @@ def split_com(pdb_code, lig_name, complex_file):
 
     try:
         comp = pvc.Complex(
-            st, ligand_asl='res. %s' % lig_name, ligand_properties=st.property.keys()   #同一条链只有一个配体分子
+            st, ligand_asl='res. %s' % lig_name, ligand_properties=st.property.keys()  # 同一条链只有一个配体分子
         )
     except RuntimeError:
-        resnum = os.popen("cat %s_minimized.mae | grep %s | awk \'{print $6}\'" % (     #同一条链有多个同名配体分子
+        resnum = os.popen("cat %s_minimized.mae | grep %s | awk '{print $6}'" % (  # 同一条链有多个同名配体分子
             pdb_code, lig_name)).readlines()[2].strip()
         comp = pvc.Complex(st, ligand_asl='res.num %s' %
                            resnum, ligand_properties=st.property.keys())
-
     lig_file = '%slig.mae' % pdb_code
     recep_file = '%spro.mae' % pdb_code
     comp.writeLigand(lig_file)  # 生成并保存配体独立mae文件
@@ -358,6 +358,7 @@ def dock(pdb_code, lig_file, grid_file, precision='SP', calc_rmsd=False):
     print('\nDocking Result File:', '%s_glide_dock_%s.maegz Saved.\n' %
           (pdb_code, precision))
 
+
 def dock_one_to_n(pdb_code, ligand_file, precision):
     '''
     一对多 外源配体自动对接 for multidock
@@ -379,7 +380,7 @@ def dock_one_to_n(pdb_code, ligand_file, precision):
     print('\nPDB ID:', pdb_code, end='\n')
     print('Ligand Name:', ligname)
     print('Grid File:', grid_file)
-    
+
     print('Prepare to Docking...\n')
 
     with open('%s_glide_dock_%s.in' % (ligname, precision), 'w') as input_file:
@@ -396,7 +397,7 @@ def dock_one_to_n(pdb_code, ligand_file, precision):
               (ligname, pdb_code, precision, ligname, pdb_code, precision))
     print('\nDocking Result File:', '%s_glide_dock_on_%s_%s.maegz Saved.\n' %
           (ligname, pdb_code, precision))
-          
+
     print('%s Docking on %s Job Complete.\n' % (ligand_file, pdb_code))
     print(''.center(80, '-'), end='\n')
 
@@ -426,7 +427,7 @@ def extra_data(path, precision, ligand):
     prop_dic['PDB'] = pdb
     prop_dic['Ligand'] = ligand
     prop_dic['Docking_Score'] = lig_st.property['r_i_docking_score']  # 对接分数
-    prop_dic['rotatable_bonds'] = lig_st.property['i_i_glide_rotatable_bonds']  
+    prop_dic['rotatable_bonds'] = lig_st.property['i_i_glide_rotatable_bonds']
     prop_dic['ligand_efficiency'] = lig_st.property['r_i_glide_ligand_efficiency']
     prop_dic['evdw'] = lig_st.property['r_i_glide_evdw']
     prop_dic['ecoul'] = lig_st.property['r_i_glide_ecoul']
@@ -589,7 +590,7 @@ def main():
 
         if not os.path.exists(grid_file):
             grid_file = grid_generate(pdb, lig_name, minimized_file)
-        dock(pdb, lig_file.split('.')[0]+ '.mae', grid_file, precision)
+        dock(pdb, lig_file.split('.')[0] + '.mae', grid_file, precision)
 
     print(''.center(80, '-'), end='\n')
 
@@ -645,7 +646,7 @@ def multidock(argv):
     ligand_file = ''
 
     try:
-        opts, argvs = getopt.getopt(argv,'-hr:l:')
+        opts, argvs = getopt.getopt(argv, '-hr:l:')
     except getopt.GetoptError:
         print("usage: run py4schrodinger -r <receptors list file> -l <ligand file>\nUse run py4schrodinger.py -h for more information.")
         sys.exit(2)
@@ -665,24 +666,25 @@ def multidock(argv):
 
             ''')
             sys.exit(1)
-        
+
         elif opt == '-r':
             list_file = arg
         elif opt == '-l':
             ligand_file = arg
-    
+
     try:
-        listname = list_file.split('.')[0]
+        list_filename = list_file.split('_')[0].split('/')[-1]
         with open(list_file, 'r') as f:
-            pdbs = f.readlines()
+            pdbs_withlig = f.readlines()
     except FileNotFoundError:
         print('Error: 未找到列表文件!')
         sys.exit(2)
 
     pdb_list = []
-    for i in pdbs:
-        j = i.strip().upper()
-        pdb_list.append(j)
+    for i in pdbs_withlig:
+        pdb = i.split(',')[0].strip().upper()
+        lig = i.split(',')[1].strip().upper()
+        pdb_list.append((pdb, lig))
 
     print_title()
     print('\nProcessing Input List...\n')
@@ -699,14 +701,16 @@ def multidock(argv):
         pool2 = multiprocessing.Pool(cpus)
         dic = {}
 
-        for pdb in pdb_list:
+        for pdb, lig in pdb_list:
+            if lig == 'APO':
+                continue
             if not os.path.exists(pdb + '.pdb'):  # 下载PDB文件
                 getpdb.get_pdb(pdb)
             try:
                 os.makedirs(pdb)
             except FileExistsError:
                 pass
-            dic[pdb] = get_ligname(pdb)  # 如列表中有晶体存在多个配体 首先核对并确定唯一配体分子名
+            dic[pdb] = lig
 
         for pdb_code, ligand in dic.items():  # 采用进程池控制多线程运行
             pool1.apply_async(autodock, (pdb_code, ligand, precision,))
@@ -716,15 +720,19 @@ def multidock(argv):
         pool1.join()  # 阻塞进程 等待全部子进程结束
         
         keys = dic.keys()
+        notpass = []
         for k in keys:    #异常晶体跳过
             if not os.path.exists('./%s/%s_glide_dock_%s.maegz' % (k,k,precision)):
-                del dic[k]
-        
-        if ligand_file:
-            for pdb_code in pdb_list:
-                pool2.apply_async(dock_one_to_n,(pdb_code, ligand_file, precision,))
-                time.sleep(1.5)
+                notpass.append[k]
+        for not_exist in notpass:
+            del dic[not_exist]
             
+        if ligand_file:
+            for pdb_code in dic.keys():
+                pool2.apply_async(
+                    dock_one_to_n, (pdb_code, ligand_file, precision,))
+                time.sleep(1.5)
+
             pool2.close()
             pool2.join()
 
@@ -732,17 +740,19 @@ def multidock(argv):
                 'ecoul','evdw', 'emodel', 'energy', 'einternal', 'lipo', 'hbond', 'metal', 'rewards', 'erotb', 'esite']
         data = []
 
-        for pdb in pdb_list:
+        for pdb, lig in dic.items():
 
-            pro_ligand = dic[pdb]
-            prop_dic = extra_data('./%s/%s_glide_dock_%s.maegz' % (pdb, pdb, precision), precision, pro_ligand)
+            pro_ligand = lig
+            prop_dic = extra_data('./%s/%s_glide_dock_%s.maegz' %
+                                  (pdb, pdb, precision), precision, pro_ligand)
             data.append(prop_dic)
             if ligand_file:
                 ligname = ligand_file.strip().split('.')[0]
-                ex_dic = extra_data('./%s/%s_glide_dock_on_%s_%s.maegz' % (pdb, ligname, pdb, precision),precision, ligname)
+                ex_dic = extra_data('./%s/%s_glide_dock_on_%s_%s.maegz' %
+                                    (pdb, ligname, pdb, precision), precision, ligname)
                 data.append(ex_dic)
-            
-        with open('%s_FINAL_RESULTS.csv' % listname, 'w', encoding='UTF-8', newline='') as f:
+
+        with open(list_filename + '_FINAL_RESULTS.csv', 'w', encoding='UTF-8', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=prop)
             writer.writeheader()
             writer.writerows(data)
