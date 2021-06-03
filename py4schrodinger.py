@@ -16,6 +16,7 @@ import re
 import sys
 import multiprocessing
 import csv
+import time
 import getopt
 from schrodinger.protein import getpdb
 from schrodinger.job import jobcontrol as jc
@@ -241,7 +242,7 @@ def get_lig_info(minimized_file, lig_name):
     residue = atom.getResidue()
 
     if len(mol.residue) != 1:  # 判断该molecule是否仅包括小分子本身(是否存在共价连接)
-        print('Error: 配体分子与蛋白残基可能存在共价连接 请手动删除共价键后重试')
+        print('Error: %s in %s 配体分子与蛋白残基可能存在共价连接 请手动删除共价键后重试' % (lig_name, minimized_file))
         sys.exit(2)
 
     return (mol, chain, residue)
@@ -309,7 +310,7 @@ def split_com(pdb_code, lig_name, complex_file):
         )
     except RuntimeError:
         resnum = os.popen("cat %s_minimized.mae | grep %s | awk \'{print $6}\'" % (     #同一条链有多个同名配体分子
-            pdb_code, lig_name)).readlines()[0]
+            pdb_code, lig_name)).readlines()[2].strip()
         comp = pvc.Complex(st, ligand_asl='res.num %s' %
                            resnum, ligand_properties=st.property.keys())
 
@@ -425,25 +426,30 @@ def extra_data(path, precision, ligand):
     prop_dic['PDB'] = pdb
     prop_dic['Ligand'] = ligand
     prop_dic['Docking_Score'] = lig_st.property['r_i_docking_score']  # 对接分数
-    # 可旋转键数
-    prop_dic['rotatable_bonds'] = lig_st.property['i_i_glide_rotatable_bonds']
-    prop_dic['lipo'] = lig_st.property['r_i_glide_lipo']
-    prop_dic['hbond'] = lig_st.property['r_i_glide_hbond']
-    prop_dic['metal'] = lig_st.property['r_i_glide_metal']
-    prop_dic['rewards'] = lig_st.property['r_i_glide_rewards']
+    prop_dic['rotatable_bonds'] = lig_st.property['i_i_glide_rotatable_bonds']  
+    prop_dic['ligand_efficiency'] = lig_st.property['r_i_glide_ligand_efficiency']
     prop_dic['evdw'] = lig_st.property['r_i_glide_evdw']
     prop_dic['ecoul'] = lig_st.property['r_i_glide_ecoul']
-    prop_dic['erotb'] = lig_st.property['r_i_glide_erotb']
-    prop_dic['esite'] = lig_st.property['r_i_glide_esite']
-    prop_dic['emodel'] = lig_st.property['r_i_glide_emodel']
     prop_dic['energy'] = lig_st.property['r_i_glide_energy']
     prop_dic['einternal'] = lig_st.property['r_i_glide_einternal']
-    # 对接结果与输入配体空间位置比较的RMSD值
+    prop_dic['emodel'] = lig_st.property['r_i_glide_emodel']
+    prop_dic['precision'] = precision
+
     try:
         prop_dic['rmsd'] = lig_st.property['r_i_glide_rmsd_to_input']
     except KeyError:
         pass
-    prop_dic['precision'] = precision
+
+    if precision == 'SP':
+        prop_dic['lipo'] = lig_st.property['r_i_glide_lipo']
+        prop_dic['hbond'] = lig_st.property['r_i_glide_hbond']
+        prop_dic['metal'] = lig_st.property['r_i_glide_metal']
+        prop_dic['rewards'] = lig_st.property['r_i_glide_rewards']
+        prop_dic['erotb'] = lig_st.property['r_i_glide_erotb']
+        prop_dic['esite'] = lig_st.property['r_i_glide_esite']
+
+    if precision == 'XP':
+        prop_dic['XP_Hbond'] = lig_st.property['r_glide_XP_HBond']
 
     return prop_dic
 
@@ -704,19 +710,26 @@ def multidock(argv):
 
         for pdb_code, ligand in dic.items():  # 采用进程池控制多线程运行
             pool1.apply_async(autodock, (pdb_code, ligand, precision,))
+            time.sleep(1.5)
 
         pool1.close()  # 进程池关闭 不再提交新任务
         pool1.join()  # 阻塞进程 等待全部子进程结束
         
+        keys = dic.keys()
+        for k in keys:    #异常晶体跳过
+            if not os.path.exists('./%s/%s_glide_dock_%s.maegz' % (k,k,precision)):
+                del dic[k]
+        
         if ligand_file:
             for pdb_code in pdb_list:
                 pool2.apply_async(dock_one_to_n,(pdb_code, ligand_file, precision,))
+                time.sleep(1.5)
             
             pool2.close()
             pool2.join()
 
-        prop = ['PDB', 'Ligand' ,'Docking_Score', 'rmsd', 'precision', 'rotatable_bonds', 'lipo', 'hbond', 'metal', 'rewards',
-                'evdw', 'ecoul', 'erotb', 'esite', 'emodel', 'energy', 'einternal']
+        prop = ['PDB', 'Ligand', 'Docking_Score', 'rmsd', 'precision', 'ligand_efficiency', 'XP_Hbond', 'rotatable_bonds',
+                'ecoul','evdw', 'emodel', 'energy', 'einternal', 'lipo', 'hbond', 'metal', 'rewards', 'erotb', 'esite']
         data = []
 
         for pdb in pdb_list:
