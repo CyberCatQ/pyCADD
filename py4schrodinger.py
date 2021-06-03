@@ -15,7 +15,6 @@ import os
 import re
 import sys
 import multiprocessing
-import platform
 import csv
 import getopt
 from schrodinger.protein import getpdb
@@ -229,12 +228,8 @@ def get_lig_info(minimized_file, lig_name):
 
     '''
 
-    if platform.system() == 'Windows':
-        cmd = os.popen('''cat %s | grep %s | awk "{print $1}"''' % (
-            minimized_file, lig_name))  # 抓取Ligand Atom Number 引号类型存在平台差异 影响管道输出
-    elif platform.system() == 'Linux':
-        cmd = os.popen(
-            "cat %s | grep %s | awk '{print $1}'" % (minimized_file, lig_name))
+    cmd = os.popen("cat %s | grep %s | awk '{print $1}'" % (
+        minimized_file, lig_name))
 
     lig_atomnum = cmd.readlines()[2].strip()  # 如果有多个同名配体小分子 默认抓取到首个小分子及其所在链
 
@@ -307,9 +302,17 @@ def split_com(pdb_code, lig_name, complex_file):
     '''
 
     st = load_st(complex_file)
-    comp = pvc.Complex(
-        st, ligand_asl='res. %s' % lig_name, ligand_properties=st.property.keys()
-    )
+
+    try:
+        comp = pvc.Complex(
+            st, ligand_asl='res. %s' % lig_name, ligand_properties=st.property.keys()   #同一条链只有一个配体分子
+        )
+    except RuntimeError:
+        resnum = os.popen("cat %s_minimized.mae | grep %s | awk \'{print $6}\'" % (     #同一条链有多个同名配体分子
+            pdb_code, lig_name)).readlines()[0]
+        comp = pvc.Complex(st, ligand_asl='res.num %s' %
+                           resnum, ligand_properties=st.property.keys())
+
     lig_file = '%slig.mae' % pdb_code
     recep_file = '%spro.mae' % pdb_code
     comp.writeLigand(lig_file)  # 生成并保存配体独立mae文件
@@ -663,6 +666,7 @@ def multidock(argv):
             ligand_file = arg
     
     try:
+        listname = list_file.split('.')[0]
         with open(list_file, 'r') as f:
             pdbs = f.readlines()
     except FileNotFoundError:
@@ -725,7 +729,7 @@ def multidock(argv):
                 ex_dic = extra_data('./%s/%s_glide_dock_on_%s_%s.maegz' % (pdb, ligname, pdb, precision),precision, ligname)
                 data.append(ex_dic)
             
-        with open('FINAL_RESULTS.csv', 'w', encoding='UTF-8', newline='') as f:
+        with open('%s_FINAL_RESULTS.csv' % listname, 'w', encoding='UTF-8', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=prop)
             writer.writeheader()
             writer.writerows(data)
