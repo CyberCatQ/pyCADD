@@ -26,6 +26,10 @@ cwd = str(os.getcwd())
 sys.path.append(cwd)
 
 
+def error_handler(error):
+    print(error.__cause__)
+
+
 def launch(cmd):
     '''
     使用jobcontrol启动一项job并等待结束
@@ -243,8 +247,7 @@ def get_lig_info(minimized_file, lig_name):
     residue = atom.getResidue()
 
     if len(mol.residue) != 1:  # 判断该molecule是否仅包括小分子本身(是否存在共价连接)
-        print('Error: %s in %s 配体分子与蛋白残基可能存在共价连接 请手动删除共价键后重试' % (lig_name, minimized_file))
-        raise ValueError
+        raise RuntimeError('%s in %s 配体分子与蛋白残基可能存在共价连接 请手动删除共价键后重试\n' % (lig_name, minimized_file))
 
     return (mol, chain, residue)
 
@@ -608,12 +611,20 @@ def autodock(pdb, lig_name, precision):
     '''
     os.chdir(pdb)
     os.system('cp ../%s.pdb ./' % pdb)
-    minimized_file = '%s_minimized.mae'
+    minimized_file = '%s_minimized.mae' % pdb
     grid_file = '%s_glide_grid.zip' % pdb
 
     cmd = '''cat %s.pdb | grep -w -E ^HET | awk '{if($2==\"%s\"){print $3}}' ''' % (
         pdb, lig_name)
-    chain = os.popen(cmd).readlines()[0].strip()
+    cmd_run = os.popen(cmd).readlines()
+    if cmd_run:
+        chain = re.match('[A-Z]',cmd_run[0].strip()).group()
+    else:
+        raise ValueError('No Match Ligand for %s' % lig_name)
+
+    if not chain:
+        raise ValueError('No Chain Match')
+
     pdb_file = keep_chain(pdb, pdb + '.pdb', chain)
 
     print('\nPDB ID:', pdb, end='\n')
@@ -631,6 +642,7 @@ def autodock(pdb, lig_name, precision):
     dock(pdb, lig_file, grid_file, precision, True)
     print('%s Self-Docking Job Complete.\n' % pdb)
     print(''.center(80, '-'), end='\n')
+    return 1
 
 
 def multidock(argv):
@@ -678,7 +690,7 @@ def multidock(argv):
             pdbs_withlig = f.readlines()
     except FileNotFoundError:
         print('Error: 未找到列表文件!')
-        sys.exit(2)
+        raise
 
     pdb_list = []
     for i in pdbs_withlig:
@@ -696,42 +708,60 @@ def multidock(argv):
         precision = input('请输入对接精度(HTVS|SP|XP):').strip().upper()
         print('\nNumber of Total CPU:', multiprocessing.cpu_count(), end='\n')
         cpus = int(input('请输入需要使用的CPU核心数量:'))
-
-        pool1 = multiprocessing.Pool(cpus)
-        pool2 = multiprocessing.Pool(cpus)
+        multiprocessing.set_start_method('spawn')
+        pool1 = multiprocessing.Pool(cpus,maxtasksperchild=1)   #每个进程必须仅使用单线程
+        pool2 = multiprocessing.Pool(cpus,maxtasksperchild=1)
         dic = {}
 
-        for pdb, lig in pdb_list:
-            if lig == 'APO':
-                continue
-            if not os.path.exists(pdb + '.pdb'):  # 下载PDB文件
-                getpdb.get_pdb(pdb)
+        for pdb, lig in pdb_list:   #对接前检查
+
             try:
                 os.makedirs(pdb)
             except FileExistsError:
                 pass
-            dic[pdb] = lig
+
+            if lig == 'APO':
+                dic[pdb] = lig
+                continue
+            if not os.path.exists(pdb + '.pdb'):  # 下载PDB文件
+                getpdb.get_pdb(pdb)
+
+            if not lig:
+                dic[pdb] = get_ligname(pdb)
+            else:
+                dic[pdb] = lig
+
+        total = len(dic)
+        print('TOTAL:', total)
+
+        global now_complete
+        now_complete = 0
+
+        def success_handler(result):
+            global now_complete
+            now_complete += result
+            print("%s Job(s) Successd / Total: %s" % (now_complete,total))
 
         for pdb_code, ligand in dic.items():  # 采用进程池控制多线程运行
-            pool1.apply_async(autodock, (pdb_code, ligand, precision,))
-            time.sleep(1.5)
+            pool1.apply_async(autodock, (pdb_code, ligand, precision,),callback=success_handler,error_callback=error_handler)
 
         pool1.close()  # 进程池关闭 不再提交新任务
         pool1.join()  # 阻塞进程 等待全部子进程结束
-        
-        keys = dic.keys()
+
+        items = dic.items()
         notpass = []
-        for k in keys:    #异常晶体跳过
+        for k,v in items:    #异常晶体跳过: APO & 共价键结合晶体
             if not os.path.exists('./%s/%s_glide_dock_%s.maegz' % (k,k,precision)):
-                notpass.append[k]
-        for not_exist in notpass:
-            del dic[not_exist]
-            
+                notpass.append((k,v))
+        if notpass:
+            for not_exist,lig in notpass:
+                del dic[not_exist]
+
         if ligand_file:
             for pdb_code in dic.keys():
                 pool2.apply_async(
                     dock_one_to_n, (pdb_code, ligand_file, precision,))
-                time.sleep(1.5)
+                #time.sleep(1.5)
 
             pool2.close()
             pool2.join()
@@ -757,6 +787,12 @@ def multidock(argv):
             writer.writeheader()
             writer.writerows(data)
 
+        if notpass:
+            print('Abandoned Crystal(s): ', notpass)
+            with open('./pdbid/abandon.txt','a') as f:
+                f.write('\n' + list_filename + '\n')
+                for p,l in notpass:
+                    f.write(p + ',' + l + '\n')
         print('\nAll Docking Jobs Done.\n')
 
     else:
