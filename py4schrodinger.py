@@ -3,31 +3,39 @@
 '''
 
 Python Script For Schrodinger Suite Analysis 
-Version 1.04
+Version 1.06
 
 Author YH. W
-Last Update: 2021/05/19
+Last Update: 2021/06/07
 
 '''
 
-from getopt import GetoptError, getopt
+import csv
+import getopt
+import multiprocessing
 import os
 import re
 import sys
-import multiprocessing
-import csv
-import getopt
-import time
-from schrodinger.protein import getpdb
-from schrodinger.job import jobcontrol as jc
+from getopt import getopt
+
 from schrodinger import structure as struc
 from schrodinger.application.glide import poseviewconvert as pvc
+from schrodinger.job import jobcontrol as jc
+from schrodinger.protein import getpdb
+
 cwd = str(os.getcwd())
 sys.path.append(cwd)
 
 
 def error_handler(error):
     print(error.__cause__)
+    print(''.center(80, '-'), end='\n')
+
+
+def success_handler(result):
+    global now_complete
+    now_complete += result
+    print("%s Job(s) Successd / Total: %s" % (now_complete, total))
 
 
 def launch(cmd):
@@ -44,9 +52,7 @@ def launch(cmd):
     print('JobId: %s' % job.JobId, end='\n')
     print('Job Name: %s' % job.Name, end='\n')
     print('Job Status: %s' % job.Status, end='\n')
-    print('Job Running...')
     job.wait()  # 阻塞进程 等待Job结束
-    print('\nJob %s Complete.\n' % job.Name)
 
 
 def load_st(st_file):
@@ -206,16 +212,21 @@ def minimized(pdb_code, pdb_file):
 
     '''
 
-    minimized_file = pdb_code + '_minimized.mae'
+    minimized_file = pdb_file.split('.')[0] + '_minimized.mae'
 
     if os.path.exists(minimized_file):
         return minimized_file
 
-    prepwizard_command = 'prepwizard -f 3 -r 0.3 -propka_pH 7.0 -disulfides -s -j %s-Minimize %s %s' % (pdb_code,
+    prepwizard_command = 'prepwizard -f 3 -r 0.3 -propka_pH 7.0 -disulfides -s -j %s-Minimize %s %s' % (pdb_file.split('.')[0],
                                                                                                         pdb_file, minimized_file)
     launch(prepwizard_command)
-    print('\nPDB Minimized File', minimized_file, 'Saved.\n')
-    return minimized_file
+
+    if not os.path.exists(minimized_file):
+        raise RuntimeError(
+            '%s Crystal Minimization Process Failed' % pdb_file.split('.')[0])
+    else:
+        print('\nPDB Minimized File', minimized_file, 'Saved.\n')
+        return minimized_file
 
 
 def get_lig_info(minimized_file, lig_name):
@@ -247,7 +258,8 @@ def get_lig_info(minimized_file, lig_name):
     residue = atom.getResidue()
 
     if len(mol.residue) != 1:  # 判断该molecule是否仅包括小分子本身(是否存在共价连接)
-        raise RuntimeError('%s in %s 配体分子与蛋白残基可能存在共价连接 请手动删除共价键后重试\n' % (lig_name, minimized_file))
+        raise RuntimeError('%s in %s 配体分子与蛋白残基可能存在共价连接 请手动删除共价键后重试\n' % (
+            lig_name, minimized_file))
 
     return (mol, chain, residue)
 
@@ -273,18 +285,21 @@ def grid_generate(pdb_code, lig_name, minimized_file, gridbox_size=20):
     lig_molnum = lig_info[0].number
 
     size = gridbox_size + 10
-    grid_file = pdb_code + '_glide_grid.zip'
+    grid_file = pdb_code + '_glide_grid_%s.zip' % lig_name
 
-    with open('%s_grid_generate.in' % pdb_code, 'w') as input_file:  # 编写glide输入文件
+    if os.path.exists(grid_file):
+        return grid_file
+
+    with open('%s_grid_generate_%s.in' % (pdb_code, lig_name), 'w') as input_file:  # 编写glide输入文件
         input_file.write('GRIDFILE %s\n' % grid_file)  # 输出的Grid文件名
         input_file.write('INNERBOX 10,10,10\n')  # Box大小参数
         input_file.write('OUTERBOX %d,%d,%d \n' %
                          (size, size, size))  # Box大小参数
         input_file.write('LIGAND_MOLECULE %s\n' %
                          lig_molnum)  # 识别Ligand并设定grid box中心为质心
-        input_file.write('RECEP_FILE %s_minimized.mae' % pdb_code)  # 输入文件
-    launch('glide %s_grid_generate.in -JOBNAME %s-Grid-Generate' %
-           (pdb_code, pdb_code))
+        input_file.write('RECEP_FILE %s' % minimized_file)  # 输入文件
+    launch('glide %s_grid_generate_%s.in -JOBNAME %s-%s-Grid-Generate' %
+           (pdb_code, lig_name, pdb_code, lig_name))
 
     print('\nGrid File', grid_file, 'Saved.\n')
     return grid_file
@@ -313,16 +328,16 @@ def split_com(pdb_code, lig_name, complex_file):
             st, ligand_asl='res. %s' % lig_name, ligand_properties=st.property.keys()  # 同一条链只有一个配体分子
         )
     except RuntimeError:
-        resnum = os.popen("cat %s_minimized.mae | grep %s | awk '{print $6}'" % (  # 同一条链有多个同名配体分子
-            pdb_code, lig_name)).readlines()[2].strip()
+        resnum = os.popen("cat %s | grep %s | awk '{print $6}'" % (  # 同一条链有多个同名配体分子
+            complex_file, lig_name)).readlines()[2].strip()
         comp = pvc.Complex(st, ligand_asl='res.num %s' %
                            resnum, ligand_properties=st.property.keys())
-    lig_file = '%slig.mae' % pdb_code
-    recep_file = '%spro.mae' % pdb_code
+    lig_file = '%slig_%s.mae' % (pdb_code, lig_name)
+    recep_file = '%spro_%s.mae' % (pdb_code, lig_name)
     comp.writeLigand(lig_file)  # 生成并保存配体独立mae文件
     comp.writeReceptor(recep_file)  # 生成并保存受体独立mae文件
 
-    st.write('%scom.pdb' % pdb_code)
+    st.write('%scom_%s.pdb' % (pdb_code, lig_name))
     convert_mae_to_pdb(lig_file)  # 自动生成PDB格式
     convert_mae_to_pdb(recep_file)
 
@@ -343,7 +358,9 @@ def dock(pdb_code, lig_file, grid_file, precision='SP', calc_rmsd=False):
 
     '''
     print('Prepare to Docking...\n')
-    with open('%s_glide_dock_%s.in' % (pdb_code, precision), 'w') as input_file:
+    lig_name = lig_file.split('.')[0].split('_')[-1]
+
+    with open('%s_glide_dock_%s_%s.in' % (pdb_code, lig_name, precision), 'w') as input_file:
         input_file.write('GRIDFILE %s\n' % grid_file)
         # 如果lig文件包含多个lig mol 将自动从一至末尾全部dock
         input_file.write('LIGANDFILE %s\n' % lig_file)
@@ -354,31 +371,36 @@ def dock(pdb_code, lig_file, grid_file, precision='SP', calc_rmsd=False):
             input_file.write('WRITE_XP_DESC False\n')
             input_file.write('POSTDOCK_XP_DELE 0.5\n')
 
-    launch('glide %s_glide_dock_%s.in -JOBNAME %s-Glide-Dock-%s' %
-           (pdb_code, precision, pdb_code, precision))
-    os.system('mv %s-Glide-Dock-%s_pv.maegz %s_glide_dock_%s.maegz' %
-              (pdb_code, precision, pdb_code, precision))
-    print('\nDocking Result File:', '%s_glide_dock_%s.maegz Saved.\n' %
-          (pdb_code, precision))
+    launch('glide %s_glide_dock_%s_%s.in -JOBNAME %s-Glide-Dock-%s-%s' %
+           (pdb_code, lig_name, precision, pdb_code, lig_name, precision))
+
+    c = os.system('mv %s-Glide-Dock-%s-%s_pv.maegz %s_glide_dock_%s_%s.maegz' %
+                  (pdb_code, lig_name, precision, pdb_code, lig_name, precision))
+    if c != 0:
+        raise RuntimeError('Gilde Docking Failed')
+
+    print('\nDocking Result File:', '%s_glide_dock_%s_%s.maegz Saved.\n' %
+          (pdb_code, lig_name, precision))
 
 
-def dock_one_to_n(pdb_code, ligand_file, precision):
+def dock_one_to_n(pdb_code, origin_ligname, ex_ligand_file, precision):
     '''
     一对多 外源配体自动对接 for multidock
 
     Parameters
     ----------
     pdb_code: 要对接到的受体PDB ID字符串
-    ligand_file: 要对接的外源配体文件PATH
+    origin_ligname: 对接位置原配体名称
+    ex_ligand_file: 要对接的外源配体文件PATH
     precision: 对接精度
 
     '''
 
-    ligname = ligand_file.strip().split('.')[0]
-    convert_pdb_to_mae(ligand_file)
-    os.chdir(pdb_code)
-    grid_file = '%s_glide_grid.zip' % pdb_code
-    lig_file = '../' + ligname + '.mae'
+    ligname = ex_ligand_file.strip().split('.')[0]
+    convert_pdb_to_mae(ex_ligand_file)
+    os.chdir('./database/' + pdb_code)
+    grid_file = '%s_glide_grid_%s.zip' % (pdb_code, origin_ligname)
+    lig_file = '../../' + ligname + '.mae'
 
     print('\nPDB ID:', pdb_code, end='\n')
     print('Ligand Name:', ligname)
@@ -386,7 +408,7 @@ def dock_one_to_n(pdb_code, ligand_file, precision):
 
     print('Prepare to Docking...\n')
 
-    with open('%s_glide_dock_%s.in' % (ligname, precision), 'w') as input_file:
+    with open('%s_glide_dock_%s_%s.in' % (ligname, origin_ligname, precision), 'w') as input_file:
         input_file.write('GRIDFILE %s\n' % grid_file)
         input_file.write('LIGANDFILE %s\n' % lig_file)
         input_file.write('PRECISION %s\n' % precision)  # HTVS SP XP
@@ -394,14 +416,15 @@ def dock_one_to_n(pdb_code, ligand_file, precision):
             input_file.write('WRITE_XP_DESC False\n')
             input_file.write('POSTDOCK_XP_DELE 0.5\n')
 
-    launch('glide %s_glide_dock_%s.in -JOBNAME %s-Glide-Dock-On-%s-%s' %
-           (ligname, precision, ligname, pdb_code, precision))
-    os.system('mv %s-Glide-Dock-On-%s-%s_pv.maegz %s_glide_dock_on_%s_%s.maegz' %
-              (ligname, pdb_code, precision, ligname, pdb_code, precision))
-    print('\nDocking Result File:', '%s_glide_dock_on_%s_%s.maegz Saved.\n' %
-          (ligname, pdb_code, precision))
+    launch('glide %s_glide_dock_%s_%s.in -JOBNAME %s-Glide-Dock-On-%s-%s-%s' %
+           (ligname, origin_ligname, precision, ligname, pdb_code, origin_ligname, precision))
+    os.system('mv %s-Glide-Dock-On-%s-%s-%s_pv.maegz %s_glide_dock_on_%s_%s_%s.maegz' %
+              (ligname, pdb_code, origin_ligname, precision, ligname, pdb_code, origin_ligname, precision))
+    print('\nDocking Result File:', '%s_glide_dock_on_%s_%s_%s.maegz Saved.\n' %
+          (ligname, pdb_code, origin_ligname, precision))
 
-    print('%s Docking on %s Job Complete.\n' % (ligand_file, pdb_code))
+    print('%s Docking on %s-%s Job Complete.\n' %
+          (ex_ligand_file, pdb_code, origin_ligname))
     print(''.center(80, '-'), end='\n')
 
 
@@ -421,7 +444,7 @@ def extra_data(path, precision, ligand):
 
     '''
     file = struc.StructureReader(path)
-    pdb = path.split('/')[1]
+    pdb = path.split('/')[2]
     pro_st = next(file)
     lig_st = next(file)
     prop_dic = {}
@@ -511,7 +534,6 @@ def preprocess(pdb):
         sys.exit(1)
     elif len(lig_lis) > 1:
         print('\n')
-        print('Ligand   Name  Chain Residue')
         os.system('cat %s.pdb | grep -w -E ^HET' % pdb)
         print('存在多个配体小分子 是否需要保留单链？(Y/N)')
         k = input().strip().upper()
@@ -536,8 +558,6 @@ def main():
     pdb = get_pdbid()
     pdb_file = preprocess(pdb)
     lig_name = get_ligname(pdb)
-    minimized_file = '%s_minimized.mae' % pdb
-    grid_file = '%s_glide_grid.zip' % pdb
 
     print_title()
     print('\nPDB ID:', pdb, end='\n')
@@ -549,7 +569,7 @@ def main():
         sys.exit(0)
 
     elif flag == '1':
-        minimized(pdb, pdb_file)
+        minimized_file = minimized(pdb, pdb_file)
         split_com(pdb, lig_name, minimized_file)
 
     elif flag == '2':
@@ -569,8 +589,7 @@ def main():
         minimized_file = minimized(pdb, pdb_file)
         lig_file = split_com(pdb, lig_name, minimized_file)[0]
         print('Ligand File:', lig_file)
-        if not os.path.exists(grid_file):
-            grid_file = grid_generate(pdb, lig_name, minimized_file)
+        grid_file = grid_generate(pdb, lig_name, minimized_file)
         print('Grid File:', grid_file)
 
         dock(pdb, lig_file, grid_file, 'SP', True)
@@ -580,8 +599,7 @@ def main():
         minimized_file = minimized(pdb, pdb_file)
         lig_file = split_com(pdb, lig_name, minimized_file)[0]
         print('Ligand File:', lig_file)
-        if not os.path.exists(grid_file):
-            grid_file = grid_generate(pdb, lig_name, minimized_file)
+        grid_file = grid_generate(pdb, lig_name, minimized_file)
         print('Grid File:', grid_file)
         dock(pdb, lig_file, grid_file, 'XP', True)
 
@@ -590,9 +608,8 @@ def main():
         lig_file = input('请输入配体文件PATH(单一文件 可包含多个小分子):')
         precision = input('请输入对接精度(HTVS|SP|XP):')
         convert_pdb_to_mae(lig_file)
-
-        if not os.path.exists(grid_file):
-            grid_file = grid_generate(pdb, lig_name, minimized_file)
+        minimized_file = minimized(pdb, pdb_file)
+        grid_file = grid_generate(pdb, lig_name, minimized_file)
         dock(pdb, lig_file.split('.')[0] + '.mae', grid_file, precision)
 
     print(''.center(80, '-'), end='\n')
@@ -609,16 +626,15 @@ def autodock(pdb, lig_name, precision):
     precision: 对接精度
 
     '''
-    os.chdir(pdb)
-    os.system('cp ../%s.pdb ./' % pdb)
-    minimized_file = '%s_minimized.mae' % pdb
-    grid_file = '%s_glide_grid.zip' % pdb
+    os.chdir('./database/' + pdb)
+    if not os.path.exists(pdb + '.pdb'):
+        os.system('cp ../../%s.pdb ./' % pdb)
 
     cmd = '''cat %s.pdb | grep -w -E ^HET | awk '{if($2==\"%s\"){print $3}}' ''' % (
         pdb, lig_name)
     cmd_run = os.popen(cmd).readlines()
     if cmd_run:
-        chain = re.match('[A-Z]',cmd_run[0].strip()).group()
+        chain = re.match('[A-Z]', cmd_run[0].strip()).group()
     else:
         raise ValueError('No Match Ligand for %s' % lig_name)
 
@@ -631,13 +647,10 @@ def autodock(pdb, lig_name, precision):
     print('Entry Ligand:', lig_name, end='\n')
     print('Chain: %s' % chain)
 
-    if not os.path.exists(minimized_file):
-        minimized_file = minimized(pdb, pdb_file)
-
+    minimized_file = minimized(pdb, pdb_file)
     lig_file = split_com(pdb, lig_name, minimized_file)[0]
     print('\nLigand File:', lig_file)
-    if not os.path.exists(grid_file):
-        grid_file = grid_generate(pdb, lig_name, minimized_file)
+    grid_file = grid_generate(pdb, lig_name, minimized_file)
     print('Grid File:', grid_file)
     dock(pdb, lig_file, grid_file, precision, True)
     print('%s Self-Docking Job Complete.\n' % pdb)
@@ -656,23 +669,30 @@ def multidock(argv):
     '''
 
     ligand_file = ''
+    flag = ''
+    cpus = ''
+    precision = ''
 
     try:
-        opts, argvs = getopt.getopt(argv, '-hr:l:')
+        opts, argvs = getopt.getopt(argv, '-hkr:l:p:n:')
     except getopt.GetoptError:
-        print("usage: run py4schrodinger -r <receptors list file> -l <ligand file>\nUse run py4schrodinger.py -h for more information.")
+        print(
+            "usage: run py4schrodinger -r <receptors list file> [-l <ligand file> -p <precision> -n <cpus> -k]\nUse run py4schrodinger.py -h for more information.")
         sys.exit(2)
 
     for opt, arg in opts:
 
         if opt == '-h':
             print(
-                'usage: run py4schrodinger -r <receptors list file> [-l <ligand file>]')
+                'usage: run py4schrodinger -r <receptors list file> [-l <ligand file> -p <precision> -n <cpus> -k]')
             print('''
     Options
     ----------
     -r 包含所有需要对接的受体PDB ID的列表文件(.txt)
     -l 需要对接的外源配体文件(.pdb)
+    -p 对接精度(HTVS|SP|XP)
+    -n 要使用的CPU数量
+    -k 不进行对接启动确认 直接开始对接
     
     *当没有-l参数传入时，脚本仅执行受体列表内的晶体获取、处理与内源配体对接，而不会将任何外源配体对接到列表中的受体
 
@@ -683,6 +703,12 @@ def multidock(argv):
             list_file = arg
         elif opt == '-l':
             ligand_file = arg
+        elif opt == '-p':
+            precision = arg
+        elif opt == '-k':
+            flag = 'Y'
+        elif opt == '-n':
+            cpus = int(arg)
 
     try:
         list_filename = list_file.split('_')[0].split('/')[-1]
@@ -702,84 +728,80 @@ def multidock(argv):
     print('\nProcessing Input List...\n')
     print('All Crystals to be Processed:',
           ''.join(str(x)+' ' for x in pdb_list))
-    flag = input('\nContinue to Dock ? (Y/N)\n').strip().upper()
+    if not flag:
+        flag = input('\nContinue to Dock ? (Y/N)\n').strip().upper()
 
     if flag == 'Y':
-        precision = input('请输入对接精度(HTVS|SP|XP):').strip().upper()
-        print('\nNumber of Total CPU:', multiprocessing.cpu_count(), end='\n')
-        cpus = int(input('请输入需要使用的CPU核心数量:'))
-        multiprocessing.set_start_method('spawn')
-        pool1 = multiprocessing.Pool(cpus,maxtasksperchild=1)   #每个进程必须仅使用单线程
-        pool2 = multiprocessing.Pool(cpus,maxtasksperchild=1)
-        dic = {}
+        if not precision:
+            precision = input('请输入对接精度(HTVS|SP|XP):').strip().upper()
 
-        for pdb, lig in pdb_list:   #对接前检查
+        if not cpus:
+            print('\nNumber of Total CPU:',
+                  multiprocessing.cpu_count(), end='\n')
+            cpus = int(input('请输入需要使用的CPU核心数量:'))
+
+        print('Using Number of CPU: %s' % cpus)
+        print('Docking Precision: %s' % precision)
+
+        multiprocessing.set_start_method('spawn')
+        pool1 = multiprocessing.Pool(cpus, maxtasksperchild=1)  # 每个进程必须仅使用单线程
+        pool2 = multiprocessing.Pool(cpus, maxtasksperchild=1)
+
+        for pdb, lig in pdb_list:  # 对接前检查
 
             try:
-                os.makedirs(pdb)
+                os.makedirs('./database/' + pdb)
             except FileExistsError:
                 pass
 
-            if lig == 'APO':
-                dic[pdb] = lig
-                continue
-            if not os.path.exists(pdb + '.pdb'):  # 下载PDB文件
+            if not os.path.exists('./database/%s/%s.pdb' % (pdb, pdb)):  # 下载PDB文件
                 getpdb.get_pdb(pdb)
 
-            if not lig:
-                dic[pdb] = get_ligname(pdb)
-            else:
-                dic[pdb] = lig
-
-        total = len(dic)
-        print('TOTAL:', total)
+        global total
+        total = len(pdb_list)
+        print('\nTOTAL CRYSTALS:', total)
 
         global now_complete
         now_complete = 0
 
-        def success_handler(result):
-            global now_complete
-            now_complete += result
-            print("%s Job(s) Successd / Total: %s" % (now_complete,total))
-
-        for pdb_code, ligand in dic.items():  # 采用进程池控制多线程运行
-            pool1.apply_async(autodock, (pdb_code, ligand, precision,),callback=success_handler,error_callback=error_handler)
+        for pdb_code, ligand in pdb_list:  # 采用进程池控制多线程运行
+            pool1.apply_async(autodock, (pdb_code, ligand, precision,),
+                              callback=success_handler, error_callback=error_handler)
 
         pool1.close()  # 进程池关闭 不再提交新任务
         pool1.join()  # 阻塞进程 等待全部子进程结束
 
-        items = dic.items()
+        items = pdb_list
         notpass = []
-        for k,v in items:    #异常晶体跳过: APO & 共价键结合晶体
-            if not os.path.exists('./%s/%s_glide_dock_%s.maegz' % (k,k,precision)):
-                notpass.append((k,v))
+        for k, v in items:  # 异常晶体跳过: APO & 共价键结合晶体
+            if not os.path.exists('./database/%s/%s_glide_dock_%s_%s.maegz' % (k, k, v, precision)):
+                notpass.append((k, v))
         if notpass:
-            for not_exist,lig in notpass:
-                del dic[not_exist]
+            for not_exist, lig in notpass:
+                pdb_list.remove((not_exist, lig))
 
         if ligand_file:
-            for pdb_code in dic.keys():
+            for pdb_code, lig in pdb_list:
                 pool2.apply_async(
-                    dock_one_to_n, (pdb_code, ligand_file, precision,))
-                #time.sleep(1.5)
+                    dock_one_to_n, (pdb_code, lig, ligand_file, precision,))
 
             pool2.close()
             pool2.join()
 
         prop = ['PDB', 'Ligand', 'Docking_Score', 'rmsd', 'precision', 'ligand_efficiency', 'XP_Hbond', 'rotatable_bonds',
-                'ecoul','evdw', 'emodel', 'energy', 'einternal', 'lipo', 'hbond', 'metal', 'rewards', 'erotb', 'esite']
+                'ecoul', 'evdw', 'emodel', 'energy', 'einternal', 'lipo', 'hbond', 'metal', 'rewards', 'erotb', 'esite']
         data = []
 
-        for pdb, lig in dic.items():
+        for pdb, lig in pdb_list:
 
             pro_ligand = lig
-            prop_dic = extra_data('./%s/%s_glide_dock_%s.maegz' %
-                                  (pdb, pdb, precision), precision, pro_ligand)
+            prop_dic = extra_data('./database/%s/%s_glide_dock_%s_%s.maegz' %
+                                  (pdb, pdb, pro_ligand, precision), precision, pro_ligand)
             data.append(prop_dic)
             if ligand_file:
                 ligname = ligand_file.strip().split('.')[0]
-                ex_dic = extra_data('./%s/%s_glide_dock_on_%s_%s.maegz' %
-                                    (pdb, ligname, pdb, precision), precision, ligname)
+                ex_dic = extra_data('./database/%s/%s_glide_dock_on_%s_%s_%s.maegz' %
+                                    (pdb, ligname, pdb, pro_ligand, precision), precision, ligname)
                 data.append(ex_dic)
 
         with open(list_filename + '_FINAL_RESULTS.csv', 'w', encoding='UTF-8', newline='') as f:
@@ -789,9 +811,9 @@ def multidock(argv):
 
         if notpass:
             print('Abandoned Crystal(s): ', notpass)
-            with open('./pdbid/abandon.txt','a') as f:
+            with open('./pdbid/abandon.txt', 'a') as f:
                 f.write('\n' + list_filename + '\n')
-                for p,l in notpass:
+                for p, l in notpass:
                     f.write(p + ',' + l + '\n')
         print('\nAll Docking Jobs Done.\n')
 
