@@ -2,10 +2,9 @@ import csv
 import getopt
 import multiprocessing
 import os
-from query.dockfiles.py4schrodinger import keep_chain
 import re
 import sys
-from getopt import getopt
+import getopt
 
 from schrodinger import structure as struc
 from schrodinger.application.glide import poseviewconvert as pvc
@@ -22,9 +21,11 @@ def error_handler(error):
 
 
 def success_handler(result):
+    global total
     global now_complete
     now_complete += result
     print("%s Job(s) Successd / Total: %s" % (now_complete, total))
+
 
 def load_st(st_file):
     '''
@@ -42,6 +43,7 @@ def load_st(st_file):
 
     return next(struc.StructureReader(st_file))
 
+
 class Console:
 
     def __init__(self, pdbid=None, ligname=None, flag=None) -> None:
@@ -50,21 +52,6 @@ class Console:
         self.flag = flag
         self.pdbfile = self.pdbid + '.pdb'
 
-    @staticmethod
-    def checkpdb(pdb):
-        '''
-        检查PDB ID合法性
-
-        Return
-        ----------
-        合法返回True 否则返回False
-        '''
-        match = re.fullmatch(r'^\d[0-9a-zA-Z]{3,}$', pdb)
-        if match:
-            return True
-        else:
-            return False
-    
     @staticmethod
     def launch(cmd):
         '''
@@ -81,15 +68,36 @@ class Console:
         print('Job Name: %s' % job.Name, end='\n')
         print('Job Status: %s' % job.Status, end='\n')
         job.wait()  # 阻塞进程 等待Job结束
-    
+
     @staticmethod
-    def check_ligname(ligname):
+    def checkpdb(pdb):
+        '''
+        检查PDB ID合法性
+
+        Return
+        ----------
+        合法返回True 否则返回False
+        '''
+        match = re.fullmatch(r'^\d[0-9a-zA-Z]{3,}$', pdb)
+        if match:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def check_ligname(ligname): #可能没有必要
         '''
         检查配体名称合法性
-        '''
 
-        return re.search('[0-9A-Z]{2,3}$', ligname)
-    
+        Return
+        ----------
+        合法返回True 否则返回False
+        '''
+        match = re.search('[0-9A-Z]{2,3}$', ligname)
+        if match:
+            return True
+        else:
+            return False
 
     def get_pdbid(self):
         '''
@@ -117,7 +125,7 @@ class Console:
                 else:
                     print('请输入正确的PDB ID!')
 
-    def keep_chain(self, chain_name):
+    def __keep_chain(self, chain_name):
         '''
         读取PDB晶体文件并将单一链的结构输出为pdb文件
 
@@ -138,7 +146,7 @@ class Console:
         st_chain_only.write(file)
         return file
 
-    def preprocess(self):
+    def __preprocess(self):
         '''
         一些预处理操作：
         下载PDB文件 | 检查PDB晶体类型 Apo/单体/多聚体 | 是否保留单链
@@ -158,7 +166,7 @@ class Console:
 
         if len(lig_lis) == 0:
             raise RuntimeError('%s为Apo蛋白晶体 无法自动处理.' % self.pdbid)
-            
+
         elif len(lig_lis) > 1:
             print('\n')
             os.system('cat %s.pdb | grep -w -E ^HET' % self.pdbid)
@@ -167,12 +175,12 @@ class Console:
 
             if _flag == 'Y':
                 chain = input('输入保留链名:').strip().upper()
-                pdbfile = keep_chain(chain)
-                self.pdbfile = pdbfile  #修改当前主要晶体文件为单链文件
+                pdbfile = self.__keep_chain(chain)
+                self.pdbfile = pdbfile  # [属性修改]修改pdbfile为单链文件
                 return pdbfile
             else:
                 print('\nChoosed Intact Crystal.\n')
-                return pdbfile  #主要晶体文件仍为原始晶体文件
+                return pdbfile  # 主要晶体文件仍为原始晶体文件
         else:
             return pdbfile
 
