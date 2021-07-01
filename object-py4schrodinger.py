@@ -1,3 +1,4 @@
+from automatedMD.py4schrodinger import minimized
 import csv
 import getopt
 import multiprocessing
@@ -46,14 +47,23 @@ def load_st(st_file):
 
 class Console:
 
-    def __init__(self, pdbid=None, ligname=None, flag=None) -> None:
+    def __init__(self, pdbid='', ligname='', flag='') -> None:
+        '''
+        Property
+        ----------
+        pdbid: PDB ID
+        ligname: 配体文件PATH
+        flag: 处理模式
+        
+        '''
         self.pdbid = pdbid
         self.ligname = ligname
         self.flag = flag
-        self.pdbfile = self.pdbid + '.pdb'
+        self.pdbfile = ''  # PDB结构文件PATH
+        self.minimized_file = ''    # Minimized化完成的文件PATH
 
     @staticmethod
-    def launch(cmd):
+    def __launch(cmd):
         '''
         使用jobcontrol启动一项job并等待结束
 
@@ -111,40 +121,87 @@ class Console:
 
         if not self.pdbid:
             pdb = str(os.path.split(cwd)[1])
+        else:
+            pdb = str(self.pdbid)
 
         if self.checkpdb(pdb):
-            self.pdbid = pdb
+            self.pdbid = pdb    #[属性修改]修改PDB ID
+            self.pdbfile = pdb + '.pdb' #[属性修改]修改原始结构文件PATH
             return pdb
         else:
             while True:
                 pdb = str(
                     input('\n要自动获取PDB ID 请将晶体文件夹修改为PDB ID\n请手动输入晶体PDB ID:')).strip().upper()
                 if self.checkpdb(pdb):
-                    self.pdbid = pdb
+                    self.pdbid = pdb #[属性修改]修改PDB ID
+                    self.pdbfile = pdb + '.pdb' #[属性修改]修改原始结构文件PATH
                     return pdb
                 else:
                     print('请输入正确的PDB ID!')
 
-    def __keep_chain(self, chain_name):
+    def get_ligname(self):
+        '''
+        尝试自动获取配体名 如有多个配体则获取用户输入的配体名并检查合法性
+
+        Return
+        ----------
+        自动识别或手动输入的配体名称
+
+        '''
+        if self.pdbid:
+            pdbid = self.pdbid
+        else:
+            pdbid = self.get_pdbid()
+
+        lis = os.popen(
+            "cat %s.pdb | grep -w -E ^HET | awk '{print $2}'" % pdbid).readlines()   # 抓取pdb原始结构文件(不可是已处理过的结构)中单一entry关于小分子的描述
+        lig = []
+
+        for i in lis:
+            passed = self.check_ligname(i.strip())  # 匹配得到配体候选列表
+            if passed:
+                lig_name = passed.group()
+                if lig_name != 'HOH' and not lig_name in lig:  # 排除配体候选中的水分子与重复分子
+                    lig.append(lig_name)
+
+        if len(lig) == 1:
+            ligname = str(lig[0])
+            self.ligname = ligname  #[属性修改] 修改配体名称
+            return ligname
+        else:
+            print('晶体%s包含多个配体:' % pdbid, ''.join(
+                str(x)+' ' for x in lig), end='\n')
+            while True:
+                ligname = input('请手动指定配体名称:').strip().upper()
+                if self.check_ligname(ligname) and ligname in lig:
+                    self.ligname = ligname  #[属性修改] 修改配体名称
+                    return ligname
+                else:
+                    print('请重新输入正确的配体名称!')
+    
+
+    def keep_chain(self, chain_name, pdbfile=''):
         '''
         读取PDB晶体文件并将单一链的结构输出为pdb文件
 
         Parameters
         ----------
-        pdb_code: PDB ID字符串
-        origin_file: 待处理原始文件
+
         chain_name: 要保留的链名称
+        pdbfile: 待处理原始文件
 
         Return
         ----------
         保留单链结构的文件PATH
         '''
+        if not pdbfile:
+            pdbfile = self.pdbfile
 
-        st = load_st(self.pdbfile)  # 读取原始PDB结构
+        st = load_st(pdbfile)  # 读取原始PDB结构
         st_chain_only = st.chain[chain_name].extractStructure()
-        file = '%s_chain_%s.mae' % (self.pdbid, chain_name)
-        st_chain_only.write(file)
-        return file
+        singlechain_file = '%s_chain_%s.mae' % (pdbfile.split('.')[0], chain_name)
+        st_chain_only.write(singlechain_file)
+        return singlechain_file
 
     def __preprocess(self):
         '''
@@ -153,29 +210,29 @@ class Console:
 
         Returen
         ----------
-        选择保留单链得到的文件PATH
+        处理完成的PDB结构文件PATH
         '''
-
+        pdbid = self.pdbid
         pdbfile = self.pdbfile
 
         if not os.path.exists(pdbfile):  # 下载PDB文件
-            getpdb.get_pdb(self.pdbid)
+            getpdb.get_pdb(pdbid)
 
         lig_lis = os.popen(
             "cat %s | grep -w -E ^HET | awk '{print $2}'" % pdbfile).readlines()
 
         if len(lig_lis) == 0:
-            raise RuntimeError('%s为Apo蛋白晶体 无法自动处理.' % self.pdbid)
+            raise RuntimeError('%s为Apo蛋白晶体 无法自动处理.' % pdbid)
 
         elif len(lig_lis) > 1:
             print('\n')
-            os.system('cat %s.pdb | grep -w -E ^HET' % self.pdbid)
+            os.system('cat %s.pdb | grep -w -E ^HET' % pdbid)
             print('存在多个配体小分子 是否需要保留单链？(Y/N)')
-            _flag = input().strip().upper()
+            _flag = input().strip().upper() #是否保留单链的标志
 
             if _flag == 'Y':
                 chain = input('输入保留链名:').strip().upper()
-                pdbfile = self.__keep_chain(chain)
+                pdbfile = self.keep_chain(chain)
                 self.pdbfile = pdbfile  # [属性修改]修改pdbfile为单链文件
                 return pdbfile
             else:
@@ -183,8 +240,130 @@ class Console:
                 return pdbfile  # 主要晶体文件仍为原始晶体文件
         else:
             return pdbfile
+    
+    def minimize(self, pdbfile=None):
+        '''
+        调用prepwizard模块自动优化PDB结构文件
 
+        Parameters
+        ----------
+        pdb_code: PDB ID字符串
+        pdb_file: 需要优化的文件
+
+        Return
+        ----------
+        完成优化后的文件PATH
+
+        '''
+        if not pdbfile:
+            pdbfile = self.__preprocess()  #结构文件预处理
+
+        minimized_file = str(pdbfile.split('.')[0] + '_minimized.mae')
+
+        if os.path.exists(minimized_file):  #如果已经进行过优化 为提高效率而跳过优化步骤
+            self.minimized_file = minimized_file    #[属性修改] 修改最小化后的结构文件PATH
+            return minimized_file
+
+        prepwizard_command = 'prepwizard -f 3 -r 0.3 -propka_pH 7.0 -disulfides -s -j %s-Minimize %s %s' % (pdbfile.split('.')[0],
+                                                                                                            pdbfile, minimized_file)
+        self.__launch(prepwizard_command)   #阻塞至任务结束
+
+        if not os.path.exists(minimized_file):  #判断Minimized任务是否完成(是否生成Minimized结束的结构文件)
+            raise RuntimeError(
+                '%s Crystal Minimization Process Failed' % pdbfile.split('.')[0])  #无法被优化的晶体结构
+        else:
+            print('\nPDB Minimized File', minimized_file, 'Saved.\n')
+            self.minimized_file = minimized_file    #[属性修改] 修改最小化后的结构文件PATH
+            return minimized_file
+    
+    def __get_ligmol_info(self):
+        '''
+        以ligname为KEY 查找Maestro文件中的Molecule Number
+
+        Parameters
+        ----------
+        minimized_file: maestro可读文件PATH
+        lig_name: 配体文件名称
+
+        Return
+        ----------
+        Ligand 所在Molecule Number
+
+        '''
+
+        minimized_file = self.minimized_file
+        ligname = self.ligname
+        st = load_st(minimized_file)  # 载入结构对象
+
+        def _get_mol(st):   #获取结构中的配体所在Molecule对象
+            residues = st.residue
+            for res in residues:
+                if res.pdbres.strip() == '%s' % ligname:
+                    molnum = res.molecule_number
+                    yield st.molecule[molnum]
+
+        mol = next(_get_mol(st))
+
+        if len(mol.residue) != 1:  # 判断该molecule是否仅包括小分子本身(是否存在共价连接)
+            print('%s in %s 配体分子与残基可能存在共价连接 将尝试自动删除共价键' % (ligname, minimized_file))
+            bonds = st.bond
+
+            for bond in bonds:
+                resname1 = bond.atom1.getResidue().pdbres.strip()
+                resname2 = bond.atom2.getResidue().pdbres.strip()
+                if resname1 == '%s' % ligname or resname2 == '%s' % ligname:
+                    if resname1 != resname2:
+                        bond_to_del = bond
+            
+            if not bond_to_del:
+                raise RuntimeError('无法自动获取共价键')
+            
+            st.deleteBond(bond_to_del.atom1, bond_to_del.atom2)
+            st.write(minimized_file)
+
+            mol = next(_get_mol(st))
+
+        return mol.number
+
+    def grid_generate(self, pdbid=None, ligname=None, st_file=None, gridbox_size=20):
+        '''
+        自动编写glide grid输入文件并启动Glide Grid生成任务
+
+        Parameters
+        ----------
+        pdbid: PDB ID
+        ligname: 配体名称(RCSB ID)
+        st_file: 需要构建grid box的文件PATH
+        gridbox_size: grid box大小 默认20Å
+
+        Return
+        ----------
+        生成的格点文件名
+
+        '''
+        
+        lig_molnum = self.__get_ligmol_info(minimized_file, lig_name)
+        size = gridbox_size + 10
+        grid_file = pdb_code + '_glide_grid_%s.zip' % lig_name
+
+        if os.path.exists(grid_file):
+            return grid_file
+
+        with open('%s_grid_generate_%s.in' % (pdb_code, lig_name), 'w') as input_file:  # 编写glide输入文件
+            input_file.write('GRIDFILE %s\n' % grid_file)  # 输出的Grid文件名
+            input_file.write('INNERBOX 10,10,10\n')  # Box大小参数
+            input_file.write('OUTERBOX %d,%d,%d \n' %
+                            (size, size, size))  # Box大小参数
+            input_file.write('LIGAND_MOLECULE %s\n' %
+                            lig_molnum)  # 识别Ligand并设定grid box中心为质心
+            input_file.write('RECEP_FILE %s' % minimized_file)  # 输入文件
+        launch('glide %s_grid_generate_%s.in -JOBNAME %s-%s-Grid-Generate' %
+            (pdb_code, lig_name, pdb_code, lig_name))
+
+        print('\nGrid File', grid_file, 'Saved.\n')
+        return grid_file
 
 def main():
     console = Console()
     console.get_pdbid()
+    console.get_ligname()
