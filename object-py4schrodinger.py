@@ -61,6 +61,7 @@ class Console:
         self.flag = flag
         self.pdbfile = ''  # PDB结构文件PATH
         self.minimized_file = ''    # Minimized化完成的文件PATH
+        self.grid_file = ''     # 格点文件PATH
 
     @staticmethod
     def __launch(cmd):
@@ -108,6 +109,24 @@ class Console:
             return True
         else:
             return False
+
+    @staticmethod
+    def convert_format(file, suffix):
+        '''
+        mae/pdb格式转换为pdb/mae格式
+
+        Parmeters
+        ----------
+        file: 需要转换的mae文件PATH
+        suffix: 格式后缀名(pdb|mae)
+
+        '''
+
+        st = load_st(file)
+        if suffix == 'pdb':
+            st.write(file.split('.')[0] + '.pdb')
+        elif suffix == 'mae':
+            st.write(file.split('.')[0] + '.mae')
 
     def get_pdbid(self):
         '''
@@ -228,7 +247,7 @@ class Console:
             print('\n')
             os.system('cat %s.pdb | grep -w -E ^HET' % pdbid)
             print('存在多个配体小分子 是否需要保留单链？(Y/N)')
-            _flag = input().strip().upper() #是否保留单链的标志
+            _flag = input().strip().upper() # 是否保留单链的标志
 
             if _flag == 'Y':
                 chain = input('输入保留链名:').strip().upper()
@@ -256,24 +275,24 @@ class Console:
 
         '''
         if not pdbfile:
-            pdbfile = self.__preprocess()  #结构文件预处理
+            pdbfile = self.__preprocess()  # 结构文件预处理
 
         minimized_file = str(pdbfile.split('.')[0] + '_minimized.mae')
 
-        if os.path.exists(minimized_file):  #如果已经进行过优化 为提高效率而跳过优化步骤
-            self.minimized_file = minimized_file    #[属性修改] 修改最小化后的结构文件PATH
+        if os.path.exists(minimized_file):  # 如果已经进行过优化 为提高效率而跳过优化步骤
+            self.minimized_file = minimized_file    # [属性修改] 修改最小化后的结构文件PATH
             return minimized_file
 
         prepwizard_command = 'prepwizard -f 3 -r 0.3 -propka_pH 7.0 -disulfides -s -j %s-Minimize %s %s' % (pdbfile.split('.')[0],
                                                                                                             pdbfile, minimized_file)
-        self.__launch(prepwizard_command)   #阻塞至任务结束
+        self.__launch(prepwizard_command)   # 阻塞至任务结束
 
-        if not os.path.exists(minimized_file):  #判断Minimized任务是否完成(是否生成Minimized结束的结构文件)
+        if not os.path.exists(minimized_file):  # 判断Minimized任务是否完成(是否生成Minimized结束的结构文件)
             raise RuntimeError(
-                '%s Crystal Minimization Process Failed' % pdbfile.split('.')[0])  #无法被优化的晶体结构
+                '%s Crystal Minimization Process Failed' % pdbfile.split('.')[0])  # 无法被优化的晶体结构
         else:
             print('\nPDB Minimized File', minimized_file, 'Saved.\n')
-            self.minimized_file = minimized_file    #[属性修改] 修改最小化后的结构文件PATH
+            self.minimized_file = minimized_file    # [属性修改] 修改最小化后的结构文件PATH
             return minimized_file
     
     def __get_ligmol_info(self):
@@ -295,7 +314,7 @@ class Console:
         ligname = self.ligname
         st = load_st(minimized_file)  # 载入结构对象
 
-        def _get_mol(st):   #获取结构中的配体所在Molecule对象
+        def _get_mol(st):   # 获取结构中的配体所在Molecule对象
             residues = st.residue
             for res in residues:
                 if res.pdbres.strip() == '%s' % ligname:
@@ -342,28 +361,89 @@ class Console:
 
         '''
         
-        lig_molnum = self.__get_ligmol_info(minimized_file, lig_name)
-        size = gridbox_size + 10
-        grid_file = pdb_code + '_glide_grid_%s.zip' % lig_name
+        lig_molnum = self.__get_ligmol_info()
 
-        if os.path.exists(grid_file):
+        # 默认读取类属性中的信息
+        if not pdbid:
+            pdbid = self.pdbid
+        if not ligname:
+            ligname = self.ligname
+        if not st_file:
+            st_file = self.minimized_file
+            
+        outsize = gridbox_size + 10
+        
+        grid_file = pdbid + '_glide_grid_%s.zip' % ligname
+
+        if os.path.exists(grid_file):   # 如果已经生成了格点文件则跳过生成过程
+            self.grid_file = grid_file  # [属性修改] 修改格点文件PATH
             return grid_file
 
-        with open('%s_grid_generate_%s.in' % (pdb_code, lig_name), 'w') as input_file:  # 编写glide输入文件
+        with open('%s_grid_generate_%s.in' % (pdbid, ligname), 'w') as input_file:  # 编写glide输入文件
             input_file.write('GRIDFILE %s\n' % grid_file)  # 输出的Grid文件名
             input_file.write('INNERBOX 10,10,10\n')  # Box大小参数
             input_file.write('OUTERBOX %d,%d,%d \n' %
-                            (size, size, size))  # Box大小参数
+                            (outsize, outsize, outsize))  # Box大小参数
             input_file.write('LIGAND_MOLECULE %s\n' %
                             lig_molnum)  # 识别Ligand并设定grid box中心为质心
-            input_file.write('RECEP_FILE %s' % minimized_file)  # 输入文件
-        launch('glide %s_grid_generate_%s.in -JOBNAME %s-%s-Grid-Generate' %
-            (pdb_code, lig_name, pdb_code, lig_name))
+            input_file.write('RECEP_FILE %s' % st_file)  # 输入文件
+        self.__launch('glide %s_grid_generate_%s.in -JOBNAME %s-%s-Grid-Generate' %
+            (pdbid, ligname, pdbid, ligname))
 
         print('\nGrid File', grid_file, 'Saved.\n')
+        self.grid_file = grid_file  # [属性修改] 修改格点文件PATH
         return grid_file
+
+    def split_com(self, complex_file=None, ligname=None):
+        '''
+        拆分复合体为配体和受体
+
+        Parameters
+        ----------
+        complex_file: 待拆分的复合物文件PATH
+        ligname: 配体文件名(RCSB ID)
+
+        Return
+        ----------
+        List: [ligfile_PATH, recepfile_PATH]
+
+        '''
+        if not ligname:
+            ligname = self.ligname
+        if not complex_file:
+            complex_file = self.minimized_file  # 默认拆分Minimized完成的结构文件
+        pdbid = complex_file.split('_')[0]
+
+        st = load_st(complex_file)
+        residue_list = []
+        for res in st.residue:
+            if res.pdbres.strip() == '%s' % ligname:
+                residue_list.append(res)
+
+        comp = pvc.Complex(st, ligand_asl=residue_list[0].getAsl(), ligand_properties=st.property.keys())
+
+        if len(residue_list) != 1:
+            resname_list = []
+            for res in residue_list:
+                text = res.chain + ':' + res.pdbres.strip() + ' ' + str(res.resnum)
+                resname_list.append(text)
+            print('\nThere are %s "%s" in %s: ' % (len(residue_list), ligname, complex_file), resname_list, '\nThe First One is Selected')
+
+        lig_file = '%slig_%s.mae' % (pdbid, ligname)
+        recep_file = '%spro_%s.mae' % (pdbid, ligname)
+        comp.writeLigand(lig_file)          # 生成并保存配体独立mae文件
+        comp.writeReceptor(recep_file)      # 生成并保存受体独立mae文件
+
+        st.write('%scom_%s.pdb' % (pdbid, ligname))
+        self.convert_format(lig_file, 'pdb')        # 自动生成PDB格式
+        self.convert_format(recep_file, 'pdb')
+
+        return [lig_file, recep_file]
 
 def main():
     console = Console()
     console.get_pdbid()
     console.get_ligname()
+    console.minimize()
+    console.grid_generate()
+    console.split_com()
