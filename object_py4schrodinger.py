@@ -1,4 +1,3 @@
-from automatedMD.py4schrodinger import minimized
 import csv
 import getopt
 import multiprocessing
@@ -39,7 +38,6 @@ def load_st(st_file):
     Return
     ----------
     结构对象
-
     '''
 
     return next(struc.StructureReader(st_file))
@@ -54,14 +52,21 @@ class Console:
         pdbid: PDB ID
         ligname: 配体文件PATH
         flag: 处理模式
-        
         '''
+
         self.pdbid = pdbid
         self.ligname = ligname
         self.flag = flag
-        self.pdbfile = ''  # PDB结构文件PATH
+        self.pdbfile = ''           # PDB结构文件PATH
         self.minimized_file = ''    # Minimized化完成的文件PATH
-        self.grid_file = ''     # 格点文件PATH
+        self.grid_file = ''         # 格点文件PATH
+        self.lig_file = ''          # 配体文件PATH
+        self.recep_file = ''        # 受体文件PATH
+
+        try:
+            os.makedirs('./database/')
+        except FileExistsError:
+            pass
 
     @staticmethod
     def __launch(cmd):
@@ -71,8 +76,8 @@ class Console:
         Parameters
         ----------
         cmd： 等待执行的命令字符串
-
         '''
+
         cmd_list = cmd.split(' ')  # launch_job以列表形式提交参数
         job = jc.launch_job(cmd_list)
         print('JobId: %s' % job.JobId, end='\n')
@@ -89,6 +94,7 @@ class Console:
         ----------
         合法返回True 否则返回False
         '''
+
         match = re.fullmatch(r'^\d[0-9a-zA-Z]{3,}$', pdb)
         if match:
             return True
@@ -104,6 +110,7 @@ class Console:
         ----------
         合法返回True 否则返回False
         '''
+
         match = re.search('[0-9A-Z]{2,3}$', ligname)
         if match:
             return True
@@ -167,6 +174,7 @@ class Console:
         自动识别或手动输入的配体名称
 
         '''
+
         if self.pdbid:
             pdbid = self.pdbid
         else:
@@ -213,6 +221,7 @@ class Console:
         ----------
         保留单链结构的文件PATH
         '''
+
         if not pdbfile:
             pdbfile = self.pdbfile
 
@@ -231,6 +240,7 @@ class Console:
         ----------
         处理完成的PDB结构文件PATH
         '''
+
         pdbid = self.pdbid
         pdbfile = self.pdbfile
 
@@ -274,6 +284,7 @@ class Console:
         完成优化后的文件PATH
 
         '''
+
         if not pdbfile:
             pdbfile = self.__preprocess()  # 结构文件预处理
 
@@ -408,6 +419,7 @@ class Console:
         List: [ligfile_PATH, recepfile_PATH]
 
         '''
+
         if not ligname:
             ligname = self.ligname
         if not complex_file:
@@ -430,7 +442,9 @@ class Console:
             print('\nThere are %s "%s" in %s: ' % (len(residue_list), ligname, complex_file), resname_list, '\nThe First One is Selected')
 
         lig_file = '%slig_%s.mae' % (pdbid, ligname)
-        recep_file = '%spro_%s.mae' % (pdbid, ligname)
+        self.lig_file = lig_file                 # [属性修改] 修改配体文件PATH
+        recep_file = '%spro_%s.mae' % (pdbid, ligname)     
+        self.recep_file = recep_file             # [属性修改] 修改受体文件PATH
         comp.writeLigand(lig_file)          # 生成并保存配体独立mae文件
         comp.writeReceptor(recep_file)      # 生成并保存受体独立mae文件
 
@@ -440,6 +454,136 @@ class Console:
 
         return [lig_file, recep_file]
 
+    def dock(self, pdbid=None, lig_file=None, grid_file=None, precision='SP', calc_rmsd=False):
+        '''
+        一对一 多对一 glide dock任务输入文件编写与运行
+
+        Parameters
+        ----------
+        pdbid: PDB ID
+        lig_file: 配体文件PATH
+        grid_file: 格点文件PATH
+        precision: 对接精度(HTVS|SP|XP) 默认SP
+        calc_rmsd: 是否计算rmsd to input ligand geometries 默认False
+        '''
+
+        if not pdbid:
+            pdbid = self.pdbid
+        if not lig_file:
+            lig_file = self.lig_file
+        if not grid_file:
+            grid_file = self.grid_file
+
+        print('Prepare to Docking...\n')
+        lig_name = lig_file.split('.')[0].split('_')[-1]
+
+        with open('%s_glide_dock_%s_%s.in' % (pdbid, lig_name, precision), 'w') as input_file:
+            input_file.write('GRIDFILE %s\n' % grid_file)
+            # 如果lig文件包含多个lig mol 将自动从一至末尾全部dock
+            input_file.write('LIGANDFILE %s\n' % lig_file)
+            input_file.write('PRECISION %s\n' % precision)  # HTVS SP XP
+            if calc_rmsd == True:                           # 计算与原配体rmsd 默认False
+                input_file.write('CALC_INPUT_RMS True\n')
+            if precision == 'XP':
+                input_file.write('WRITE_XP_DESC False\n')
+                input_file.write('POSTDOCK_XP_DELE 0.5\n')
+
+        self.__launch('glide %s_glide_dock_%s_%s.in -JOBNAME %s-Glide-Dock-%s-%s' %
+            (pdbid, lig_name, precision, pdbid, lig_name, precision))
+
+        c = os.system('mv %s-Glide-Dock-%s-%s_pv.maegz %s_glide_dock_%s_%s.maegz' %
+                    (pdbid, lig_name, precision, pdbid, lig_name, precision))
+        if c != 0:
+            raise RuntimeError('%s-%s Gilde Docking Failed' % (pdbid, lig_name))
+
+        print('\nDocking Result File:', '%s_glide_dock_%s_%s.maegz Saved.\n' %
+            (pdbid, lig_name, precision))
+        return '%s_glide_dock_%s_%s.maegz' % (pdbid, lig_name, precision)
+
+    def extra_data(self, path, ligname, precision='SP'):
+        '''
+        从对接完成的Maestro文件中提取数据
+
+        Parameters
+        ----------
+        path: 对接完成的文件PATH
+        ligname: 参与对接的配体名称
+        precision: 已完成的对接工作精度
+
+        Return
+        ----------
+        Dict
+        Properties : Values
+
+        '''
+
+        file = struc.StructureReader(path)
+        pdbid = self.pdbid
+        pro_st = next(file)
+        lig_st = next(file)
+        prop_dic = {}
+
+        # 需要提取的Property
+        prop_dic['PDB'] = pdbid
+        prop_dic['Ligand'] = ligname
+        prop_dic['Docking_Score'] = lig_st.property['r_i_docking_score']  # 对接分数
+        prop_dic['rotatable_bonds'] = lig_st.property['i_i_glide_rotatable_bonds']
+        prop_dic['ligand_efficiency'] = lig_st.property['r_i_glide_ligand_efficiency']
+        prop_dic['evdw'] = lig_st.property['r_i_glide_evdw']
+        prop_dic['ecoul'] = lig_st.property['r_i_glide_ecoul']
+        prop_dic['energy'] = lig_st.property['r_i_glide_energy']
+        prop_dic['einternal'] = lig_st.property['r_i_glide_einternal']
+        prop_dic['emodel'] = lig_st.property['r_i_glide_emodel']
+        prop_dic['precision'] = precision
+
+        try:
+            prop_dic['rmsd'] = lig_st.property['r_i_glide_rmsd_to_input']
+        except KeyError:
+            pass
+
+        if precision == 'SP':
+            prop_dic['lipo'] = lig_st.property['r_i_glide_lipo']
+            prop_dic['hbond'] = lig_st.property['r_i_glide_hbond']
+            prop_dic['metal'] = lig_st.property['r_i_glide_metal']
+            prop_dic['rewards'] = lig_st.property['r_i_glide_rewards']
+            prop_dic['erotb'] = lig_st.property['r_i_glide_erotb']
+            prop_dic['esite'] = lig_st.property['r_i_glide_esite']
+
+        if precision == 'XP':
+            prop_dic['XP_Hbond'] = lig_st.property['r_glide_XP_HBond']
+
+        return prop_dic
+        
+
+class ui:
+
+    def get_flag():
+
+        while True:
+            flag = input('''
+            请输入需要进行的分析操作:
+
+            1.PDB文件获取+优化
+            2.PDB文件获取+优化+生成格点文件(Size 20Å)
+            3.仅生成格点文件(自定义Size)
+            4.自动执行PDB文件内源配体对接(SP精度)
+            5.自动执行PDB文件内源配体对接(XP精度)
+            6.非内源性配体对接
+
+            0.退出
+
+            ''')
+            if re.match('^[0123456]$', flag):
+                return flag
+            else:
+                print('请重新输入有效的操作代号!')
+
+    def print_title():
+        print('\n')
+        print('Python Script For Schrodinger Suite Analysis'.center(80, '-'), end='\n')
+
+
+
 def main():
     console = Console()
     console.get_pdbid()
@@ -447,3 +591,4 @@ def main():
     console.minimize()
     console.grid_generate()
     console.split_com()
+    console.dock()
