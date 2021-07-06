@@ -30,18 +30,22 @@ def success_handler(result):
 
 class Console:
 
-    def __init__(self, pdbid='', ligname='', flag='') -> None:
+    def __init__(self, pdbid='', ligname='') -> None:
         '''
+        Script Core For Schrodinger Suite Analysis 
+        Version 1.10
+
+        Author: YH. W
+        Last Update: 2021/07/06
+        
         Property
         ----------
         pdbid: PDB ID
         ligname: 配体文件PATH
-        flag: 处理模式
         '''
 
         self.pdbid = pdbid
         self.ligname = ligname
-        self.flag = flag
         self.pdbfile = ''           # PDB结构文件PATH
         self.minimized_file = ''    # Minimized化完成的文件PATH
         self.grid_file = ''         # 格点文件PATH
@@ -572,40 +576,99 @@ class Console:
         return prop_dic
         
 
-class ui:
+class UI:
 
-    def get_flag():
+    def __init__(self, pdbid='', ligname='') -> None:
+        '''
+        User Interface Mode of Script
+        '''
+        console = Console()
+        pdbid = console.get_pdbid()
+        ligname = console.get_ligname()
+        self.console = console
+
+        print(''.center(80,'*'),end='\n')
+        print('Python Script For Schrodinger Suite Analysis'.center(80), end='\n')
+        print(''.center(80,'*'),end='\n')
+
+        print('\nPDB ID:', pdbid, end='\n')
+        print('Entry Ligand:', ligname, end='\n')
+
+    def __get_flag(self):
 
         while True:
             flag = input('''
-            请输入需要进行的分析操作:
+    请输入需要进行的分析操作:
 
-            1.PDB文件获取+优化
-            2.PDB文件获取+优化+生成格点文件(Size 20Å)
-            3.仅生成格点文件(自定义Size)
-            4.自动执行PDB文件内源配体对接(SP精度)
-            5.自动执行PDB文件内源配体对接(XP精度)
-            6.非内源性配体对接
+    1.PDB文件获取+优化
+    2.PDB文件获取+优化+生成格点文件(Size 20Å)
+    3.仅生成格点文件(自定义Size)
+    4.自动执行PDB文件内源配体对接(SP精度)
+    5.自动执行PDB文件内源配体对接(XP精度)
+    6.非内源性配体对接
 
-            0.退出
+    0.退出
 
             ''')
             if re.match('^[0123456]$', flag):
                 return flag
             else:
                 print('请重新输入有效的操作代号!')
+        
+    def process(self):
+        '''
+        业务逻辑判断
+        '''
 
-    def print_title():
-        print('\n')
-        print('Python Script For Schrodinger Suite Analysis'.center(80, '-'), end='\n')
+        console = self.console
+        flag = self.__get_flag()
+
+        if flag == '0':
+            sys.exit(0)
+
+        elif len(flag) == 1 and flag in '12345':
+            console.minimize()
+            split_lis = console.split_com()
+            lig_file = split_lis[0]
+
+            if flag == '2':
+                grid_file = console.grid_generate()
+            
+            elif flag == '3':
+                size = int(input('Input Grid Box Size(Default 20Å):'))
+                console.grid_generate(gridbox_size=size)
+            
+            elif flag in '45':
+                print('Ligand File:', lig_file)
+                grid_file = console.grid_generate()
+                print('Grid File:', grid_file)
+
+                if flag == '4':
+                    console.dock(precision='SP', calc_rmsd=True)
+                else:
+                    console.dock(precision='XP', calc_rmsd=True)
+
+        elif flag == '6':
+            lig_file = input('Input Ligand File PATH:').strip()
+            precision = input('Input Docking Precision(HTVS|SP|XP):').strip().upper()
+
+            console.convert_format(lig_file, 'mae')
+            console.minimize()
+            grid_file = console.grid_generate()
+            console.dock(lig_file=lig_file, precision=precision)
+
+        else:
+            raise RuntimeError('Wrong Input Code\nEXIT.')
+            
+        print(''.center(80, '-'), end='\n')
 
 
 
 def main():
-    console = Console()
-    console.get_pdbid()
-    console.get_ligname()
-    console.minimize()
-    console.grid_generate()
-    console.split_com()
-    console.dock()
+
+    ui = UI()
+    ui.process()
+
+
+if __name__ == '__main__':
+    main()
