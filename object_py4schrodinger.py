@@ -13,7 +13,8 @@ from schrodinger.protein import getpdb
 
 cwd = str(os.getcwd())
 sys.path.append(cwd)
-
+total = 0
+now_complete = 0
 
 def error_handler(error):
     print(error.__cause__)
@@ -25,22 +26,6 @@ def success_handler(result):
     global now_complete
     now_complete += result
     print("%s Job(s) Successd / Total: %s" % (now_complete, total))
-
-
-def load_st(st_file):
-    '''
-    读取结构
-
-    Parameters
-    ----------
-    st_file: 需要读取结构的文件path 需要Schrodinger支持的文件格式
-
-    Return
-    ----------
-    结构对象
-    '''
-
-    return next(struc.StructureReader(st_file))
 
 
 class Console:
@@ -62,11 +47,23 @@ class Console:
         self.grid_file = ''         # 格点文件PATH
         self.lig_file = ''          # 配体文件PATH
         self.recep_file = ''        # 受体文件PATH
+        self.dock_file = ''         # 对接结果文件PATH
 
-        try:
-            os.makedirs('./database/')
-        except FileExistsError:
-            pass
+    @staticmethod
+    def load_st(st_file):
+        '''
+        读取结构
+
+        Parameters
+        ----------
+        st_file: 需要读取结构的文件path 需要Schrodinger支持的文件格式
+
+        Return
+        ----------
+        结构对象
+        '''
+
+        return next(struc.StructureReader(st_file))
 
     @staticmethod
     def __launch(cmd):
@@ -108,17 +105,16 @@ class Console:
 
         Return
         ----------
-        合法返回True 否则返回False
+        合法返回Match对象 否则返回False
         '''
 
         match = re.search('[0-9A-Z]{2,3}$', ligname)
         if match:
-            return True
+            return match
         else:
             return False
 
-    @staticmethod
-    def convert_format(file, suffix):
+    def convert_format(self, file, suffix):
         '''
         mae/pdb格式转换为pdb/mae格式
 
@@ -129,7 +125,7 @@ class Console:
 
         '''
 
-        st = load_st(file)
+        st = self.load_st(file)
         if suffix == 'pdb':
             st.write(file.split('.')[0] + '.pdb')
         elif suffix == 'mae':
@@ -180,6 +176,14 @@ class Console:
         else:
             pdbid = self.get_pdbid()
 
+        if not os.path.exists(self.pdbfile):  # 下载PDB文件
+            print('%s.pdb is not found. Would you like to download it? (Y/N)' % pdbid)
+            __temp_flag = input().upper().strip()
+            if __temp_flag == 'Y':
+                getpdb.get_pdb(pdbid)
+            else:
+                print('No PDB File Found. Exit.')
+
         lis = os.popen(
             "cat %s.pdb | grep -w -E ^HET | awk '{print $2}'" % pdbid).readlines()   # 抓取pdb原始结构文件(不可是已处理过的结构)中单一entry关于小分子的描述
         lig = []
@@ -225,7 +229,7 @@ class Console:
         if not pdbfile:
             pdbfile = self.pdbfile
 
-        st = load_st(pdbfile)  # 读取原始PDB结构
+        st = self.load_st(pdbfile)  # 读取原始PDB结构
         st_chain_only = st.chain[chain_name].extractStructure()
         singlechain_file = '%s_chain_%s.mae' % (pdbfile.split('.')[0], chain_name)
         st_chain_only.write(singlechain_file)
@@ -241,7 +245,7 @@ class Console:
         处理完成的PDB结构文件PATH
         '''
 
-        pdbid = self.pdbid
+        pdbid = self.get_pdbid()
         pdbfile = self.pdbfile
 
         if not os.path.exists(pdbfile):  # 下载PDB文件
@@ -276,7 +280,6 @@ class Console:
 
         Parameters
         ----------
-        pdb_code: PDB ID字符串
         pdb_file: 需要优化的文件
 
         Return
@@ -323,7 +326,7 @@ class Console:
 
         minimized_file = self.minimized_file
         ligname = self.ligname
-        st = load_st(minimized_file)  # 载入结构对象
+        st = self.load_st(minimized_file)  # 载入结构对象
 
         def _get_mol(st):   # 获取结构中的配体所在Molecule对象
             residues = st.residue
@@ -421,12 +424,19 @@ class Console:
         '''
 
         if not ligname:
-            ligname = self.ligname
+            if self.ligname:
+                ligname = self.ligname
+            else:
+                ligname = self.get_ligname()
         if not complex_file:
-            complex_file = self.minimized_file  # 默认拆分Minimized完成的结构文件
+            if self.minimized_file:
+                complex_file = self.minimized_file  # 默认拆分Minimized完成的结构文件
+            else:
+                raise RuntimeError('No Complex File Provided.')
+
         pdbid = complex_file.split('_')[0]
 
-        st = load_st(complex_file)
+        st = self.load_st(complex_file)
         residue_list = []
         for res in st.residue:
             if res.pdbres.strip() == '%s' % ligname:
@@ -498,9 +508,11 @@ class Console:
 
         print('\nDocking Result File:', '%s_glide_dock_%s_%s.maegz Saved.\n' %
             (pdbid, lig_name, precision))
-        return '%s_glide_dock_%s_%s.maegz' % (pdbid, lig_name, precision)
+        dock_file = '%s_glide_dock_%s_%s.maegz' % (pdbid, lig_name, precision)
+        self.dock_file = dock_file                         #[属性修改] 修改对接结果文件PATH
+        return dock_file
 
-    def extra_data(self, path, ligname, precision='SP'):
+    def extra_data(self, path=None, ligname=None, precision='SP'):
         '''
         从对接完成的Maestro文件中提取数据
 
@@ -519,6 +531,11 @@ class Console:
 
         file = struc.StructureReader(path)
         pdbid = self.pdbid
+        if not path:
+            path = self.dock_file
+        if not ligname:
+            ligname = self.ligname
+
         pro_st = next(file)
         lig_st = next(file)
         prop_dic = {}
@@ -549,7 +566,7 @@ class Console:
             prop_dic['erotb'] = lig_st.property['r_i_glide_erotb']
             prop_dic['esite'] = lig_st.property['r_i_glide_esite']
 
-        if precision == 'XP':
+        elif precision == 'XP':
             prop_dic['XP_Hbond'] = lig_st.property['r_glide_XP_HBond']
 
         return prop_dic
