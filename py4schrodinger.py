@@ -18,11 +18,17 @@ total = 0
 now_complete = 0
 
 def error_handler(error):
+    '''
+    Error 信息显示
+    '''
     print(error.__cause__)
     print(''.center(80, '-'), end='\n')
 
 
 def success_handler(result):
+    '''
+    已完成任务计数器
+    '''
     global total
     global now_complete
     now_complete += result
@@ -31,19 +37,22 @@ def success_handler(result):
 
 class Console:
 
-    def __init__(self, pdbid='', ligname='') -> None:
-        '''
-        Script Core For Schrodinger Suite Analysis 
-        Version 1.10
+    '''
+Script Core For Schrodinger Suite Analysis 
+Version 1.10
 
-        Author: YH. W
-        Last Update: 2021/07/06
+Author: YH. W
+Last Update: 2021/07/06
         
-        Property
-        ----------
-        pdbid: PDB ID
-        ligname: 配体文件PATH
-        '''
+Parameters
+----------
+pdbid : str
+    PDB ID
+ligname : str
+    配体文件PATH
+'''
+
+    def __init__(self, pdbid='', ligname='') -> None:
 
         self.pdbid = pdbid
         self.ligname = ligname
@@ -55,17 +64,19 @@ class Console:
         self.dock_file = ''         # 对接结果文件名
 
     @staticmethod
-    def load_st(st_file) -> object:
+    def load_st(st_file:str) -> object:
         '''
         读取结构
 
         Parameters
         ----------
-        st_file: 需要读取结构的文件path 需要Schrodinger支持的文件格式
+        st_file : str
+            需要读取结构的文件path 需要Schrodinger支持的文件格式
 
         Return
-        ----------
-        结构对象
+        ---------
+        object
+            结构对象
         '''
 
         return next(struc.StructureReader(st_file))
@@ -77,7 +88,8 @@ class Console:
 
         Parameters
         ----------
-        cmd： 等待执行的命令字符串
+        cmd ： str
+            等待执行的命令字符串
         '''
 
         cmd_list = cmd.split(' ')  # launch_job以列表形式提交参数
@@ -93,8 +105,9 @@ class Console:
         检查PDB ID合法性
 
         Return
-        ----------
-        合法返回True 否则返回False
+        -------
+        bool
+            合法返回True 否则返回False
         '''
 
         match = re.fullmatch(r'^\d[0-9a-zA-Z]{3,}$', pdb)
@@ -107,10 +120,15 @@ class Console:
     def check_ligname(ligname:str): 
         '''
         检查配体名称合法性
+        Parameter
+        ----------
+        ligname : str
+            配体名称
 
         Return
         ----------
-        合法返回Match对象 否则返回False
+        match[str] | False
+            合法返回Match对象 否则返回False
         '''
 
         match = re.search('[0-9A-Z]{2,3}$', ligname)
@@ -123,14 +141,17 @@ class Console:
         '''
         mae/pdb格式转换为pdb/mae格式
 
-        Parmeters
+        Parameters
         ----------
-        file:   需要转换的mae文件PATH
-        suffix: 格式后缀名(pdb|mae)
+        file : str
+            需要转换的mae文件PATH
+        suffix : str
+            格式后缀名(pdb|mae)
 
-        Reture
+        Return
         ----------
-        转换后的文件名
+        str
+            转换后的文件名
         '''
 
         st = self.load_st(file)
@@ -147,7 +168,8 @@ class Console:
 
         Return
         ----------
-        PDB ID字符串
+        str
+            PDB ID字符串
 
         '''
 
@@ -177,7 +199,8 @@ class Console:
 
         Return
         ----------
-        自动识别或手动输入的配体名称
+        str
+            自动识别或手动输入的配体名称
 
         '''
 
@@ -227,13 +250,15 @@ class Console:
 
         Parameters
         ----------
-
-        chain_name:     要保留的链名称
-        pdbfile:        待处理原始文件
+        chain_name : str
+            要保留的链名称
+        pdbfile : str
+            待处理原始文件
 
         Return
         ----------
-        保留单链结构的文件名
+        str
+            保留单链结构的文件名
         '''
 
         if not pdbfile:
@@ -250,9 +275,10 @@ class Console:
         一些预处理操作：
         下载PDB文件 | 检查PDB晶体类型 Apo/单体/多聚体 | 是否保留单链   
 
-        Returen
+        Return
         ----------
-        处理完成的PDB结构文件名
+        str
+            处理完成的PDB结构文件名
         '''
 
         pdbid = self.get_pdbid()
@@ -290,11 +316,13 @@ class Console:
 
         Parameters
         ----------
-        pdbfile: 需要优化的文件
+        pdbfile : str
+            需要优化的文件
 
         Return
         ----------
-        完成优化后的文件名
+        str
+            完成优化后的文件名
 
         '''
 
@@ -325,7 +353,8 @@ class Console:
 
         Return
         ----------
-        Ligand 所在Molecule Number
+        str
+            Ligand 所在Molecule Number
 
         '''
 
@@ -367,14 +396,19 @@ class Console:
 
         Parameters
         ----------
-        pdbid:              PDB ID
-        ligname:            配体名称(RCSB ID)
-        st_file:            需要构建grid box的文件PATH
-        gridbox_size:       grid box大小 默认20Å
+        pdbid : str
+            PDB ID
+        ligname : str
+            配体名称(RCSB ID)
+        st_file : str
+            需要构建grid box的文件PATH
+        gridbox_size : int
+            grid box大小 默认20Å
 
         Return
         ----------
-        生成的格点文件名
+        str
+            生成的格点文件名
 
         '''
         
@@ -416,12 +450,15 @@ class Console:
 
         Parameters
         ----------
-        complex_file:   待拆分的复合物文件PATH
-        ligname:        配体文件名(RCSB ID)
+        complex_file : str
+            待拆分的复合物文件PATH
+        ligname : str
+            配体文件名(RCSB ID)
 
         Return
         ----------
-        List: [ligfile_PATH, recepfile_PATH]
+        list
+            [ligfile_PATH, recepfile_PATH]
 
         '''
 
@@ -472,11 +509,21 @@ class Console:
 
         Parameters
         ----------
-        pdbid:      PDB ID
-        lig_file:   配体文件PATH
-        grid_file:  格点文件PATH
-        precision:  对接精度(HTVS|SP|XP) 默认SP
-        calc_rmsd:  是否计算rmsd to input ligand geometries 默认False
+        pdbid : str
+            PDB ID
+        lig_file : str
+            配体文件PATH
+        grid_file : str
+            格点文件PATH
+        precision : str
+            对接精度(HTVS|SP|XP) 默认SP
+        calc_rmsd : str
+            是否计算rmsd to input ligand geometries 默认False
+
+        Return
+        ---------
+        str
+            对接结果文件名
         '''
 
         if not pdbid:
@@ -525,15 +572,19 @@ class Console:
 
         Parameters
         ----------
-        pdbid:      PDB ID
-        path:       对接完成的文件PATH
-        ligname:    参与对接的配体名称
-        precision:  已完成的对接工作精度
+        pdbid : str
+            PDB ID
+        path : str
+            对接完成的文件PATH
+        ligname : str
+            参与对接的配体名称
+        precision : str
+            已完成的对接工作精度
 
         Return
         ----------
-        Dict
-        Properties : Values
+        dict
+            Properties : Values
 
         '''
 
@@ -582,17 +633,21 @@ class Console:
         
 
 class UI:
+    '''
+    用户交互界面
+    '''
 
     @staticmethod
     def print_title():
+        '''
+        显示程序标题头
+        '''
         print(''.center(80,'*'),end='\n')
         print('Python Script For Schrodinger Suite Analysis'.center(80), end='\n')
         print(''.center(80,'*'),end='\n')
 
     def __init__(self, pdbid:str=None, ligname:str=None) -> None:
-        '''
-        User Interface Mode of Script
-        '''
+
         console = Console()
         pdbid = console.get_pdbid()
         ligname = console.get_ligname()
@@ -683,7 +738,7 @@ class Multidock(Console):
         self.notpass = []           # 内源配体对接不成功的晶体列表
         self.dock_fail = []         # 外源配体对接不成功的晶体列表
 
-    def usage():
+    def __usage():
         '''
 Multi-Dock Auto Processing.
 
@@ -718,7 +773,8 @@ Example for receptor file:
 
         Parameters
         ----------
-        argv: 命令行参数
+        argv : str
+            命令行参数
 
         '''
         
@@ -733,7 +789,7 @@ Example for receptor file:
 
             if opt in ('-h','--help'):
                 UI.print_title()
-                print(self.usage.__doc__)
+                print(self.__usage.__doc__)
                 sys.exit(1)
             elif opt in ('-r', '--receptor'):
                 self.list_file = arg.strip()
@@ -812,9 +868,12 @@ Example for receptor file:
 
         Parameters
         ----------
-        pdb:        PDB ID字符串
-        lig_name:   已核对的唯一配体
-        precision:  对接精度
+        pdb : str
+            PDB ID字符串
+        lig_name : str
+            已核对的唯一配体
+        precision : str
+            对接精度
 
         '''
         os.chdir('./lib/' + pdbid)
@@ -856,10 +915,19 @@ Example for receptor file:
 
         Parameters
         ----------
-        pdbid:          要对接到的受体PDB ID字符串
-        origin_ligname: 对接位置原配体名称
-        ligand_file:    要对接的外源配体文件PATH
-        precision:      对接精度
+        pdbid : str
+            要对接到的受体PDB ID字符串
+        origin_ligname : str
+            对接位置原配体名称
+        ligand_file : str
+            要对接的外源配体文件PATH
+        precision : str
+            对接精度
+        
+        Return
+        ---------
+        int
+            返回代码 1
 
         '''
 
@@ -910,7 +978,8 @@ Example for receptor file:
 
         Return
         ----------
-        提取出的数据 list[dict1, dict2, ...]
+        list
+            提取出的数据 [dict1, dict2, ...]
 
         '''
 
@@ -940,6 +1009,9 @@ Example for receptor file:
         return data
 
     def __save_data(self, data):
+        '''
+        储存数据为csv
+        '''
 
         ligand_file = self.ligand_file
         list_filename = self.list_filename
