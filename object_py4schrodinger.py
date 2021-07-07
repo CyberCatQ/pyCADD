@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import getopt
+import time
 
 from schrodinger import structure as struc
 from schrodinger.application.glide import poseviewconvert as pvc
@@ -46,15 +47,15 @@ class Console:
 
         self.pdbid = pdbid
         self.ligname = ligname
-        self.pdbfile = ''           # PDB结构文件PATH
-        self.minimized_file = ''    # Minimized化完成的文件PATH
-        self.grid_file = ''         # 格点文件PATH
-        self.lig_file = ''          # 配体文件PATH
-        self.recep_file = ''        # 受体文件PATH
-        self.dock_file = ''         # 对接结果文件PATH
+        self.pdbfile = ''           # PDB结构文件名
+        self.minimized_file = ''    # Minimized化完成的文件名
+        self.grid_file = ''         # 格点文件名
+        self.lig_file = ''          # 内源配体文件名
+        self.recep_file = ''        # 受体文件名
+        self.dock_file = ''         # 对接结果文件名
 
     @staticmethod
-    def load_st(st_file):
+    def load_st(st_file) -> object:
         '''
         读取结构
 
@@ -87,7 +88,7 @@ class Console:
         job.wait()  # 阻塞进程 等待Job结束
 
     @staticmethod
-    def checkpdb(pdb):
+    def checkpdb(pdb:str):
         '''
         检查PDB ID合法性
 
@@ -103,7 +104,7 @@ class Console:
             return False
 
     @staticmethod
-    def check_ligname(ligname): #可能没有必要
+    def check_ligname(ligname:str): #可能没有必要
         '''
         检查配体名称合法性
 
@@ -118,7 +119,7 @@ class Console:
         else:
             return False
 
-    def convert_format(self, file, suffix):
+    def convert_format(self, file:str, suffix:str) -> str:
         '''
         mae/pdb格式转换为pdb/mae格式
 
@@ -127,15 +128,20 @@ class Console:
         file: 需要转换的mae文件PATH
         suffix: 格式后缀名(pdb|mae)
 
+        Reture
+        ----------
+        转换后的文件名
         '''
 
         st = self.load_st(file)
         if suffix == 'pdb':
             st.write(file.split('.')[0] + '.pdb')
+            return file.split('.')[0] + '.pdb'
         elif suffix == 'mae':
             st.write(file.split('.')[0] + '.mae')
+            return file.split('.')[0] + '.mae'
 
-    def get_pdbid(self):
+    def get_pdbid(self) -> str:
         '''
         获取用户输入的PDBID并检查合法性
 
@@ -165,7 +171,7 @@ class Console:
                 else:
                     print('请输入正确的PDB ID!')
 
-    def get_ligname(self):
+    def get_ligname(self) -> str:
         '''
         尝试自动获取配体名 如有多个配体则获取用户输入的配体名并检查合法性
 
@@ -215,7 +221,7 @@ class Console:
                     print('请重新输入正确的配体名称!')
     
 
-    def keep_chain(self, chain_name, pdbfile=''):
+    def keep_chain(self, chain_name:str, pdbfile:str=None) -> str:
         '''
         读取PDB晶体文件并将单一链的结构输出为pdb文件
 
@@ -227,7 +233,7 @@ class Console:
 
         Return
         ----------
-        保留单链结构的文件PATH
+        保留单链结构的文件名
         '''
 
         if not pdbfile:
@@ -239,14 +245,15 @@ class Console:
         st_chain_only.write(singlechain_file)
         return singlechain_file
 
-    def __preprocess(self):
+    def __preprocess(self) -> str:
         '''
         一些预处理操作：
-        下载PDB文件 | 检查PDB晶体类型 Apo/单体/多聚体 | 是否保留单链
+        下载PDB文件 | 检查PDB晶体类型 Apo/单体/多聚体 | 是否保留单链   
+        将会修改property：pdbfile
 
         Returen
         ----------
-        处理完成的PDB结构文件PATH
+        处理完成的PDB结构文件名
         '''
 
         pdbid = self.get_pdbid()
@@ -278,17 +285,17 @@ class Console:
         else:
             return pdbfile
     
-    def minimize(self, pdbfile=None):
+    def minimize(self, pdbfile:str=None) -> str:
         '''
         调用prepwizard模块自动优化PDB结构文件
 
         Parameters
         ----------
-        pdb_file: 需要优化的文件
+        pdbfile: 需要优化的文件
 
         Return
         ----------
-        完成优化后的文件PATH
+        完成优化后的文件名
 
         '''
 
@@ -313,14 +320,9 @@ class Console:
             self.minimized_file = minimized_file    # [属性修改] 修改最小化后的结构文件PATH
             return minimized_file
     
-    def __get_ligmol_info(self):
+    def __get_ligmol_info(self) -> str:
         '''
         以ligname为KEY 查找Maestro文件中的Molecule Number
-
-        Parameters
-        ----------
-        minimized_file: maestro可读文件PATH
-        lig_name: 配体文件名称
 
         Return
         ----------
@@ -362,7 +364,7 @@ class Console:
 
         return mol.number
 
-    def grid_generate(self, pdbid=None, ligname=None, st_file=None, gridbox_size=20):
+    def grid_generate(self, pdbid:str=None, ligname:str=None, st_file:str=None, gridbox_size:int=20) -> str:
         '''
         自动编写glide grid输入文件并启动Glide Grid生成任务
 
@@ -412,7 +414,7 @@ class Console:
         self.grid_file = grid_file  # [属性修改] 修改格点文件PATH
         return grid_file
 
-    def split_com(self, complex_file=None, ligname=None):
+    def split_com(self, complex_file:str=None, ligname:str=None) -> list:
         '''
         拆分复合体为配体和受体
 
@@ -468,7 +470,7 @@ class Console:
 
         return [lig_file, recep_file]
 
-    def dock(self, pdbid=None, lig_file=None, grid_file=None, precision='SP', calc_rmsd=False):
+    def dock(self, pdbid:str=None, lig_file:str=None, grid_file:str=None, precision:str='SP', calc_rmsd:bool=False) -> str:
         '''
         一对一 多对一 glide dock任务输入文件编写与运行
 
@@ -516,7 +518,7 @@ class Console:
         self.dock_file = dock_file                         #[属性修改] 修改对接结果文件PATH
         return dock_file
 
-    def extra_data(self, path=None, ligname=None, precision='SP'):
+    def extra_data(self, path:str=None, ligname:str=None, precision:str='SP') -> dict:
         '''
         从对接完成的Maestro文件中提取数据
 
@@ -578,7 +580,13 @@ class Console:
 
 class UI:
 
-    def __init__(self, pdbid='', ligname='') -> None:
+    @staticmethod
+    def print_title():
+        print(''.center(80,'*'),end='\n')
+        print('Python Script For Schrodinger Suite Analysis'.center(80), end='\n')
+        print(''.center(80,'*'),end='\n')
+
+    def __init__(self, pdbid:str=None, ligname:str=None) -> None:
         '''
         User Interface Mode of Script
         '''
@@ -587,14 +595,11 @@ class UI:
         ligname = console.get_ligname()
         self.console = console
 
-        print(''.center(80,'*'),end='\n')
-        print('Python Script For Schrodinger Suite Analysis'.center(80), end='\n')
-        print(''.center(80,'*'),end='\n')
-
+        self.print_title()
         print('\nPDB ID:', pdbid, end='\n')
         print('Entry Ligand:', ligname, end='\n')
 
-    def __get_flag(self):
+    def __get_flag(self) -> str:
 
         while True:
             flag = input('''
@@ -615,7 +620,7 @@ class UI:
             else:
                 print('请重新输入有效的操作代号!')
         
-    def process(self):
+    def process(self) -> None:
         '''
         业务逻辑判断
         '''
@@ -627,16 +632,16 @@ class UI:
             sys.exit(0)
 
         elif len(flag) == 1 and flag in '12345':
-            console.minimize()
-            split_lis = console.split_com()
-            lig_file = split_lis[0]
+            console.minimize()                  # 能量最小化
+            split_lis = console.split_com()     # 拆分复合物
+            lig_file = split_lis[0]             # 配体文件PATH获取
 
             if flag == '2':
-                grid_file = console.grid_generate()
+                grid_file = console.grid_generate()     # 默认条件生成Grid文件
             
             elif flag == '3':
                 size = int(input('Input Grid Box Size(Default 20Å):'))
-                console.grid_generate(gridbox_size=size)
+                console.grid_generate(gridbox_size=size)    # 以指定Size生成Grid文件
             
             elif flag in '45':
                 print('Ligand File:', lig_file)
@@ -652,7 +657,7 @@ class UI:
             lig_file = input('Input Ligand File PATH:').strip()
             precision = input('Input Docking Precision(HTVS|SP|XP):').strip().upper()
 
-            console.convert_format(lig_file, 'mae')
+            lig_file = console.convert_format(lig_file, 'mae')
             console.minimize()
             grid_file = console.grid_generate()
             console.dock(lig_file=lig_file, precision=precision)
@@ -662,7 +667,382 @@ class UI:
             
         print(''.center(80, '-'), end='\n')
 
+class Mutildock(Console):
 
+    def __init__(self, pdbid, ligname) -> None:
+        super().__init__(pdbid=pdbid, ligname=ligname)
+        self.list_file = ''         # 单一基因的全部PDB晶体列表文件
+        self.ligand_file = ''       # 外源配体文件
+        self.precision = ''         # 对接精度
+        self.cpus = ''              # 对接工作使用的进程数
+        self.flag = ''              # 对接工作启动确认标记
+        self.list_filename = ''     # 基因名称(晶体列表文件的名称)
+        self.notpass = []           # 内源配体对接不成功的晶体列表
+        self.dock_fail = []         # 外源配体对接不成功的晶体列表
+
+    def usage():
+        '''
+Mutil-Dock Auto Processing.
+
+Usage: 
+UI Mode: run py4schrodinger.py
+Mutil-dock Mode: run py4schrodinger.py -r|--receptor <receptors list file> [-l|--ligand <ligand file> -p|--precision <precision> -n|--cpu <cpus> -k|--no-check ]
+
+Descrption
+        Required
+            -r, --receptor PATH of PDB ID List File(.txt) 
+        Optional
+            -l, --ligand PATH of Ligand File needed to be docked(.pdb)     
+            -p, --precision Specify Docking Precision(HTVS|SP|XP)       
+            -n, --cpu Specify Number of CPU used to dock     
+            -k, --no-check Running Docking Without Check 'Y/N'      
+
+        Note: Only crystals' own ligand but No exogenous ligand will be docked without [-l|--ligand].
+'''
+
+    def __process_argvs(self):
+        '''
+        解析命令行参数
+
+        Parameters
+        ----------
+        argv: 命令行参数
+
+        '''
+        
+        try:
+            opts, argvs = getopt.getopt(sys.argv[1:], '-hkr:l:p:n:', ['help', 'no-check', 'receptor=', 'ligand=', 'precision=', 'cpu='])
+        except getopt.GetoptError as err:
+            print(str(err))
+            print(self.usage.__doc__)
+            sys.exit(1)
+
+        for opt, arg in opts:       # 参数解析
+
+            if opt in ('-h','--help'):
+                print(self.usage.__doc__)
+            elif opt in ('-r', '--receptor'):
+                self.list_file = arg
+                self.list_filename = self.list_file.split('.')[0].split(os.sep)[-1]
+            elif opt in ('-l', '--ligand'):
+                self.ligand_file = arg
+            elif opt in ('-p', '--precision'):
+                self.precision = arg
+            elif opt in ('-k', '--no-check'):
+                self.flag = 'Y'
+            elif opt in ('-n', '--cpu'):
+                self.cpus = int(arg)
+
+    def __list_process(self) -> list:
+        '''
+        读取晶体列表文件信息
+
+        '''
+        pdb_list = []
+        try:
+            with open(self.list_file, 'r') as f:
+                pdbs_withlig = f.readlines()        # 读取PDB列表中的每一行PDBID与配体名称信息
+        except FileNotFoundError:
+            print('Error: 未找到列表文件!')
+            raise
+
+        for i in pdbs_withlig:                      # 按逗号分割解析列表中的PDB ID与配体名称
+            pdb = i.split(',')[0].strip().upper()   # PDB ID
+            lig = i.split(',')[1].strip().upper()   # 配体名称
+            pdb_list.append((pdb, lig))             # 将每一对作为元组储存至列表pdb_list
+        
+        return pdb_list
+
+    def __check_before_dock(self, pdb_list:list) -> None:
+        '''
+        对接前检查
+        '''
+
+        for pdb, lig in pdb_list:  
+
+            try:
+                os.makedirs('./database/' + pdb)
+            except FileExistsError:
+                pass
+
+            if not os.path.exists('./database/%s/%s.pdb' % (pdb, pdb)):  # 下载PDB文件
+                getpdb.get_pdb(pdb)
+                os.system('mv %s.pdb ./database/%s' % (pdb, pdb))
+
+    def __check_fail(self, pdb_list: list) -> list:
+        '''
+        检查对接失败的晶体并从pdb_list中剔除
+
+        Return
+        ----------
+        剔除了对接失败晶体的列表pdb_list
+        '''
+
+        notpass = []
+        precision = self.precision
+
+        for pdbid, ligname in pdb_list:  # 异常晶体跳过: APO & 共价键结合晶体 不会产生结果文件
+            if not os.path.exists('./database/%s/%s_glide_dock_%s_%s.maegz' % (pdbid, pdbid, ligname, precision)):
+                notpass.append((pdbid, ligname))
+        if notpass:
+            for not_exist, lig in notpass:
+                pdb_list.remove((not_exist, lig))
+            self.notpass = notpass
+        
+        return pdb_list
+
+
+    def __autodock(self, pdbid:str, ligname:str, precision:str) -> int:
+        '''
+        自动化内源配体对接 for multidock
+
+        Parameters
+        ----------
+        pdb: PDB ID字符串
+        lig_name: 已核对的唯一配体
+        precision: 对接精度
+
+        '''
+        os.chdir('./database/' + pdbid)
+
+        cmd = '''cat %s.pdb | grep -w -E ^HET | awk '{if($2==\"%s\"){print $3}}' ''' % (pdbid, ligname)
+        cmd_run = os.popen(cmd).readlines()
+
+        if cmd_run:
+            chain = re.match('[A-Z]', cmd_run[0].strip()).group()
+        else:
+            raise ValueError('No Match Ligand for %s' % ligname)
+
+        if not chain:
+            raise ValueError('No Chain Match')
+
+        pdbfile = self.keep_chain(chain, '%s.pdb' % pdbid)
+
+        print('\nPDB ID:', pdbid, end='\n')
+        print('Entry Ligand:', ligname, end='\n')
+        print('Chain: %s' % chain)
+
+        # 如有Error将抛出异常 不再继续运行后续代码
+        minimized_file = self.minimize(pdbfile)                 # 能量最小化
+
+        lig_file = self.split_com(minimized_file, ligname)[0]   # 拆分复合物
+        print('\nLigand File:', lig_file)
+
+        grid_file = self.grid_generate(pdbid, ligname, minimized_file)    # 格点文件生成
+        print('Grid File:', grid_file)
+
+        self.dock(pdbid, lig_file, grid_file, precision, True)    # 对接 
+        print('%s Self-Docking Job Complete.\n' % pdbid)
+        print(''.center(80, '-'), end='\n')
+        return 1                                                # 1项工作完成 返回以计数
+
+    def __dock_multimode(self, pdbid:str, origin_ligname:str, ligand_file:str, precision:str) -> int:
+        '''
+        一对一 外源配体自动对接 for multidock
+
+        Parameters
+        ----------
+        pdbid: 要对接到的受体PDB ID字符串
+        origin_ligname: 对接位置原配体名称
+        ligand_file: 要对接的外源配体文件PATH
+        precision: 对接精度
+
+        '''
+
+        ligname = ligand_file.strip().split('.')[0]             # 文件名获取外源配体名
+        ligand_file = self.convert_format(ligand_file, 'mae')   # 转换为Maestro格式
+
+        os.chdir('./database/' + pdbid)                         # 切换工作目录
+        ligand_file = '../../' + ligand_file                    # 重新定位外源配体文件PATH
+        grid_file = '%s_glide_grid_%s.zip' % (pdbid, origin_ligname)
+
+        print('\nPDB ID:', pdbid, end='\n')
+        print('Ligand Name:', ligname)
+        print('Grid File:', grid_file)
+
+        print('Prepare to Docking...\n')
+
+        # 撰写Dock输入文件
+        with open('%s_glide_dock_%s_%s.in' % (ligname, origin_ligname, precision), 'w') as input_file:  
+            input_file.write('GRIDFILE %s\n' % grid_file)       # 格点文件
+            input_file.write('LIGANDFILE %s\n' % ligand_file)   # 外源配体PATH
+            input_file.write('PRECISION %s\n' % precision)      # HTVS SP XP
+            if precision == 'XP':
+                input_file.write('WRITE_XP_DESC False\n')
+                input_file.write('POSTDOCK_XP_DELE 0.5\n')
+
+        # 与self.dock()不同点 需要区别同一位点不同配体的对接
+        self.__launch('glide %s_glide_dock_%s_%s.in -JOBNAME %s-Glide-Dock-On-%s-%s-%s' %
+            (ligname, origin_ligname, precision, ligname, pdbid, origin_ligname, precision))
+
+        # 无论是否完成对接 返回码均为0 故通过是否产生对接结果文件进行对接成功与否区分        
+        # 对接不成功时 无法产生对接结果文件
+        if not os.path.exists('%s-Glide-Dock-On-%s-%s-%s_pv.maegz' % (ligname, pdbid, origin_ligname, precision)):
+            raise RuntimeError('%s-%s-%s Gilde Dock Failed' % (ligname, pdbid, origin_ligname))
+
+        # 重命名文件
+        os.system('mv %s-Glide-Dock-On-%s-%s-%s_pv.maegz %s_glide_dock_on_%s_%s_%s.maegz' %
+                (ligname, pdbid, origin_ligname, precision, ligname, pdbid, origin_ligname, precision))
+        print('\nDocking Result File:', '%s_glide_dock_on_%s_%s_%s.maegz Saved.\n' %
+            (ligname, pdbid, origin_ligname, precision))
+
+        print('%s Docking on %s-%s Job Complete.\n' %(ligname, pdbid, origin_ligname))
+        print(''.center(80, '-'), end='\n')
+        return 1                                            # 1项对接工作完成 返回以计数
+
+    def __auto_extradata(self, pdb_list:list) -> list:
+        '''
+        提取对接完成的数据构成字典 并将所有字典打包为列表返回
+
+        Return
+        ----------
+        提取出的数据 list[dict1, dict2, ...]
+
+        '''
+
+        data = []                       # 总数据集
+        dock_fail = []                  # 外源配体对接失败晶体列表
+        precision = self.precision
+        ligand_file = self.ligand_file
+
+        for pdb, lig in pdb_list:
+
+            origin_ligand = lig         # 原始配体名称
+            prop_dic = self.extra_data('./database/%s/%s_glide_dock_%s_%s.maegz' %
+                                    (pdb, pdb, origin_ligand, precision), origin_ligand)
+            data.append(prop_dic)
+
+            if ligand_file:             # 存在外源配体对接需求时
+                ligname = ligand_file.strip().split('.')[0]
+                dock_result_file = './database/%s/%s_glide_dock_on_%s_%s_%s.maegz' % (
+                    pdb, ligname, pdb, origin_ligand, precision)
+                if os.path.exists(dock_result_file):
+                    ex_dic = self.extra_data(dock_result_file, ligname, precision)
+                    data.append(ex_dic)
+                else:                   # 对接不成功
+                    dock_fail.append((pdb, origin_ligand, ligname))      
+
+        self.dock_fail = dock_fail
+        return data
+
+    def __save_data(self, data):
+
+        ligand_file = self.ligand_file
+        list_filename = self.list_filename
+        precision = self.precision
+        notpass = self.notpass
+        dock_fail = self.dock_fail
+
+        # SP模式下与XP模式下产生对接结果项目不同
+        prop_xp = ['PDB', 'Ligand', 'Docking_Score', 'rmsd', 'precision', 'ligand_efficiency', 'XP_Hbond', 'rotatable_bonds',
+                    'ecoul', 'evdw', 'emodel', 'energy', 'einternal']
+        prop_sp = ['PDB', 'Ligand', 'Docking_Score', 'rmsd', 'precision', 'ligand_efficiency', 'rotatable_bonds',
+                    'ecoul', 'evdw', 'emodel', 'energy', 'einternal','lipo', 'hbond', 'metal', 'rewards', 'erotb', 'esite']
+        withlig = '_' + ligand_file.split('.')[0]
+
+        with open(list_filename + '_FINAL_RESULTS%s.csv' % withlig, 'w', encoding='UTF-8', newline='') as f:
+            if precision == 'XP':
+                writer = csv.DictWriter(f, fieldnames=prop_xp)
+            elif precision == 'SP':
+                writer = csv.DictWriter(f, fieldnames=prop_sp)
+            writer.writeheader()    # 写入标头
+            writer.writerows(data)  # 写入数据 自动匹配标头列
+        
+        if notpass:
+            print('\nAbandoned Crystal(s): ', notpass)
+            with open('./abandon.txt', 'a') as f:
+                f.write('\n' + list_filename + '\n')
+                for p, l in notpass:
+                    f.write(p + ',' + l + '\n')
+        
+        if dock_fail:
+            print('Docking Failed Crystal(s): ', dock_fail)
+
+    def multidock(self) -> None:
+        '''
+        自动多进程处理多个PDB晶体并完成自动对接 提取对接结果数据并保存为CSV文件
+
+        Parameters
+        ----------
+        pdb_list: （同一基因）包含多个pdb晶体ID的列表
+
+        '''
+        self.__process_argvs()              # 命令行参数解析
+        pdb_list = self.__list_process()    # 列表文件解析
+        self.__check_before_dock(pdb_list)  # 对接前检查
+        UI.print_title()
+
+        # 基本信息显示
+        print('\nProcessing Input List...\n')
+        print('All Crystals to be Processed:', ''.join(str(x)+' ' for x in pdb_list))
+        global total
+        total = len(pdb_list)
+        print('\nTOTAL CRYSTALS:', total)
+
+        if not self.flag:
+            flag = input('\nContinue to Dock ? (Y/N)\n').strip().upper()
+            self.flag = flag
+        else:
+            flag = self.flag
+
+        if flag != 'Y':
+            sys.exit(1)
+
+        if not self.precision:
+            precision = input('Input Precision of Docking(HTVS|SP|XP):').strip().upper()
+            self.precision = precision
+        else:
+            precision = self.precision
+
+        if not self.cpus:
+            print('\nNumber of Total CPU:', multiprocessing.cpu_count(), end='\n')
+            cpus = int(input('请输入需要使用的CPU核心数量:'))
+            self.cpus = cpus
+
+        print('Using Number of CPU: %s' % cpus)
+        print('Docking Precision: %s' % precision)
+
+        global now_complete
+        now_complete = 0
+
+        # 多进程对接
+        multiprocessing.set_start_method('spawn')
+        pool1 = multiprocessing.Pool(cpus, maxtasksperchild=1)  # 每个进程必须仅使用单线程
+        pool2 = multiprocessing.Pool(cpus, maxtasksperchild=1)
+
+        for pdbid, ligand in pdb_list:                          # 采用进程池控制多线程运行
+            pool1.apply_async(self.__autodock, (pdbid, ligand, precision),
+                            callback=success_handler, error_callback=error_handler)
+            time.sleep(0.5)
+
+        pool1.close()   # 进程池关闭 不再提交新任务
+        pool1.join()    # 阻塞进程 等待全部子进程结束
+
+        pdb_list = self.__check_fail(pdb_list)
+        
+        if self.ligand_file:                                    # 存在外源性配体对接需求
+            ligand_file = self.ligand_file
+
+            print('\n')
+            print(''.center(80,'-'))
+            print('User-Defined Ligand Docking'.center(80))
+            print(''.center(80,'-'))
+            print('\nUser-Defined Ligand:', ligand_file.split('.')[0])
+
+            global now_complete
+            now_complete = 0
+            for pdb_code, lig in pdb_list:
+                pool2.apply_async(self.__dock_multimode, (pdb_code, lig, ligand_file, precision,),
+                                callback=success_handler, error_callback=error_handler)
+                time.sleep(0.5)
+
+            pool2.close()
+            pool2.join()
+
+        data = self.__auto_extradata(pdb_list)
+        self.__save_data(data)
+
+        print('\nAll Docking Jobs Done.\n')
 
 def main():
 
