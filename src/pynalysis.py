@@ -17,10 +17,10 @@ cwd = str(os.getcwd())
 sys.path.append(cwd)
 
 try:
-    from pynalysis import rmsd_rmsf, hbond_analysis, lowest_energy_structure, mmgbdec, nmode, dis_ang
+    from libpynalysis import rmsd_rmsf, hbond_analysis, lowest_energy_structure, mmgbdec, nmode, dis_ang
 
 except ImportError:
-    print('Error: 请将py脚本文件与pynalysis包置于同一文件夹内')
+    print('Error: 请将py脚本文件与libpynalysis包置于同一文件夹内')
     sys.exit(2)
 
 try:
