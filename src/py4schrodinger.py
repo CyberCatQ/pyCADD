@@ -14,6 +14,10 @@ from schrodinger.protein import getpdb
 
 cwd = str(os.getcwd())
 sys.path.append(cwd)
+root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]
+lib_path = root_path + '/lib/'
+doc_path = root_path + '/doc/'
+
 total = 0
 now_complete = 0
 
@@ -830,7 +834,7 @@ Example for receptor list file:
 
         for pdb, lig in pdb_list:  
 
-            database_path = '../lib/dockfiles/' + pdb + '/'
+            database_path = lib_path + 'dockfiles/' + pdb + '/'
             try:
                 os.makedirs(database_path)                           # 默认当前目录 src/
             except FileExistsError:
@@ -853,7 +857,7 @@ Example for receptor list file:
         precision = self.precision
 
         for pdbid, ligname in pdb_list:  # 异常晶体跳过: APO & 共价键结合晶体 不会产生结果文件
-            if not os.path.exists('./lib/%s/%s_glide_dock_%s_%s.maegz' % (pdbid, pdbid, ligname, precision)):
+            if not os.path.exists(lib_path + 'dockfiles/%s/%s_glide_dock_%s_%s.maegz' % (pdbid, pdbid, ligname, precision)):
                 notpass.append((pdbid, ligname))
         if notpass:
             for not_exist, lig in notpass:
@@ -877,7 +881,7 @@ Example for receptor list file:
             对接精度
 
         '''
-        os.chdir('../lib/dockfiles/' + pdbid)                   # 切换工作目录
+        os.chdir(lib_path + 'dockfiles/' + pdbid)                   # 切换工作目录
 
         cmd = '''cat %s.pdb | grep -w -E ^HET | awk '{if($2==\"%s\"){print $3}}' ''' % (pdbid, ligname)
         cmd_run = os.popen(cmd).readlines()
@@ -935,7 +939,7 @@ Example for receptor list file:
         ligname = ligand_file.strip().split('.')[0]             # 文件名获取外源配体名
         ligand_file = self.convert_format(ligand_file, 'mae')   # 转换为Maestro格式
 
-        os.chdir('../lib/dockfiles/' + pdbid)                   # 切换工作目录
+        os.chdir(lib_path + 'dockfiles/' + pdbid)                   # 切换工作目录
         ligand_file = '../../../' + ligand_file                 # 重新定位外源配体文件PATH
         grid_file = '%s_glide_grid_%s.zip' % (pdbid, origin_ligname)
 
@@ -992,13 +996,13 @@ Example for receptor list file:
         for pdb, lig in pdb_list:
 
             origin_ligand = lig         # 原始配体名称
-            prop_dic = self.extra_data(pdb, '../lib/dockfiles/%s/%s_glide_dock_%s_%s.maegz' %
+            prop_dic = self.extra_data(pdb, lib_path + 'dockfiles/%s/%s_glide_dock_%s_%s.maegz' %
                                     (pdb, pdb, origin_ligand, precision), origin_ligand)
             data.append(prop_dic)
 
             if ligand_file:             # 存在外源配体对接需求时
                 ligname = ligand_file.strip().split('.')[0]
-                dock_result_file = '../lib/dockfiles/%s/%s_glide_dock_on_%s_%s_%s.maegz' % (
+                dock_result_file = lib_path + 'dockfiles/%s/%s_glide_dock_on_%s_%s_%s.maegz' % (
                     pdb, ligname, pdb, origin_ligand, precision)
                 if os.path.exists(dock_result_file):
                     ex_dic = self.extra_data(dock_result_file, ligname, precision)
@@ -1024,7 +1028,7 @@ Example for receptor list file:
         precision = self.precision
         notpass = self.notpass
         dock_fail = self.dock_fail
-        data_path = '../lib/data/'
+        data_path = lib_path + 'data/'
         
         # SP模式下与XP模式下产生对接结果项目不同
         prop_xp = ['PDB', 'Ligand', 'Docking_Score', 'rmsd', 'precision', 'ligand_efficiency', 'XP_Hbond', 'rotatable_bonds',
