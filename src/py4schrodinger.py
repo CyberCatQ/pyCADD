@@ -797,9 +797,11 @@ Example for receptor list file:
                 sys.exit(1)
             elif opt in ('-r', '--receptor'):
                 self.list_file = arg.strip()
-                self.list_filename = self.list_file.split('.')[0].split(os.sep)[-1]
+                self.list_file_path = os.path.abspath(self.list_file)
+                self.list_filename = self.list_file_path.split('.')[0].split(os.sep)[-1]
             elif opt in ('-l', '--ligand'):
                 self.ligand_file = arg.strip()
+                self.ligand_file_path = os.path.abspath(self.ligand_file)
             elif opt in ('-p', '--precision'):
                 self.precision = arg.upper().strip()
             elif opt in ('-k', '--no-check'):
@@ -814,7 +816,7 @@ Example for receptor list file:
         '''
         pdb_list = []
         try:
-            with open(self.list_file, 'r') as f:
+            with open(self.list_file_path, 'r') as f:
                 pdbs_withlig = f.readlines()        # 读取PDB列表中的每一行PDBID与配体名称信息
         except FileNotFoundError:
             print('Error: File Not Found')
@@ -836,7 +838,7 @@ Example for receptor list file:
 
             database_path = lib_path + 'dockfiles/' + pdb + '/'
             try:
-                os.makedirs(database_path)                           # 默认当前目录 src/
+                os.makedirs(database_path)                           
             except FileExistsError:
                 pass
 
@@ -936,11 +938,11 @@ Example for receptor list file:
 
         '''
 
-        ligname = ligand_file.strip().split('.')[0]             # 文件名获取外源配体名
-        ligand_file = self.convert_format(ligand_file, 'mae')   # 转换为Maestro格式
-
-        os.chdir(lib_path + 'dockfiles/' + pdbid)                   # 切换工作目录
-        ligand_file = '../../../' + ligand_file                 # 重新定位外源配体文件PATH
+        ligname = ligand_file.strip().split('.')[0]                         # 文件名获取外源配体名
+        ligand_file = self.convert_format(ligand_file, 'mae')               # 转换为Maestro格式
+        
+        os.chdir(lib_path + 'dockfiles/' + pdbid)                           # 切换工作目录
+        ligand_file_path = self.ligand_file_path.split('.')[0] + '.mae'     # 重新定位外源配体文件PATH
         grid_file = '%s_glide_grid_%s.zip' % (pdbid, origin_ligname)
 
         print('\nPDB ID:', pdbid, end='\n')
@@ -952,7 +954,7 @@ Example for receptor list file:
         # 撰写Dock输入文件
         with open('%s_glide_dock_%s_%s.in' % (ligname, origin_ligname, precision), 'w') as input_file:  
             input_file.write('GRIDFILE %s\n' % grid_file)       # 格点文件
-            input_file.write('LIGANDFILE %s\n' % ligand_file)   # 外源配体PATH
+            input_file.write('LIGANDFILE %s\n' % ligand_file_path)   # 外源配体PATH
             input_file.write('PRECISION %s\n' % precision)      # HTVS SP XP
             if precision == 'XP':
                 input_file.write('WRITE_XP_DESC False\n')
