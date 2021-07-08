@@ -15,8 +15,8 @@ from schrodinger.protein import getpdb
 cwd = str(os.getcwd())
 sys.path.append(cwd)
 root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]
-lib_path = root_path + '/lib/'
-doc_path = root_path + '/doc/'
+lib_path = root_path + 'lib/'
+doc_path = root_path + 'doc/'
 
 total = 0
 now_complete = 0
