@@ -155,8 +155,94 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="pypmemd-module">
-<h1>pyPMEMD module<a class="headerlink" href="#pypmemd-module" title="永久链接至标题">¶</a></h1>
+  <div class="section" id="module-pyPMEMD">
+<span id="pypmemd-module"></span><h1>pyPMEMD module<a class="headerlink" href="#module-pyPMEMD" title="永久链接至标题">¶</a></h1>
+<p>Python Script For AMBER Molecular Dynamics Simulation
+主程序 Version 1.03</p>
+<p>Author YH. W
+Last Update: 2021/05/20</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyPMEMD.error_check">
+<span class="sig-prename descclassname"><span class="pre">pyPMEMD.</span></span><span class="sig-name descname"><span class="pre">error_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyPMEMD.error_check" title="永久链接至目标">¶</a></dt>
+<dd><p>检查是否发生错误并中断MD流程</p>
+<p>code: shell命令执行返回码</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyPMEMD.get_pdb">
+<span class="sig-prename descclassname"><span class="pre">pyPMEMD.</span></span><span class="sig-name descname"><span class="pre">get_pdb</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyPMEMD.get_pdb" title="永久链接至目标">¶</a></dt>
+<dd><p>尝试自动获取PDB ID 否则提示用户手动输入</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">返回类型</dt>
+<dd class="field-even"><p>PDB ID字符串</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyPMEMD.get_wat_num">
+<span class="sig-prename descclassname"><span class="pre">pyPMEMD.</span></span><span class="sig-name descname"><span class="pre">get_wat_num</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdb</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyPMEMD.get_wat_num" title="永久链接至目标">¶</a></dt>
+<dd><p>抓取主链与非主链分界Residue Number</p>
+<p>pdb: PDB ID字符串</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">返回类型</dt>
+<dd class="field-even"><p>分界处（主链 | 非主链） 非主链Residue Number</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyPMEMD.main">
+<span class="sig-prename descclassname"><span class="pre">pyPMEMD.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyPMEMD.main" title="永久链接至目标">¶</a></dt>
+<dd><p>启动Molecular Dynamics Simulation 主函数</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyPMEMD.mina_prepare">
+<span class="sig-prename descclassname"><span class="pre">pyPMEMD.</span></span><span class="sig-name descname"><span class="pre">mina_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wat_start</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyPMEMD.mina_prepare" title="永久链接至目标">¶</a></dt>
+<dd><p>约束主链能量最小化 输入文件编写</p>
+<p>wat_start: 非主链起始Residue Number</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyPMEMD.minb_prepare">
+<span class="sig-prename descclassname"><span class="pre">pyPMEMD.</span></span><span class="sig-name descname"><span class="pre">minb_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wat_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wat_end</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyPMEMD.minb_prepare" title="永久链接至目标">¶</a></dt>
+<dd><p>约束非主链能量最小化 输入文件编写</p>
+<p>wat_start: 非主链起始Residue Number
+wat_end: 非主链末尾Residue Number</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyPMEMD.minc_prepare">
+<span class="sig-prename descclassname"><span class="pre">pyPMEMD.</span></span><span class="sig-name descname"><span class="pre">minc_prepare</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyPMEMD.minc_prepare" title="永久链接至目标">¶</a></dt>
+<dd><p>无约束能量最小化 输入文件编写</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyPMEMD.mkdir">
+<span class="sig-prename descclassname"><span class="pre">pyPMEMD.</span></span><span class="sig-name descname"><span class="pre">mkdir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyPMEMD.mkdir" title="永久链接至目标">¶</a></dt>
+<dd><p>创建必要文件夹</p>
+<p>path: 文件夹PATH</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyPMEMD.npt_prepare">
+<span class="sig-prename descclassname"><span class="pre">pyPMEMD.</span></span><span class="sig-name descname"><span class="pre">npt_prepare</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyPMEMD.npt_prepare" title="永久链接至目标">¶</a></dt>
+<dd><p>Molecular Dynamics主模拟 输入文件编写</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyPMEMD.nvt_prepare">
+<span class="sig-prename descclassname"><span class="pre">pyPMEMD.</span></span><span class="sig-name descname"><span class="pre">nvt_prepare</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyPMEMD.nvt_prepare" title="永久链接至目标">¶</a></dt>
+<dd><p>体系恒容恒压加热100ps 输入文件编写</p>
+</dd></dl>
+
 </div>
 
 

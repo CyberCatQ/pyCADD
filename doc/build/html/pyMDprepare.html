@@ -155,8 +155,81 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="pymdprepare-module">
-<h1>pyMDprepare module<a class="headerlink" href="#pymdprepare-module" title="永久链接至标题">¶</a></h1>
+  <div class="section" id="module-pyMDprepare">
+<span id="pymdprepare-module"></span><h1>pyMDprepare module<a class="headerlink" href="#module-pyMDprepare" title="永久链接至标题">¶</a></h1>
+<p>Python MD Prepare 主程序
+Version 1.00</p>
+<p>Author YH. W
+Last Update: 2021/05/18</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMDprepare.get_pdbid">
+<span class="sig-prename descclassname"><span class="pre">pyMDprepare.</span></span><span class="sig-name descname"><span class="pre">get_pdbid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyMDprepare.get_pdbid" title="永久链接至目标">¶</a></dt>
+<dd><p>获取用户输入的PDBID并检查合法性</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">返回类型</dt>
+<dd class="field-even"><p>PDB ID字符串</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMDprepare.leap_prepare">
+<span class="sig-prename descclassname"><span class="pre">pyMDprepare.</span></span><span class="sig-name descname"><span class="pre">leap_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdb</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMDprepare.leap_prepare" title="永久链接至目标">¶</a></dt>
+<dd><p>创建LEaP输入文件</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>pdb</strong> (<em>PDB ID或小分子名</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMDprepare.ligand_prepare">
+<span class="sig-prename descclassname"><span class="pre">pyMDprepare.</span></span><span class="sig-name descname"><span class="pre">ligand_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpi_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ele</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_multiplicity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMDprepare.ligand_prepare" title="永久链接至目标">¶</a></dt>
+<dd><p>小分子文件准备:高斯坐标优化与RESP2(0.5)电荷计算</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pdb</strong> (<em>PDB ID字符串或配体小分子名</em>) – </p></li>
+<li><p><strong>mpi_num</strong> (<em>需要使用的CPU核心数</em>) – </p></li>
+<li><p><strong>ele</strong> (<em>分子电荷数</em>) – </p></li>
+<li><p><strong>spin_multiplicity</strong> (<em>自旋多重度</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMDprepare.main">
+<span class="sig-prename descclassname"><span class="pre">pyMDprepare.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argv</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMDprepare.main" title="永久链接至目标">¶</a></dt>
+<dd><p>主函数
+获取命令行参数并执行MD Preparation流程</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>使用帮助</strong> (<em>-h</em>) – </p></li>
+<li><p><strong>需要使用的CPU核心数量</strong> (<em>-n</em>) – </p></li>
+<li><p><strong>分子电荷数</strong><strong>(</strong><strong>Defualt</strong> (<em>-e</em>) – </p></li>
+<li><p><strong>自旋多重度</strong><strong>(</strong><strong>Default</strong> (<em>-s</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMDprepare.protein_prepare">
+<span class="sig-prename descclassname"><span class="pre">pyMDprepare.</span></span><span class="sig-name descname"><span class="pre">protein_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdb</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMDprepare.protein_prepare" title="永久链接至目标">¶</a></dt>
+<dd><p>受体蛋白文件预处理: PDB文件格式化 for Amber | 去除原生H原子 | 使用rudece添加H原子 | 再次格式化</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>pdb</strong> (<em>PDB ID字符串</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 

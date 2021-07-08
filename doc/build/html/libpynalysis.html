@@ -92,10 +92,10 @@
 <li><a class="reference internal" href="#libpynalysis-dis-ang-module">libpynalysis.dis_ang module</a></li>
 <li><a class="reference internal" href="#libpynalysis-hbond-analysis-module">libpynalysis.hbond_analysis module</a></li>
 <li><a class="reference internal" href="#libpynalysis-lowest-energy-structure-module">libpynalysis.lowest_energy_structure module</a></li>
-<li><a class="reference internal" href="#libpynalysis-mmgbdec-module">libpynalysis.mmgbdec module</a></li>
-<li><a class="reference internal" href="#libpynalysis-nmode-module">libpynalysis.nmode module</a></li>
+<li><a class="reference internal" href="#module-libpynalysis.mmgbdec">libpynalysis.mmgbdec module</a></li>
+<li><a class="reference internal" href="#module-libpynalysis.nmode">libpynalysis.nmode module</a></li>
 <li><a class="reference internal" href="#libpynalysis-rmsd-rmsf-module">libpynalysis.rmsd_rmsf module</a></li>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#module-libpynalysis">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -179,17 +179,88 @@
 <div class="section" id="libpynalysis-lowest-energy-structure-module">
 <h2>libpynalysis.lowest_energy_structure module<a class="headerlink" href="#libpynalysis-lowest-energy-structure-module" title="永久链接至标题">¶</a></h2>
 </div>
-<div class="section" id="libpynalysis-mmgbdec-module">
-<h2>libpynalysis.mmgbdec module<a class="headerlink" href="#libpynalysis-mmgbdec-module" title="永久链接至标题">¶</a></h2>
+<div class="section" id="module-libpynalysis.mmgbdec">
+<span id="libpynalysis-mmgbdec-module"></span><h2>libpynalysis.mmgbdec module<a class="headerlink" href="#module-libpynalysis.mmgbdec" title="永久链接至标题">¶</a></h2>
+<p>调用MMPBSA.py计算吉布斯自由能变(MM-GB/SA方法)
+Version 1.02</p>
+<p>Author YH. W
+Last update: 2021/05/21</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="libpynalysis.mmgbdec.main">
+<span class="sig-prename descclassname"><span class="pre">libpynalysis.mmgbdec.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mpi_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdbcom_prmtop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdbpro_prmtop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdblig_prmtop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdbcomsolvate_prmtop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libpynalysis.mmgbdec.main" title="永久链接至目标">¶</a></dt>
+<dd><p>调用MMPBSA.py.MPI启动MM-GB/SA分析</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mpi_num</strong> (<em>使用的核心数量</em>) – </p></li>
+<li><p><strong>pdbcom_prmtop</strong> (<em>复合物拓扑文件PATH</em>) – </p></li>
+<li><p><strong>pdbpro_prmtop</strong> (<em>蛋白拓扑文件PATH</em>) – </p></li>
+<li><p><strong>pdblig_prmtop</strong> (<em>配体拓扑文件PATH</em>) – </p></li>
+<li><p><strong>pdbcomsolvate_prmtop</strong> (<em>溶剂化复合物拓扑文件PATH</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="libpynalysis.mmgbdec.mkdir">
+<span class="sig-prename descclassname"><span class="pre">libpynalysis.mmgbdec.</span></span><span class="sig-name descname"><span class="pre">mkdir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libpynalysis.mmgbdec.mkdir" title="永久链接至目标">¶</a></dt>
+<dd><p>创建必要文件夹</p>
+<p>path: 文件夹PATH</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="libpynalysis.mmgbdec.mmgbdec_prepare">
+<span class="sig-prename descclassname"><span class="pre">libpynalysis.mmgbdec.</span></span><span class="sig-name descname"><span class="pre">mmgbdec_prepare</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#libpynalysis.mmgbdec.mmgbdec_prepare" title="永久链接至目标">¶</a></dt>
+<dd><p>编写MM-GB/SA输入文件</p>
+</dd></dl>
+
 </div>
-<div class="section" id="libpynalysis-nmode-module">
-<h2>libpynalysis.nmode module<a class="headerlink" href="#libpynalysis-nmode-module" title="永久链接至标题">¶</a></h2>
+<div class="section" id="module-libpynalysis.nmode">
+<span id="libpynalysis-nmode-module"></span><h2>libpynalysis.nmode module<a class="headerlink" href="#module-libpynalysis.nmode" title="永久链接至标题">¶</a></h2>
+<p>调用MMPBSA.py计算熵变(nmode方法)
+Version 1.01</p>
+<p>Author YH. W
+Last update: 2021/05/21</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="libpynalysis.nmode.main">
+<span class="sig-prename descclassname"><span class="pre">libpynalysis.nmode.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mpi_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdbcom_prmtop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdbpro_prmtop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdblig_prmtop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdbcomsolvate_prmtop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libpynalysis.nmode.main" title="永久链接至目标">¶</a></dt>
+<dd><p>调用MMPBSA.py.MPI启动熵计算分析</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mpi_num</strong> (<em>使用的核心数量</em>) – </p></li>
+<li><p><strong>pdbcom_prmtop</strong> (<em>复合物拓扑文件PATH</em>) – </p></li>
+<li><p><strong>pdbpro_prmtop</strong> (<em>蛋白拓扑文件PATH</em>) – </p></li>
+<li><p><strong>pdblig_prmtop</strong> (<em>配体拓扑文件PATH</em>) – </p></li>
+<li><p><strong>pdbcomsolvate_prmtop</strong> (<em>溶剂化复合物拓扑文件PATH</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="libpynalysis.nmode.mkdir">
+<span class="sig-prename descclassname"><span class="pre">libpynalysis.nmode.</span></span><span class="sig-name descname"><span class="pre">mkdir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libpynalysis.nmode.mkdir" title="永久链接至目标">¶</a></dt>
+<dd><p>创建必要文件夹</p>
+<p>path: 文件夹PATH</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="libpynalysis.nmode.nmode_prepare">
+<span class="sig-prename descclassname"><span class="pre">libpynalysis.nmode.</span></span><span class="sig-name descname"><span class="pre">nmode_prepare</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#libpynalysis.nmode.nmode_prepare" title="永久链接至目标">¶</a></dt>
+<dd><p>编写MM-GB/SA熵计算输入文件</p>
+</dd></dl>
+
 </div>
 <div class="section" id="libpynalysis-rmsd-rmsf-module">
 <h2>libpynalysis.rmsd_rmsf module<a class="headerlink" href="#libpynalysis-rmsd-rmsf-module" title="永久链接至标题">¶</a></h2>
 </div>
-<div class="section" id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="永久链接至标题">¶</a></h2>
+<div class="section" id="module-libpynalysis">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-libpynalysis" title="永久链接至标题">¶</a></h2>
+<p>Pynalysis lib Package version 1.01</p>
+<p>Author YH. W
+Last Update: 2021/07/06</p>
 </div>
 </div>
 
