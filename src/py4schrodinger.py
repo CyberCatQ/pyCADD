@@ -1030,7 +1030,7 @@ Example for receptor list file:
         precision = self.precision
         notpass = self.notpass
         dock_fail = self.dock_fail
-        data_path = lib_path + 'data/'
+        data_path = lib_path + 'result/'
         
         # SP模式下与XP模式下产生对接结果项目不同
         prop_xp = ['PDB', 'Ligand', 'Docking_Score', 'rmsd', 'precision', 'ligand_efficiency', 'XP_Hbond', 'rotatable_bonds',
