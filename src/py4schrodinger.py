@@ -757,7 +757,7 @@ Descrption:
 
         Note: Only crystals' own ligand but No exogenous ligand will be docked without [-l|--ligand].
 
-Example for receptor file:
+Example for receptor list file:
 
 3A9E,REA
 3KMZ,EQO
@@ -830,14 +830,15 @@ Example for receptor file:
 
         for pdb, lig in pdb_list:  
 
+            database_path = '../lib/dockfiles/' + pdb + '/'
             try:
-                os.makedirs('./lib/' + pdb)
+                os.makedirs(database_path)                           # 默认当前目录 src/
             except FileExistsError:
                 pass
 
-            if not os.path.exists('./lib/%s/%s.pdb' % (pdb, pdb)):  # 下载PDB文件
+            if not os.path.exists(database_path + '%s.pdb' % pdb):  # 下载PDB文件
                 getpdb.get_pdb(pdb)
-                os.system('mv %s.pdb ./lib/%s' % (pdb, pdb))
+                os.system('mv %s.pdb %s' % (pdb, database_path))
 
     def __check_fail(self, pdb_list: list) -> list:
         '''
@@ -876,7 +877,7 @@ Example for receptor file:
             对接精度
 
         '''
-        os.chdir('./lib/' + pdbid)
+        os.chdir('../lib/dockfiles/' + pdbid)                   # 切换工作目录
 
         cmd = '''cat %s.pdb | grep -w -E ^HET | awk '{if($2==\"%s\"){print $3}}' ''' % (pdbid, ligname)
         cmd_run = os.popen(cmd).readlines()
@@ -934,8 +935,8 @@ Example for receptor file:
         ligname = ligand_file.strip().split('.')[0]             # 文件名获取外源配体名
         ligand_file = self.convert_format(ligand_file, 'mae')   # 转换为Maestro格式
 
-        os.chdir('./lib/' + pdbid)                         # 切换工作目录
-        ligand_file = '../../' + ligand_file                    # 重新定位外源配体文件PATH
+        os.chdir('../lib/dockfiles/' + pdbid)                   # 切换工作目录
+        ligand_file = '../../../' + ligand_file                 # 重新定位外源配体文件PATH
         grid_file = '%s_glide_grid_%s.zip' % (pdbid, origin_ligname)
 
         print('\nPDB ID:', pdbid, end='\n')
@@ -991,13 +992,13 @@ Example for receptor file:
         for pdb, lig in pdb_list:
 
             origin_ligand = lig         # 原始配体名称
-            prop_dic = self.extra_data(pdb, './lib/%s/%s_glide_dock_%s_%s.maegz' %
+            prop_dic = self.extra_data(pdb, '../lib/dockfiles/%s/%s_glide_dock_%s_%s.maegz' %
                                     (pdb, pdb, origin_ligand, precision), origin_ligand)
             data.append(prop_dic)
 
             if ligand_file:             # 存在外源配体对接需求时
                 ligname = ligand_file.strip().split('.')[0]
-                dock_result_file = './lib/%s/%s_glide_dock_on_%s_%s_%s.maegz' % (
+                dock_result_file = '../lib/dockfiles/%s/%s_glide_dock_on_%s_%s_%s.maegz' % (
                     pdb, ligname, pdb, origin_ligand, precision)
                 if os.path.exists(dock_result_file):
                     ex_dic = self.extra_data(dock_result_file, ligname, precision)
@@ -1014,19 +1015,29 @@ Example for receptor file:
         '''
 
         ligand_file = self.ligand_file
+        if ligand_file:
+            withlig = '_' + ligand_file.split('.')[0]
+        else:
+            withlig = ''
+
         list_filename = self.list_filename
         precision = self.precision
         notpass = self.notpass
         dock_fail = self.dock_fail
-
+        data_path = '../lib/data/'
+        
         # SP模式下与XP模式下产生对接结果项目不同
         prop_xp = ['PDB', 'Ligand', 'Docking_Score', 'rmsd', 'precision', 'ligand_efficiency', 'XP_Hbond', 'rotatable_bonds',
                     'ecoul', 'evdw', 'emodel', 'energy', 'einternal']
         prop_sp = ['PDB', 'Ligand', 'Docking_Score', 'rmsd', 'precision', 'ligand_efficiency', 'rotatable_bonds',
                     'ecoul', 'evdw', 'emodel', 'energy', 'einternal','lipo', 'hbond', 'metal', 'rewards', 'erotb', 'esite']
-        withlig = '_' + ligand_file.split('.')[0]
+        
+        try:
+            os.makedirs(data_path)
+        except FileExistsError:
+            pass
 
-        with open(list_filename + '_FINAL_RESULTS%s.csv' % withlig, 'w', encoding='UTF-8', newline='') as f:
+        with open(data_path + list_filename + '_FINAL_RESULTS%s.csv' % withlig, 'w', encoding='UTF-8', newline='') as f:
             if precision == 'XP':
                 writer = csv.DictWriter(f, fieldnames=prop_xp)
             elif precision == 'SP':
@@ -1036,7 +1047,7 @@ Example for receptor file:
         
         if notpass:
             print('\nAbandoned Crystal(s): ', notpass)
-            with open('./abandon.txt', 'a') as f:
+            with open(data_path + 'abandon.txt', 'a') as f:
                 f.write('\n' + list_filename + '\n')
                 for p, l in notpass:
                     f.write(p + ',' + l + '\n')
