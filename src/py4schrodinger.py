@@ -14,9 +14,9 @@ from schrodinger.protein import getpdb
 
 cwd = str(os.getcwd())
 sys.path.append(cwd)
-root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]
-lib_path = root_path + 'lib/'
-doc_path = root_path + 'doc/'
+root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 根路径 绝对路径
+lib_path = root_path + 'lib/'                                           # 库文件夹路径
+doc_path = root_path + 'doc/'                                           # 文档文件夹路径
 
 total = 0
 now_complete = 0
@@ -786,7 +786,7 @@ Example for receptor list file:
             opts, argvs = getopt.getopt(sys.argv[1:], '-hkr:l:p:n:', ['help', 'no-check', 'receptor=', 'ligand=', 'precision=', 'cpu='])
         except getopt.GetoptError as err:
             print(str(err))
-            print(self.usage.__doc__)
+            print(self.__usage.__doc__)
             sys.exit(1)
 
         for opt, arg in opts:       # 参数解析
