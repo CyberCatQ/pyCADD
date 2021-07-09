@@ -7,16 +7,19 @@ import sys
 import getopt
 import time
 
-from schrodinger import structure as struc
-from schrodinger.application.glide import poseviewconvert as pvc
-from schrodinger.job import jobcontrol as jc
-from schrodinger.protein import getpdb
+try:
+    from schrodinger import structure as struc
+    from schrodinger.application.glide import poseviewconvert as pvc
+    from schrodinger.job import jobcontrol as jc
+    from schrodinger.protein import getpdb
+except ImportError:
+    raise ImportError('No module named schrodinger.\nPlease run this script with "run py4schrodinger.py" or in the schrodinger.ve environment.')
 
-cwd = str(os.getcwd())
-sys.path.append(cwd)
-root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 根路径 绝对路径
-lib_path = root_path + 'lib/'                                           # 库文件夹路径
-doc_path = root_path + 'doc/'                                           # 文档文件夹路径
+root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目路径 绝对路径
+lib_path = root_path + 'lib' + os.sep                                   # 库文件夹路径
+doc_path = root_path + 'doc' + os.sep                                   # 文档文件夹路径
+pdb_path = root_path.split('automatedMD')[0]                            # PDB项目绝对路径(如果有)
+pdb_name = pdb_path.split(os.sep)[-2]                                   # PDB项目名称(如果有)
 
 total = 0
 now_complete = 0
@@ -46,7 +49,7 @@ Script Core For Schrodinger Suite Analysis
 Version 1.10
 
 Author: YH. W
-Last Update: 2021/07/06
+Last Update: 2021/07/09
         
 Parameters
 ----------
@@ -178,12 +181,12 @@ ligname : str
         '''
 
         if not self.pdbid:
-            pdb = str(os.path.split(cwd)[1])
+            pdb = pdb_name
         else:
             pdb = str(self.pdbid)
 
         if self.checkpdb(pdb):
-            self.pdbid = pdb    #[属性修改]修改PDB ID
+            self.pdbid = pdb            #[属性修改]修改PDB ID
             self.pdbfile = pdb + '.pdb' #[属性修改]修改原始结构文件PATH
             return pdb
         else:
@@ -653,6 +656,7 @@ class UI:
     def __init__(self, pdbid:str=None, ligname:str=None) -> None:
 
         console = Console()
+        os.chdir(pdb_path)
         pdbid = console.get_pdbid()
         ligname = console.get_ligname()
         self.console = console

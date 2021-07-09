@@ -15,11 +15,11 @@ import sys
 import pytraj as pt
 
 try:
-    os.makedirs('./pynalysis/lowestenergy/')
+    os.makedirs('./libpynalysis/lowestenergy/')
 except FileExistsError:
     pass
 
-if not os.path.exists('./pynalysis/lowestenergy/process_mdout.perl'):
+if not os.path.exists('./libpynalysis/lowestenergy/process_mdout.perl'):
     print('\n缺失process_mdout.perl脚本\n请将脚本文件移至/lowestenergy 文件夹内后重试')
     sys.exit(2)
 
@@ -38,12 +38,12 @@ def main(traj):
     # 调用perl脚本分析MD out数据
     # process_mdout.perl脚本为AMBER官方脚本
     os.system(
-        'cd ./pynalysis/lowestenergy && chmod 777 ./process_mdout.perl && ./process_mdout.perl ../../npt/npt.out')
+        'cd ./libpynalysis/lowestenergy && chmod 777 ./process_mdout.perl && ./process_mdout.perl ../../npt/npt.out')
     print('\nProcessing Complete.', end='\n')
 
     print('\nSearching Lowest Energy Time...', end='\n')
     temp = os.popen('''
-    cat ./pynalysis/lowestenergy/summary.EPTOT | awk '{if($2<min) {min=$2;print $1"   "min}}'
+    cat ./libpynalysis/lowestenergy/summary.EPTOT | awk '{if($2<min) {min=$2;print $1"   "min}}'
     ''')    #EPTOT总势能
 
     lines = temp.readlines()
@@ -66,7 +66,7 @@ def main(traj):
     lowest_energy_frame = int(match_frame.group())
     print('\nLowest Energy Frame:', lowest_energy_frame)
 
-    pt.write_traj('./pynalysis/lowestenergy/lowest_energy_structure.pdb', traj,
+    pt.write_traj('./libpynalysis/lowestenergy/lowest_energy_structure.pdb', traj,
                   frame_indices=[lowest_energy_frame], overwrite=True)  # 输出最低能量构象PDB文件
     print('\nLowest Energy Structure PDB file saved.')
 

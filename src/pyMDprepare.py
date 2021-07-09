@@ -1,13 +1,4 @@
 #!/usr/bin/python
-'''
-
-Python MD Prepare 主程序 
-Version 1.00
-
-Author YH. W
-Last Update: 2021/05/18
-
-'''
 
 import os
 import sys
@@ -17,136 +8,164 @@ import getopt
 cwd = str(os.getcwd())
 sys.path.append(cwd)
 
-
-def get_pdbid():
-    '''
-    获取用户输入的PDBID并检查合法性
-
-    Return
-    ----------
-    PDB ID字符串
-
-    '''
-
-    def check(pdb):
-        return re.fullmatch(r'^\d[0-9a-zA-Z]{3,}$', pdb)
-
-    pdb = str(os.path.split(cwd)[1])
-    if check(pdb):
-        return pdb
-    else:
-        while True:
-            pdb = str(
-                input('\n要自动获取PDB ID 请将晶体文件夹修改为PDB ID\n请手动输入晶体PDB ID:')).strip().upper()
-            if check(pdb):
-                return pdb
-            else:
-                print('请输入正确的PDB ID!')
+root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目路径 绝对路径
+lib_path = root_path + 'lib' + os.sep                                   # 库文件夹路径
+doc_path = root_path + 'doc' + os.sep                                   # 文档文件夹路径
+pdb_path = root_path.split('automatedMD')[0]                            # PDB项目绝对路径(如果有)
+pdb_name = pdb_path.split(os.sep)[-2]                                   # PDB项目名称(如果有)
 
 
-def protein_prepare(pdb):
-    '''
-    受体蛋白文件预处理: PDB文件格式化 for Amber | 去除原生H原子 | 使用rudece添加H原子 | 再次格式化
-
-    Parameters
-    ----------
-    pdb: PDB ID字符串
-
+class MDprepare:
     '''
 
-    os.system(
-        'pdb4amber -i %spro.pdb -o %spro_dry.pdb -p --dry --add-missing-atoms ' % (pdb, pdb))
-    os.system('pdb4amber -i %spro_dry.pdb -o %spro_noH.pdb -y' %
-              (pdb, pdb))  # 必须分两步否则H原子删除不完全
-    os.system('pdb4amber -i %spro_noH.pdb -o %spro_leap.pdb' % (pdb, pdb))
+Python MD Prepare 主程序 
+Version 1.00
 
-    print('\nProtein Process Complete.')
-    print(''.center(80, '*'), end='\n')
+Author YH. W
+Last Update: 2021/07/09
+
+'''
+    def __init__(self) -> None:
+        pass
+
+    def get_pdbid(self):
+        '''
+        获取用户输入的PDBID并检查合法性
+
+        Return
+        ----------
+        PDB ID字符串
+
+        '''
+
+        def check(pdb):
+            return re.fullmatch(r'^\d[0-9a-zA-Z]{3,}$', pdb)
+
+        pdb = str(os.path.split(cwd)[1])
+        if check(pdb):
+            return pdb
+        else:
+            while True:
+                pdb = str(
+                    input('\n要自动获取PDB ID 请将晶体文件夹修改为PDB ID\n请手动输入晶体PDB ID:')).strip().upper()
+                if check(pdb):
+                    return pdb
+                else:
+                    print('请输入正确的PDB ID!')
+
+    def protein_prepare(pdb):
+        '''
+        受体蛋白文件预处理 : PDB文件格式化 for Amber | 去除原生H原子 | 使用rudece添加H原子 | 再次格式化
+
+        Temporary files:
+            PDBpro_dry.pdb - 原始蛋白去除水分子 添加缺失重原子
+            PDBpro_noH.pdb - _dry.pdb结构继续去除所有H原子
+            PDBpro_leap.pdb - _noH.pdb结构格式化为LEaP可识别格式
+
+        Parameters
+        ----------
+        pdb : str
+            PDB ID字符串
+
+        '''
+
+        os.system(
+            'pdb4amber -i %spro.pdb -o %spro_dry.pdb -p --dry --add-missing-atoms ' % (pdb, pdb))
+        os.system('pdb4amber -i %spro_dry.pdb -o %spro_noH.pdb -y' %
+                (pdb, pdb))  # 必须分两步否则H原子删除不完全
+        os.system('pdb4amber -i %spro_noH.pdb -o %spro_leap.pdb' % (pdb, pdb))
+
+        print('\nProtein Process Complete.')
+        print(''.center(80, '*'), end='\n')
 
 
-def ligand_prepare(pdb, mpi_num, ele, spin_multiplicity):
-    '''
-    小分子文件准备:高斯坐标优化与RESP2(0.5)电荷计算
+    def ligand_prepare(pdb, mpi_num, ele, spin_multiplicity):
+        '''
+        小分子文件准备:高斯坐标优化与RESP2(0.5)电荷计算
 
-    Parameters
-    ----------
-    pdb: PDB ID字符串或配体小分子名
-    mpi_num: 需要使用的CPU核心数
-    ele: 分子电荷数
-    spin_multiplicity: 自旋多重度
+        Parameters
+        ----------
+        pdb : str 
+            PDB ID字符串或配体小分子名
+        mpi_num : str
+            需要使用的CPU核心数
+        ele : str
+            分子电荷数
+        spin_multiplicity : str
+            自旋多重度
 
-    '''
-    print('\nPrepare to Runnning Gaussian...\n')
-    # 准备计算RESP电荷 调用Gaussian与Multiwnf
-    gauss_path = os.environ['g16root']
-    with open(gauss_path+'/g16/Default.Route', 'w') as gaussain:  # 修改高斯输入文件头 w模式覆盖原文件
-        gaussain.write('-M- 16GB\n')
-        gaussain.write('-P- %s ' % mpi_num)
+        '''
+        print('\nPrepare to Runnning Gaussian...\n')
+        # 准备计算RESP电荷 调用Gaussian与Multiwnf
+        gauss_path = os.environ['g16root']
+        with open(gauss_path+'/g16/Default.Route', 'w') as gaussain:  # 修改高斯输入文件头 w模式覆盖原文件
+            gaussain.write('-M- 16GB\n')
+            gaussain.write('-P- %s ' % mpi_num)
 
-    print('\nPrepare to Calculate...\n')
-    os.system('chmod 777 ./RESP2.sh && ./RESP2.sh %slig.pdb %s %s' % (pdb, ele,
-              spin_multiplicity))  # 输入参数调用Multiwnf计算RESP2电荷 自动输出为当前目录的同名lig.pqr文件 包含高斯优化坐标&RRESP2电荷
+        print('\nPrepare to Calculate...\n')
+        os.system('chmod 777 ./RESP2.sh && ./RESP2.sh %slig.pdb %s %s' % (pdb, ele,
+                spin_multiplicity))  # 输入参数调用Multiwnf计算RESP2电荷 自动输出为当前目录的同名lig.pqr文件 包含高斯优化坐标&RRESP2电荷
 
-    # pqr文件无法继续进行prepin文件生成 需要通过openbabel转换为mol2
-    print('\nPrepare to Generate Parmter File...\n')
+        # pqr文件无法继续进行prepin文件生成 需要通过openbabel转换为mol2
+        print('\nPrepare to Generate Parmter File...\n')
 
-    os.system('obabel -ipqr %slig.pqr -omol2 -O %slig.mol2' % (pdb, pdb))
-    os.system('antechamber -fi mol2 -i %slig.mol2 -fo prepi -o %slig.prepin' %
-              (pdb, pdb))  # antechamber转换为Amber prepi文件
-    os.system(
-        'antechamber -fi mol2 -i %slig.mol2 -o %slig_leap.pdb -fo pdb' % (pdb, pdb))
-    os.system('parmchk2 -i %slig.prepin -f prepi -o %slig.frcmod' %
-              (pdb, pdb))  # 生成Amber Parmter 参数文件
+        os.system('obabel -ipqr %slig.pqr -omol2 -O %slig.mol2' % (pdb, pdb))
+        os.system('antechamber -fi mol2 -i %slig.mol2 -fo prepi -o %slig.prepin' %
+                (pdb, pdb))  # antechamber转换为Amber prepi文件
+        os.system(
+            'antechamber -fi mol2 -i %slig.mol2 -o %slig_leap.pdb -fo pdb' % (pdb, pdb))
+        os.system('parmchk2 -i %slig.prepin -f prepi -o %slig.frcmod' %
+                (pdb, pdb))  # 生成Amber Parmter 参数文件
 
-    print('\nLigand Preparation Progress Complete.')
-    print(''.center(80, '*'), end='\n')
+        print('\nLigand Preparation Progress Complete.')
+        print(''.center(80, '*'), end='\n')
 
 
-def leap_prepare(pdb):
-    '''
-    创建LEaP输入文件
+    def leap_prepare(pdb):
+        '''
+        创建LEaP输入文件
 
-    Parameters
-    ----------
-    pdb: PDB ID或小分子名
+        Parameters
+        ----------
+        pdb: PDB ID或小分子名
 
-    '''
+        '''
 
-    with open('tleaplig.in', 'w') as f:
+        with open('tleaplig.in', 'w') as f:
 
-        text = 'source leaprc.protein.ff14SB\n'
-        text += 'source leaprc.gaff2\n'
-        text += 'source leaprc.water.tip3p\n'
+            text = 'source leaprc.protein.ff14SB\n'
+            text += 'source leaprc.gaff2\n'
+            text += 'source leaprc.water.tip3p\n'
 
-        text += 'Ligand'.center(80, '#')
-        text += '\nloadamberprep %slig.prepin\n' % pdb
-        text += 'loadamberparams %slig.frcmod\n' % pdb
-        text += 'lig = loadpdb %slig_leap.pdb\n' % pdb
-        text += 'saveamberparm lig %slig.prmtop %slig.inpcrd\n' % (pdb, pdb)
+            text += 'Ligand'.center(80, '#')
+            text += '\nloadamberprep %slig.prepin\n' % pdb
+            text += 'loadamberparams %slig.frcmod\n' % pdb
+            text += 'lig = loadpdb %slig_leap.pdb\n' % pdb
+            text += 'saveamberparm lig %slig.prmtop %slig.inpcrd\n' % (pdb, pdb)
 
-        text += 'Protein'.center(80, '#')
-        text += '\npro = loadpdb %spro_leap.pdb\n' % pdb
-        text += 'saveamberparm pro %spro.prmtop %spro.inpcrd\n' % (pdb, pdb)
+            text += 'Protein'.center(80, '#')
+            text += '\npro = loadpdb %spro_leap.pdb\n' % pdb
+            text += 'saveamberparm pro %spro.prmtop %spro.inpcrd\n' % (pdb, pdb)
 
-        text += 'COM = combine { pro lig }\n'
-        text += 'savepdb COM %scom.pdb\n' % pdb
+            text += 'COM = combine { pro lig }\n'
+            text += 'savepdb COM %scom.pdb\n' % pdb
 
-        text += 'Complex'.center(80, '#')
-        text += '\ncom = loadpdb %scom.pdb\n' % pdb
-        text += 'saveamberparm com %scom.prmtop %scom.inpcrd\n' % (pdb, pdb)
-        text += 'solvatebox com TIP3PBOX 12.0 0.75\n'   #水箱大小太小将导致MD模拟错误
-        text += 'check com\n'
-        text += 'addions com Na+ 0\n'
-        text += 'addions com Cl- 0\n'
-        text += 'saveamberparm com %scomsolvate.prmtop %scomsolvate.inpcrd\n' % (
-            pdb, pdb)
-        text += ''.center(80, '#')
-        text += '\nquit\n'
+            text += 'Complex'.center(80, '#')
+            text += '\ncom = loadpdb %scom.pdb\n' % pdb
+            text += 'saveamberparm com %scom.prmtop %scom.inpcrd\n' % (pdb, pdb)
+            text += 'solvatebox com TIP3PBOX 12.0 0.75\n'   #水箱大小太小将导致MD模拟错误
+            text += 'check com\n'
+            text += 'addions com Na+ 0\n'
+            text += 'addions com Cl- 0\n'
+            text += 'saveamberparm com %scomsolvate.prmtop %scomsolvate.inpcrd\n' % (
+                pdb, pdb)
+            text += ''.center(80, '#')
+            text += '\nquit\n'
 
-        f.write(text)
+            f.write(text)
 
-    print('\nLEaP Input File Generated.')
-    print(''.center(80, '*'), end='\n')
+        print('\nLEaP Input File Generated.')
+        print(''.center(80, '*'), end='\n')
 
 
 def main(argv):
