@@ -4,7 +4,6 @@ import multiprocessing
 import os
 import re
 import sys
-import getopt
 import time
 
 try:
@@ -778,12 +777,6 @@ Example for receptor list file:
     def __process_argvs(self):
         '''
         解析命令行参数
-
-        Parameters
-        ----------
-        argv : str
-            命令行参数
-
         '''
         
         try:
