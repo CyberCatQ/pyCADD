@@ -36,7 +36,8 @@ Last Update: 2021/07/09
 
         Return
         ----------
-        PDB ID字符串
+        str
+            PDB ID字符串
 
         '''
         def check(pdb):
@@ -62,12 +63,16 @@ Last Update: 2021/07/09
 
     def protein_prepare(self, pdbid=None):
         '''
-        受体蛋白文件预处理 : PDB文件格式化 for Amber | 去除原生H原子 | 使用rudece添加H原子 | 再次格式化
+        受体蛋白文件预处理 : \n
+        PDB文件格式化 for Amber | 去除原生H原子 | 使用rudece添加H原子 | 再次格式化
 
         Temporary files:
-            PDBpro_dry.pdb - 原始蛋白去除水分子 添加缺失重原子
-            PDBpro_noH.pdb - _dry.pdb结构继续去除所有H原子
-            PDBpro_leap.pdb - _noH.pdb结构格式化为LEaP可识别格式
+            PDBpro_dry.pdb 
+                原始蛋白去除水分子 添加缺失重原子\n      
+            PDBpro_noH.pdb
+                pro_dry.pdb结构继续去除所有H原子\n     
+            PDBpro_leap.pdb
+                pro_noH.pdb结构格式化为LEaP可识别格式\n      
 
         Parameters
         ----------
@@ -157,7 +162,8 @@ Last Update: 2021/07/09
 
         Parameters
         ----------
-        pdb: PDB ID或小分子名
+        pdb : str
+            PDB ID或小分子名
 
         '''
         if not pdbid:
@@ -263,7 +269,7 @@ Descrption:
                 else:
                     break
 
-    def main(self, argv):
+    def main(self):
         '''
         执行MD Prepare流程
         '''
