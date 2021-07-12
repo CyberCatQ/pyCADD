@@ -18,7 +18,7 @@ root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目
 lib_path = root_path + 'lib' + os.sep                                   # 库文件夹路径
 doc_path = root_path + 'doc' + os.sep                                   # 文档文件夹路径
 pdb_path = root_path.split('automatedMD')[0]                            # PDB项目绝对路径(如果有)
-pdb_name = pdb_path.split(os.sep)[-2]                                   # PDB项目名称(如果有)
+pdb_name = os.path.basename(pdb_path)                                   # PDB项目名称(如果有)
 
 total = 0
 now_complete = 0

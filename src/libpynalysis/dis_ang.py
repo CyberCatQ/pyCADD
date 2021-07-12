@@ -14,13 +14,15 @@ import xlsxwriter
 import os
 import re
 import sys
+root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目路径 绝对路径
+pdb_path = root_path.split('automatedMD')[0]                            # PDB项目绝对路径(如果有)
 
 try:
-    os.makedirs('./pynalysis/dis_ang')
+    os.makedirs(pdb_path + 'pynalysis/dis_ang')
 except FileExistsError:
     pass
 
-# Amber Mask
+# AMBER Mask
 residues = re.compile(r':\d+@\w+')
 atoms = re.compile(r'@\w+')
 res_num = re.compile(r'(?<=:)\d+(?=@)')
@@ -29,16 +31,18 @@ atom_num = re.compile(r'(?<=@)\d+')
 
 def check_mask(lis):  
     '''
-    检查Amber Mask是否不合法 
+    检查AMBER Mask是否[不]合法 
 
-    Paramters
+    Parameters
     ----------
-    lis: 要检查的AMBER Mask列表
+    lis : list
+        要检查的AMBER Mask列表
 
     Return
     ---------
-    全部合法返回False 
-    否则返回不合法Mask字符串
+    False | Invalid String[str]
+        全部合法返回False(无不合法字符串)
+        否则返回不合法Mask字符串
     '''
     for mask in lis:
         if not re.match(residues, mask) and not re.match(atoms, mask):
@@ -50,43 +54,47 @@ def get_mask(flag):
     '''
     获取用户指定的原子AMBER Mask并检查合法性
 
-    Paramters
+    Parameters
     ----------
-    flag: 判断需要输入Amber Mask数量的标志
+    flag : str
+        判断需要输入AMBER Mask数量的标志
 
     Return
     ----------
-    包含全部已输入Amber Mask的列表
+    list
+        包含全部已输入AMBER Mask的列表
     '''
 
-    print('\nAmber Mask Example: :123@CA or @123\n')
+    print('\nAMBER Mask Example: :123@CA or @123\n')
     while True:
-        mask1 = input('请输入第一个原子Amber Mask:').upper().strip()
-        mask2 = input('请输入第二个原子Amber Mask:').upper().strip()
+        mask1 = input('Enter the first ATOM AMBER Mask:').upper().strip()
+        mask2 = input('Enter the second ATOM AMBER Mask:').upper().strip()
         lis = [mask1, mask2]
         if flag >= 2:
-            mask3 = input('请输入第三个原子Amber Mask:').upper().strip()
+            mask3 = input('Enter the third ATOM AMBER Mask:').upper().strip()
             lis.append(mask3)
             if flag == 3:
-                mask4 = input('请输入第四个原子Amber Mask:').upper().strip()
+                mask4 = input('Enter the forth ATOM AMBER Mask:').upper().strip()
                 lis.append(mask4)
         notpass = check_mask(lis)
         if not notpass:
             break
         else:
-            print(notpass, '为不合法的Amber Mask，请重新输入\n')
+            print('Invalid AMBER Mask: %s\nPlease Try Again.' % notpass)
     return lis
 
 
 def judge(mask, topfile):
     '''
-    判断Amber Mask所属类型： Residue | Atom 表达式
-    并从拓扑文件中查询该Amber对象信息 打印
+    判断AMBER Mask所属类型 ： Residue | Atom 表达式
+    并从拓扑文件中查询该AMBER对象信息
 
-    Paramters
+    Parameters
     ----------
-    mask: Amber Mask字符串
-    topfile: 搜寻用拓扑文件
+    mask : str
+        AMBER Mask字符串
+    topfile: <object pytraj.topology>
+        搜寻用拓扑文件对象
 
     '''
     if re.search(res_num, mask):  # 如果Mask是一个Residue表达式
@@ -103,26 +111,28 @@ def judge(mask, topfile):
           topfile.atom(atom_index).name, end='\n')
 
 
-def main(traj, top):
+def main(traj, topfile):
     '''
-    用户选择计算模式 调用pytraj计算
+    选择计算模式 调用pytraj计算
     调用xlsxwriter保存数据文件
 
-    Paramters
+    Parameters
     ----------
-    traj: MD轨迹 Pytraj对象
-    top: MD拓扑文件PATH
+    traj : <object pytraj.traj>
+        Pytraj轨迹对象
+    topfile : str
+        MD拓扑文件PATH
     '''
 
     print('''
 
-    请输入计算模式:
+Enter the Calculate Mode Code:
     
-    1.计算原子间距离(键长)变化
-    2.计算键角变化
-    3.计算二面角变化
+1. Calculate the Change in Distance (Bond Length) Between Atoms
+2. Calculate the Bond Angle Change
+3. Calculate the Dihedral Angle Change
 
-    0.退出
+0. Exit
 
     ''')
     while True:
@@ -131,13 +141,13 @@ def main(traj, top):
             flag = int(flag)
             break
         else:
-            print('输入代号无效，请重新输入\n')
+            print('Invalid Code. Please Try Again.\n')
 
     if flag == 0:
         sys.exit()
 
     lis = get_mask(flag)
-    topfile = pt.load_topology(top)
+    topfile = pt.load_topology(topfile)
     masks = ''
     for i in lis:
         masks += i + ' '
@@ -145,7 +155,7 @@ def main(traj, top):
 
     print('\nProcessing and Saving Data...')
     disangxlsx = xlsxwriter.Workbook(
-        './pynalysis/dis_ang/distance_angle_data.xlsx')
+        pdb_path + 'pynalysis/dis_ang/distance_angle_data.xlsx')
 
     def save(sheet, mask, data):  # 保存数据
         sheet.write(0, 0, mask)

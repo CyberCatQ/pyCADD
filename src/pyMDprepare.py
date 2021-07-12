@@ -9,14 +9,14 @@ root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目
 lib_path = root_path + 'lib' + os.sep                                   # 库文件夹路径
 doc_path = root_path + 'doc' + os.sep                                   # 文档文件夹路径
 pdb_path = root_path.split('automatedMD')[0]                            # PDB项目绝对路径(如果有)
-pdb_name = pdb_path.split(os.sep)[-2]                                   # PDB项目名称(如果有)
+pdb_name = os.path.basename(pdb_path)                                   # PDB项目名称(如果有)
 src_path = os.path.dirname(__file__)                                    # 源代码文件夹路径
 
 class MDprepare:
     '''
 
 Python MD Prepare 主程序 
-Version 1.00
+Version 1.10
 
 Author YH. W
 Last Update: 2021/07/09
@@ -286,6 +286,7 @@ Descrption:
             80, '-'), end='\n')  # Title
         print('\n Processing Entry ID: %s' % pdb, end='\n')
 
+        os.chdir(pdb_path)
         self.protein_prepare(pdb)
         self.ligand_prepare(pdb, mpi_num, ele, spin_multiplicity)
         self.leap_prepare(pdb)

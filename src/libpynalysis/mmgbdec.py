@@ -2,23 +2,26 @@
 '''
 
 调用MMPBSA.py计算吉布斯自由能变(MM-GB/SA方法) 
-Version 1.02
+Version 1.10
 
 Author YH. W
-Last update: 2021/05/21
+Last update: 2021/07/12
 
 '''
 
 import os
 
+root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目路径 绝对路径
+pdb_path = root_path.split('automatedMD')[0]                            # PDB项目绝对路径(如果有)
 
 def mkdir(path):
     '''
     创建必要文件夹
 
-    Paramters
+    Parameters
     ----------
-    path: 文件夹PATH
+    path : str
+        文件夹PATH
     '''
 
     try:
@@ -27,8 +30,8 @@ def mkdir(path):
         pass
 
 
-mkdir('./pynalysis/MMPBSA/')
-mkdir('./pynalysis/MMPBSA/2gbdec/')
+mkdir('%spynalysis/MMPBSA/' % pdb_path)
+mkdir('%spynalysis/MMPBSA/gbdec/' % pdb_path)
 
 
 def mmgbdec_prepare():
@@ -48,7 +51,7 @@ def mmgbdec_prepare():
     text += '&decomp\n'
     text += 'idecomp=1,\n'  # 残基能量分解参数
     text += '/\n'
-    with open('./pynalysis/MMPBSA/2gbdec/mmgbdec.in', 'w') as f:
+    with open('%spynalysis/MMPBSA/gbdec/mmgbdec.in' % pdb_path, 'w') as f:
         f.write(text)
 
 
@@ -68,11 +71,8 @@ def main(mpi_num, pdbcom_prmtop, pdbpro_prmtop, pdblig_prmtop, pdbcomsolvate_prm
     mmgbdec_prepare()
     print('Start MMGBSA Analysis...')
 
-    command = 'nohup mpirun -np ' + mpi_num + \
-        ' MMPBSA.py.MPI -O -do ./pynalysis/MMPBSA/2gbdec/FINAL_DECOMP_MMPBSA.dat ' + \
-        '-o ./pynalysis/MMPBSA/2gbdec/FINAL_RESULTS_MMPBSA.dat -i ./pynalysis/MMPBSA/2gbdec/mmgbdec.in' + \
-        ' -cp ' + pdbcom_prmtop + ' -rp ' + pdbpro_prmtop + ' -lp ' + pdblig_prmtop + ' -sp ' + \
-        pdbcomsolvate_prmtop + ' -y ./npt/npt.mdcrd > ./pynalysis/MMPBSA/2gbdec/mmpbsa.log 2>&1 &'
+    command = 'nohup mpirun -np %s MMPBSA.py.MPI -O -do %spynalysis/MMPBSA/gbdec/FINAL_DECOMP_MMPBSA.dat -o %spynalysis/MMPBSA/gbdec/FINAL_RESULTS_MMPBSA.dat -i %spynalysis/MMPBSA/gbdec/mmgbdec.in -cp %s -rp %s -lp %s -sp %s -y %snpt/npt.mdcrd > %spynalysis/MMPBSA/gbdec/mmpbsa.log 2>&1 &' % (
+        mpi_num, pdb_path, pdb_path, pdb_path, pdbcom_prmtop, pdbpro_prmtop, pdblig_prmtop, pdbcomsolvate_prmtop, pdb_path, pdb_path)
     os.system(command)
 
     print('\nMMPBSA.py.MPI jobs submitted.')

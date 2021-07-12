@@ -2,32 +2,38 @@
 '''
 
 MD轨迹氢键数据分析与导出 
-Version 1.01
+Version 1.10
 
 Author YH. W
-Last update: 2021/05/21
+Last update: 2021/07/12
 
 '''
 
 import pytraj as pt
 import xlsxwriter
 import os
-if not os.path.exists('./pynalysis/hbond/'):
-    os.makedirs('./pynalysis/hbond/')
+root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目路径 绝对路径
+pdb_path = root_path.split('automatedMD')[0]                            # PDB项目绝对路径(如果有)
+
+try:
+    os.makedirs(pdb_path + 'pynalysis/hbond')
+except FileExistsError:
+    pass
 
 def main(traj):
     '''
     氢键分析与数据导出
 
-    Paramters
+    Parameters
     ----------
-    traj: MD轨迹 pytraj对象
+    traj : <object pytraj.traj>
+        pytraj MD轨迹对象
     '''
     
     print('\nStart H-Bond Analysis...')
     # hbond 分析
     hb = pt.hbond(traj, mask=':*', distance=4,
-                  options='avgout ./pynalysis/hbond/avg-hbd.dat printatomnum nointramol')
+                  options='avgout %spynalysis/hbond/avg-hbd.dat printatomnum nointramol' % pdb_path)
     '''
     options可填参数与cpptraj一致
     输出氢键平均信息文件 
@@ -46,7 +52,7 @@ def main(traj):
     print(hb.data)  # 1: have hbond; 0: does not have hbond
 
     # 创建excel工作表
-    hbondxlsx = xlsxwriter.Workbook('./pynalysis/hbond/hbond.xlsx')
+    hbondxlsx = xlsxwriter.Workbook(pdb_path + 'pynalysis/hbond/hbond.xlsx')
     distance_sheet = hbondxlsx.add_worksheet('Distance')
     angle_sheet = hbondxlsx.add_worksheet('Angle')
 
