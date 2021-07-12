@@ -306,7 +306,7 @@ ligname : str
             _flag = input().strip().upper() # 是否保留单链的标志
 
             if _flag == 'Y':
-                chain = input('输入保留链名:').strip().upper()
+                chain = input('Enter the Chain Code:').strip().upper()
                 pdbfile = self.keep_chain(chain)
                 self.pdbfile = pdbfile  # [属性修改]修改pdbfile为单链文件
                 return pdbfile
