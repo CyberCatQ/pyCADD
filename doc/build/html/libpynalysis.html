@@ -89,12 +89,12 @@
               <div class="local-toc"><ul>
 <li><a class="reference internal" href="#">libpynalysis package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#libpynalysis-dis-ang-module">libpynalysis.dis_ang module</a></li>
-<li><a class="reference internal" href="#libpynalysis-hbond-analysis-module">libpynalysis.hbond_analysis module</a></li>
-<li><a class="reference internal" href="#libpynalysis-lowest-energy-structure-module">libpynalysis.lowest_energy_structure module</a></li>
+<li><a class="reference internal" href="#module-libpynalysis.dis_ang">libpynalysis.dis_ang module</a></li>
+<li><a class="reference internal" href="#module-libpynalysis.hbond_analysis">libpynalysis.hbond_analysis module</a></li>
+<li><a class="reference internal" href="#module-libpynalysis.lowest_energy_structure">libpynalysis.lowest_energy_structure module</a></li>
 <li><a class="reference internal" href="#module-libpynalysis.mmgbdec">libpynalysis.mmgbdec module</a></li>
 <li><a class="reference internal" href="#module-libpynalysis.nmode">libpynalysis.nmode module</a></li>
-<li><a class="reference internal" href="#libpynalysis-rmsd-rmsf-module">libpynalysis.rmsd_rmsf module</a></li>
+<li><a class="reference internal" href="#module-libpynalysis.rmsd_rmsf">libpynalysis.rmsd_rmsf module</a></li>
 <li><a class="reference internal" href="#module-libpynalysis">Module contents</a></li>
 </ul>
 </li>
@@ -170,21 +170,120 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="永久链接至标题">¶</a></h2>
 </div>
-<div class="section" id="libpynalysis-dis-ang-module">
-<h2>libpynalysis.dis_ang module<a class="headerlink" href="#libpynalysis-dis-ang-module" title="永久链接至标题">¶</a></h2>
+<div class="section" id="module-libpynalysis.dis_ang">
+<span id="libpynalysis-dis-ang-module"></span><h2>libpynalysis.dis_ang module<a class="headerlink" href="#module-libpynalysis.dis_ang" title="永久链接至标题">¶</a></h2>
+<p>MD轨迹任意指定原子键长键角二面角分析与导出
+Version 1.10</p>
+<p>Author YH. W
+Last update: 2021/07/12</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="libpynalysis.dis_ang.check_mask">
+<span class="sig-prename descclassname"><span class="pre">libpynalysis.dis_ang.</span></span><span class="sig-name descname"><span class="pre">check_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lis</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libpynalysis.dis_ang.check_mask" title="永久链接至目标">¶</a></dt>
+<dd><p>检查AMBER Mask是否[不]合法</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>lis</strong> (<em>list</em>) – 要检查的AMBER Mask列表</p>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>全部合法返回False(无不合法字符串)
+否则返回不合法Mask字符串</p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p>False | Invalid String[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="libpynalysis.dis_ang.get_mask">
+<span class="sig-prename descclassname"><span class="pre">libpynalysis.dis_ang.</span></span><span class="sig-name descname"><span class="pre">get_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libpynalysis.dis_ang.get_mask" title="永久链接至目标">¶</a></dt>
+<dd><p>获取用户指定的原子AMBER Mask并检查合法性</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>flag</strong> (<em>str</em>) – 判断需要输入AMBER Mask数量的标志</p>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>包含全部已输入AMBER Mask的列表</p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="libpynalysis.dis_ang.judge">
+<span class="sig-prename descclassname"><span class="pre">libpynalysis.dis_ang.</span></span><span class="sig-name descname"><span class="pre">judge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topfile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libpynalysis.dis_ang.judge" title="永久链接至目标">¶</a></dt>
+<dd><p>判断AMBER Mask所属类型 ： Residue | Atom 表达式
+并从拓扑文件中查询该AMBER对象信息</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mask</strong> (<em>str</em>) – AMBER Mask字符串</p></li>
+<li><p><strong>topfile</strong> (<em>&lt;object pytraj.topology&gt;</em>) – 搜寻用拓扑文件对象</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="libpynalysis.dis_ang.main">
+<span class="sig-prename descclassname"><span class="pre">libpynalysis.dis_ang.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">traj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topfile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libpynalysis.dis_ang.main" title="永久链接至目标">¶</a></dt>
+<dd><p>选择计算模式 调用pytraj计算
+调用xlsxwriter保存数据文件</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>traj</strong> (<em>&lt;object pytraj.traj&gt;</em>) – Pytraj轨迹对象</p></li>
+<li><p><strong>topfile</strong> (<em>str</em>) – MD拓扑文件PATH</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
-<div class="section" id="libpynalysis-hbond-analysis-module">
-<h2>libpynalysis.hbond_analysis module<a class="headerlink" href="#libpynalysis-hbond-analysis-module" title="永久链接至标题">¶</a></h2>
+<div class="section" id="module-libpynalysis.hbond_analysis">
+<span id="libpynalysis-hbond-analysis-module"></span><h2>libpynalysis.hbond_analysis module<a class="headerlink" href="#module-libpynalysis.hbond_analysis" title="永久链接至标题">¶</a></h2>
+<p>MD轨迹氢键数据分析与导出
+Version 1.10</p>
+<p>Author YH. W
+Last update: 2021/07/12</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="libpynalysis.hbond_analysis.main">
+<span class="sig-prename descclassname"><span class="pre">libpynalysis.hbond_analysis.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">traj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libpynalysis.hbond_analysis.main" title="永久链接至目标">¶</a></dt>
+<dd><p>氢键分析与数据导出</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>traj</strong> (<em>&lt;object pytraj.traj&gt;</em>) – pytraj MD轨迹对象</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
-<div class="section" id="libpynalysis-lowest-energy-structure-module">
-<h2>libpynalysis.lowest_energy_structure module<a class="headerlink" href="#libpynalysis-lowest-energy-structure-module" title="永久链接至标题">¶</a></h2>
+<div class="section" id="module-libpynalysis.lowest_energy_structure">
+<span id="libpynalysis-lowest-energy-structure-module"></span><h2>libpynalysis.lowest_energy_structure module<a class="headerlink" href="#module-libpynalysis.lowest_energy_structure" title="永久链接至标题">¶</a></h2>
+<p>MD轨迹最低能量（势能）构象提取
+Version 1.10</p>
+<p>Author YH. W
+Last update: 2021/07/12</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="libpynalysis.lowest_energy_structure.main">
+<span class="sig-prename descclassname"><span class="pre">libpynalysis.lowest_energy_structure.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">traj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libpynalysis.lowest_energy_structure.main" title="永久链接至目标">¶</a></dt>
+<dd><p>最低能量（势能）构象帧提取</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>traj</strong> (<em>&lt;object pytraj.traj&gt;</em>) – Pytraj MD轨迹对象</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="module-libpynalysis.mmgbdec">
 <span id="libpynalysis-mmgbdec-module"></span><h2>libpynalysis.mmgbdec module<a class="headerlink" href="#module-libpynalysis.mmgbdec" title="永久链接至标题">¶</a></h2>
 <p>调用MMPBSA.py计算吉布斯自由能变(MM-GB/SA方法)
-Version 1.02</p>
+Version 1.10</p>
 <p>Author YH. W
-Last update: 2021/05/21</p>
+Last update: 2021/07/12</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="libpynalysis.mmgbdec.main">
 <span class="sig-prename descclassname"><span class="pre">libpynalysis.mmgbdec.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mpi_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdbcom_prmtop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdbpro_prmtop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdblig_prmtop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdbcomsolvate_prmtop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libpynalysis.mmgbdec.main" title="永久链接至目标">¶</a></dt>
@@ -206,7 +305,11 @@ Last update: 2021/05/21</p>
 <dt class="sig sig-object py" id="libpynalysis.mmgbdec.mkdir">
 <span class="sig-prename descclassname"><span class="pre">libpynalysis.mmgbdec.</span></span><span class="sig-name descname"><span class="pre">mkdir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libpynalysis.mmgbdec.mkdir" title="永久链接至目标">¶</a></dt>
 <dd><p>创建必要文件夹</p>
-<p>path: 文件夹PATH</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – 文件夹PATH</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -219,9 +322,9 @@ Last update: 2021/05/21</p>
 <div class="section" id="module-libpynalysis.nmode">
 <span id="libpynalysis-nmode-module"></span><h2>libpynalysis.nmode module<a class="headerlink" href="#module-libpynalysis.nmode" title="永久链接至标题">¶</a></h2>
 <p>调用MMPBSA.py计算熵变(nmode方法)
-Version 1.01</p>
+Version 1.10</p>
 <p>Author YH. W
-Last update: 2021/05/21</p>
+Last update: 2021/07/12</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="libpynalysis.nmode.main">
 <span class="sig-prename descclassname"><span class="pre">libpynalysis.nmode.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mpi_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdbcom_prmtop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdbpro_prmtop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdblig_prmtop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdbcomsolvate_prmtop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libpynalysis.nmode.main" title="永久链接至目标">¶</a></dt>
@@ -229,11 +332,11 @@ Last update: 2021/05/21</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mpi_num</strong> (<em>使用的核心数量</em>) – </p></li>
-<li><p><strong>pdbcom_prmtop</strong> (<em>复合物拓扑文件PATH</em>) – </p></li>
-<li><p><strong>pdbpro_prmtop</strong> (<em>蛋白拓扑文件PATH</em>) – </p></li>
-<li><p><strong>pdblig_prmtop</strong> (<em>配体拓扑文件PATH</em>) – </p></li>
-<li><p><strong>pdbcomsolvate_prmtop</strong> (<em>溶剂化复合物拓扑文件PATH</em>) – </p></li>
+<li><p><strong>mpi_num</strong> (<em>int | str</em>) – 使用的核心数量</p></li>
+<li><p><strong>pdbcom_prmtop</strong> (<em>str</em>) – 复合物拓扑文件PATH</p></li>
+<li><p><strong>pdbpro_prmtop</strong> (<em>str</em>) – 蛋白拓扑文件PATH</p></li>
+<li><p><strong>pdblig_prmtop</strong> (<em>str</em>) – 配体拓扑文件PATH</p></li>
+<li><p><strong>pdbcomsolvate_prmtop</strong> (<em>str</em>) – 溶剂化复合物拓扑文件PATH</p></li>
 </ul>
 </dd>
 </dl>
@@ -243,7 +346,11 @@ Last update: 2021/05/21</p>
 <dt class="sig sig-object py" id="libpynalysis.nmode.mkdir">
 <span class="sig-prename descclassname"><span class="pre">libpynalysis.nmode.</span></span><span class="sig-name descname"><span class="pre">mkdir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libpynalysis.nmode.mkdir" title="永久链接至目标">¶</a></dt>
 <dd><p>创建必要文件夹</p>
-<p>path: 文件夹PATH</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – 文件夹PATH</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -253,14 +360,32 @@ Last update: 2021/05/21</p>
 </dd></dl>
 
 </div>
-<div class="section" id="libpynalysis-rmsd-rmsf-module">
-<h2>libpynalysis.rmsd_rmsf module<a class="headerlink" href="#libpynalysis-rmsd-rmsf-module" title="永久链接至标题">¶</a></h2>
+<div class="section" id="module-libpynalysis.rmsd_rmsf">
+<span id="libpynalysis-rmsd-rmsf-module"></span><h2>libpynalysis.rmsd_rmsf module<a class="headerlink" href="#module-libpynalysis.rmsd_rmsf" title="永久链接至标题">¶</a></h2>
+<p>计算MD轨迹RMSD/F
+Version 1.02</p>
+<p>Author YH. W
+Last update: 2021/05/21</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="libpynalysis.rmsd_rmsf.main">
+<span class="sig-prename descclassname"><span class="pre">libpynalysis.rmsd_rmsf.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">traj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdb</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#libpynalysis.rmsd_rmsf.main" title="永久链接至目标">¶</a></dt>
+<dd><p>计算RMSD/RMSF</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>traj</strong> (<em>&lt;object pytraj.traj&gt;</em>) – MD轨迹 Pytraj对象</p></li>
+<li><p><strong>pdb</strong> (<em>str</em>) – PDB ID字符串</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="module-libpynalysis">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-libpynalysis" title="永久链接至标题">¶</a></h2>
-<p>Pynalysis lib Package version 1.01</p>
+<p>Pynalysis lib Package version 1.10</p>
 <p>Author YH. W
-Last Update: 2021/07/06</p>
+Last Update: 2021/07/12</p>
 </div>
 </div>
 

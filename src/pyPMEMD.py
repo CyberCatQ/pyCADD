@@ -41,7 +41,7 @@ Last Update: 2021/07/12
         '''
         检查是否发生错误并中断MD流程
 
-        Paramters
+        Parameters
         ----------
         code : int
             shell命令执行返回码

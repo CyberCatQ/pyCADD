@@ -1,10 +1,10 @@
 #!/usr/bin/python
 '''
 调用MMPBSA.py计算熵变(nmode方法) 
-Version 1.01
+Version 1.10
 
 Author YH. W
-Last update: 2021/05/21
+Last update: 2021/07/12
 
 '''
 

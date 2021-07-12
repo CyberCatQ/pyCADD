@@ -2,21 +2,20 @@
 '''
 
 MD轨迹最低能量（势能）构象提取 
-Version 1.01
+Version 1.10
 
 Author YH. W
-Last update: 2021/05/21
+Last update: 2021/07/12
 
 '''
 
 import os
-from pymol.lib.python.chempy import pdb
 import re
 import sys
 import pytraj as pt
 root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目路径 绝对路径
 pdb_path = root_path.split('automatedMD')[0]                            # PDB项目绝对路径(如果有)
-libpynalysis_path = os.path.dirname(__file__)                           # libpynalysis文件夹路径
+libpynalysis_path = root_path + '/src/libpynalysis/'                    # libpynalysis文件夹路径
 
 try:
     os.makedirs(pdb_path + 'pynalysis/lowestenergy/')
