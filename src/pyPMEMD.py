@@ -5,6 +5,7 @@ import re
 import sys
 root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目路径 绝对路径
 pdb_path = root_path.split('automatedMD')[0]                            # PDB项目绝对路径(如果有)
+pdb_name = os.path.basename(pdb_path.rstrip('/'))                       # PDB项目名称(如果有)
 
 class PMEMD:
     '''
@@ -17,7 +18,7 @@ Last Update: 2021/07/12
 
     '''
 
-    def __init__(self, pdbid) -> None:
+    def __init__(self, pdbid=None) -> None:
         self.pdbid = pdbid
 
     @staticmethod
@@ -51,7 +52,7 @@ Last Update: 2021/07/12
             print('Error: Error Occurred When Current Task Runing!\n')
             sys.exit(2)
 
-    def get_pdbid(self, pdbid):
+    def get_pdbid(self):
         '''
         获取用户输入的PDBID并检查合法性
 
@@ -67,7 +68,7 @@ Last Update: 2021/07/12
         if self.pdbid:
             pdb = self.pdbid
         else:
-            pdb = pdbid
+            pdb = pdb_name
 
         if check(pdb):
             self.pdbid = pdb
@@ -228,7 +229,7 @@ Last Update: 2021/07/12
         '''
 
         os.chdir(pdb_path)
-        pdb = self.get_pdbid(self)
+        pdb = self.get_pdbid()
         self.mkdir('./mina')
         self.mkdir('./minb')
         self.mkdir('./minc')

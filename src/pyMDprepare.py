@@ -9,8 +9,8 @@ root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目
 lib_path = root_path + 'lib' + os.sep                                   # 库文件夹路径
 doc_path = root_path + 'doc' + os.sep                                   # 文档文件夹路径
 pdb_path = root_path.split('automatedMD')[0]                            # PDB项目绝对路径(如果有)
-pdb_name = os.path.basename(pdb_path.rstrip('/'))                                   # PDB项目名称(如果有)
-src_path = os.path.dirname(__file__)                                    # 源代码文件夹路径
+pdb_name = os.path.basename(pdb_path.rstrip('/'))                       # PDB项目名称(如果有)
+src_path = os.path.dirname(os.path.abspath(__file__))                   # 源代码文件夹路径
 
 class MDprepare:
     '''
@@ -22,13 +22,15 @@ Author YH. W
 Last Update: 2021/07/09
 
 '''
-    def __init__(self, pdbid) -> None:
+    def __init__(self, pdbid=None) -> None:
         self.pdbid = pdbid          # PDB ID
+        self.ligname = ''           # 配体名称
         self.pro4leap_file = ''     # 准备好的LEaP可读蛋白文件
         self.lig4leap_file = ''     # 准备好的LEaP可读配体文件
         self.mpi_num = 4            # 使用的CPU核心数
         self.ele = 0                # 配体分子电荷数
         self.spin_multiplicity = 1  # 配体分子自旋多重度
+        self.src_path = src_path
 
     def get_pdbid(self):
         '''
@@ -60,8 +62,53 @@ Last Update: 2021/07/09
                     return pdb
                 else:
                     print('Please enter the correct PDBID. Try Again.')
+                    
+    def get_ligname(self) -> str:
+        '''
+        尝试自动获取配体名 如有多个配体则获取用户输入的配体名并检查合法性
 
-    def protein_prepare(self, pdbid=None):
+        Return
+        ----------
+        str
+            自动识别或手动输入的配体名称
+
+        '''
+
+        if self.pdbid:
+            pdbid = self.pdbid
+        else:
+            pdbid = self.get_pdbid()
+
+        if not os.path.exists(pdbid + '.pdb'):  # 下载PDB文件
+            raise RuntimeError('No PDB File Found. Exit.')
+
+        lis = os.popen(
+            "cat %s.pdb | grep -w -E ^HET | awk '{print $2}'" % pdbid).readlines()   # 抓取pdb原始结构文件(不可是已处理过的结构)中单一entry关于小分子的描述
+        lig = []
+
+        for i in lis:
+            passed = re.search('[0-9A-Z]{2,3}$', i.strip())  # 匹配得到配体候选列表
+            if passed:
+                lig_name = passed.group()
+                if lig_name != 'HOH' and not lig_name in lig:  # 排除配体候选中的水分子与重复分子
+                    lig.append(lig_name)
+
+        if len(lig) == 1:
+            ligname = str(lig[0])
+            self.ligname = ligname  #[属性修改] 修改配体名称
+            return ligname
+        else:
+            print('Crystal %s has more than one ligand:' % pdbid, ''.join(
+                str(x)+' ' for x in lig), end='\n')
+            while True:
+                ligname = input('Please specify ligand name:').strip().upper()
+                if self.check_ligname(ligname) and ligname in lig:
+                    self.ligname = ligname  #[属性修改] 修改配体名称
+                    return ligname
+                else:
+                    print('Wrong ligand name, please try again.')
+
+    def protein_prepare(self, pdbid=None, ligname=None):
         '''
         受体蛋白文件预处理 : \n
         PDB文件格式化 for Amber | 去除原生H原子 | 使用rudece添加H原子 | 再次格式化
@@ -82,10 +129,13 @@ Last Update: 2021/07/09
         '''
         if not pdbid:
             pdbid = self.pdbid
-        if not os.path.exists('%spro.pdb' % pdbid):
-            raise FileNotFoundError('%spro.pdb is not found in %s' % (pdbid, pdb_path))
+        if not ligname:
+            ligname = self.ligname
+
+        if not os.path.exists('%spro_%s.pdb' % (pdbid, ligname)):
+            raise FileNotFoundError('%spro_%s.pdb is not found in %s' % (pdbid, ligname, pdb_path))
         os.system(
-            'pdb4amber -i %spro.pdb -o %spro_dry.pdb -p --dry --add-missing-atoms ' % (pdbid, pdbid))
+            'pdb4amber -i %spro_%s.pdb -o %spro_dry.pdb -p --dry --add-missing-atoms ' % (pdbid, ligname, pdbid))
         os.system('pdb4amber -i %spro_dry.pdb -o %spro_noH.pdb -y' %
                 (pdbid, pdbid))  # 必须分两步否则H原子删除不完全
         os.system('pdb4amber -i %spro_noH.pdb -o %spro_leap.pdb' % (pdbid, pdbid))
@@ -100,7 +150,7 @@ Last Update: 2021/07/09
         print(''.center(80, '*'), end='\n')
 
 
-    def ligand_prepare(self, pdbid=None, mpi_num=4, ele=0, spin_multiplicity=1):
+    def ligand_prepare(self, pdbid=None, ligname=None, mpi_num=4, ele=0, spin_multiplicity=1):
         '''
         小分子文件准备:高斯坐标优化与RESP2(0.5)电荷计算
 
@@ -118,6 +168,8 @@ Last Update: 2021/07/09
         '''
         if not pdbid:
             pdbid = self.pdbid
+        if not ligname:
+            ligname = self.ligname
 
         print('\nPrepare to Runnning Gaussian...\n')
         # 准备计算RESP电荷 调用Gaussian与Multiwnf
@@ -128,25 +180,25 @@ Last Update: 2021/07/09
             gaussain.write('-P- %s ' % mpi_num)                       # 使用的CPU核心数 默认4
 
         print('\nPrepare to Calculate...\n')
-        os.system('chmod 777 ./RESP2.sh && ./RESP2.sh %slig.pdb %s %s' % (pdbid, ele,
-                spin_multiplicity))  # 输入参数调用Multiwnf计算RESP2电荷 自动输出为当前目录的同名lig.pqr文件 包含高斯优化坐标&RRESP2电荷
+        os.system('chmod 777 %s/RESP2.sh && %s/RESP2.sh %slig_%s.pdb %s %s' % (src_path, src_path, pdbid, ligname, ele,
+                spin_multiplicity))  # 输入参数调用Multiwnf计算RESP2电荷 自动输出为当前目录的同名lig_ligname.pqr文件 包含高斯优化坐标&RRESP2电荷
 
         # pqr文件无法继续进行prepin文件生成 需要通过openbabel转换为mol2
         print('\nPrepare to Generate Parmter File...\n')
 
-        os.system('obabel -ipqr %slig.pqr -omol2 -O %slig.mol2' % (pdbid, pdbid))   # 依赖openbabel软件
-        if not os.path.exists('%slig.mol2' % pdbid):
+        os.system('obabel -ipqr %slig_%s.pqr -omol2 -O %slig_%s.mol2' % (pdbid, ligname, pdbid, ligname))   # 依赖openbabel软件
+        if not os.path.exists('%slig_%s.mol2' % (pdbid, ligname)):
             raise RuntimeError('Openbabel is not installed. Please install it using the following command:\nsudo apt install openbabel')
 
-        os.system('antechamber -fi mol2 -i %slig.mol2 -fo prepi -o %slig.prepin' %
-                (pdbid, pdbid))  # antechamber转换为Amber prepi文件
+        os.system('antechamber -fi mol2 -i %slig_%s.mol2 -fo prepi -o %slig_%s.prepin' %
+                (pdbid, ligname, pdbid, ligname))  # antechamber转换为Amber prepi文件
         os.system(
-            'antechamber -fi mol2 -i %slig.mol2 -o %slig_leap.pdb -fo pdb' % (pdbid, pdbid))    # 生成LEaP可读配体小分子的PDB文件
-        os.system('parmchk2 -i %slig.prepin -f prepi -o %slig.frcmod' %
-                (pdbid, pdbid))  # 生成Amber Parmter 参数文件
+            'antechamber -fi mol2 -i %slig_%s.mol2 -o %slig_leap.pdb -fo pdb' % (pdbid, ligname, pdbid))    # 生成LEaP可读配体小分子的PDB文件
+        os.system('parmchk2 -i %slig_%s.prepin -f prepi -o %slig_%s.frcmod' %
+                (pdbid, ligname, pdbid, ligname))  # 生成Amber Parmter 参数文件
 
-        prepin_file = '%slig.prepin' % pdbid
-        frcmod_file = '%slig.frcmod' % pdbid
+        prepin_file = '%slig_%s.prepin' % (pdbid, ligname)
+        frcmod_file = '%slig_%s.frcmod' % (pdbid, ligname)
         lig4leap_file = '%slig_leap.pdb' % pdbid
         if not os.path.exists(prepin_file) or not os.path.exists(frcmod_file) or not os.path.exists(lig4leap_file):
             raise RuntimeError('Antechamber module running failed or AmberTools is not installed.')
@@ -156,7 +208,7 @@ Last Update: 2021/07/09
         print(''.center(80, '*'), end='\n')
 
 
-    def leap_prepare(self, pdbid=None):
+    def leap_prepare(self, pdb=None, ligname=None):
         '''
         创建LEaP输入文件
 
@@ -166,10 +218,10 @@ Last Update: 2021/07/09
             PDB ID或小分子名
 
         '''
-        if not pdbid:
+        if not pdb:
             pdb = self.pdbid
-        else:
-            pdb = pdbid
+        if not ligname:
+            ligname = self.ligname
 
         # MD核心参数 请参照AMBER SANDER文档进行调试
         with open('tleaplig.in', 'w') as f:
@@ -179,8 +231,8 @@ Last Update: 2021/07/09
             text += 'source leaprc.water.tip3p\n'       # 水箱模型
 
             text += 'Ligand'.center(80, '#')
-            text += '\nloadamberprep %slig.prepin\n' % pdb
-            text += 'loadamberparams %slig.frcmod\n' % pdb
+            text += '\nloadamberprep %slig_%s.prepin\n' % (pdb, ligname)
+            text += 'loadamberparams %slig_%s.frcmod\n' % (pdb, ligname)
             text += 'lig = loadpdb %slig_leap.pdb\n' % pdb
             text += 'saveamberparm lig %slig.prmtop %slig.inpcrd\n' % (pdb, pdb)
 
@@ -208,7 +260,7 @@ Last Update: 2021/07/09
         print('\nLEaP Input File Generated.')
         print(''.center(80, '*'), end='\n')
 
-    def __usage():
+    def _usage(self):
         '''
 Preprocessing for Molecular Dynamics Simulation.
 
@@ -231,13 +283,13 @@ Descrption:
             opts, argvs = getopt.getopt(sys.argv[1:], '-he:s:n:')
         except getopt.GetoptError as err:
             print(str(err))
-            print(self.__usage.__doc__)
+            print(self._usage.__doc__)
             sys.exit(1)
 
         for opt, arg in opts:
 
             if opt == '-h':
-                print(self.__usage.__doc__)
+                print(self._usage.__doc__)
                 sys.exit(1)
             elif opt == '-n':
                 self.mpi_num = arg
@@ -246,12 +298,13 @@ Descrption:
             elif opt == '-s':
                 self.spin_multiplicity = arg
 
-    def __check_requirements():
+    def __check_requirements(self):
         '''
         检查必要文件与依赖
         '''
+        
         if not os.path.exists(src_path + '/RESP2.sh'):  # 检查必要文件与依赖程序
-            raise RuntimeError('Script RESP2.sh is not Found!')
+            raise RuntimeError('Script RESP2.sh is not Found in %s!' % src_path)
 
         try:
             Multiwfn = os.environ['Multiwfnpath']       # 检查Multiwfn
@@ -273,7 +326,10 @@ Descrption:
         '''
         执行MD Prepare流程
         '''
+        os.chdir(pdb_path)
+        
         pdb = self.get_pdbid()
+        ligname = self.get_ligname()
         self.__check_requirements()
         self.__procsee_argvs()
 
@@ -287,8 +343,8 @@ Descrption:
         print('\n Processing Entry ID: %s' % pdb, end='\n')
 
         os.chdir(pdb_path)
-        self.protein_prepare(pdb)
-        self.ligand_prepare(pdb, mpi_num, ele, spin_multiplicity)
+        self.protein_prepare(pdb, ligname)
+        self.ligand_prepare(pdb, ligname, mpi_num, ele, spin_multiplicity)
         self.leap_prepare(pdb)
 
         print('\nRunning tleap...\n')
@@ -304,6 +360,6 @@ Descrption:
 if __name__ == '__main__':
     console = MDprepare()
     if len(sys.argv) == 1:
-        print(console.__usage.__doc__)
+        print(console._usage.__doc__)
     else:
         console.main()
