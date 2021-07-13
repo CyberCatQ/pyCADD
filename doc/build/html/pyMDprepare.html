@@ -159,12 +159,26 @@
 <span id="pymdprepare-module"></span><h1>pyMDprepare module<a class="headerlink" href="#module-pyMDprepare" title="永久链接至标题">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyMDprepare.MDprepare">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pyMDprepare.</span></span><span class="sig-name descname"><span class="pre">MDprepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdbid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMDprepare.MDprepare" title="永久链接至目标">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">pyMDprepare.</span></span><span class="sig-name descname"><span class="pre">MDprepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdbid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMDprepare.MDprepare" title="永久链接至目标">¶</a></dt>
 <dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Python MD Prepare 主程序
 Version 1.10</p>
 <p>Author YH. W
 Last Update: 2021/07/09</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMDprepare.MDprepare.get_ligname">
+<span class="sig-name descname"><span class="pre">get_ligname</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#pyMDprepare.MDprepare.get_ligname" title="永久链接至目标">¶</a></dt>
+<dd><p>尝试自动获取配体名 如有多个配体则获取用户输入的配体名并检查合法性</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回</dt>
+<dd class="field-odd"><p>自动识别或手动输入的配体名称</p>
+</dd>
+<dt class="field-even">返回类型</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="pyMDprepare.MDprepare.get_pdbid">
 <span class="sig-name descname"><span class="pre">get_pdbid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyMDprepare.MDprepare.get_pdbid" title="永久链接至目标">¶</a></dt>
@@ -181,7 +195,7 @@ Last Update: 2021/07/09</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyMDprepare.MDprepare.leap_prepare">
-<span class="sig-name descname"><span class="pre">leap_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdbid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMDprepare.MDprepare.leap_prepare" title="永久链接至目标">¶</a></dt>
+<span class="sig-name descname"><span class="pre">leap_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMDprepare.MDprepare.leap_prepare" title="永久链接至目标">¶</a></dt>
 <dd><p>创建LEaP输入文件</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数</dt>
@@ -192,7 +206,7 @@ Last Update: 2021/07/09</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyMDprepare.MDprepare.ligand_prepare">
-<span class="sig-name descname"><span class="pre">ligand_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdbid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpi_num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ele</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_multiplicity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMDprepare.MDprepare.ligand_prepare" title="永久链接至目标">¶</a></dt>
+<span class="sig-name descname"><span class="pre">ligand_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdbid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mpi_num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ele</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_multiplicity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMDprepare.MDprepare.ligand_prepare" title="永久链接至目标">¶</a></dt>
 <dd><p>小分子文件准备:高斯坐标优化与RESP2(0.5)电荷计算</p>
 <dl class="field-list simple">
 <dt class="field-odd">参数</dt>
@@ -214,7 +228,7 @@ Last Update: 2021/07/09</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyMDprepare.MDprepare.protein_prepare">
-<span class="sig-name descname"><span class="pre">protein_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdbid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMDprepare.MDprepare.protein_prepare" title="永久链接至目标">¶</a></dt>
+<span class="sig-name descname"><span class="pre">protein_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdbid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMDprepare.MDprepare.protein_prepare" title="永久链接至目标">¶</a></dt>
 <dd><p>受体蛋白文件预处理 :</p>
 <p>PDB文件格式化 for Amber | 去除原生H原子 | 使用rudece添加H原子 | 再次格式化</p>
 <dl class="simple">

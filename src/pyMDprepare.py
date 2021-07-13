@@ -102,7 +102,7 @@ Last Update: 2021/07/09
                 str(x)+' ' for x in lig), end='\n')
             while True:
                 ligname = input('Please specify ligand name:').strip().upper()
-                if self.check_ligname(ligname) and ligname in lig:
+                if ligname in lig:
                     self.ligname = ligname  #[属性修改] 修改配体名称
                     return ligname
                 else:
