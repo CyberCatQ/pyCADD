@@ -1,0 +1,15 @@
+#!/bin/sh
+script_abs=$(readlink -f "$0")
+script_dir=$(dirname $script_abs)
+
+files=$(ls $script_dir/../lib/list/)
+
+for filename in $files
+do
+    if [ $filename = "abandon.txt" ]; then
+        continue
+    else
+    gene=${filename%.*}
+    $script_dir/py4schrodinger -r $script_dir/../lib/list/$filename -p XP -n 48 -k > $script_dir/../lib/log/${gene}.log
+    fi
+done
