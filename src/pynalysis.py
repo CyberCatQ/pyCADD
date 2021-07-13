@@ -4,7 +4,7 @@ import re
 import sys
 import multiprocessing
 import xlsxwriter           # 无依赖包将报错     pip install it
-import pytraj as pt         # 无依赖包将报错
+import pytraj as pt         # Installed AMBER Correctly?
 
 cwd = str(os.getcwd())
 sys.path.append(cwd)
@@ -30,7 +30,7 @@ Last Update: 2021/07/12
 
 '''
 
-    def __init__(self, pdbid) -> None:
+    def __init__(self, pdbid=None) -> None:
         self.pdbid = pdbid                      # PDBID
         self.top_file = ''
         self.traj_file = './npt/npt.mdcrd'      # 默认轨迹文件PATH

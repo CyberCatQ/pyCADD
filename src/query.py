@@ -486,6 +486,7 @@ def ui():
     while True:
         flag = input('''
 Input Query Code:
+
 1. Search Crystals' PDB ID of Gene on RCSB Server
 2. Get Basic Info of Crystals with Query
 3. Make Input Files for py4schrodinger.py
@@ -507,9 +508,16 @@ Input Query Code:
 def main():
     ui()
 
+def _usage():
+    '''
+    pass
+    '''
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) == 1:
+        print(_usage.__doc__)
+    else:
+        main()
         
         
         

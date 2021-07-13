@@ -65,7 +65,7 @@ Last Update: 2021/07/09
                     
     def get_ligname(self) -> str:
         '''
-        尝试自动获取配体名 如有多个配体则获取用户输入的配体名并检查合法性
+        尝试自动获取配体名 如有多个配体则获取用户输入的配体名
 
         Return
         ----------
@@ -79,8 +79,16 @@ Last Update: 2021/07/09
         else:
             pdbid = self.get_pdbid()
 
+        print('Specify a ligand name? N for automaticlly get Endogenous ligand name.(Y/N)')
+        __temp_flag = input().strip().upper()
+        if __temp_flag == 'Y':
+            ligname = input('Enter the Ligand Name:')
+            self.ligname = ligname
+            return ligname
+
+        # 自动获取
         if not os.path.exists(pdbid + '.pdb'):  # 下载PDB文件
-            raise RuntimeError('No PDB File Found. Exit.')
+            raise RuntimeError('No %s PDB File Found. Exit.' % pdbid)
 
         lis = os.popen(
             "cat %s.pdb | grep -w -E ^HET | awk '{print $2}'" % pdbid).readlines()   # 抓取pdb原始结构文件(不可是已处理过的结构)中单一entry关于小分子的描述
