@@ -521,12 +521,29 @@ Code:''')
 
 def _usage():
     '''
-    pass
+Search Genes ralated crystals PDBID and query basic info from RCSB server.
+
+Usage: query <genes_list_file>
+
+Description
+    genes_list_file           Text file, including all genes needed to be search and query
+
+Example for geneslist file:
+    NR1A1,TR_alpha
+    NR1A2,TR_beta
+    NR1B1,RAR_alpha
+    NR1B2,RAR_beta
+    NR1B3,RAR_gamma
+    NR1C1,PPAR_alpha
+    NR1C2,PPAR_beta
+    NR1C3,PPAR_gamma
     '''
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
         print(_usage.__doc__)
+    elif sys.argv[1] == '-h' or sys.argv[1] == '--help':
+            print(_usage.__doc__)
     else:
         ui()
         
