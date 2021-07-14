@@ -4,9 +4,17 @@ script_dir=$(dirname $script_abs)
 
 files=$(ls $script_dir/../lib/list/)
 
-for filename in $files
-do
-    gene=${filename%.*}
-    $script_dir/py4schrodinger -r $script_dir/../lib/list/$filename -p XP -n 48 -k > $script_dir/../lib/log/${gene}.log
-done
+if [ $# -eq 0 ];then
+    for filename in $files
+    do
+        gene=${filename%.*}
+        $script_dir/py4schrodinger -r $script_dir/../lib/list/$filename -p XP -n 48 -k > $script_dir/../lib/log/${gene}.log
+    done
+else
+    for filename in $files
+    do
+        gene=${filename%.*}
+        $script_dir/py4schrodinger -r $script_dir/../lib/list/$filename -l $(readlink -f "$1") -p XP -n 48 -k > $script_dir/../lib/log/${gene}.log
+    done
+fi
 echo Autorun Complete

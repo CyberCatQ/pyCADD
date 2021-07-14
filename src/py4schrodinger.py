@@ -105,7 +105,7 @@ ligname : str
         return next(struc.StructureReader(st_file))
 
     @staticmethod
-    def __launch(cmd):
+    def _launch(cmd):
         '''
         使用jobcontrol启动一项job并等待结束
 
@@ -360,7 +360,7 @@ ligname : str
 
         prepwizard_command = 'prepwizard -f 3 -r 0.3 -propka_pH 7.0 -disulfides -s -j %s-Minimize %s %s' % (pdbfile.split('.')[0],
                                                                                                             pdbfile, minimized_file)
-        self.__launch(prepwizard_command)   # 阻塞至任务结束
+        self._launch(prepwizard_command)   # 阻塞至任务结束
 
         if not os.path.exists(minimized_file):  # 判断Minimized任务是否完成(是否生成Minimized结束的结构文件)
             raise RuntimeError(
@@ -460,7 +460,7 @@ ligname : str
             input_file.write('LIGAND_MOLECULE %s\n' %
                             lig_molnum)  # 识别Ligand并设定grid box中心为质心
             input_file.write('RECEP_FILE %s' % st_file)  # 输入文件
-        self.__launch('glide %s_grid_generate_%s.in -JOBNAME %s-%s-Grid-Generate' %
+        self._launch('glide %s_grid_generate_%s.in -JOBNAME %s-%s-Grid-Generate' %
             (pdbid, ligname, pdbid, ligname))
 
         print('\nGrid File', grid_file, 'Saved.\n')
@@ -575,7 +575,7 @@ ligname : str
                 input_file.write('WRITE_XP_DESC False\n')
                 input_file.write('POSTDOCK_XP_DELE 0.5\n')
 
-        self.__launch('glide %s_glide_dock_%s_%s.in -JOBNAME %s-Glide-Dock-%s-%s' %
+        self._launch('glide %s_glide_dock_%s_%s.in -JOBNAME %s-Glide-Dock-%s-%s' %
             (pdbid, lig_name, precision, pdbid, lig_name, precision))
 
         c = os.system('mv %s-Glide-Dock-%s-%s_pv.maegz %s_glide_dock_%s_%s.maegz' %
@@ -847,8 +847,9 @@ Example for receptor list file:
                 self.list_file_path = os.path.abspath(self.list_file)
                 self.list_filename = self.list_file_path.split('.')[0].split(os.sep)[-1]
             elif opt in ('-l', '--ligand'):
-                self.ligand_file = arg.strip()
-                self.ligand_file_path = os.path.abspath(self.ligand_file)
+                _ligand_file= arg.strip()
+                self.ligand_file_path = os.path.abspath(_ligand_file)
+                self.ligand_file = os.path.basename(self.ligand_file_path)
             elif opt in ('-p', '--precision'):
                 self.precision = arg.upper().strip()
             elif opt in ('-k', '--no-check'):
@@ -870,7 +871,7 @@ Example for receptor list file:
             raise
 
         for i in pdbs_withlig:                      # 按逗号分割解析列表中的PDB ID与配体名称
-            if i in abandon_list:                   # 忽略abandon.txt的晶体
+            if i.strip().upper() in abandon_list:                   # 忽略abandon.txt的晶体
                 continue
             pdb = i.split(',')[0].strip().upper()   # PDB ID
             lig = i.split(',')[1].strip().upper()   # 配体名称
@@ -986,11 +987,8 @@ Example for receptor list file:
             返回代码 1
 
         '''
-
-        ligname = ligand_file.strip().split('.')[0]                         # 文件名获取外源配体名
-        ligand_file = self.convert_format(ligand_file, 'mae')               # 转换为Maestro格式
-        
         os.chdir(lib_path + 'dockfiles/' + pdbid)                           # 切换工作目录
+        ligname = ligand_file.split('.')[0].strip()                         # 文件名获取外源配体名
         ligand_file_path = self.ligand_file_path.split('.')[0] + '.mae'     # 重新定位外源配体文件PATH
         grid_file = '%s_glide_grid_%s.zip' % (pdbid, origin_ligname)
 
@@ -1002,15 +1000,15 @@ Example for receptor list file:
 
         # 撰写Dock输入文件
         with open('%s_glide_dock_%s_%s.in' % (ligname, origin_ligname, precision), 'w') as input_file:  
-            input_file.write('GRIDFILE %s\n' % grid_file)       # 格点文件
-            input_file.write('LIGANDFILE %s\n' % ligand_file_path)   # 外源配体PATH
-            input_file.write('PRECISION %s\n' % precision)      # HTVS SP XP
+            input_file.write('GRIDFILE %s\n' % grid_file)               # 格点文件
+            input_file.write('LIGANDFILE %s\n' % ligand_file_path)      # 外源配体PATH
+            input_file.write('PRECISION %s\n' % precision)              # HTVS SP XP
             if precision == 'XP':
                 input_file.write('WRITE_XP_DESC False\n')
                 input_file.write('POSTDOCK_XP_DELE 0.5\n')
 
         # 与self.dock()不同点 需要区别同一位点不同配体的对接
-        self.__launch('glide %s_glide_dock_%s_%s.in -JOBNAME %s-Glide-Dock-On-%s-%s-%s' %
+        self._launch('glide %s_glide_dock_%s_%s.in -JOBNAME %s-Glide-Dock-On-%s-%s-%s' %
             (ligname, origin_ligname, precision, ligname, pdbid, origin_ligname, precision))
 
         # 无论是否完成对接 返回码均为0 故通过是否产生对接结果文件进行对接成功与否区分        
@@ -1070,8 +1068,9 @@ Example for receptor list file:
         '''
 
         ligand_file = self.ligand_file
+        ligname = ligand_file.split('.')[0]
         if ligand_file:
-            withlig = '_' + ligand_file.split('.')[0]
+            withlig = '_' + ligname
         else:
             withlig = ''
 
@@ -1165,13 +1164,13 @@ Example for receptor list file:
         pdb_list = self.__check_fail(pdb_list)
         
         if self.ligand_file:                                    # 存在外源性配体对接需求
-            ligand_file = self.ligand_file
-
+            ligand_file = self.convert_format(self.ligand_file, 'mae')
+            ligand_file_path = self.ligand_file_path
             print('\n')
             print(''.center(80,'-'))
             print('User-Defined Ligand Docking'.center(80))
             print(''.center(80,'-'))
-            print('\nUser-Defined Ligand:', ligand_file.split('.')[0])
+            print('\nUser-Defined Ligand:', ligand_file_path)
 
             now_complete = 0
             for pdb_code, lig in pdb_list:

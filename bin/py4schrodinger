@@ -1,4 +1,4 @@
 #!/bin/sh
 script_abs=$(readlink -f "$0")
 script_dir=$(dirname $script_abs)
-run $script_dir/../src/py4schrodinger.py $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10}
+run $script_dir/../src/py4schrodinger.py $*
