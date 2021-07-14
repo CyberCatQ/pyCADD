@@ -20,6 +20,12 @@ doc_path = root_path + 'doc' + os.sep                                   # 文档
 pdb_path = root_path.split('automatedMD')[0]                            # PDB项目绝对路径(如果有)
 pdb_name = os.path.basename(pdb_path.rstrip('/'))                                   # PDB项目名称(如果有)
 
+# SP模式下与XP模式下产生对接结果项目不同
+prop_xp = ['PDB', 'Ligand', 'Docking_Score', 'rmsd', 'precision', 'ligand_efficiency', 'XP_Hbond', 'rotatable_bonds',
+            'ecoul', 'evdw', 'emodel', 'energy', 'einternal']
+prop_sp = ['PDB', 'Ligand', 'Docking_Score', 'rmsd', 'precision', 'ligand_efficiency', 'rotatable_bonds',
+            'ecoul', 'evdw', 'emodel', 'energy', 'einternal','lipo', 'hbond', 'metal', 'rewards', 'erotb', 'esite']
+
 total = 0
 now_complete = 0
 
@@ -637,7 +643,35 @@ ligname : str
 
         return prop_dic
         
+    '''
+    def save_data(self, data_dic:dict, pdbid:str=None, ligname:str=None, precision:str='SP'):
+        储存对接结果数据为csv
 
+        Parameter
+        ----------
+        data_dic : dict
+            数据内容 {property : data}
+        pdbid : str
+            PDB ID
+        ligname : str
+            配体名称
+        precision : str
+            对接精度
+        
+        if not pdbid:
+            pdbid = self.pdbid
+        if not ligname:
+            ligname = self.ligname
+
+        with open(pdb_path + pdbid + '_FINAL_RESULTS_%s.csv' % ligname, 'w', encoding='UTF-8', newline='') as f:
+            if precision == 'XP':
+                writer = csv.DictWriter(f, fieldnames=prop_xp)
+            elif precision == 'SP':
+                writer = csv.DictWriter(f, fieldnames=prop_sp)
+            writer.writeheader()    # 写入标头
+            writer.writerows(data_dic)  # 写入数据 自动匹配标头列
+            
+    '''
 class UI:
     '''
     用户交互界面
@@ -714,9 +748,13 @@ Please enter the code of analysis to be performed:
                 print('Grid File:', grid_file)
 
                 if flag == '4':
+                    # precision = 'SP'
                     console.dock(precision='SP', calc_rmsd=True)
                 else:
+                    # precision = 'XP'
                     console.dock(precision='XP', calc_rmsd=True)
+                # console.dock(precision, calc_rmsd=True)
+                # console.save_data(data_dic=console.extra_data(precision=precision), precision=precision)
 
         elif flag == '6':
             lig_file = input('Input Ligand File PATH:').strip()
@@ -995,16 +1033,16 @@ Example for receptor list file:
         for pdb, lig in pdb_list:
 
             origin_ligand = lig         # 原始配体名称
-            prop_dic = self.extra_data(pdb, lib_path + 'dockfiles/%s/%s_glide_dock_%s_%s.maegz' %
-                                    (pdb, pdb, origin_ligand, precision), origin_ligand)
+            dock_result_file_i = lib_path + 'dockfiles/%s/%s_glide_dock_%s_%s.maegz' % (pdb, pdb, origin_ligand, precision)
+            prop_dic = self.extra_data(pdbid=pdb, path=dock_result_file_i, ligname=origin_ligand, precision=precision)
             data.append(prop_dic)
 
             if ligand_file:             # 存在外源配体对接需求时
                 ligname = ligand_file.strip().split('.')[0]
-                dock_result_file = lib_path + 'dockfiles/%s/%s_glide_dock_on_%s_%s_%s.maegz' % (
+                dock_result_file_o = lib_path + 'dockfiles/%s/%s_glide_dock_on_%s_%s_%s.maegz' % (
                     pdb, ligname, pdb, origin_ligand, precision)
-                if os.path.exists(dock_result_file):
-                    ex_dic = self.extra_data(dock_result_file, ligname, precision)
+                if os.path.exists(dock_result_file_o):
+                    ex_dic = self.extra_data(pdb, dock_result_file_o, ligname, precision)
                     data.append(ex_dic)
                 else:                   # 对接不成功
                     dock_fail.append((pdb, origin_ligand, ligname))      
@@ -1028,12 +1066,6 @@ Example for receptor list file:
         notpass = self.notpass
         dock_fail = self.dock_fail
         data_path = lib_path + 'result/'
-        
-        # SP模式下与XP模式下产生对接结果项目不同
-        prop_xp = ['PDB', 'Ligand', 'Docking_Score', 'rmsd', 'precision', 'ligand_efficiency', 'XP_Hbond', 'rotatable_bonds',
-                    'ecoul', 'evdw', 'emodel', 'energy', 'einternal']
-        prop_sp = ['PDB', 'Ligand', 'Docking_Score', 'rmsd', 'precision', 'ligand_efficiency', 'rotatable_bonds',
-                    'ecoul', 'evdw', 'emodel', 'energy', 'einternal','lipo', 'hbond', 'metal', 'rewards', 'erotb', 'esite']
         
         try:
             os.makedirs(data_path)
