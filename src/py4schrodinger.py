@@ -25,6 +25,17 @@ prop_xp = ['PDB', 'Ligand', 'Docking_Score', 'rmsd', 'precision', 'ligand_effici
             'ecoul', 'evdw', 'emodel', 'energy', 'einternal']
 prop_sp = ['PDB', 'Ligand', 'Docking_Score', 'rmsd', 'precision', 'ligand_efficiency', 'rotatable_bonds',
             'ecoul', 'evdw', 'emodel', 'energy', 'einternal','lipo', 'hbond', 'metal', 'rewards', 'erotb', 'esite']
+# 读取abandon.txt 忽略名单
+global abandon_list
+abandon_list = []
+try:
+    with open(pdb_path + 'abandon.txt') as f:
+        lines = f.read().splitlines()
+        for line in lines:
+            if line and ',' in line:
+                abandon_list.append(line)
+except FileNotFoundError:
+    pass
 
 total = 0
 now_complete = 0
@@ -643,8 +654,9 @@ ligname : str
 
         return prop_dic
         
-    '''
+
     def save_data(self, data_dic:dict, pdbid:str=None, ligname:str=None, precision:str='SP'):
+        '''
         储存对接结果数据为csv
 
         Parameter
@@ -657,7 +669,7 @@ ligname : str
             配体名称
         precision : str
             对接精度
-        
+        '''
         if not pdbid:
             pdbid = self.pdbid
         if not ligname:
@@ -671,7 +683,7 @@ ligname : str
             writer.writeheader()    # 写入标头
             writer.writerows(data_dic)  # 写入数据 自动匹配标头列
             
-    '''
+
 class UI:
     '''
     用户交互界面
@@ -748,13 +760,13 @@ Please enter the code of analysis to be performed:
                 print('Grid File:', grid_file)
 
                 if flag == '4':
-                    # precision = 'SP'
-                    console.dock(precision='SP', calc_rmsd=True)
+                    precision = 'SP'
+                    
                 else:
-                    # precision = 'XP'
-                    console.dock(precision='XP', calc_rmsd=True)
-                # console.dock(precision, calc_rmsd=True)
-                # console.save_data(data_dic=console.extra_data(precision=precision), precision=precision)
+                    precision = 'XP'
+                    
+                console.dock(precision, calc_rmsd=True)
+                console.save_data(data_dic=console.extra_data(precision=precision), precision=precision)
 
         elif flag == '6':
             lig_file = input('Input Ligand File PATH:').strip()
@@ -858,6 +870,8 @@ Example for receptor list file:
             raise
 
         for i in pdbs_withlig:                      # 按逗号分割解析列表中的PDB ID与配体名称
+            if i in abandon_list:                   # 忽略abandon.txt的晶体
+                continue
             pdb = i.split(',')[0].strip().upper()   # PDB ID
             lig = i.split(',')[1].strip().upper()   # 配体名称
             pdb_list.append((pdb, lig))             # 将每一对作为元组储存至列表pdb_list
@@ -1082,7 +1096,7 @@ Example for receptor list file:
         
         if notpass:
             print('\nAbandoned Crystal(s): ', notpass)
-            with open(data_path + 'abandon.txt', 'a') as f:
+            with open(pdb_path + 'abandon.txt', 'a') as f:
                 f.write('\n' + list_filename + '\n')
                 for p, l in notpass:
                     f.write(p + ',' + l + '\n')

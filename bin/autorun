@@ -9,3 +9,4 @@ do
     gene=${filename%.*}
     $script_dir/py4schrodinger -r $script_dir/../lib/list/$filename -p XP -n 48 -k > $script_dir/../lib/log/${gene}.log
 done
+echo Autorun Complete
