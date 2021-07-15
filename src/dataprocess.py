@@ -1,6 +1,7 @@
 import os
 import sys
 import openpyxl
+import re
 import pandas as pd
 from openpyxl.styles import Font
 
@@ -59,7 +60,60 @@ def info_merge():
             for cell in row:
                 cell.font = font
     wb.save(mergefile)
+
+def conform_classify():
+    '''
+    晶体构象分类(Agonist/Antagonist)
+    '''
+    agonist_match = re.compile('agonist', re.IGNORECASE)
+    antagonist_match = re.compile('antagonist', re.IGNORECASE)
+    agonist_list = []
+    antagonist_list = []
+    agonist_ref = []
+    antagonist_ref = []
+
+    classifyfile = pdb_path + 'COMFORM_CLASSIFY.xlsx'
+    infofiles = os.popen('cd %s && ls' % info_path).read().splitlines()
+    writer = pd.ExcelWriter(classifyfile)
+
+    for infofile in infofiles:
+        gene = infofile.split('.')[0]
+        data = pd.read_csv(info_path + infofile)
+
+        # 解析CSV
+        for index, row in data.iterrows():
+            title = row['title']
+            ref = row['reference']
+            if re.search(antagonist_match, title) or re.search(antagonist_match, ref):
+                antagonist_list.append({'Gene Name' : gene, 'PDB ID' : row['PDBID'],'Comformation' : 'Antagonist','Title' : row['title'], 'Reference' : row['reference'], 'DOI' : row['DOI']})
+                antagonist_ref.append(row['DOI'])
+            elif re.search(agonist_match, title) or re.search(agonist_match, ref):
+                agonist_list.append({'Gene Name' : gene, 'PDB ID' : row['PDBID'],'Comformation' : 'Agonist','Title' : row['title'], 'Reference' : row['reference'], 'DOI' : row['DOI']})
+                agonist_ref.append(row['DOI'])
+
+    agonist_df = pd.DataFrame(agonist_list)
+    antagonist_df = pd.DataFrame(antagonist_list)
+    agonist_df.to_excel(writer, 'Agonist', index=False)
+    antagonist_df.to_excel(writer, 'Antagonist', index=False)
+
+    # 文献去重
+    antagonist_ref = set(antagonist_ref)
+    agonist_ref = set(agonist_ref)
+    antagonist_ref_df = pd.DataFrame(antagonist_ref)
+    agonist_ref_df = pd.DataFrame(agonist_ref)
+    agonist_ref_df.to_excel(writer, 'Agonist_Reference', index=False)
+    agonist_ref_df.to_csv(pdb_path + 'Agonist_Ref.csv', index=False)
+    antagonist_ref_df.to_excel(writer, 'Antagonist_Reference', index=False)
+    antagonist_ref_df.to_csv(pdb_path + 'Antagonist_Ref.csv', index=False)
+    writer.save()
     
+    wb = openpyxl.load_workbook(classifyfile)
+    for ws in wb:
+        for row in ws.iter_rows():
+            for cell in row:
+                cell.font = font
+    wb.save(classifyfile)
+
 def main():
     print('''
     Script for Merging Data after Docking.
@@ -67,6 +121,7 @@ def main():
 1. Merge the basic information of all crystals in automatedMD/lib/info
 2. Merge all docking results data in automatedMD/lib/result
 3. Merge all docking with exogenous ligand results data in automatedMD/lib/result
+4. Classfify all crystals via title or reference
 
 0. Exit
 ''')
@@ -79,6 +134,8 @@ def main():
     elif _flag == '3':
         ligname = input('Enter the ligand name:')
         result_merge(ligname)
+    elif _flag == '4':
+        conform_classify()
     else:
         sys.exit()
     

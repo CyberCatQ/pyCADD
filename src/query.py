@@ -245,29 +245,7 @@ class Query:
         for gene in gene_list:
             _temp_value = []
             gene = gene.strip()
-            # gene_name = gene_dic[gene]
 
-            '''
-            agonist_smi = []
-            antagonist_smi = []
-
-            
-            try:
-                agonist_file = open(
-                    'smi-data/%s_agonist/ligands/%s_agonists.smi' % (gene_name, gene_name))
-                antagonist_file = open(
-                    'smi-data/%s_antagonist/ligands/%s_antagonists.smi' % (gene_name, gene_name))
-                temp1 = agonist_file.readlines()
-                temp2 = antagonist_file.readlines()
-                for text in temp1:
-                    text = text.strip()
-                    agonist_smi.append(text.split('\t')[0])
-                for text in temp2:
-                    text = text.strip()
-                    antagonist_smi.append(text.split('\t')[0])
-            except FileNotFoundError:
-                pass
-            '''
             try:
                 jsfile = open(json_dir_path + gene + '.json', 'r')
             except FileNotFoundError:
@@ -344,14 +322,6 @@ class Query:
                             j)]['nonpolymer_comp']['chem_comp']['id']  # 小分子ID
                         d['nonpolymer_entities_' + str(j) + '_SMILES'] = d['nonpolymer_entities_' + str(
                             j)]['nonpolymer_comp']['rcsb_chem_comp_descriptor']['SMILES']
-                        '''
-                        if d['nonpolymer_entities_' + str(j) + '_SMILES'] in agonist_smi:
-                            d['nonpolymer_entities_' +
-                                str(j) + '_activity'] = 'Agonist'
-                        elif d['nonpolymer_entities_' + str(j) + '_SMILES'] in antagonist_smi:
-                            d['nonpolymer_entities_' +
-                                str(j) + '_activity'] = 'Antagonist'
-                        '''
 
                         temp_list = d['nonpolymer_entities_' + str(
                             j)]['rcsb_nonpolymer_entity_container_identifiers']['auth_asym_ids']  # 小分子所在链列表
