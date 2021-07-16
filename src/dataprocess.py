@@ -7,8 +7,10 @@ from openpyxl.styles import Font
 
 root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目路径 绝对路径
 result_path = root_path + 'lib/result/'                                 # 对接结果数据文件库
-info_path = root_path + 'lib/info/'                                      # 晶体基本信息数据文件库
+info_path = root_path + 'lib/info/'                                     # 晶体基本信息数据文件库
 pdb_path = root_path.split('automatedMD')[0]                            # PDB项目绝对路径(如果有)
+inputfile_path = root_path + 'lib/list/'                                # py4schrodinger输入文件库
+
 font = Font(name='等线',size=12)
 
 def result_merge(ligname=None):
@@ -61,10 +63,30 @@ def info_merge():
                 cell.font = font
     wb.save(mergefile)
 
+def process_listfile():
+    '''
+    解析已存在的py4schrodinger输入文件 确保配体与目标基因的蛋白关联
+    Return
+    ---------
+    dic
+        { GENE: ['PDBID1,ligname1,agonist', 'PDBID2,ligname2,', ...] }
+    '''
+    list_dic = {}
+    inputfiles = os.popen('cd %s && ls' % inputfile_path).read().splitlines()
+    for inputfile in inputfiles:
+        gene = inputfile.split('.')[0]
+        with open(inputfile_path + inputfile) as f:
+            cps = f.read().splitlines()
+        list_dic[gene] = cps
+
+    return list_dic
+
 def conform_classify():
     '''
     晶体构象分类(Agonist/Antagonist)
     '''
+    conform_dic = process_listfile()
+
     agonist_match = re.compile('agonist', re.IGNORECASE)
     antagonist_match = re.compile('antagonist', re.IGNORECASE)
     agonist_list = []
@@ -79,15 +101,25 @@ def conform_classify():
     for infofile in infofiles:
         gene = infofile.split('.')[0]
         data = pd.read_csv(info_path + infofile)
+        agonist_ID = []
+        antagonist_ID = []
+
+        for cp in conform_dic[gene]:                # 根据文件中的flag识别为激动剂或拮抗剂
+            _flag = cp.split(',')[2]
+            _pdb = cp.split(',')[0]
+            _lig = cp.split(',')[1]
+
+            if re.search(antagonist_match, _flag):
+                antagonist_ID.append(_pdb)
+            elif re.search(agonist_match, _flag):
+                agonist_ID.append(_pdb)
 
         # 解析CSV
         for index, row in data.iterrows():
-            title = row['title']
-            ref = row['reference']
-            if re.search(antagonist_match, title) or re.search(antagonist_match, ref):
+            if row['PDBID'] in antagonist_ID:      # 拮抗剂命中
                 antagonist_list.append({'Gene Name' : gene, 'PDB ID' : row['PDBID'],'Comformation' : 'Antagonist','Title' : row['title'], 'Reference' : row['reference'], 'DOI' : row['DOI']})
                 antagonist_ref.append(row['DOI'])
-            elif re.search(agonist_match, title) or re.search(agonist_match, ref):
+            elif row['PDBID'] in agonist_ID:          # 激动剂命中
                 agonist_list.append({'Gene Name' : gene, 'PDB ID' : row['PDBID'],'Comformation' : 'Agonist','Title' : row['title'], 'Reference' : row['reference'], 'DOI' : row['DOI']})
                 agonist_ref.append(row['DOI'])
 

@@ -2,6 +2,7 @@ import csv
 import json
 import os
 import sys
+import re
 from time import sleep
 from urllib import parse
 
@@ -411,6 +412,9 @@ class Query:
         YT3: YTTRIUM (III) ION
         '''
 
+        agonist_match = re.compile('agonist', re.IGNORECASE)
+        antagonist_match = re.compile('antagonist', re.IGNORECASE)
+
         if not gene_list:
             gene_list = self.gene_list
 
@@ -440,17 +444,24 @@ class Query:
                     ligchain_index.append(index)
 
             for line in reader:
+                _flag = ''
+                # 判断构象类型
+                if re.search(antagonist_match, str(line)):
+                    _flag = 'antagonist'
+                elif re.search(agonist_match, str(line)):
+                    _flag = 'agonist'
 
                 pdb = line[0]
                 for x in chain_index:
-                    if gene in line[x-1].split(','):
+                    if gene in line[x-1].split(','):        # 判断哪一条链是目标基因的蛋白
                         match_chain = line[x]
 
                 for x in ligchain_index:
                     if line[x-1] in ignore_list:
                         continue
-                    if line[x] and line[x] in match_chain:
-                        inputfile.write('%s,%s\n' % (pdb, line[x - 1]))
+                    if line[x] and line[x] in match_chain:  # 判断配体是否是结合目标基因蛋白的配体
+                        inputfile.write('%s,%s,%s\n' % (pdb, line[x - 1], _flag))
+                        
 
             f.close()
             inputfile.close()
