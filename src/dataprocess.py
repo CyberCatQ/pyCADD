@@ -66,6 +66,7 @@ def info_merge():
 def process_listfile():
     '''
     解析已存在的py4schrodinger输入文件 确保配体与目标基因的蛋白关联
+
     Return
     ---------
     dic
@@ -117,10 +118,10 @@ def conform_classify():
         # 解析CSV
         for index, row in data.iterrows():
             if row['PDBID'] in antagonist_ID:      # 拮抗剂命中
-                antagonist_list.append({'Gene Name' : gene, 'PDB ID' : row['PDBID'],'Comformation' : 'Antagonist','Title' : row['title'], 'Reference' : row['reference'], 'DOI' : row['DOI']})
+                antagonist_list.append({'Gene Name' : gene, 'PDB ID' : row['PDBID'],'Conformation' : 'Antagonist','Title' : row['title'], 'Reference' : row['reference'], 'DOI' : row['DOI']})
                 antagonist_ref.append(row['DOI'])
             elif row['PDBID'] in agonist_ID:          # 激动剂命中
-                agonist_list.append({'Gene Name' : gene, 'PDB ID' : row['PDBID'],'Comformation' : 'Agonist','Title' : row['title'], 'Reference' : row['reference'], 'DOI' : row['DOI']})
+                agonist_list.append({'Gene Name' : gene, 'PDB ID' : row['PDBID'],'Conformation' : 'Agonist','Title' : row['title'], 'Reference' : row['reference'], 'DOI' : row['DOI']})
                 agonist_ref.append(row['DOI'])
 
     agonist_df = pd.DataFrame(agonist_list)
