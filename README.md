@@ -5,10 +5,10 @@ automatedMD
 ## Platform  
 * Linux  
 ## Required    
-* Schrodier Suite 2018-2 或更高版本
-* AMBER 18 或更高版本(要使用PMEMD 请安装CUDA 9.0或以上版本)
-* Gaussian 09.D01 或更高版本 (脚本默认使用g16)
-* Multiwfn 3.7 (用以计算RESP2电荷)
+* [Schrodinger Suite](https://www.schrodinger.com/)2018-2 或更高版本
+* [AMBER](http://ambermd.org/) 18 或更高版本(要使用PMEMD 请安装CUDA 9.0或以上版本)
+* [Gaussian](http://gaussian.com/) 09.D01 或更高版本 (脚本默认使用g16)
+* [Multiwfn 3.7](http://sobereva.com/multiwfn/) (用以计算RESP2电荷)
 
 ### Python Version
 * 3.7 or Higher
@@ -68,11 +68,11 @@ automatedMD
     3OAP
     5JI0
     4K6I
-如果晶体包含有多个不同名称的小分子配体，请在文件中指明，并以逗号分割: *example.txt*
+如果晶体包含有多个不同名称的小分子配体，请在文件中指明，并以逗号分割(还可特别指明构象类型): *example.txt*
 
-    3OAP,9CR
-    5JI0,BRL
-    4K6I,9RA
+    3OAP,9CR,agonist
+    5JI0,BRL,agonist
+    4K6I,9RA,
 
 然后 请使用额外参数运行`py4schrodinger`：  
 
