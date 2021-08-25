@@ -1,5 +1,6 @@
 import os
 import sys
+from numpy import index_exp
 import openpyxl
 import re
 import pandas as pd
@@ -44,16 +45,23 @@ def result_merge(ligname=None):
 
 def info_merge():
     '''
-    合并晶体基础信息并输出到同一EXCEL中
+    合并晶体基础信息并分不同sheet输出到同一EXCEL中 并产生一张汇总sheet
     '''
     mergefile = pdb_path + 'CRYSTALS_INFO.xlsx'
     infofiles = os.popen('cd %s && ls' % info_path).read().splitlines()
     writer = pd.ExcelWriter(mergefile)
+    data_list = []  # 汇总数据表
 
     for infofile in infofiles:
         gene = infofile.split('.')[0]
         data = pd.read_csv(info_path + infofile)
         data.to_excel(writer, gene, index=False)
+
+        data['GENE'] = gene
+        data_list.append(data)
+
+    data_total = pd.concat(data_list)
+    data_total.to_excel(writer, 'TOTAL', index=False)
     writer.save()
 
     wb = openpyxl.load_workbook(mergefile)
