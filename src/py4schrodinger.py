@@ -845,7 +845,7 @@ Example for receptor list file:
             elif opt in ('-r', '--receptor'):
                 self.list_file = arg.strip()
                 self.list_file_path = os.path.abspath(self.list_file)
-                self.list_filename = self.list_file_path.split('.')[0].split(os.sep)[-1]
+                self.list_filename = self.list_file_path.split(os.sep)[-1].split('.')[0]
             elif opt in ('-l', '--ligand'):
                 _ligand_file= arg.strip()
                 self.ligand_file_path = os.path.abspath(_ligand_file)
