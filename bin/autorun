@@ -6,7 +6,8 @@ log_dir=$lib_dir/log
 
 nrlist_dir=$script_dir/../../NRlist_1.1
 files=$(ls $nrlist_dir)
-precision=XP
+read -p 'Enter the precision of docking(SP|XP) > ' precision
+
 starttime=$(date)
 echo Start at: $starttime
 echo
@@ -23,13 +24,14 @@ if [ $# -eq 0 ];then
     for filename in $files
     do
         gene=${filename%.*}
-        $script_dir/py4schrodinger -r $nrlist_dir/$filename -p $precision -n 48 -k > $script_dir/../lib/log/${gene}.log
+        $script_dir/py4schrodinger -r $nrlist_dir/$filename -p $precision -n 48 -k > $script_dir/../lib/log/${gene}_${precision}.log
     done
 else
     for filename in $files
     do
         gene=${filename%.*}
-        $script_dir/py4schrodinger -r $nrlist_dir/$filename -l $(readlink -f "$1") -p $precision -n 48 -k > $script_dir/../lib/log/${gene}.log
+        lig=$(readlink -f "$1")
+        $script_dir/py4schrodinger -r $nrlist_dir/$filename -l ${lig} -p $precision -n 48 -k > $script_dir/../lib/log/${gene}_${precision}.log
     done
 fi
 endtime=$(date)
