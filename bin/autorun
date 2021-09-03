@@ -4,9 +4,12 @@ script_dir=$(dirname $script_abs)
 lib_dir=$script_dir/../lib
 log_dir=$lib_dir/log
 
-nrlist_dir=$script_dir/../../NRlist_1.0
+nrlist_dir=$script_dir/../../NRlist_1.1
 files=$(ls $nrlist_dir)
-precision=SP
+precision=XP
+starttime=$(date)
+echo Start at: $starttime
+echo
 
 for dir in $lib_dir $log_dir
 do
@@ -30,6 +33,8 @@ else
     done
 fi
 endtime=$(date)
+
+echo
 echo Autorun Complete
 
 echo Precision: $precision

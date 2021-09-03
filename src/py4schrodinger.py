@@ -1068,14 +1068,14 @@ Example for receptor list file:
         '''
 
         ligand_file = self.ligand_file
+        precision = self.precision
         ligname = ligand_file.split('.')[0]
         if ligand_file:
-            withlig = '_' + ligname
+            withlig = '_' + ligname + '_' + precision
         else:
-            withlig = ''
+            withlig = '_' + precision
 
         list_filename = self.list_filename
-        precision = self.precision
         notpass = self.notpass
         dock_fail = self.dock_fail
         data_path = lib_path + 'result/'
