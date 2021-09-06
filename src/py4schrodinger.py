@@ -21,10 +21,10 @@ pdb_path = root_path.split('automatedMD')[0]                            # PDB项
 pdb_name = os.path.basename(pdb_path.rstrip('/'))                                   # PDB项目名称(如果有)
 
 # SP模式下与XP模式下产生对接结果项目不同
-prop_xp = ['PDB', 'Ligand', 'Docking_Score', 'rmsd', 'precision', 'ligand_efficiency', 'XP_Hbond', 'rotatable_bonds',
-            'ecoul', 'evdw', 'emodel', 'energy', 'einternal']
-prop_sp = ['PDB', 'Ligand', 'Docking_Score', 'rmsd', 'precision', 'ligand_efficiency', 'rotatable_bonds',
-            'ecoul', 'evdw', 'emodel', 'energy', 'einternal','lipo', 'hbond', 'metal', 'rewards', 'erotb', 'esite']
+prop_xp = ['PDB', 'Ligand', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'ligand_efficiency', 
+            'XP_Hbond', 'rotatable_bonds', 'ecoul', 'evdw', 'emodel', 'energy', 'einternal']
+prop_sp = ['PDB', 'Ligand', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'ligand_efficiency', 
+            'rotatable_bonds', 'ecoul', 'evdw', 'emodel', 'energy', 'einternal','lipo', 'hbond', 'metal', 'rewards', 'erotb', 'esite']
 # 读取abandon.txt 忽略名单
 global abandon_list
 abandon_list = []
@@ -85,6 +85,7 @@ ligname : str
         self.lig_file = ''          # 内源配体文件名
         self.recep_file = ''        # 受体文件名
         self.dock_file = ''         # 对接结果文件名
+        self.mmgbsa_file = ''       # 结合能计算结果文件名
 
     @staticmethod
     def load_st(st_file:str) -> object:
@@ -589,9 +590,62 @@ ligname : str
         self.dock_file = dock_file                         # [属性修改] 修改对接结果文件PATH
         return dock_file
 
+    def cal_mmgbsa(self, dock_file:str=None, ex_ligand:str=None) -> str:
+        '''
+        计算MM-GBSA结合能
+
+        Parameters
+        ----------
+        dock_file : str
+            对接完成的结果文件(包含受体与配体)   
+            为区分精度，文件名应以 _SP.maegz(mae) 或 _XP.maegz(mae)结尾
+        ex_ligand : str   
+            外源配体(如果有)
+
+        Return
+        ----------
+        str
+            计算MM-GB/SA完成的复合物文件名
+
+        '''
+        
+        if not dock_file:
+            dock_file = self.dock_file
+
+        # 按照dock()自动生成的文件名获取相关信息(有外源配体时)
+        if ex_ligand:
+            pdbid = dock_file.split('_')[4]
+            lig_name = dock_file.split('_')[5]
+        # 按照dock()自动生成的文件名获取相关信息(无外源配体时)
+        else:
+            pdbid = dock_file.split('_')[0]
+            lig_name = dock_file.split('_')[3]
+
+        # 从结果获取对接精度
+        precision = re.search(r'(?<=_)[SX]P(?=.maegz)', dock_file).group()
+
+        print('Prepare to Calculate MM-GB/SA Binding Energy...\n')
+        
+        mmgbsa_file = dock_file.split('.')[0] + '_mmgbsa.maegz'
+
+        if os.path.exists(mmgbsa_file):
+            self.mmgbsa_file = mmgbsa_file
+            return mmgbsa_file
+        
+        self._launch('prime_mmgbsa %s -JOBNAME %s-Prime-MMGBSA-%s-%s' % (dock_file, pdbid, lig_name, precision))
+
+        cmd = os.system('mv %s-Prime-MMGBSA-%s-%s-out.maegz %s'% (pdbid, lig_name, precision, mmgbsa_file))
+        if cmd != 0:
+            raise RuntimeError('%s-%s Prime MM-GB/SA Calculating Failed.' % (pdbid, lig_name))
+        
+        print('\nMM-GB/SA Calculating Result File: %s Saved.\n' % mmgbsa_file)
+
+        self.mmgbsa_file = mmgbsa_file
+        return mmgbsa_file
+
     def extra_data(self, pdbid:str=None, path:str=None, ligname:str=None, precision:str='SP') -> dict:
         '''
-        从对接完成的Maestro文件中提取数据
+        从对接或计算完成的Maestro文件中提取数据
 
         Parameters
         ----------
@@ -610,11 +664,13 @@ ligname : str
             Properties : Values
 
         '''
-
         if not pdbid:
             pdbid = self.pdbid
         if not path:
-            path = self.dock_file
+            if self.mmgbsa_file:
+                path = self.mmgbsa_file
+            else:
+                path = self.dock_file
         st = struc.StructureReader(path)
         if not ligname:
             ligname = self.ligname
@@ -638,6 +694,11 @@ ligname : str
 
         try:
             prop_dic['rmsd'] = lig_st.property['r_i_glide_rmsd_to_input']
+        except KeyError:
+            pass
+
+        try:
+            prop_dic['MMGBSA_dG_Bind'] = lig_st.property['r_psp_MMGBSA_dG_Bind']
         except KeyError:
             pass
 
@@ -680,7 +741,7 @@ ligname : str
                 writer = csv.DictWriter(f, fieldnames=prop_xp)
             elif precision == 'SP':
                 writer = csv.DictWriter(f, fieldnames=prop_sp)
-            writer.writeheader()    # 写入标头
+            writer.writeheader()        # 写入标头
             writer.writerows(data_dic)  # 写入数据 自动匹配标头列
             
 
@@ -719,14 +780,16 @@ Please enter the code of analysis to be performed:
     1.  PDB file download + Optimization
     2.  PDB file download + Optimization + Generate grid file (Size 20A)
     3.  Generate grid file (custom Size) only
-    4.  Internal ligand docking automatically (SP precision)
-    5.  Internal ligand docking automatically (XP precision)
+    4.  Internal ligand docking automatically (SP precision, Calculate MM-GBSA)
+    5.  Internal ligand docking automatically (XP precision, Calculate MM-GBSA)
     6.  Specified ligand ligand docking
+    7.  Internal ligand docking automatically (SP precision)
+    8.  Internal ligand docking automatically (XP precision)
 
     0.  Exit
 
             ''')
-            if re.match('^[0123456]$', flag):
+            if re.match('^[012345678]$', flag):
                 return flag
             else:
                 print('Invalid Code, Please Try Again.')
@@ -742,7 +805,7 @@ Please enter the code of analysis to be performed:
         if flag == '0':
             sys.exit(0)
 
-        elif len(flag) == 1 and flag in '12345':
+        elif len(flag) == 1 and flag in '1234578':
             console.minimize()                  # 能量最小化
             split_lis = console.split_com()     # 拆分复合物
             lig_file = split_lis[0]             # 配体文件PATH获取
@@ -754,29 +817,33 @@ Please enter the code of analysis to be performed:
                 size = int(input('Input Grid Box Size(Default 20Å):'))
                 console.grid_generate(gridbox_size=size)    # 以指定Size生成Grid文件
             
-            elif flag in '45':
+            elif flag in '4578':
                 print('Ligand File:', lig_file)
                 grid_file = console.grid_generate()
                 print('Grid File:', grid_file)
 
-                if flag == '4':
+                if flag == '4' or flag == '7':
                     precision = 'SP'
                     
                 else:
                     precision = 'XP'
                     
-                console.dock(precision, calc_rmsd=True)
-                console.save_data(data_dic=console.extra_data(precision=precision), precision=precision)
+                console.dock(precision=precision, calc_rmsd=True)
+                if flag in '45':
+                    console.cal_mmgbsa()
+                console.save_data(data_dic=[console.extra_data(precision=precision)], precision=precision)
 
         elif flag == '6':
             lig_file = input('Input Ligand File PATH:').strip()
             precision = input('Input Docking Precision(HTVS|SP|XP):').strip().upper()
+            mmgbsaFlag = input('Calculate Binding Energy? (Y/N):').strip().upper()
 
             lig_file = console.convert_format(lig_file, 'mae')
             console.minimize()
             grid_file = console.grid_generate()
             console.dock(lig_file=lig_file, precision=precision)
-
+            if mmgbsaFlag == 'Y':
+                console.cal_mmgbsa()
         else:
             raise RuntimeError('Wrong Input Code\nEXIT.')
             
@@ -791,9 +858,11 @@ class Multidock(Console):
         self.precision = ''         # 对接精度
         self.cpus = ''              # 对接工作使用的进程数
         self.flag = ''              # 对接工作启动确认标记
+        self.mmgbsaFlag = ''        # 是否计算MM-GBSA结合能的标记
         self.list_filename = ''     # 基因名称(晶体列表文件的名称)
         self.notpass = []           # 内源配体对接不成功的晶体列表
         self.dock_fail = []         # 外源配体对接不成功的晶体列表
+        
 
     def __usage():
         '''
@@ -811,6 +880,7 @@ Descrption:
         -p, --precision     Specify Docking Precision(HTVS|SP|XP)       
         -n, --cpu           Specify Number of CPU used to dock     
         -k, --no-check      Running Docking Without Check 'Y/N'      
+        -m, --mmgbsa        Calculate MM-GB/SA Binding Energy After Docking    
 
         Note: Only crystals' own ligand but No exogenous ligand will be docked without [-l|--ligand].
 
@@ -856,6 +926,8 @@ Example for receptor list file:
                 self.flag = 'Y'
             elif opt in ('-n', '--cpu'):
                 self.cpus = int(arg)
+            elif opt in ('-m', '--mmgbsa'):
+                self.mmgbsaFlag = 'Y'
 
     def __list_process(self) -> list:
         '''
