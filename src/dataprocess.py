@@ -5,6 +5,7 @@ import openpyxl
 import re
 import pandas as pd
 from openpyxl.styles import Font
+from pandas.core.reshape.merge import merge
 
 root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目路径 绝对路径
 result_path = root_path + 'lib/result/'                                 # 对接结果数据文件库
@@ -16,16 +17,18 @@ font = Font(name='等线',size=12)
 
 def result_merge(ligname=None):
     '''
-    合并对接结果数据并输出到同一EXCEL中
+    合并对接结果数据并输出到同一EXCEL中 并产生一张汇总sheet
     Parameter
     ----------
     ligname : str
         外源配体名称(如果有)
     '''
-    withlig = ''
+    precision = input('Enter the precision of docking:(SP|XP)').strip().upper()
+    withlig = '_' + precision
     if ligname:
-        withlig = '_' + ligname
+        withlig = '_' + ligname + '_' + precision
     mergefile = pdb_path + 'DOCK_FINAL_RESULTS%s.xlsx' % withlig
+    data_list = []  # 汇总数据表
 
     resultfiles = os.popen("cd %s && ls | grep 'RESULTS%s.csv'" % (result_path, withlig)).read().splitlines()
     writer = pd.ExcelWriter(mergefile)
@@ -33,7 +36,13 @@ def result_merge(ligname=None):
         gene = resultfile.split('_')[0]
         resultdata = pd.read_csv(result_path + resultfile)
         resultdata.to_excel(writer, gene, index=False)
+        
+        resultdata['GENE'] = gene
+        data_list.append(resultdata)
     
+    data_total = pd.concat(data_list)
+    data_total.to_excel(writer, 'TOTAL', index=False)
+
     writer.save()
 
     wb = openpyxl.load_workbook(mergefile)
@@ -62,6 +71,74 @@ def info_merge():
 
     data_total = pd.concat(data_list)
     data_total.to_excel(writer, 'TOTAL', index=False)
+    writer.save()
+
+    wb = openpyxl.load_workbook(mergefile)
+    for ws in wb:
+        for row in ws.iter_rows():
+            for cell in row:
+                cell.font = font
+    wb.save(mergefile)
+
+def _identify_gen(df, key_col1=None, key_col2=None):
+    '''
+    生成唯一识别号IDENTIFY列确保数据合并正确
+    将直接修改传入的Dataframe
+
+    Parameters
+    ----------
+    df : pandas.Dataframe
+        要处理的Dataframe数据
+    key_col1 : str
+        用于生成识别号的第一个列名
+    key_col2 : str
+        用于生成识别号的第二个列名
+    
+    '''
+    
+    for index, row in df.iterrows():
+        df.at[index, 'IDENTIFY'] = str(row[key_col1]) + str(row[key_col2])
+
+def merge_info_result(ligname=None):
+    '''
+    将晶体基础信息与对接结果合并为总EXCEL
+    '''
+
+
+    precision = input('Enter the precision of docking:(SP|XP)').strip().upper()
+    withlig = '_' + precision
+    if ligname:
+        withlig = '_' + ligname + '_' + precision
+
+    mergefile = pdb_path + 'FINAL_RESULTS%s.xlsx' % withlig      # 总EXCEL文件名
+    writer = pd.ExcelWriter(mergefile)
+
+    info_file_name = input('Enter the PATH of Info Database File:') # 手动输入晶体信息文件名称(可能随版本迭代改变)
+    if not os.path.isfile(info_file_name):
+        raise FileNotFoundError('No such file or directory: %s' % info_file_name)
+    infofile = os.path.abspath(info_file_name)
+
+    withlig = '_' + precision
+    if ligname:
+        withlig = '_' + ligname + '_' + precision
+    resultfile = pdb_path + 'DOCK_FINAL_RESULTS%s.xlsx' % withlig    
+
+    try:                                                    # 读取晶体信息
+        infos = pd.read_excel(infofile, 'TOTAL')
+    except ValueError:
+        infos = pd.read_excel(infofile)
+
+    results = pd.read_excel(resultfile, 'TOTAL')            # 读取对接结果
+
+    # 生成用于匹配的唯一识别号
+    _identify_gen(infos, 'PDB ID', 'Gene Name')
+    _identify_gen(results, 'PDB', 'GENE')
+
+    tmp_merge_data = pd.merge(left=infos, right=results, how='left', on='IDENTIFY')
+    merge_data = tmp_merge_data[['Name', 'Abbreviation', 'Gene Name', 'PDB ID', 'Ligand_x', 'Ligand ID','Ligand_y',
+       'Docking_Score', 'rmsd', 'precision','Comformation', 'Title', 'Reference', 'DOI', 'Times Cited']]
+    merge_data = merge_data.rename(columns={'Ligand_x':'Origin Ligand', 'Ligand ID':'Origin Ligand ID', 'Ligand_y':'Docking Ligand'})
+    merge_data.to_excel(writer, index=False)
     writer.save()
 
     wb = openpyxl.load_workbook(mergefile)
@@ -162,7 +239,9 @@ def main():
 1. Merge the basic information of all crystals in automatedMD/lib/info
 2. Merge all docking results data in automatedMD/lib/result
 3. Merge all docking with exogenous ligand results data in automatedMD/lib/result
-4. Classfify all crystals via title or reference
+4. Merge docking results to crystals info
+5. Merge Merge docking with exogenous ligand results to crystals info
+6. Classfify all crystals via title or reference
 
 0. Exit
 ''')
@@ -176,6 +255,11 @@ def main():
         ligname = input('Enter the ligand name:')
         result_merge(ligname)
     elif _flag == '4':
+        merge_info_result()
+    elif _flag == '5':
+        ligname = input('Enter the ligand name:')
+        merge_info_result(ligname=ligname)
+    elif _flag == '6':
         conform_classify()
     else:
         sys.exit()

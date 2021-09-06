@@ -1,20 +1,44 @@
 #!/bin/sh
 script_abs=$(readlink -f "$0")
 script_dir=$(dirname $script_abs)
+lib_dir=$script_dir/../lib
+log_dir=$lib_dir/log
 
-files=$(ls $script_dir/../lib/list/)
+nrlist_dir=$script_dir/../../NRlist_1.1
+files=$(ls $nrlist_dir)
+read -p 'Enter the precision of docking(SP|XP) > ' precision
+
+starttime=$(date)
+echo Start at: $starttime
+echo
+
+for dir in $lib_dir $log_dir
+do
+    if [ ! -d $dir ];then
+        echo "$dir does not exist. It will be created."
+        mkdir $dir
+    fi
+done
 
 if [ $# -eq 0 ];then
     for filename in $files
     do
         gene=${filename%.*}
-        $script_dir/py4schrodinger -r $script_dir/../lib/list/$filename -p XP -n 48 -k > $script_dir/../lib/log/${gene}.log
+        $script_dir/py4schrodinger -r $nrlist_dir/$filename -p $precision -n 48 -k > $script_dir/../lib/log/${gene}_${precision}.log
     done
 else
     for filename in $files
     do
         gene=${filename%.*}
-        $script_dir/py4schrodinger -r $script_dir/../lib/list/$filename -l $(readlink -f "$1") -p XP -n 48 -k > $script_dir/../lib/log/${gene}.log
+        lig=$(readlink -f "$1")
+        $script_dir/py4schrodinger -r $nrlist_dir/$filename -l ${lig} -p $precision -n 48 -k > $script_dir/../lib/log/${gene}_${precision}.log
     done
 fi
+endtime=$(date)
+
+echo
 echo Autorun Complete
+
+echo Precision: $precision
+echo Start at: $starttime
+echo Jobs Complete at: $endtime
