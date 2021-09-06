@@ -1138,8 +1138,12 @@ Example for receptor list file:
 
             if ligand_file:             # 存在外源配体对接需求时
                 ligname = ligand_file.strip().split('.')[0]
-                dock_result_file_o = lib_path + 'dockfiles/%s/%s_glide_dock_on_%s_%s_%s.maegz' % (
-                    pdb, ligname, pdb, origin_ligand, precision)
+                if self.mmgbsaFlag == 'Y':
+                    dock_result_file_o = lib_path + 'dockfiles/%s/%s_glide_dock_on_%s_%s_%s_mmgbsa.maegz' % (
+                        pdb, ligname, pdb, origin_ligand, precision)
+                else:
+                    dock_result_file_o = lib_path + 'dockfiles/%s/%s_glide_dock_on_%s_%s_%s.maegz' % (
+                        pdb, ligname, pdb, origin_ligand, precision)
                 if os.path.exists(dock_result_file_o):
                     ex_dic = self.extra_data(pdb, dock_result_file_o, ligname, precision)
                     data.append(ex_dic)
