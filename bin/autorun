@@ -6,9 +6,13 @@ log_dir=$lib_dir/log
 
 nrlist_dir=$script_dir/../../NRlist_1.1
 files=$(ls $nrlist_dir)
-read -p 'Enter the precision of docking(SP|XP) > ' precision
+
+# 精度设定
+precision=SP
 
 starttime=$(date)
+
+echo
 echo Start at: $starttime
 echo
 
