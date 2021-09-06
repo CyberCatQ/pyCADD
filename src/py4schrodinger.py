@@ -161,14 +161,14 @@ ligname : str
         else:
             return False
 
-    def convert_format(self, file:str, suffix:str) -> str:
+    def convert_format(self, file_path:str, suffix:str) -> str:
         '''
         mae/pdb格式转换为pdb/mae格式
 
         Parameters
         ----------
-        file : str
-            需要转换的mae文件PATH
+        file_path : str
+            需要转换的文件PATH
         suffix : str
             格式后缀名(pdb|mae)
 
@@ -177,8 +177,9 @@ ligname : str
         str
             转换后的文件名
         '''
-
-        st = self.load_st(file)
+        st = self.load_st(file_path)
+        file = os.path.basename(file_path)
+        
         if suffix == 'pdb':
             st.write(file.split('.')[0] + '.pdb')
             return file.split('.')[0] + '.pdb'
@@ -1250,7 +1251,7 @@ Example for receptor list file:
         pdb_list = self.__check_fail(pdb_list)
         
         if self.ligand_file:                                    # 存在外源性配体对接需求
-            ligand_file = self.convert_format(self.ligand_file, 'mae')
+            ligand_file = self.convert_format(self.ligand_file_path, 'mae')
             ligand_file_path = self.ligand_file_path
             print('\n')
             print(''.center(80,'-'))
