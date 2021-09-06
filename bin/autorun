@@ -28,14 +28,14 @@ if [ $# -eq 0 ];then
     for filename in $files
     do
         gene=${filename%.*}
-        $script_dir/py4schrodinger -r $nrlist_dir/$filename -p $precision -n 48 -k > $script_dir/../lib/log/${gene}_${precision}.log
+        $script_dir/py4schrodinger -r $nrlist_dir/$filename -p $precision -n 48 -k -m > $script_dir/../lib/log/${gene}_${precision}.log
     done
 else
     for filename in $files
     do
         gene=${filename%.*}
         lig=$(readlink -f "$1")
-        $script_dir/py4schrodinger -r $nrlist_dir/$filename -l ${lig} -p $precision -n 48 -k > $script_dir/../lib/log/${gene}_${precision}.log
+        $script_dir/py4schrodinger -r $nrlist_dir/$filename -l ${lig} -p $precision -n 48 -k -m > $script_dir/../lib/log/${gene}_${precision}.log
     done
 fi
 endtime=$(date)

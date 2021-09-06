@@ -614,6 +614,13 @@ ligname : str
 
         # 按照dock()自动生成的文件名获取相关信息(有外源配体时)
         if ex_ligand:
+            ex_ligname = dock_file.split('_')[0]    # 文件名中的配体
+            if ex_ligname != ex_ligand:             # 尝试识别文件名中的配体与提供的配体名称是否一致
+                _flag = input('No file with %s is detected. Are %s and %s the same compound?(Y/N) > ' % (ex_ligand ,ex_ligand, ex_ligname)).strip().upper()
+                if _flag != 'Y':
+                    print('Exit.')
+                    sys.exit(1)
+
             pdbid = dock_file.split('_')[4]
             lig_name = dock_file.split('_')[5]
         # 按照dock()自动生成的文件名获取相关信息(无外源配体时)
@@ -900,7 +907,7 @@ Example for receptor list file:
         '''
         
         try:
-            opts, argvs = getopt.getopt(sys.argv[1:], '-hkr:l:p:n:', ['help', 'no-check', 'receptor=', 'ligand=', 'precision=', 'cpu='])
+            opts, argvs = getopt.getopt(sys.argv[1:], '-hkmr:l:p:n:', ['help', 'no-check', 'mmgbsa', 'receptor=', 'ligand=', 'precision=', 'cpu='])
         except getopt.GetoptError as err:
             print(str(err))
             print(self.__usage.__doc__)
@@ -1035,6 +1042,8 @@ Example for receptor list file:
 
         self.dock(pdbid, lig_file, grid_file, precision, True)    # 对接 
         print('%s Self-Docking Job Complete.\n' % pdbid)
+        if self.mmgbsaFlag == 'Y':
+            self.cal_mmgbsa()                                   # 计算结合能
         print(''.center(80, '-'), end='\n')
         return 1                                                # 1项工作完成 返回以计数
 
@@ -1089,11 +1098,13 @@ Example for receptor list file:
             raise RuntimeError('%s-%s-%s Gilde Dock Failed' % (ligname, pdbid, origin_ligname))
 
         # 重命名文件
-        os.system('mv %s-Glide-Dock-On-%s-%s-%s_pv.maegz %s_glide_dock_on_%s_%s_%s.maegz' %
-                (ligname, pdbid, origin_ligname, precision, ligname, pdbid, origin_ligname, precision))
-        print('\nDocking Result File:', '%s_glide_dock_on_%s_%s_%s.maegz Saved.\n' %
-            (ligname, pdbid, origin_ligname, precision))
-
+        dock_file = '%s_glide_dock_on_%s_%s_%s.maegz' % (ligname, pdbid, origin_ligname, precision)
+        os.system('mv %s-Glide-Dock-On-%s-%s-%s_pv.maegz %s' %
+                (ligname, pdbid, origin_ligname, precision, dock_file))
+        print('\nDocking Result File: %s Saved.\n' % dock_file)
+        
+        if self.mmgbsaFlag == 'Y':
+            self.cal_mmgbsa(dock_file=dock_file, ex_ligand=ligname)
         print('%s Docking on %s-%s Job Complete.\n' %(ligname, pdbid, origin_ligname))
         print(''.center(80, '-'), end='\n')
         return 1                                            # 1项对接工作完成 返回以计数
@@ -1117,7 +1128,10 @@ Example for receptor list file:
         for pdb, lig in pdb_list:
 
             origin_ligand = lig         # 原始配体名称
-            dock_result_file_i = lib_path + 'dockfiles/%s/%s_glide_dock_%s_%s.maegz' % (pdb, pdb, origin_ligand, precision)
+            if self.mmgbsaFlag == 'Y':
+                dock_result_file_i = lib_path + 'dockfiles/%s/%s_glide_dock_%s_%s_mmgbsa.maegz' % (pdb, pdb, origin_ligand, precision)
+            else:
+                dock_result_file_i = lib_path + 'dockfiles/%s/%s_glide_dock_%s_%s.maegz' % (pdb, pdb, origin_ligand, precision)
             prop_dic = self.extra_data(pdbid=pdb, path=dock_result_file_i, ligname=origin_ligand, precision=precision)
             data.append(prop_dic)
 
