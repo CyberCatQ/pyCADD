@@ -21,9 +21,9 @@ pdb_path = root_path.split('automatedMD')[0]                            # PDB项
 pdb_name = os.path.basename(pdb_path.rstrip('/'))                                   # PDB项目名称(如果有)
 
 # SP模式下与XP模式下产生对接结果项目不同
-prop_xp = ['PDB', 'Ligand', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'ligand_efficiency', 
+prop_xp = ['PDB', 'Ligand', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'Site_Score', 'Volume','ligand_efficiency', 
             'XP_Hbond', 'rotatable_bonds', 'ecoul', 'evdw', 'emodel', 'energy', 'einternal']
-prop_sp = ['PDB', 'Ligand', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'ligand_efficiency', 
+prop_sp = ['PDB', 'Ligand', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'Site_Score', 'Volume', 'ligand_efficiency', 
             'rotatable_bonds', 'ecoul', 'evdw', 'emodel', 'energy', 'einternal','lipo', 'hbond', 'metal', 'rewards', 'erotb', 'esite']
 # 读取abandon.txt 忽略名单
 global abandon_list
@@ -86,6 +86,7 @@ ligname : str
         self.recep_file = ''        # 受体文件名
         self.dock_file = ''         # 对接结果文件名
         self.mmgbsa_file = ''       # 结合能计算结果文件名
+        self.sitemap_file = ''      # 结合口袋体积计算结果文件名
 
     @staticmethod
     def load_st(st_file:str) -> object:
@@ -651,6 +652,51 @@ ligname : str
         self.mmgbsa_file = mmgbsa_file
         return mmgbsa_file
 
+    def volume_cal(self, pdbid:str=None, recep_file:str=None, lig_file:str=None):
+        '''
+        Sitemap计算结合口袋体积
+
+        Parameters
+        ----------
+        pdbid : str
+            PDB ID
+        recep_file : str
+            进行口袋体积分析的受体文件PATH
+        lig_file : str
+            定义口袋位置的配体文件PATH
+        
+        Return
+        ----------
+        str
+            sitemap计算完成的文件名
+        '''
+        if not pdbid:
+            if self.pdbid:
+                pdbid = self.pdbid
+            else:
+                pdbid = input('Enter the PDB ID:')
+        # split()自动生成
+        if not recep_file:
+            recep_file = self.recep_file
+        if not lig_file:
+            lig_file = self.lig_file
+        
+        sitemap_file = '%s_sitemap_out.maegz' % pdbid
+        if os.path.exists(sitemap_file):
+            self.sitemap_file = sitemap_file
+            return sitemap_file
+        
+        self._launch('sitemap -sitebox 6 -keeplogs yes -ligmae %s -prot %s -j %s_sitemap' % (lig_file, recep_file, pdbid))
+        
+        if not os.path.exists(sitemap_file):
+            raise RuntimeError('%s Sitemap Calculating Failed.' % pdbid)
+        
+        print('Sitemap Calculating File: %s Saved.' % sitemap_file)
+
+        self.sitemap_file = sitemap_file
+        return sitemap_file
+
+
     def extra_data(self, pdbid:str=None, path:str=None, ligname:str=None, precision:str='SP') -> dict:
         '''
         从对接或计算完成的Maestro文件中提取数据
@@ -720,6 +766,11 @@ ligname : str
 
         elif precision == 'XP':
             prop_dic['XP_Hbond'] = lig_st.property['r_glide_XP_HBond']
+        
+        if self.sitemap_file:                  # 口袋体积提取
+            site_st = self.load_st(self.sitemap_file)
+            prop_dic['Site_Score'] = site_st.property['r_sitemap_SiteScore']
+            prop_dic['Volume'] = site_st.property['r_sitemap_volume']
 
         return prop_dic
         
@@ -837,6 +888,7 @@ Please enter the code of analysis to be performed:
                     precision = 'XP'
                     
                 console.dock(precision=precision, calc_rmsd=True)
+                console.volume_cal()
                 if flag in '45':
                     console.cal_mmgbsa()
                 console.save_data(data_dic=[console.extra_data(precision=precision)], precision=precision)
