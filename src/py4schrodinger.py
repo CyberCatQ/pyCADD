@@ -691,7 +691,7 @@ ligname : str
         if not os.path.exists(sitemap_file):
             raise RuntimeError('%s Sitemap Calculating Failed.' % pdbid)
         
-        print('Sitemap Calculating File: %s Saved.' % sitemap_file)
+        print('\nSitemap Calculating File: %s Saved.\n' % sitemap_file)
 
         self.sitemap_file = sitemap_file
         return sitemap_file
@@ -720,11 +720,15 @@ ligname : str
         '''
         if not pdbid:
             pdbid = self.pdbid
+
         if not path:
             if self.mmgbsa_file:
                 path = self.mmgbsa_file
             else:
                 path = self.dock_file
+        else:                           # 自动模式下 文件夹定位从PATH中获取
+            _pdb_dir_path = lib_path + 'dockfiles/' + pdbid + os.sep
+            sitemap_file = _pdb_dir_path + '%s_sitemap_out.maegz' % pdbid
         st = struc.StructureReader(path)
         if not ligname:
             ligname = self.ligname
@@ -768,9 +772,15 @@ ligname : str
             prop_dic['XP_Hbond'] = lig_st.property['r_glide_XP_HBond']
         
         if self.sitemap_file:                  # 口袋体积提取
-            site_st = self.load_st(self.sitemap_file)
+            sitemap_file = self.sitemap_file
+
+        site_st = self.load_st(sitemap_file)
+
+        try:
             prop_dic['Site_Score'] = site_st.property['r_sitemap_SiteScore']
             prop_dic['Volume'] = site_st.property['r_sitemap_volume']
+        except KeyError:
+            pass
 
         return prop_dic
         
@@ -1087,13 +1097,15 @@ Example for receptor list file:
         # 如有Error将抛出异常 不再继续运行后续代码
         minimized_file = self.minimize(pdbfile)                 # 能量最小化
 
-        lig_file = self.split_com(minimized_file, ligname)[0]   # 拆分复合物
+        lig_file, recep_file = self.split_com(minimized_file, ligname)   # 拆分复合物
+        
         print('\nLigand File:', lig_file)
 
         grid_file = self.grid_generate(pdbid, ligname, minimized_file)    # 格点文件生成
         print('Grid File:', grid_file)
 
         self.dock(pdbid, lig_file, grid_file, precision, True)    # 对接 
+        self.volume_cal(pdbid, recep_file, lig_file)              # 口袋体积计算
         print('%s Self-Docking Job Complete.\n' % pdbid)
         if self.mmgbsaFlag == 'Y':
             self.cal_mmgbsa()                                   # 计算结合能
