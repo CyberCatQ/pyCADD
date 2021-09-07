@@ -18,6 +18,7 @@ font = Font(name='等线',size=12)
 def result_merge(ligname=None):
     '''
     合并对接结果数据并输出到同一EXCEL中 并产生一张汇总sheet
+
     Parameter
     ----------
     ligname : str
@@ -99,9 +100,12 @@ def _identify_gen(df, key_col1=None, key_col2=None):
     for index, row in df.iterrows():
         df.at[index, 'IDENTIFY'] = str(row[key_col1]) + str(row[key_col2])
 
-def merge_info_result(ligname=None):
+def merge_info_result(ligname:str=None):
     '''
     将晶体基础信息与对接结果合并为总EXCEL
+
+    ligname : str
+        外源配体名称（如果有）
     '''
 
 
@@ -136,7 +140,7 @@ def merge_info_result(ligname=None):
 
     tmp_merge_data = pd.merge(left=infos, right=results, how='left', on='IDENTIFY')
     merge_data = tmp_merge_data[['Name', 'Abbreviation', 'Gene Name', 'PDB ID', 'Ligand_x', 'Ligand ID','Ligand_y',
-       'Docking_Score', 'rmsd', 'precision','Comformation', 'Title', 'Reference', 'DOI', 'Times Cited']]
+       'Docking_Score', 'rmsd', 'precision', 'MMGBSA_dG_Bind', 'Comformation', 'Title', 'Reference', 'DOI', 'Times Cited']]
     merge_data = merge_data.rename(columns={'Ligand_x':'Origin Ligand', 'Ligand ID':'Origin Ligand ID', 'Ligand_y':'Docking Ligand'})
     merge_data.to_excel(writer, index=False)
     writer.save()
@@ -240,7 +244,7 @@ def main():
 2. Merge all docking results data in automatedMD/lib/result
 3. Merge all docking with exogenous ligand results data in automatedMD/lib/result
 4. Merge docking results to crystals info
-5. Merge Merge docking with exogenous ligand results to crystals info
+5. Merge docking with exogenous ligand results to crystals info
 6. Classfify all crystals via title or reference
 
 0. Exit
