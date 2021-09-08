@@ -140,7 +140,7 @@ def merge_info_result(ligname:str=None):
 
     tmp_merge_data = pd.merge(left=infos, right=results, how='left', on='IDENTIFY')
     merge_data = tmp_merge_data[['Name', 'Abbreviation', 'Gene Name', 'PDB ID', 'Ligand_x', 'Ligand ID','Ligand_y',
-       'Docking_Score', 'rmsd', 'precision', 'MMGBSA_dG_Bind', 'Comformation', 'Title', 'Reference', 'DOI', 'Times Cited']]
+       'Docking_Score', 'rmsd', 'precision', 'MMGBSA_dG_Bind', 'Volume', 'Site_Score','Comformation', 'Title', 'Reference', 'DOI', 'Times Cited']]
     merge_data = merge_data.rename(columns={'Ligand_x':'Origin Ligand', 'Ligand ID':'Origin Ligand ID', 'Ligand_y':'Docking Ligand'})
     merge_data.to_excel(writer, index=False)
     writer.save()
