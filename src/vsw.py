@@ -409,7 +409,7 @@ Enter the code of Ligand Database to be used:
                 f.write('    RECOMBINE   NO\n')
                 f.write('    PRECISION   XP\n')
                 f.write('    UNIQUEFIELD   s_vsw_compound_code\n')
-                f.write('    percent_TO_KEEP   20.0\n')                           # 保留前20%
+                f.write('    PERCENT_TO_KEEP   20.0\n')                           # 保留前20%
                 f.write('    DOCKING_METHOD   confgen\n')
                 f.write('    POSES_PER_LIG   1\n')
                 f.write('    WRITE_XP_DESC   NO\n')
