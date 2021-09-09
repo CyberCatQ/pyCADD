@@ -18,7 +18,7 @@ root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目
 lib_path = root_path + 'lib' + os.sep                                   # 库文件夹路径
 doc_path = root_path + 'doc' + os.sep                                   # 文档文件夹路径
 pdb_path = root_path.split('automatedMD')[0]                            # PDB项目绝对路径(如果有)
-pdb_name = os.path.basename(pdb_path.rstrip('/'))                                   # PDB项目名称(如果有)
+pdb_name = os.path.basename(pdb_path.rstrip('/'))                       # PDB项目名称(如果有)
 
 # SP模式下与XP模式下产生对接结果项目不同
 prop_xp = ['PDB', 'Ligand', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'Site_Score', 'Volume','ligand_efficiency', 
@@ -652,7 +652,7 @@ ligname : str
         self.mmgbsa_file = mmgbsa_file
         return mmgbsa_file
 
-    def volume_cal(self, pdbid:str=None, recep_file:str=None, lig_file:str=None):
+    def cal_volume(self, pdbid:str=None, recep_file:str=None, lig_file:str=None):
         '''
         Sitemap计算结合口袋体积
 
@@ -898,7 +898,7 @@ Please enter the code of analysis to be performed:
                     precision = 'XP'
                     
                 console.dock(precision=precision, calc_rmsd=True)
-                console.volume_cal()
+                console.cal_volume()
                 if flag in '45':
                     console.cal_mmgbsa()
                 console.save_data(data_dic=[console.extra_data(precision=precision)], precision=precision)
@@ -1105,7 +1105,7 @@ Example for receptor list file:
         print('Grid File:', grid_file)
 
         self.dock(pdbid, lig_file, grid_file, precision, True)    # 对接 
-        self.volume_cal(pdbid, recep_file, lig_file)              # 口袋体积计算
+        self.cal_volume(pdbid, recep_file, lig_file)              # 口袋体积计算
         print('%s Self-Docking Job Complete.\n' % pdbid)
         if self.mmgbsaFlag == 'Y':
             self.cal_mmgbsa()                                   # 计算结合能
