@@ -1,11 +1,9 @@
 import os
 import sys
-from numpy import index_exp
 import openpyxl
 import re
 import pandas as pd
 from openpyxl.styles import Font
-from pandas.core.reshape.merge import merge
 
 root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目路径 绝对路径
 result_path = root_path + 'lib/result/'                                 # 对接结果数据文件库

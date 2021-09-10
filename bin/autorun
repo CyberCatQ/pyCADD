@@ -4,7 +4,7 @@ script_dir=$(dirname $script_abs)
 lib_dir=$script_dir/../lib
 log_dir=$lib_dir/log
 
-nrlist_dir=$script_dir/../../NRlist_1.1
+nrlist_dir=/home/omnisky/space/wyh/multiprocess/automatedMD/lib/list
 files=$(ls $nrlist_dir)
 
 # 精度设定
@@ -28,14 +28,14 @@ if [ $# -eq 0 ];then
     for filename in $files
     do
         gene=${filename%.*}
-        $script_dir/py4schrodinger -r $nrlist_dir/$filename -p $precision -n 48 -k -m > $script_dir/../lib/log/${gene}_${precision}.log
+        $script_dir/py4schrodinger -r $nrlist_dir/$filename -p $precision -n 48 -k > $script_dir/../lib/log/${gene}_${precision}.log
     done
 else
     for filename in $files
     do
         gene=${filename%.*}
         lig=$(readlink -f "$1")
-        $script_dir/py4schrodinger -r $nrlist_dir/$filename -l ${lig} -p $precision -n 48 -k -m > $script_dir/../lib/log/${gene}_${precision}.log
+        $script_dir/py4schrodinger -r $nrlist_dir/$filename -l ${lig} -p $precision -n 48 -k > $script_dir/../lib/log/${gene}_${precision}.log
     done
 fi
 endtime=$(date)
