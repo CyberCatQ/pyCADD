@@ -1,11 +1,9 @@
 import os
 import sys
-from numpy import index_exp
 import openpyxl
 import re
 import pandas as pd
 from openpyxl.styles import Font
-from pandas.core.reshape.merge import merge
 
 root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目路径 绝对路径
 result_path = root_path + 'lib/result/'                                 # 对接结果数据文件库
@@ -152,6 +150,43 @@ def merge_info_result(ligname:str=None):
                 cell.font = font
     wb.save(mergefile)
 
+def pivottable_gen(result_file:str=None, key1:str='Comformation', key2:str='Gene Name'):
+    '''
+    生成数据透视表
+
+    Parameter
+    ----------
+    result_file : str
+        计算结果文件
+    key1 : str
+        透视表行名称 默认构象类型
+    key2 : str
+        透视表列名称 默认基因名称
+        
+    '''
+    if not result_file:
+        result_file = input('Enter the PATH of FINAL_RESULTS File:').strip()
+        
+    prefix = os.path.basename(result_file).split('.')[0]
+    property_list = ['Docking_Score', 'Volume', 'MMGBSA_dG_Bind', 'rmsd']       # 要考察的核心数据
+    data = pd.read_excel(result_file)
+    pivottable_file = pdb_path + '/' + prefix + '_Pivot_table.xlsx'
+
+    writer = pd.ExcelWriter(pivottable_file)
+
+    for property in property_list:
+        pvt = data.pivot_table(property, index=key1, columns=key2, aggfunc='mean')
+        pvt.to_excel(writer, sheet_name= property + '_mean')
+    
+    writer.save()
+
+    wb = openpyxl.load_workbook(pivottable_file)
+    for ws in wb:
+        for row in ws.iter_rows():
+            for cell in row:
+                cell.font = font
+    wb.save(pivottable_file)
+    
 def process_listfile():
     '''
     解析已存在的py4schrodinger输入文件 确保配体与目标基因的蛋白关联
@@ -246,6 +281,7 @@ def main():
 4. Merge docking results to crystals info
 5. Merge docking with exogenous ligand results to crystals info
 6. Classfify all crystals via title or reference
+7. Pivot Table File Generation
 
 0. Exit
 ''')
@@ -265,6 +301,8 @@ def main():
         merge_info_result(ligname=ligname)
     elif _flag == '6':
         conform_classify()
+    elif _flag == '7':
+        pivottable_gen()
     else:
         sys.exit()
     
