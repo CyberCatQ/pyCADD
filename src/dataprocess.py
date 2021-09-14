@@ -186,7 +186,92 @@ def pivottable_gen(result_file:str=None, key1:str='Comformation', key2:str='Gene
             for cell in row:
                 cell.font = font
     wb.save(pivottable_file)
+
+def cal_ave_min(lib_path:str=None, dock_path:str=None, property:str='Docking_Score'):
+    '''
+    计算绝对均值、相对均值
+    Parameters
+    ----------
+    lib_path : str
+        原始数据库文件路径
+    dock_path : str
+        外源配体对接结果文件路径
+    property : str
+        要计算的属性名称 默认对接分数Docking Score
+    '''
+    def merge_df(df1, df2, suffixes=None):
+        merge = pd.merge(left=df1, right=df2, on='Gene Name', how='left', suffixes=suffixes)
+        return merge
     
+    if not lib_path:
+        lib_path = input('Enter the path of Docking Library File:').strip()
+    if not dock_path:
+        dock_path = input('Enter the path of EX-Ligand Result File:').strip()
+    
+    prefix = os.path.basename(dock_path).split('.')[0]
+    ave_min_file = pdb_path + '/' + prefix + '_Pivot_table_' + property + '.xlsx'
+
+    path = os.path.abspath(lib_path)
+    raw_data = pd.read_excel(path)
+    agonist_data = raw_data[raw_data['Comformation'] == 'Agonist']
+    antagonist_data = raw_data[raw_data['Comformation'] == 'Antagonist']
+
+    lig_file = os.path.basename(dock_path)
+    lig_name = lig_file.split('_')[2]
+
+    dock_data = pd.read_excel(dock_path)
+    dock_data = dock_data[dock_data['Docking Ligand'] == lig_name]
+    dock_data.drop_duplicates(subset = ['Origin Ligand ID', 'PDB ID', 'Docking_Score'], keep='first', inplace=True)
+
+    ave_all = raw_data.pivot_table(property, index= 'Gene Name')
+    ave_agonist = agonist_data.pivot_table(property, index='Gene Name')
+    ave_antagonist = antagonist_data.pivot_table(property, index='Gene Name')
+    ave_merge = merge_df(merge_df(ave_all, ave_agonist, ('_all','_agonist')),ave_antagonist)
+    ave_merge.rename(columns={property:'%s_antagonist' % property}, inplace=True)
+
+    min_all = raw_data[['Gene Name', property]].groupby(by='Gene Name').min()
+    min_agonist = agonist_data[['Gene Name', property]].groupby(by='Gene Name').min()
+    min_antagonist = antagonist_data[['Gene Name', property]].groupby(by='Gene Name').min()
+    min_merge = merge_df(merge_df(min_all, min_agonist, ('_all', '_agonist')),min_antagonist)
+    min_merge.rename(columns={property :'%s_antagonist' % property}, inplace=True)
+
+    writer = pd.ExcelWriter(ave_min_file)
+    ave_merge.to_excel(writer, sheet_name='AVERAGE')
+    min_merge.to_excel(writer, sheet_name='Min')
+
+    for index, row in dock_data.iterrows():
+        dock_data.loc[index, 'AVERAGE_All'] = row[property] / ave_all.loc['%s' % row['Gene Name']][property]
+        dock_data.loc[index, 'AVERAGE_Agonist'] = row[property] / ave_agonist.loc['%s' % row['Gene Name']][property]
+        try:
+            dock_data.loc[index, 'AVERAGE_Antagonist'] = row[property] / ave_antagonist.loc['%s' % row['Gene Name']][property]
+        except KeyError:
+            continue
+    
+    for index, row in dock_data.iterrows():
+        dock_data.loc[index, 'Min_All'] = row[property] / min_all.loc['%s' % row['Gene Name']][property]
+        dock_data.loc[index, 'Min_Agonist'] = row[property] / min_agonist.loc['%s' % row['Gene Name']][property]
+        try:
+            dock_data.loc[index, 'Min_Antagonist'] = row[property] / min_antagonist.loc['%s' % row['Gene Name']][property]
+        except KeyError:
+            continue
+
+    _identify_gen(dock_data, 'Gene Name', 'PDB ID')
+    _identify_gen(raw_data, 'Gene Name', 'PDB ID')
+
+    for index, row in dock_data.iterrows():
+        dock_data.loc[index, 'PDB_%s' % property] = row[property] / float(raw_data[raw_data['IDENTIFY'] == row['IDENTIFY']][property])
+    
+    dock_data.drop('IDENTIFY',axis=1, inplace=True)
+    dock_data.to_excel(writer, sheet_name=lig_name, index=False)
+    writer.save()
+
+    wb = openpyxl.load_workbook(ave_min_file)
+    for ws in wb:
+        for row in ws.iter_rows():
+            for cell in row:
+                cell.font = font
+    wb.save(ave_min_file)
+
 def process_listfile():
     '''
     解析已存在的py4schrodinger输入文件 确保配体与目标基因的蛋白关联
@@ -282,6 +367,7 @@ def main():
 5. Merge docking with exogenous ligand results to crystals info
 6. Classfify all crystals via title or reference
 7. Pivot Table File Generation
+8. Calculate Average and Minimum Value of Result
 
 0. Exit
 ''')
@@ -303,6 +389,11 @@ def main():
         conform_classify()
     elif _flag == '7':
         pivottable_gen()
+    elif _flag == '8':
+        lib_path = input('Enter the path of Docking Library File:').strip()
+        dock_path = input('Enter the path of EX-Ligand Result File:').strip()
+        cal_ave_min(lib_path, dock_path, property='Docking_Score')
+        cal_ave_min(lib_path, dock_path, property='MMGBSA_dG_Bind')
     else:
         sys.exit()
     
