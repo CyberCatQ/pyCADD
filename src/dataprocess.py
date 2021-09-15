@@ -199,7 +199,7 @@ def cal_ave_min(lib_path:str=None, dock_path:str=None, property:str='Docking_Sco
     property : str
         要计算的属性名称 默认对接分数Docking Score
     '''
-    def merge_df(df1, df2, suffixes=None):
+    def merge_df(df1, df2, suffixes=('_x','_y')):
         merge = pd.merge(left=df1, right=df2, on='Gene Name', how='left', suffixes=suffixes)
         return merge
     
@@ -221,7 +221,8 @@ def cal_ave_min(lib_path:str=None, dock_path:str=None, property:str='Docking_Sco
 
     dock_data = pd.read_excel(dock_path)
     dock_data = dock_data[dock_data['Docking Ligand'] == lig_name]
-    dock_data.drop_duplicates(subset = ['Origin Ligand ID', 'PDB ID', 'Docking_Score'], keep='first', inplace=True)
+    # 去重必须小心在不同基因成员中的同一PDB ID被删除
+    dock_data.drop_duplicates(subset = ['Gene Name', 'Origin Ligand ID', 'PDB ID', 'Docking_Score'], keep='first', inplace=True)
 
     ave_all = raw_data.pivot_table(property, index= 'Gene Name')
     ave_agonist = agonist_data.pivot_table(property, index='Gene Name')
@@ -235,9 +236,18 @@ def cal_ave_min(lib_path:str=None, dock_path:str=None, property:str='Docking_Sco
     min_merge = merge_df(merge_df(min_all, min_agonist, ('_all', '_agonist')),min_antagonist)
     min_merge.rename(columns={property :'%s_antagonist' % property}, inplace=True)
 
+    _hit = {}
+    total_gene_count = raw_data[raw_data['Docking_Score'].notnull()]['Gene Name'].value_counts().to_dict()
+    dock_gene_count = dock_data['Gene Name'].value_counts().to_dict()
+    for index, value in dock_gene_count.items():
+        _hit[index] = value / total_gene_count[index]
+    hit_percent = pd.Series(_hit)
+    hit_percent.sort_values(ascending=False, inplace=True)
+
     writer = pd.ExcelWriter(ave_min_file)
     ave_merge.to_excel(writer, sheet_name='AVERAGE')
     min_merge.to_excel(writer, sheet_name='Min')
+    hit_percent.to_excel(writer, sheet_name='Hit Percent')
 
     for index, row in dock_data.iterrows():
         dock_data.loc[index, 'AVERAGE_All'] = row[property] / ave_all.loc['%s' % row['Gene Name']][property]
