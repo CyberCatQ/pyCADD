@@ -91,7 +91,7 @@ ligname : str
     @staticmethod
     def load_st(st_file:str) -> object:
         '''
-        读取结构
+        读取结构(如有多个结构仅返回第一个)
 
         Parameters
         ----------
@@ -696,7 +696,6 @@ ligname : str
         self.sitemap_file = sitemap_file
         return sitemap_file
 
-
     def extra_data(self, pdbid:str=None, path:str=None, ligname:str=None, precision:str='SP') -> dict:
         '''
         从对接或计算完成的Maestro文件中提取数据
@@ -813,6 +812,70 @@ ligname : str
             writer.writeheader()        # 写入标头
             writer.writerows(data_dic)  # 写入数据 自动匹配标头列
             
+    def cal_admet(self, lig_file:str=None):
+        '''
+        计算单个化合物/配体的ADMET分子描述符
+        Parameter
+        ----------
+        lig_file : str
+            化合物/配体文件路径
+
+        '''
+        if not lig_file:
+            lig_file = self.lig_file
+
+        lig_path = os.path.abspath(lig_file)
+        lig_basename = os.path.basename(lig_path)
+        prefix = lig_basename.split('.')[0] + '_ADMET'
+
+        admet_file = prefix + '.mae'
+
+        if os.path.exists(admet_file):
+            self.admet_file = admet_file
+            return admet_file
+
+        self._launch('qikprop -outname %s %s' % (prefix, lig_path))
+        os.system('mv %s-out.mae %s' % (prefix, admet_file))
+
+        print('\nQikprop Calculation File: %s Saved.' % admet_file)
+        self.admet_file = admet_file 
+    
+    def extra_admet_data(self, admet_file:str=None):
+        '''
+        专用于提取ADMET数据
+        '''
+
+        if not admet_file:
+            admet_file = self.admet_file
+        if self.pdbid:
+            pdbid = self.pdbid
+        elif re.search(r'\d[A-Z]{3}',admet_file):
+            pdbid = re.search(r'\d[A-Z]{3}',admet_file).group()
+        else:
+            pdbid = self.get_pdbid()
+
+        if self.ligname:
+            ligname = self.ligname
+        else:
+            ligname = re.search(r'(?<=lig_)[0-9A-Z]{2,3}(?=_ADMET)', admet_file).group()
+        admet_dic = {}
+
+        st = self.load_st(admet_file)
+        admet_dic['PDB'] = pdbid
+        admet_dic['Ligand'] = ligname
+
+        for _key in st.property.keys():
+            if re.match(r'^[ri]_qp_.+', _key):                           # Qikprop生成的分子描述符键名
+                key = re.search(r'(?<=[ri]_qp_).+', _key).group()
+                admet_dic[key] = st.property[_key]
+        
+        prop_admet = list(admet_dic.keys())
+
+        with open(pdb_path + '%s.CSV' % admet_file.split('.')[0], 'w', encoding='UTF-8', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=prop_admet)
+            writer.writeheader()            # 写入标头
+            writer.writerows([admet_dic])     # 写入数据 自动匹配标头列
+
 
 class UI:
     '''
@@ -854,11 +917,12 @@ Please enter the code of analysis to be performed:
     6.  Specified ligand ligand docking
     7.  Internal ligand docking automatically (SP precision)
     8.  Internal ligand docking automatically (XP precision)
+    9.  ADMET Prediction of ligand
 
     0.  Exit
 
             ''')
-            if re.match('^[012345678]$', flag):
+            if re.match('^[0123456789]$', flag):
                 return flag
             else:
                 print('Invalid Code, Please Try Again.')
@@ -874,7 +938,7 @@ Please enter the code of analysis to be performed:
         if flag == '0':
             sys.exit(0)
 
-        elif len(flag) == 1 and flag in '1234578':
+        elif len(flag) == 1 and flag in '12345789':
             console.minimize()                  # 能量最小化
             split_lis = console.split_com()     # 拆分复合物
             lig_file = split_lis[0]             # 配体文件PATH获取
@@ -902,6 +966,10 @@ Please enter the code of analysis to be performed:
                 if flag in '45':
                     console.cal_mmgbsa()
                 console.save_data(data_dic=[console.extra_data(precision=precision)], precision=precision)
+            
+            elif flag == '9':    
+                console.cal_admet(lig_file)
+                console.extra_admet_data()
 
         elif flag == '6':
             lig_file = input('Input Ligand File PATH:').strip()
