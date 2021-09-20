@@ -25,6 +25,8 @@ prop_xp = ['PDB', 'Ligand', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precisio
             'XP_Hbond', 'rotatable_bonds', 'ecoul', 'evdw', 'emodel', 'energy', 'einternal']
 prop_sp = ['PDB', 'Ligand', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'Site_Score', 'Volume', 'ligand_efficiency', 
             'rotatable_bonds', 'ecoul', 'evdw', 'emodel', 'energy', 'einternal','lipo', 'hbond', 'metal', 'rewards', 'erotb', 'esite']
+prop_admet = ['PDB', 'Ligand', '#stars', '#amine', '#amidine', '#acid', '#amide', '#rotor', '#rtvFG', 'CNS', 'mol_MW', 'dipole', 'SASA', 'FOSA', 'FISA', 'PISA', 'WPSA', 'volume', 'donorHB', 'accptHB', 'dip^2/V', 'ACxDN^.5/SA', 'glob', 'QPpolrz', 'QPlogPC16', 'QPlogPoct', 'QPlogPw', 'QPlogPo/w', 'QPlogS',
+              'CIQPlogS', 'QPlogHERG', 'QPPCaco', 'QPlogBB', 'QPPMDCK', 'QPlogKp', 'IP(eV)', 'EA(eV)', '#metab', 'QPlogKhsa', 'HumanOralAbsorption', 'PercentHumanOralAbsorption', 'SAfluorine', 'SAamideO', 'PSA', '#NandO', 'RuleOfFive', 'RuleOfThree', '#ringatoms', '#in34', '#in56', '#noncon', '#nonHatm', 'Jm']
 # 读取abandon.txt 忽略名单
 global abandon_list
 abandon_list = []
@@ -815,7 +817,8 @@ ligname : str
     def cal_admet(self, lig_file:str=None):
         '''
         计算单个化合物/配体的ADMET分子描述符
-        Parameter
+
+        Parameter  
         ----------
         lig_file : str
             化合物/配体文件路径
@@ -840,27 +843,32 @@ ligname : str
         print('\nQikprop Calculation File: %s Saved.' % admet_file)
         self.admet_file = admet_file 
     
-    def extra_admet_data(self, admet_file:str=None):
+    def extra_admet_data(self, admet_path:str=None, pdbid:str=None, ligname:str=None):
         '''
-        专用于提取ADMET数据
+        专用于提取ADMET数据 并将其保存为CSV
+
+        Parameter
+        ----------
+        admet_path : str
+            ADMET计算结果文件路径
+
+        Return
+        ----------
+        dict
+            提取数据组成的字典
         '''
 
-        if not admet_file:
-            admet_file = self.admet_file
-        if self.pdbid:
+        if not admet_path:
+            admet_path = os.path.abspath(self.admet_file)
+        admet_file = os.path.basename(admet_path)
+        if not pdbid:
             pdbid = self.pdbid
-        elif re.search(r'\d[A-Z]{3}',admet_file):
-            pdbid = re.search(r'\d[A-Z]{3}',admet_file).group()
-        else:
-            pdbid = self.get_pdbid()
-
-        if self.ligname:
+        if not ligname:
             ligname = self.ligname
-        else:
-            ligname = re.search(r'(?<=lig_)[0-9A-Z]{2,3}(?=_ADMET)', admet_file).group()
+
         admet_dic = {}
 
-        st = self.load_st(admet_file)
+        st = self.load_st(admet_path)
         admet_dic['PDB'] = pdbid
         admet_dic['Ligand'] = ligname
 
@@ -869,13 +877,21 @@ ligname : str
                 key = re.search(r'(?<=[ri]_qp_).+', _key).group()
                 admet_dic[key] = st.property[_key]
         
+        return admet_dic
+
+    def save_admet_data(self, admet_dic:dict, pdbid:str=None, ligname:str=None):
+        if not pdbid:
+            pdbid = self.pdbid
+        if not ligname:
+            ligname = self.ligname
+        
+        admet_file = '%slig_%s_ADMET.mae' % (pdbid, ligname)
         prop_admet = list(admet_dic.keys())
 
         with open(pdb_path + '%s.CSV' % admet_file.split('.')[0], 'w', encoding='UTF-8', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=prop_admet)
             writer.writeheader()            # 写入标头
             writer.writerows([admet_dic])     # 写入数据 自动匹配标头列
-
 
 class UI:
     '''
@@ -969,7 +985,7 @@ Please enter the code of analysis to be performed:
             
             elif flag == '9':    
                 console.cal_admet(lig_file)
-                console.extra_admet_data()
+                console.save_admet_data(console.extra_admet_data())
 
         elif flag == '6':
             lig_file = input('Input Ligand File PATH:').strip()
@@ -1174,9 +1190,11 @@ Example for receptor list file:
 
         self.dock(pdbid, lig_file, grid_file, precision, True)    # 对接 
         self.cal_volume(pdbid, recep_file, lig_file)              # 口袋体积计算
-        print('%s Self-Docking Job Complete.\n' % pdbid)
+        self.cal_admet(lig_file)                                  # ADMET分子描述符预测
+
         if self.mmgbsaFlag == 'Y':
             self.cal_mmgbsa()                                   # 计算结合能
+        print('%s Self-Docking Job Complete.\n' % pdbid)
         print(''.center(80, '-'), end='\n')
         return 1                                                # 1项工作完成 返回以计数
 
@@ -1266,7 +1284,9 @@ Example for receptor list file:
             else:
                 dock_result_file_i = lib_path + 'dockfiles/%s/%s_glide_dock_%s_%s.maegz' % (pdb, pdb, origin_ligand, precision)
             prop_dic = self.extra_data(pdbid=pdb, path=dock_result_file_i, ligname=origin_ligand, precision=precision)
-            data.append(prop_dic)
+            admet_file = lib_path + 'dockfiles/%s/%slig_%s_ADMET.mae' % (pdb, pdb, lig)
+            admet_dic = self.extra_admet_data(admet_file, pdb, lig)
+            data.append({**prop_dic, **admet_dic})
 
             if ligand_file:             # 存在外源配体对接需求时
                 ligname = ligand_file.strip().split('.')[0]
@@ -1310,12 +1330,19 @@ Example for receptor list file:
 
         with open(data_path + list_filename + '_FINAL_RESULTS%s.csv' % withlig, 'w', encoding='UTF-8', newline='') as f:
             if precision == 'XP':
-                writer = csv.DictWriter(f, fieldnames=prop_xp)
+                writer = csv.DictWriter(f, fieldnames=prop_xp, extrasaction='ignore')
             elif precision == 'SP':
-                writer = csv.DictWriter(f, fieldnames=prop_sp)
+                writer = csv.DictWriter(f, fieldnames=prop_sp, extrasaction='ignore')
             writer.writeheader()    # 写入标头
             writer.writerows(data)  # 写入数据 自动匹配标头列
+
         
+        with open(data_path + list_filename + '_ADMET_RESULT.csv','w', encoding='UTF-8', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=prop_admet, extrasaction='ignore')
+            writer.writeheader()
+            writer.writerows(data)
+
+
         if notpass:
             print('\nAbandoned Crystal(s): ', notpass)
             with open(pdb_path + 'abandon.txt', 'a') as f:
