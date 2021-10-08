@@ -13,6 +13,55 @@ inputfile_path = root_path + 'lib/list/'                                # py4sch
 
 font = Font(name='等线',size=12)
 
+gene_dict = {'NR1A1': 'TR_alpha',
+             'NR1A2': 'TR_beta',
+             'NR1B1': 'RAR_alpha',
+             'NR1B2': 'RAR_beta',
+             'NR1B3': 'RAR_gamma',
+             'NR1C1': 'PPAR_alpha',
+             'NR1C2': 'PPAR_beta',
+             'NR1C3': 'PPAR_gamma',
+             'NR1D1': 'Rev-erb',
+             'NR1F1': 'ROR_alpha',
+             'NR1F2': 'ROR_beta',
+             'NR1F3': 'ROR_gamma',
+             'NR1H3': 'LXR_alpha',
+             'NR1H2': 'LXR_beta',
+             'NR1H4': 'FXR_alpha',
+             'NR1H5': 'FXR_beta',
+             'NR1I1': 'VDR',
+             'NR1I2': 'PXR',
+             'NR1I3': 'CAR',
+             'NR2A1': 'HNF4_alpha',
+             'NR2A2': 'HNF4_gamma',
+             'NR2B1': 'RXR_alpha',
+             'NR2B2': 'RXR_beta',
+             'NR2B3': 'RXR_gamma',
+             'NR2C1': 'TR2',
+             'NR2C2': 'TR4',
+             'NR2E2': 'TLL',
+             'NR2E3': 'PNR',
+             'NR2F1': 'COUP-TFI',
+             'NR2F2': 'COUP-TFII',
+             'NR2F6': 'EAR2',
+             'NR3A1': 'ER_alpha',
+             'NR3A2': 'ER_beta',
+             'NR3B1': 'ERR_alpha',
+             'NR3B2': 'ERR_beta',
+             'NR3B3': 'ERR_gamma',
+             'NR3C1': 'GR',
+             'NR3C2': 'MR',
+             'NR3C3': 'PR',
+             'NR3C4': 'AR',
+             'NR4A1': 'NGFIB',
+             'NR4A2': 'NURR1',
+             'NR4A3': 'NOR1',
+             'NR5A1': 'SF1',
+             'NR5A2': 'LRH1',
+             'NR6A1': 'GCNF',
+             'NR0B1': 'DAX1',
+             'NR0B2': 'SHP'}
+
 def result_merge(ligname=None):
     '''
     合并对接结果数据并输出到同一EXCEL中 并产生一张汇总sheet
@@ -241,10 +290,15 @@ def cal_ave_min(lib_path:str=None, dock_path:str=None, property:str='Docking_Sco
     dock_gene_count = dock_data['Gene Name'].value_counts().to_dict()
     for index, value in dock_gene_count.items():
         _hit[index] = value / total_gene_count[index]
-    hit_percent = pd.Series(_hit)
-    hit_percent.sort_values(ascending=False, inplace=True)
+    hit_percent = pd.DataFrame.from_dict(_hit, orient='index', columns=['Hit'])
+    hit_percent.reset_index().rename(columns={'index':'Gene Name'})
+    hit_percent.sort_values(by='Hit', ascending=False, inplace=True)
 
     writer = pd.ExcelWriter(ave_min_file)
+    for data in [ave_merge, min_merge, hit_percent]:
+        for index, row in data.iterrows():
+            data.loc[index, 'Abbreviation'] = gene_dict[index]
+
     ave_merge.to_excel(writer, sheet_name='AVERAGE')
     min_merge.to_excel(writer, sheet_name='Min')
     hit_percent.to_excel(writer, sheet_name='Hit Percent')
@@ -269,6 +323,7 @@ def cal_ave_min(lib_path:str=None, dock_path:str=None, property:str='Docking_Sco
     _identify_gen(raw_data, 'Gene Name', 'PDB ID')
 
     for index, row in dock_data.iterrows():
+        dock_data.loc[index, 'Abbreviation'] = gene_dict[row['Gene Name']]
         dock_data.loc[index, 'PDB_%s' % property] = row[property] / float(raw_data[raw_data['IDENTIFY'] == row['IDENTIFY']][property])
     
     dock_data.drop('IDENTIFY',axis=1, inplace=True)
@@ -400,7 +455,10 @@ def main():
     elif _flag == '7':
         pivottable_gen()
     elif _flag == '8':
-        lib_path = input('Enter the path of Docking Library File:').strip()
+        lib_path = os.path.abspath(pdb_path + 'FINAL_RESULTS_SP.xlsx')
+        if not os.path.exists(lib_path):
+            lib_path = input('Enter the path of Docking Library File:').strip()
+        print('Using Essential Data:', lib_path)
         dock_path = input('Enter the path of EX-Ligand Result File:').strip()
         cal_ave_min(lib_path, dock_path, property='Docking_Score')
         cal_ave_min(lib_path, dock_path, property='MMGBSA_dG_Bind')
