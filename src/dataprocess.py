@@ -272,6 +272,8 @@ def cal_ave_min(lib_path:str=None, dock_path:str=None, property:str='Docking_Sco
     dock_data = dock_data[dock_data['Docking Ligand'] == lig_name]
     # 去重必须小心在不同基因成员中的同一PDB ID被删除
     dock_data.drop_duplicates(subset = ['Gene Name', 'Origin Ligand ID', 'PDB ID', 'Docking_Score'], keep='first', inplace=True)
+    # 外源配体的对接结果均不含有rmsd数据 以此区分
+    dock_data = dock_data[dock_data['rmsd'].isnull()]
 
     ave_all = raw_data.pivot_table(property, index= 'Gene Name')
     ave_agonist = agonist_data.pivot_table(property, index='Gene Name')
