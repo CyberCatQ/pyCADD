@@ -638,14 +638,13 @@ ligname : str
         print('Prepare to Calculate MM-GB/SA Binding Energy...\n')
         
         mmgbsa_file = dock_file.split('.')[0] + '_mmgbsa.maegz'
-
         if os.path.exists(mmgbsa_file):
             self.mmgbsa_file = mmgbsa_file
             return mmgbsa_file
-        
-        self._launch('prime_mmgbsa %s -JOBNAME %s-Prime-MMGBSA-%s-%s' % (dock_file, pdbid, lig_name, precision))
 
-        cmd = os.system('mv %s-Prime-MMGBSA-%s-%s-out.maegz %s'% (pdbid, lig_name, precision, mmgbsa_file))
+        self._launch('prime_mmgbsa -j %s %s' % (mmgbsa_file.split('.')[0], dock_file))
+
+        cmd = os.system('mv %s-out.maegz %s'% (mmgbsa_file.split('.')[0], mmgbsa_file))
         if cmd != 0:
             raise RuntimeError('%s-%s Prime MM-GB/SA Calculating Failed.' % (pdbid, lig_name))
         
@@ -736,6 +735,7 @@ ligname : str
 
         pro_st = next(st)
         lig_st = next(st)
+
         prop_dic = {}
 
         # 需要提取的Property
