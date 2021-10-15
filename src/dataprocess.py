@@ -62,7 +62,7 @@ gene_dict = {'NR1A1': 'TR_alpha',
              'NR0B1': 'DAX1',
              'NR0B2': 'SHP'}
 
-def result_merge(ligname=None):
+def result_merge(ligname=None, precision=''):
     '''
     合并对接结果数据并输出到同一EXCEL中 并产生一张汇总sheet
 
@@ -70,8 +70,11 @@ def result_merge(ligname=None):
     ----------
     ligname : str
         外源配体名称(如果有)
+    precision : str
+        对接精度
     '''
-    precision = input('Enter the precision of docking:(SP|XP)').strip().upper()
+    if not precision:
+        precision = input('Enter the precision of docking:(SP|XP)').strip().upper()
     withlig = '_' + precision
     if ligname:
         withlig = '_' + ligname + '_' + precision
@@ -147,27 +150,31 @@ def _identify_gen(df, key_col1=None, key_col2=None):
     for index, row in df.iterrows():
         df.at[index, 'IDENTIFY'] = str(row[key_col1]) + str(row[key_col2])
 
-def merge_info_result(ligname:str=None):
+def merge_info_result(ligname:str=None, precision='', info_file_path=''):
     '''
     将晶体基础信息与对接结果合并为总EXCEL
 
     ligname : str
         外源配体名称（如果有）
+    precision : str
+        对接精度
+    info_file_path : str
+        晶体信息文件path
     '''
 
-
-    precision = input('Enter the precision of docking:(SP|XP)').strip().upper()
+    if not precision:
+        precision = input('Enter the precision of docking:(SP|XP)').strip().upper()
     withlig = '_' + precision
     if ligname:
         withlig = '_' + ligname + '_' + precision
 
     mergefile = pdb_path + 'FINAL_RESULTS%s.xlsx' % withlig      # 总EXCEL文件名
     writer = pd.ExcelWriter(mergefile)
-
-    info_file_name = input('Enter the PATH of Info Database File:') # 手动输入晶体信息文件名称(可能随版本迭代改变)
-    if not os.path.isfile(info_file_name):
-        raise FileNotFoundError('No such file or directory: %s' % info_file_name)
-    infofile = os.path.abspath(info_file_name)
+    if not info_file_path:
+        info_file_path = input('Enter the PATH of Info Database File:') # 手动输入晶体信息文件名称(可能随版本迭代改变)
+    if not os.path.isfile(info_file_path):
+        raise FileNotFoundError('No such file or directory: %s' % info_file_path)
+    infofile = os.path.abspath(info_file_path)
 
     withlig = '_' + precision
     if ligname:
