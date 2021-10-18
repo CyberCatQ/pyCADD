@@ -307,6 +307,7 @@ def cal_ave_min(lib_path:str=None, dock_path:str=None, property:str='Docking_Sco
     for data in [ave_merge, min_merge, hit_percent]:
         for index, row in data.iterrows():
             data.loc[index, 'Abbreviation'] = gene_dict[index]
+        data.set_index('Abbreviation', inplace=True)
 
     ave_merge.to_excel(writer, sheet_name='AVERAGE')
     min_merge.to_excel(writer, sheet_name='Min')

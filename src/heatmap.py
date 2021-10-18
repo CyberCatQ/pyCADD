@@ -19,12 +19,14 @@ gene_dict = {'NR1A1': 'TR_alpha',
              'NR1C1': 'PPAR_alpha',
              'NR1C2': 'PPAR_beta',
              'NR1C3': 'PPAR_gamma',
+             'NR1D1': 'Rev-erb',
              'NR1F1': 'ROR_alpha',
              'NR1F2': 'ROR_beta',
              'NR1F3': 'ROR_gamma',
              'NR1H3': 'LXR_alpha',
              'NR1H2': 'LXR_beta',
              'NR1H4': 'FXR_alpha',
+             'NR1H5': 'FXR_beta',
              'NR1I1': 'VDR',
              'NR1I2': 'PXR',
              'NR1I3': 'CAR',
@@ -33,9 +35,17 @@ gene_dict = {'NR1A1': 'TR_alpha',
              'NR2B1': 'RXR_alpha',
              'NR2B2': 'RXR_beta',
              'NR2B3': 'RXR_gamma',
+             'NR2C1': 'TR2',
+             'NR2C2': 'TR4',
+             'NR2E2': 'TLL',
+             'NR2E3': 'PNR',
+             'NR2F1': 'COUP-TFI',
+             'NR2F2': 'COUP-TFII',
+             'NR2F6': 'EAR2',
              'NR3A1': 'ER_alpha',
              'NR3A2': 'ER_beta',
              'NR3B1': 'ERR_alpha',
+             'NR3B2': 'ERR_beta',
              'NR3B3': 'ERR_gamma',
              'NR3C1': 'GR',
              'NR3C2': 'MR',
@@ -43,8 +53,12 @@ gene_dict = {'NR1A1': 'TR_alpha',
              'NR3C4': 'AR',
              'NR4A1': 'NGFIB',
              'NR4A2': 'NURR1',
+             'NR4A3': 'NOR1',
              'NR5A1': 'SF1',
-             'NR5A2': 'LRH1'}
+             'NR5A2': 'LRH1',
+             'NR6A1': 'GCNF',
+             'NR0B1': 'DAX1',
+             'NR0B2': 'SHP'}
 gene_name = pd.Series(gene_dict, name='Abbreviation')
 
 class Heatmap:
@@ -202,6 +216,9 @@ class Heatmap:
         df = pd.concat([series1,series2,series3,series4,series5,series6,series7], axis=1)
         
         df.sort_index(inplace=True)
+        for index, row in df.iterrows():
+            df.loc[index, 'Abbreviation'] = gene_dict[index]
+        df.set_index('Abbreviation', inplace=True)
         df.to_excel(writer, sheet_name=ligname)
 
         return series7
@@ -209,9 +226,8 @@ class Heatmap:
     @staticmethod
     def gen_heatmap(df):
         
-        sns.set_context({'figure.figsize':(16,16)})
+        sns.set_context({'figure.figsize':(20,20)})
         sns.heatmap(data=df, square=True,cmap="RdBu_r", annot=True, fmt=".0f" ,linewidths=0.1)
-        plt.show()
         plt.savefig(pdb_path + '%s_heatmap.png' % date, bbox_inches='tight')
 
 def main():
@@ -231,6 +247,7 @@ def main():
     data = pd.concat(data, axis=1)
     data.sort_index(inplace=True)
     data.set_index('Abbreviation', inplace=True)
+    data.dropna(axis=0, how='all', inplace=True)
     data.to_excel(writer, sheet_name='TOTAL')
     writer.save()
     heatmap.gen_heatmap(data)
