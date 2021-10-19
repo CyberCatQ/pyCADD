@@ -1,16 +1,22 @@
-import pandas as pd
 import os
 import re
-import seaborn as sns
 from datetime import datetime
+
 import matplotlib.pyplot as plt
+import openpyxl
+import pandas as pd
+import seaborn as sns
+from openpyxl.styles import Font
 
 root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目路径 绝对路径
 pdb_path = root_path.split('automatedMD')[0]                            # PDB项目绝对路径(如果有)
 now = datetime.now()
 date = str(now.year) + str(now.month) + str(now.day)
+font = Font(name='等线',size=12)
+result_data = pdb_path + '%s_Scores.xlsx' % date
 
-writer = pd.ExcelWriter(pdb_path + '%s_Scores.xlsx' % date)
+writer = pd.ExcelWriter(result_data)
+
 gene_dict = {'NR1A1': 'TR_alpha',
              'NR1A2': 'TR_beta',
              'NR1B1': 'RAR_alpha',
@@ -143,7 +149,7 @@ class Heatmap:
                 punish_count[row['Gene Name']] += 1                                         # MMGBSA大于0的次数
         
         for gene in gene_count.keys():
-            punish_dict[gene] = punish_count[gene] / gene_count[gene]                       # 大于0的数目占该基因总成员百分比
+            punish_dict[gene] = -(punish_count[gene] / gene_count[gene])                       # 大于0的数目占该基因总成员百分比
 
         return punish_dict
     
@@ -202,13 +208,13 @@ class Heatmap:
 
         final_score = {}
         for gene in gene_list:
-            final_score[gene] = (ds_abs_score[gene] + mmgbsa_abs_score[gene] + hit_percent[gene] - mmgbsa_punish[gene] + ds_rela_score[gene] + mmgbsa_rela_score[gene]) / 5 * 100
+            final_score[gene] = (ds_abs_score[gene] + mmgbsa_abs_score[gene] + hit_percent[gene] + mmgbsa_punish[gene] + ds_rela_score[gene] + mmgbsa_rela_score[gene]) / 5 * 100
         # print('\nFinal Score:', final_score)
         
         series1 = pd.Series(ds_abs_score, name='DS_ABS')
         series2 = pd.Series(mmgbsa_abs_score, name='MMGBSA_ABS')
         series3 = pd.Series(hit_percent, name='HIT')
-        series4 = pd.Series(mmgbsa_punish, name='PUNISH')
+        series4 = pd.Series(mmgbsa_punish, name='Penalty')
         series5 = pd.Series(ds_rela_score, name='DS_RELA')
         series6 = pd.Series(mmgbsa_rela_score, name='MMGBSA_RELA')
         series7 = pd.Series(final_score, name=self.ligname)
@@ -250,6 +256,14 @@ def main():
     data.dropna(axis=0, how='all', inplace=True)
     data.to_excel(writer, sheet_name='TOTAL')
     writer.save()
+
+    wb = openpyxl.load_workbook(result_data)
+    for ws in wb:
+        for row in ws.iter_rows():
+            for cell in row:
+                cell.font = font
+    wb.save(result_data)
+
     heatmap.gen_heatmap(data)
     
 if __name__ == '__main__':
