@@ -337,6 +337,22 @@ def cal_ave_min(lib_path:str=None, dock_path:str=None, property:str='Docking_Sco
         dock_data.loc[index, 'PDB_%s' % property] = row[property] / float(raw_data[raw_data['IDENTIFY'] == row['IDENTIFY']][property])
     
     dock_data.drop('IDENTIFY',axis=1, inplace=True)
+
+    mean_all = raw_data.groupby('Gene Name').mean()[property].to_dict()
+    std_all = raw_data.groupby('Gene Name').std()[property].to_dict()
+    mean_ligand = dock_data[property].mean()
+    std_ligand = dock_data[property].std()
+
+    for index, row in dock_data.iterrows():
+        _gene = row['Gene Name']
+        z_score_gene = (row[property] - mean_all[_gene]) / std_all[_gene]
+        z_score_ligand = (row[property] - mean_ligand) / std_ligand
+        z_score_combo = 0.4 * z_score_gene + 0.6 * z_score_ligand
+        dock_data.loc[index, 'Z-score-gene'] = z_score_gene
+        dock_data.loc[index, 'Z-score-ligand'] = z_score_ligand
+        dock_data.loc[index, 'Z-score-combo'] = z_score_combo
+
+    dock_data.groupby('Abbreviation').mean()[['Z-score-gene','Z-score-ligand','Z-score-combo']].to_excel(writer, sheet_name='Z-score')
     dock_data.to_excel(writer, sheet_name=lig_name, index=False)
     writer.save()
 
