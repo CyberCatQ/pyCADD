@@ -78,7 +78,7 @@ def result_merge(ligname=None, precision=''):
     withlig = '_' + precision
     if ligname:
         withlig = '_' + ligname + '_' + precision
-    mergefile = pdb_path + 'DOCK_FINAL_RESULTS%s.xlsx' % withlig
+    mergefile = pdb_path + 'dock_results/DOCK_FINAL_RESULTS%s.xlsx' % withlig
     data_list = []  # 汇总数据表
 
     resultfiles = os.popen("cd %s && ls | grep 'RESULTS%s.csv'" % (result_path, withlig)).read().splitlines()
@@ -168,7 +168,7 @@ def merge_info_result(ligname:str=None, precision='', info_file_path=''):
     if ligname:
         withlig = '_' + ligname + '_' + precision
 
-    mergefile = pdb_path + 'FINAL_RESULTS%s.xlsx' % withlig      # 总EXCEL文件名
+    mergefile = pdb_path + 'final_results/FINAL_RESULTS%s.xlsx' % withlig      # 总EXCEL文件名
     writer = pd.ExcelWriter(mergefile)
     if not info_file_path:
         info_file_path = input('Enter the PATH of Info Database File:') # 手动输入晶体信息文件名称(可能随版本迭代改变)
@@ -265,7 +265,7 @@ def cal_ave_min(lib_path:str=None, dock_path:str=None, property:str='Docking_Sco
         dock_path = input('Enter the path of EX-Ligand Result File:').strip()
     
     prefix = os.path.basename(dock_path).split('.')[0]
-    ave_min_file = pdb_path + '/' + prefix + '_Pivot_table_' + property + '.xlsx'
+    ave_min_file = pdb_path + '/final_results/' + prefix + '_Pivot_table_' + property + '.xlsx'
 
     path = os.path.abspath(lib_path)
     raw_data = pd.read_excel(path)
@@ -469,8 +469,11 @@ def main():
     elif _flag == '2':
         result_merge()
     elif _flag == '3':
-        ligname = input('Enter the ligand name:')
-        result_merge(ligname)
+        ligname = input('Enter the ligand name: ')
+        ligname = ligname.strip().split(',')
+        precision = input('Enter the precision of docking(SP|XP): ').strip().upper()
+        for lig in ligname:
+            result_merge(lig, precision)
     elif _flag == '4':
         merge_info_result()
     elif _flag == '5':
