@@ -6,14 +6,30 @@ import matplotlib.pyplot as plt
 import openpyxl
 import pandas as pd
 import seaborn as sns
+from numpy import exp
 from openpyxl.styles import Font
 
 root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目路径 绝对路径
 pdb_path = root_path.split('automatedMD')[0]                            # PDB项目绝对路径(如果有)
 now = datetime.now()
-date = str(now.year) + str(now.month) + str(now.day)
+date = str(now.year).rjust(2, '0') + str(now.month).rjust(2, '0') + str(now.day).rjust(2, '0')
 font = Font(name='等线',size=12)
-result_data = pdb_path + '%s_Scores.xlsx' % date
+
+ignore_gene_list = ['NR5A1'] # ['NR1F1','NR2A1','NR1I3','NR3B1','NR1F2']
+ignore_abbre_list = ['SF1'] # ['ROR_alpha','HNF4_alpha','CAR','ERR_alpha','ROR_beta']
+
+result_data_prefix = pdb_path + '%s_Scores' % date
+heatmap_file_prefix = pdb_path + '%s_heatmap' % date
+i = 1
+while True:
+    heatmap_file = heatmap_file_prefix + '.png'
+    result_data = result_data_prefix + '.xlsx'
+    if not os.path.exists(heatmap_file) and not os.path.exists(heatmap_file):
+        break
+    else:
+        heatmap_file_prefix = pdb_path + '%s_heatmap' % date + '_%s' % str(i) 
+        result_data_prefix = pdb_path + '%s_Scores' % date + '_%s' % str(i)
+        i += 1
 
 writer = pd.ExcelWriter(result_data)
 
@@ -80,9 +96,12 @@ class Heatmap:
         origin_data = data[data['rmsd'].notnull()]
         exligand_data = data[data['rmsd'].isnull()]
         gene_count = origin_data['Gene Name'].value_counts().to_dict()
-        ex_ligand = re.search(r'(?<=FINAL_RESULTS_)[0-9A-Z]+(?=_)', file_path).group()
+        ex_ligand = re.search(r'(?<=FINAL_RESULTS_)[0-9a-zA-Z]+(?=_)', file_path).group()
         ds_data = pd.read_excel(file_path.split('.')[0] + '_Pivot_table_Docking_Score.xlsx', sheet_name=ex_ligand)
         mmgbsa_data = pd.read_excel(file_path.split('.')[0] + '_Pivot_table_MMGBSA_dG_Bind.xlsx', sheet_name=ex_ligand)
+        
+        z_score_ds = pd.read_excel(file_path.split('.')[0] + '_Pivot_table_Docking_Score.xlsx', sheet_name='Z-score', index_col='Abbreviation')
+        z_score_mmgbsa = pd.read_excel(file_path.split('.')[0] + '_Pivot_table_MMGBSA_dG_Bind.xlsx', sheet_name='Z-score', index_col='Abbreviation')
 
         self.raw_data = raw_data
         self.data = data
@@ -93,6 +112,8 @@ class Heatmap:
         self.ds_data = ds_data
         self.mmgbsa_data = mmgbsa_data
         self.ligname = file_path.split('/')[-1].split('_')[2]
+        self.z_score_ds = z_score_ds
+        self.z_score_mmgbsa = z_score_mmgbsa
 
     def _top_count(self, by='Docking_Score'):
 
@@ -227,32 +248,80 @@ class Heatmap:
         df.set_index('Abbreviation', inplace=True)
         df.to_excel(writer, sheet_name=ligname)
 
+        for _index in ignore_gene_list:                     # 需要去除的异常基因
+            if _index in series7.index:
+                series7.drop(index=_index, inplace=True)
+
         return series7
+
+    def calc_z_score(self):
+
+        z_score_ds = self.z_score_ds
+        z_score_mmgbsa = self.z_score_mmgbsa
+        
+        z_score_final = pd.Series(z_score_ds['Z-score-combo'] + z_score_mmgbsa['Z-score-combo'], name=self.ligname)
+        for _index in ignore_abbre_list:                    # 需要去除的异常结果
+            if _index in z_score_final.index:
+                z_score_final.drop(index=_index,inplace=True)
+
+        '''        
+        z_score_final = 100 * (1 - (z_score_final/max(z_score_final)))      # 计算
+        z_score_final = 100 * (z_score_final/max(z_score_final))            # 缩放
+        '''
+        z_score_final = 1/exp(z_score_final) * 100          # 求幂变换
+
+        df = pd.concat([z_score_ds['Z-score-combo'], z_score_mmgbsa['Z-score-combo'], z_score_final], axis=1)
+        df.sort_index(inplace=True)
+        df.to_excel(writer, sheet_name=self.ligname)
+
+        return z_score_final
 
     @staticmethod
     def gen_heatmap(df):
         
         sns.set_context({'figure.figsize':(20,20)})
-        sns.heatmap(data=df, square=True,cmap="RdBu_r", annot=True, fmt=".0f" ,linewidths=0.1)
-        plt.savefig(pdb_path + '%s_heatmap.png' % date, bbox_inches='tight')
+        sns.heatmap(data=df, square=True,cmap="RdBu_r", annot=True, fmt=".0f" ,linewidths=0.1, vmin=0, vmax=100)
+        plt.savefig(heatmap_file, bbox_inches='tight')
 
 def main():
     ligs = []
     _tmp = input('Enter all ligands need to be showed(split with comma):').split(',')
     precision = input('Enter the docking precision:').strip().upper()
+    print('''
+Calculation Method:
+
+1. General Evaluation
+2. Z-score
+3. Machine Learning
+    ''')
+    flag = input('Enter the code of calculation method: ').strip()
+
     for lig in _tmp:
         ligs.append(lig.strip())
-    
-    data = [gene_name]
-    for lig in ligs:
-        file_path = pdb_path + 'FINAL_RESULTS_%s_%s.xlsx' % (lig, precision)
-        heatmap = Heatmap(file_path)
-        result = heatmap.calc_final_scroe()
-        data.append(result)
+    data = []
+
+    if flag == '1':
+        data = [gene_name]
+        for lig in ligs:
+            file_path = pdb_path + './final_results/FINAL_RESULTS_%s_%s.xlsx' % (lig, precision)
+            heatmap = Heatmap(file_path)
+            result = heatmap.calc_final_scroe()
+            data.append(result)
+    elif flag == '2':
+        for lig in ligs:
+            file_path = pdb_path + './final_results/FINAL_RESULTS_%s_%s.xlsx' % (lig, precision)
+            heatmap = Heatmap(file_path)
+            result = heatmap.calc_z_score()
+            data.append(result)
+    else:
+        raise RuntimeError('Wrong Code, Exit.')
 
     data = pd.concat(data, axis=1)
+    try:
+        data.set_index('Abbreviation', inplace=True)
+    except KeyError:
+        pass
     data.sort_index(inplace=True)
-    data.set_index('Abbreviation', inplace=True)
     data.dropna(axis=0, how='all', inplace=True)
     data.to_excel(writer, sheet_name='TOTAL')
     writer.save()
