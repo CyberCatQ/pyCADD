@@ -9,6 +9,8 @@ root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目
 result_path = root_path + 'lib/result/'                                 # 对接结果数据文件库
 info_path = root_path + 'lib/info/'                                     # 晶体基本信息数据文件库
 pdb_path = root_path.split('automatedMD')[0]                            # PDB项目绝对路径(如果有)
+dock_results_path = pdb_path + 'dock_results/'
+final_results_path = pdb_path + 'final_results/'
 inputfile_path = root_path + 'lib/list/'                                # py4schrodinger输入文件库
 
 font = Font(name='等线',size=12)
@@ -78,7 +80,7 @@ def result_merge(ligname=None, precision=''):
     withlig = '_' + precision
     if ligname:
         withlig = '_' + ligname + '_' + precision
-    mergefile = pdb_path + 'dock_results/DOCK_FINAL_RESULTS%s.xlsx' % withlig
+    mergefile = dock_results_path + 'DOCK_FINAL_RESULTS%s.xlsx' % withlig
     data_list = []  # 汇总数据表
 
     resultfiles = os.popen("cd %s && ls | grep 'RESULTS%s.csv'" % (result_path, withlig)).read().splitlines()
@@ -168,7 +170,7 @@ def merge_info_result(ligname:str=None, precision='', info_file_path=''):
     if ligname:
         withlig = '_' + ligname + '_' + precision
 
-    mergefile = pdb_path + 'final_results/FINAL_RESULTS%s.xlsx' % withlig      # 总EXCEL文件名
+    mergefile = final_results_path + 'FINAL_RESULTS%s.xlsx' % withlig      # 总EXCEL文件名
     writer = pd.ExcelWriter(mergefile)
     if not info_file_path:
         info_file_path = input('Enter the PATH of Info Database File:') # 手动输入晶体信息文件名称(可能随版本迭代改变)
@@ -179,7 +181,7 @@ def merge_info_result(ligname:str=None, precision='', info_file_path=''):
     withlig = '_' + precision
     if ligname:
         withlig = '_' + ligname + '_' + precision
-    resultfile = pdb_path + 'DOCK_FINAL_RESULTS%s.xlsx' % withlig    
+    resultfile = dock_results_path + 'DOCK_FINAL_RESULTS%s.xlsx' % withlig    
 
     try:                                                    # 读取晶体信息
         infos = pd.read_excel(infofile, 'TOTAL')
@@ -226,7 +228,7 @@ def pivottable_gen(result_file:str=None, key1:str='Comformation', key2:str='Gene
     prefix = os.path.basename(result_file).split('.')[0]
     property_list = ['Docking_Score', 'Volume', 'MMGBSA_dG_Bind', 'rmsd']       # 要考察的核心数据
     data = pd.read_excel(result_file)
-    pivottable_file = pdb_path + '/' + prefix + '_Pivot_table.xlsx'
+    pivottable_file = final_results_path + prefix + '_Pivot_table.xlsx'
 
     writer = pd.ExcelWriter(pivottable_file)
 
@@ -265,7 +267,7 @@ def cal_ave_min(lib_path:str=None, dock_path:str=None, property:str='Docking_Sco
         dock_path = input('Enter the path of EX-Ligand Result File:').strip()
     
     prefix = os.path.basename(dock_path).split('.')[0]
-    ave_min_file = pdb_path + '/final_results/' + prefix + '_Pivot_table_' + property + '.xlsx'
+    ave_min_file = final_results_path + prefix + '_Pivot_table_' + property + '.xlsx'
 
     path = os.path.abspath(lib_path)
     raw_data = pd.read_excel(path)
@@ -484,13 +486,23 @@ def main():
     elif _flag == '7':
         pivottable_gen()
     elif _flag == '8':
-        lib_path = os.path.abspath(pdb_path + 'FINAL_RESULTS_SP.xlsx')
-        if not os.path.exists(lib_path):
-            lib_path = input('Enter the path of Docking Library File:').strip()
-        print('Using Essential Data:', lib_path)
-        dock_path = input('Enter the path of EX-Ligand Result File:').strip()
-        cal_ave_min(lib_path, dock_path, property='Docking_Score')
-        cal_ave_min(lib_path, dock_path, property='MMGBSA_dG_Bind')
+        
+        ligname = input('Enter the name of EX-Ligand:').strip()
+        for precision in ['SP', 'XP']:
+            dock_path = final_results_path + 'FINAL_RESULTS_' + ligname + '_%s.xlsx' % precision
+            lib_path = os.path.abspath(final_results_path + 'FINAL_RESULTS_%s.xlsx' % precision)
+            if not os.path.exists(dock_path):
+                continue
+            if not os.path.exists(lib_path):
+                print('FileNotFoundError: %s is no found.\n' % lib_path)
+                lib_path = input('Enter the path of Docking Library File:').strip()
+                if not lib_path:
+                    sys.exit()                          # 不输入时退出
+            print('Using Essential Data:', lib_path)
+            print('Using EX-Ligand Data:', dock_path)
+            cal_ave_min(lib_path, dock_path, property='Docking_Score')
+            cal_ave_min(lib_path, dock_path, property='MMGBSA_dG_Bind')
+            print('Calculation of Precision %s Done.' % precision)
     else:
         sys.exit()
     
