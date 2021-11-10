@@ -4,11 +4,12 @@ script_dir=$(dirname $script_abs)
 lib_dir=$script_dir/../lib
 log_dir=$lib_dir/log
 
-nrlist_dir=/home/omnisky/space/wyh/multiprocess/automatedMD/lib/list
+# NR List文件库位置
+nrlist_dir=/home/omnisky/space/wyh/NRdatabase_v11/NRlist_1.1
 files=$(ls $nrlist_dir)
 
 # 精度设定
-precision=SP
+precision=XP
 
 starttime=$(date)
 
@@ -28,19 +29,22 @@ if [ $# -eq 0 ];then
     for filename in $files
     do
         gene=${filename%.*}
-        $script_dir/py4schrodinger -r $nrlist_dir/$filename -p $precision -n 48 -k > $script_dir/../lib/log/${gene}_${precision}.log
+        # 后缀设定计算参数
+        $script_dir/py4schrodinger -r $nrlist_dir/$filename -p $precision -n 48 -m -k > $script_dir/../lib/log/${gene}_${precision}.log
     done
 else
     for filename in $files
     do
         gene=${filename%.*}
         lig=$(readlink -f "$1")
-        $script_dir/py4schrodinger -r $nrlist_dir/$filename -l ${lig} -p $precision -n 48 -k > $script_dir/../lib/log/${gene}_${precision}.log
+        ligname=$(basename $lig)
+        ligname=${ligname%.*}
+        $script_dir/py4schrodinger -r $nrlist_dir/$filename -l ${lig} -p $precision -n 48 -m -k > $script_dir/../lib/log/${gene}_${precision}_$ligname.log
     done
+    echo EX-LIGAND: $1
 fi
 endtime=$(date)
 
-echo
 echo Autorun Complete
 
 echo Precision: $precision
