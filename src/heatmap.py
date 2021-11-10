@@ -5,34 +5,21 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import openpyxl
 import pandas as pd
+from pandas.core.series import Series
 import seaborn as sns
 from numpy import exp
 from openpyxl.styles import Font
 
-root_path = os.path.abspath(os.path.dirname(__file__)).split('src')[0]  # 项目路径 绝对路径
-pdb_path = root_path.split('automatedMD')[0]                            # PDB项目绝对路径(如果有)
+root_path = os.path.abspath(os.path.dirname(
+    __file__)).split('src')[0]  # 项目路径 绝对路径
+# PDB项目绝对路径(如果有)
+pdb_path = root_path.split('automatedMD')[0]
+final_result_path = pdb_path + 'final_results/'
+
 now = datetime.now()
-date = str(now.year).rjust(2, '0') + str(now.month).rjust(2, '0') + str(now.day).rjust(2, '0')
-font = Font(name='等线',size=12)
-
-ignore_gene_list = ['NR5A1'] # ['NR1F1','NR2A1','NR1I3','NR3B1','NR1F2']
-ignore_abbre_list = ['SF1'] # ['ROR_alpha','HNF4_alpha','CAR','ERR_alpha','ROR_beta']
-
-result_data_prefix = pdb_path + '%s_Scores' % date
-heatmap_file_prefix = pdb_path + '%s_heatmap' % date
-i = 1
-while True:
-    heatmap_file = heatmap_file_prefix + '.png'
-    result_data = result_data_prefix + '.xlsx'
-    if not os.path.exists(heatmap_file) and not os.path.exists(heatmap_file):
-        break
-    else:
-        heatmap_file_prefix = pdb_path + '%s_heatmap' % date + '_%s' % str(i) 
-        result_data_prefix = pdb_path + '%s_Scores' % date + '_%s' % str(i)
-        i += 1
-
-writer = pd.ExcelWriter(result_data)
-
+date = str(now.year).rjust(2, '0') + \
+    str(now.month).rjust(2, '0') + str(now.day).rjust(2, '0')
+font = Font(name='等线', size=12)
 gene_dict = {'NR1A1': 'TR_alpha',
              'NR1A2': 'TR_beta',
              'NR1B1': 'RAR_alpha',
@@ -81,100 +68,157 @@ gene_dict = {'NR1A1': 'TR_alpha',
              'NR6A1': 'GCNF',
              'NR0B1': 'DAX1',
              'NR0B2': 'SHP'}
+gene_list = gene_dict.keys()
 gene_name = pd.Series(gene_dict, name='Abbreviation')
+ignore_gene_list = ['NR5A1'] # ['NR1F1','NR2A1','NR1I3','NR3B1','NR1F2']
+ignore_abbre_list = ['SF1'] # ['ROR_alpha','HNF4_alpha','CAR','ERR_alpha','ROR_beta']
 
-class Heatmap:
+def prefix_generate(date, module_name, precision) -> str:
     '''
-    识别情况热力图
+    根据日期、模块和精度生成此次计算的结果和热力图文件名称前缀
+
+    Parameters
+    ----------
+    date : str
+        日期
+    module_name : str
+        生成数据的算法模块名
+    precision : str
+        结果来源的精度
+
+    Return
+    ----------
+    str
+        文件名前缀
+    '''
+    i = 1
+    while True:
+        file_prefix = date + '_' + \
+            str(i).rjust(2, '0') + '_' + module_name + '_' + precision
+        img_file_path = pdb_path + file_prefix + '.png'
+        excel_file_path = pdb_path + file_prefix + '.xlsx'
+        if os.path.exists(img_file_path) or os.path.exists(excel_file_path):
+            i += 1
+        else:
+            break
+
+    return file_prefix
+
+
+def gen_heatmap(data, file_path) -> None:
+    '''
+    生成热力图并保存
+
+    Parameters
+    ----------
+    data : pandas Dataframe
+        生成热力图的DF数据对象
+    file_path:
+        热力图保存路径
+    '''
+    sns.set_context({'figure.figsize': (20, 20)})
+    sns.heatmap(data=data, square=True, cmap="RdBu_r", annot=True,
+                fmt=".0f", linewidths=0.1, vmin=0, vmax=100)
+    plt.savefig(file_path, bbox_inches='tight')
+
+
+class Dataprocessor:
+    '''
+    读取 处理和加工数据
     '''
 
     def __init__(self, file_path) -> None:
-
         file_path = os.path.abspath(file_path)
-        raw_data = pd.read_excel(file_path)
-        data = raw_data[raw_data['Docking_Score'].notnull()]
-        origin_data = data[data['rmsd'].notnull()]
-        exligand_data = data[data['rmsd'].isnull()]
-        gene_count = origin_data['Gene Name'].value_counts().to_dict()
-        ex_ligand = re.search(r'(?<=FINAL_RESULTS_)[0-9a-zA-Z]+(?=_)', file_path).group()
-        ds_data = pd.read_excel(file_path.split('.')[0] + '_Pivot_table_Docking_Score.xlsx', sheet_name=ex_ligand)
-        mmgbsa_data = pd.read_excel(file_path.split('.')[0] + '_Pivot_table_MMGBSA_dG_Bind.xlsx', sheet_name=ex_ligand)
+        data = pd.read_excel(file_path)
+        self.origin_data = data[data['rmsd'].notnull()]      # 共结晶配体对接数据
+        self.exligand_data = data[data['rmsd'].isnull()]     # 外源配体对接数据
+        # 外源配体名称
+        self.ex_ligand = re.search(
+            r'(?<=FINAL_RESULTS_)[0-9a-zA-Z]+(?=_)', file_path).group()  
+        # 各基因成员总数
+        self.gene_count = self.origin_data['Gene Name'].value_counts()
+        # 对接分数统计数据
+        self.ds_data = pd.read_excel(file_path.split(
+            '.')[0] + '_Pivot_table_Docking_Score.xlsx', sheet_name=self.ex_ligand)  
+        # mmgbsa结合能统计数据
+        self.mmgbsa_data = pd.read_excel(file_path.split('.')[
+                                    0] + '_Pivot_table_MMGBSA_dG_Bind.xlsx', sheet_name=self.ex_ligand)  
+        # Z-score
+        self.z_score_ds = pd.read_excel(file_path.split('.')[
+                                   0] + '_Pivot_table_Docking_Score.xlsx', sheet_name='Z-score', index_col='Abbreviation')['Z-score-combo']
+        self.z_score_mmgbsa = pd.read_excel(file_path.split('.')[
+                                       0] + '_Pivot_table_MMGBSA_dG_Bind.xlsx', sheet_name='Z-score', index_col='Abbreviation')['Z-score-combo']
+
+    def top_count(self, by='Docking_Score') -> Series:
+        '''
+        对TOP100中含有各基因的成员计数 返回包含成员基因与计数值键值对的字典
         
-        z_score_ds = pd.read_excel(file_path.split('.')[0] + '_Pivot_table_Docking_Score.xlsx', sheet_name='Z-score', index_col='Abbreviation')
-        z_score_mmgbsa = pd.read_excel(file_path.split('.')[0] + '_Pivot_table_MMGBSA_dG_Bind.xlsx', sheet_name='Z-score', index_col='Abbreviation')
+        Parameters
+        ----------
+        by : str
+            排序TOP时使用的数据列 默认为Docking_Score
 
-        self.raw_data = raw_data
-        self.data = data
-        self.origin_data = origin_data
-        self.exligand_data = exligand_data
-        self.gene_count = gene_count
-        self.gene_list = list(gene_count.keys())
-        self.ds_data = ds_data
-        self.mmgbsa_data = mmgbsa_data
-        self.ligname = file_path.split('/')[-1].split('_')[2]
-        self.z_score_ds = z_score_ds
-        self.z_score_mmgbsa = z_score_mmgbsa
-
-    def _top_count(self, by='Docking_Score'):
+        Return 
+        ----------
+        Series
+            计数结果
+        '''
 
         exligand_data = self.exligand_data
         exligand_data = exligand_data.sort_values(by=by, ascending=True).reset_index()
-        top_count = exligand_data[0:100]['Gene Name'].value_counts().to_dict()              # 前100结果
+        # 所有计数初始化为0
+        count = exligand_data[0:100]['Gene Name'].value_counts()            # 前100结果
         
-        return top_count
-
-    def calc_abs_score(self, dic):
-        
-        score_dict = {}
-        gene_count = self.gene_count
-        gene_list = self.gene_list
-
-        for gene in gene_list:
-            score_dict[gene] = 0
-            try:
-                score_dict[gene] = dic[gene] / gene_count[gene]
-            except KeyError:
-                continue
-
-        return score_dict
+        return count
     
-    def hit_percent(self):
-
-        exligand_data = self.exligand_data
+    def calc_abs_score(self, by='Docking_Score') -> Series:
+        '''
+        计算所有基因由top_count()得到的计数占成员总数的比例值
+        
+        Return
+        ----------
+        Series
+            比例值结果序列
+        '''
+        score = pd.Series(0.0, index = gene_list)
         gene_count = self.gene_count
-        gene_list = self.gene_list
-        hit_dict = {}
-        
-        hit = exligand_data['Gene Name'].value_counts()                                     # 各基因的命中数
-        for gene in gene_list:
-            hit_dict[gene] = 0
-            try:
-                hit_dict[gene] = hit[gene] / gene_count[gene]
-            except KeyError:
-                continue
-            
-        return hit_dict
+        top_count = pd.Series(self.top_count(by))
+        score = pd.Series(top_count / gene_count, name= by + '_ABS')
 
-    def mmgbsa_punish(self):
-        
+        return score
+    
+    def mmgbsa_penalty(self) -> Series:
+        '''
+        计算MMGBSA大于零的计数占成员总数的比例值
+
+        Return
+        ----------
+        Series
+            比例值结果序列
+        '''
         gene_count = self.gene_count
         exligand_data = self.exligand_data
-        punish_count = {}
-        punish_dict = {}
+        penalty = exligand_data[exligand_data['MMGBSA_dG_Bind'] >= 0]['Gene Name'].value_counts()
 
-        for gene in gene_count.keys():
-            punish_count[gene] = 0
+        score = penalty / gene_count
+        score = pd.Series(-score, name='Penalty')
 
-        for index, row in exligand_data.iterrows():
-            if row['MMGBSA_dG_Bind'] > 0:
-                punish_count[row['Gene Name']] += 1                                         # MMGBSA大于0的次数
+        return score
+
+    def calc_relative_score(self, by='Docking_Score') -> Series:
+        '''
+        计算考察变量的相对值 位于适当区间中的计数占成员总数的比例
         
-        for gene in gene_count.keys():
-            punish_dict[gene] = -(punish_count[gene] / gene_count[gene])                       # 大于0的数目占该基因总成员百分比
+        Parameter
+        ----------
+        by : str
+            要考察的数据列
 
-        return punish_dict
-    
-    def calc_relative_score(self, by='Docking_Score'):
+        Return
+        ----------
+        Series
+            比例值结果序列
+        '''
 
         if by == 'Docking_Score':
             _data = self.ds_data
@@ -186,105 +230,83 @@ class Heatmap:
             raise RuntimeError('No property named %s' % by)
 
         gene_count = self.gene_count
-        rela_calc = {}
-        rela_score_dict = {}
+        # 可变范围
+        upper_limit = 1.3
+        lower_limit = 0.7
 
-        for gene in gene_count.keys():
-            rela_calc[gene] = 0
-            rela_score_dict[gene] = 0
-
-        for index, row in _data.iterrows():
-            if row['AVERAGE_All'] >= 0.8 and row['AVERAGE_All'] <= 1.2:
-                rela_calc[row['Gene Name']] += 1
-            if row['Min_All'] >= 0.8 and row['Min_All'] <= 1.2:
-                rela_calc[row['Gene Name']] += 1
-            if row['PDB_%s' % by] >= 0.8 and row['PDB_%s' % by] <= 1.2:
-                rela_calc[row['Gene Name']] += 1
-
-        for gene in rela_calc.keys():
-            rela_score_dict[gene] = rela_calc[gene] / (3 * gene_count[gene])
-
-        return rela_score_dict
-    
-    def calc_final_scroe(self):
+        count = pd.Series(0, index=gene_list)
+        for property in ['AVERAGE_All', 'Min_All', 'PDB_%s' % by]:
+            tmp_df = _data[_data[property] >= lower_limit]
+            tmp_df = tmp_df[tmp_df[property] <= upper_limit]
+            count = count.add(tmp_df['Gene Name'].value_counts(), fill_value=0)
         
-        ligname = self.ligname
-        exligand_data = self.exligand_data
-        gene_list = exligand_data['Gene Name'].value_counts().keys()
+        score = pd.Series(count / (3 * gene_count), name=by+'_RELA')
 
-        ds_abs_score = self.calc_abs_score(self._top_count(by='Docking_Score'))
-        # print('DS ABS SCORE:', ds_abs_score)
-        mmgbsa_abs_score = self.calc_abs_score(self._top_count(by='MMGBSA_dG_Bind'))
-        # print('\nMMGBSA ABS SCORE:', mmgbsa_abs_score)
+        return score
 
-        hit_percent = self.hit_percent()
-        # print('\nHit Percent:', hit_percent)
-        mmgbsa_punish = self.mmgbsa_punish()
-        # print('\nMMGBSA Punish:', mmgbsa_punish)
+    def calc_final_score(self):
+        '''
+        通识算法1 最终分数计算
 
+        Return
+        ----------
+        tuple(Series, Dataframe)
+            最终分数序列， 全部分数合并后的数据矩阵
+        '''
+        ligname = self.ex_ligand
+
+        ds_abs_score = self.calc_abs_score(by='Docking_Score')
+        mmgbsa_abs_score = self.calc_abs_score(by='MMGBSA_dG_Bind')
+        mmgbsa_penalty = self.mmgbsa_penalty()
         ds_rela_score = self.calc_relative_score(by='Docking_Score')
-        # print('\nDS RELATIVE SCORE:', ds_rela_score)
         mmgbsa_rela_score = self.calc_relative_score(by='MMGBSA_dG_Bind')
-        # print('\nMMGBSA RELATIVE SCORE:', mmgbsa_rela_score)
+        score_list = [ds_abs_score, mmgbsa_abs_score, mmgbsa_penalty, ds_rela_score, mmgbsa_rela_score]
 
-        final_score = {}
-        for gene in gene_list:
-            final_score[gene] = (ds_abs_score[gene] + mmgbsa_abs_score[gene] + hit_percent[gene] + mmgbsa_punish[gene] + ds_rela_score[gene] + mmgbsa_rela_score[gene]) / 5 * 100
-        # print('\nFinal Score:', final_score)
-        
-        series1 = pd.Series(ds_abs_score, name='DS_ABS')
-        series2 = pd.Series(mmgbsa_abs_score, name='MMGBSA_ABS')
-        series3 = pd.Series(hit_percent, name='HIT')
-        series4 = pd.Series(mmgbsa_punish, name='Penalty')
-        series5 = pd.Series(ds_rela_score, name='DS_RELA')
-        series6 = pd.Series(mmgbsa_rela_score, name='MMGBSA_RELA')
-        series7 = pd.Series(final_score, name=self.ligname)
+        final_score = ds_abs_score
+        for score in [mmgbsa_abs_score, mmgbsa_penalty, ds_rela_score, mmgbsa_rela_score]:
+            final_score = final_score.add(score, fill_value=0)
+        # final_score -= min(final_score)
+        final_score = final_score / 4 * 100
+        final_score.rename(ligname, inplace=True)
 
-        df = pd.concat([series1,series2,series3,series4,series5,series6,series7], axis=1)
-        
+        score_list.append(final_score)
+
+        df = pd.concat(score_list, axis=1)
         df.sort_index(inplace=True)
         for index, row in df.iterrows():
             df.loc[index, 'Abbreviation'] = gene_dict[index]
         df.set_index('Abbreviation', inplace=True)
-        df.to_excel(writer, sheet_name=ligname)
 
-        for _index in ignore_gene_list:                     # 需要去除的异常基因
-            if _index in series7.index:
-                series7.drop(index=_index, inplace=True)
-
-        return series7
-
+        return final_score, df
+    
     def calc_z_score(self):
-
-        z_score_ds = self.z_score_ds
-        z_score_mmgbsa = self.z_score_mmgbsa
-        
-        z_score_final = pd.Series(z_score_ds['Z-score-combo'] + z_score_mmgbsa['Z-score-combo'], name=self.ligname)
-        for _index in ignore_abbre_list:                    # 需要去除的异常结果
-            if _index in z_score_final.index:
-                z_score_final.drop(index=_index,inplace=True)
-
-        '''        
-        z_score_final = 100 * (1 - (z_score_final/max(z_score_final)))      # 计算
-        z_score_final = 100 * (z_score_final/max(z_score_final))            # 缩放
         '''
-        z_score_final = 1/exp(z_score_final) * 100          # 求幂变换
+        通识算法2 z-score计算
 
-        df = pd.concat([z_score_ds['Z-score-combo'], z_score_mmgbsa['Z-score-combo'], z_score_final], axis=1)
+        Return
+        ----------
+        tuple(Series, Dataframe)
+            Z-score 分数序列， 分数合并后的数据矩阵
+        '''
+
+        z_score_ds = self.z_score_ds.rename('Z_score_DS')
+        z_score_mmgbsa = self.z_score_mmgbsa.rename('Z_score_MMGBSA')
+        ligname = self.ex_ligand
+
+        z_score_final = z_score_ds.add(z_score_mmgbsa, fill_value=0)
+        z_score_final = 100 / exp(z_score_final)
+        z_score_final.rename(ligname, inplace=True)
+
+        df = pd.concat([z_score_ds, z_score_mmgbsa, z_score_final], axis=1)
         df.sort_index(inplace=True)
-        df.to_excel(writer, sheet_name=self.ligname)
 
-        return z_score_final
+        return z_score_final, df
 
-    @staticmethod
-    def gen_heatmap(df):
-        
-        sns.set_context({'figure.figsize':(20,20)})
-        sns.heatmap(data=df, square=True,cmap="RdBu_r", annot=True, fmt=".0f" ,linewidths=0.1, vmin=0, vmax=100)
-        plt.savefig(heatmap_file, bbox_inches='tight')
 
 def main():
-    ligs = []
+    '''
+    程序入口
+    '''
     _tmp = input('Enter all ligands need to be showed(split with comma):').split(',')
     precision = input('Enter the docking precision:').strip().upper()
     print('''
@@ -296,26 +318,48 @@ Calculation Method:
     ''')
     flag = input('Enter the code of calculation method: ').strip()
 
+    ligs = []
     for lig in _tmp:
         ligs.append(lig.strip())
     data = []
 
     if flag == '1':
+        prefix = prefix_generate(date, 'GE', precision)
+        excel_file_path = pdb_path + prefix + '.xlsx'
+        writer = pd.ExcelWriter(excel_file_path)
+
         data = [gene_name]
         for lig in ligs:
-            file_path = pdb_path + './final_results/FINAL_RESULTS_%s_%s.xlsx' % (lig, precision)
-            heatmap = Heatmap(file_path)
-            result = heatmap.calc_final_scroe()
+            file_path = final_result_path + 'FINAL_RESULTS_%s_%s.xlsx' % (lig, precision)
+            dataprocessor = Dataprocessor(file_path)
+            result, df = dataprocessor.calc_final_score()
+            # 移除异常的基因
+            for gene in ignore_gene_list:
+                result.drop(index=gene, inplace=True)
+            for gene in ignore_abbre_list:
+                df.drop(index=gene, inplace=True)
+
             data.append(result)
+            df.to_excel(writer, sheet_name=lig)
+
     elif flag == '2':
+        prefix = prefix_generate(date, 'Z', precision)
+        excel_file_path = pdb_path + prefix + '.xlsx'
+        writer = pd.ExcelWriter(excel_file_path)
         for lig in ligs:
-            file_path = pdb_path + './final_results/FINAL_RESULTS_%s_%s.xlsx' % (lig, precision)
-            heatmap = Heatmap(file_path)
-            result = heatmap.calc_z_score()
+            file_path = final_result_path + 'FINAL_RESULTS_%s_%s.xlsx' % (lig, precision)
+            dataprocessor = Dataprocessor(file_path)
+            result, df = dataprocessor.calc_z_score()
+            # 移除异常的基因
+            for gene in ignore_abbre_list:
+                result.drop(index=gene, inplace=True)
+                df.drop(index=gene, inplace=True)
+
             data.append(result)
+            df.to_excel(writer, sheet_name=lig)
     else:
         raise RuntimeError('Wrong Code, Exit.')
-
+    
     data = pd.concat(data, axis=1)
     try:
         data.set_index('Abbreviation', inplace=True)
@@ -324,16 +368,22 @@ Calculation Method:
     data.sort_index(inplace=True)
     data.dropna(axis=0, how='all', inplace=True)
     data.to_excel(writer, sheet_name='TOTAL')
+    
     writer.save()
 
-    wb = openpyxl.load_workbook(result_data)
+    wb = openpyxl.load_workbook(excel_file_path)
     for ws in wb:
         for row in ws.iter_rows():
             for cell in row:
                 cell.font = font
-    wb.save(result_data)
+    wb.save(excel_file_path)
 
-    heatmap.gen_heatmap(data)
-    
+    heatmap_file_path = pdb_path + prefix + '.png'
+    gen_heatmap(data, heatmap_file_path)
+
 if __name__ == '__main__':
     main()
+
+
+
+
