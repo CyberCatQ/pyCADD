@@ -453,7 +453,7 @@ class Query:
 
                 pdb = line[0]
                 for x in chain_index:
-                    if gene in line[x-1].split(','):        # 判断哪一条链是目标基因的蛋白
+                    if gene in line[x-1].upper().split(','):        # 判断哪一条链是目标基因的蛋白
                         match_chain = line[x]
 
                 for x in ligchain_index:
