@@ -40,13 +40,6 @@ class Docker:
     Author: YH. W
     Last Update: 2021/11/26
         
-    Parameters
-    ----------
-    pdbid : str
-        PDB ID
-    ligname : str
-        配体文件PATH
-
     '''
     def __init__(self) -> None:
 
@@ -171,7 +164,3 @@ class Docker:
         保存ADMET数据文件
         '''
         data.save_admet_data(self.admet_dic, self._temp_admet_ligname)
-
-    
-
-    
