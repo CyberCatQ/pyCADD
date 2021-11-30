@@ -2,3 +2,4 @@ __pycache__/
 lib/*
 bin/autorun
 logs/
+test/

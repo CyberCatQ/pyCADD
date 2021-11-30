@@ -73,3 +73,28 @@ def check_chain(pdbfile:str) -> str:
     
     else:
         return pdbfile
+
+def check_lig_num(maefile:str) -> int:
+    '''
+    检查maestro文件中含有多少个小分子化合物
+
+    Parameter
+    ---------
+    maefile : str
+        maestro文件PATH
+
+    Return
+    ---------
+    int
+        化合物数量
+    '''
+    from schrodinger import structure as struc
+    ligand_strucs = struc.StructureReader(maefile)
+    
+    count = 0
+    for st in ligand_strucs:
+        count += 1
+    
+    return count
+
+
