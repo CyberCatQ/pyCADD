@@ -38,9 +38,9 @@ def convert_format(file_path:str, suffix:str) -> str:
     file = os.path.basename(file_path)
         
     if suffix == 'pdb':
-        st.write(file.split('.')[0] + '.pdb')
-        return file.split('.')[0] + '.pdb'
+        convert_file = file.split('.')[0] + '.pdb'
     elif suffix == 'mae':
-        st.write(file.split('.')[0] + '.mae')
-        return file.split('.')[0] + '.mae'
+        convert_file = file.split('.')[0] + '.mae'
 
+    st.write(convert_file)
+    return convert_file

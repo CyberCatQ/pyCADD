@@ -1,8 +1,11 @@
 import os
+import logging
 from pyCADD.utils.check import checkpdb, check_ligname
+
 root_path = os.path.abspath(os.path.dirname(__file__)).split('pyCADD')[0]  # 项目总路径
 base_path = root_path + 'pyCADD/'                          # pyCADD程序路径
 base_url = 'https://files.rcsb.org/download/'
+logger = logging.getLogger('pyCADD.getinfo')
 
 def downloadPDB(pdbid) -> None:
     '''
@@ -17,7 +20,7 @@ def downloadPDB(pdbid) -> None:
     if os.path.exists(pdbfile):
         return
 
-    print('Downloading %s ...' % pdbid)
+    logger.info('Downloading %s ...' % pdbid)
     url = base_url + pdbid + '.pdb'
     os.system('wget -q %s' % url)
 
@@ -38,11 +41,13 @@ def get_pdbid() -> str:
         return pdbid
     else:
         while True:
-            pdbid = str(input('\nTo get PDB ID automatically, please change the name of crystal folder to PDBID\n Input PDB ID:')).strip().upper()
+            logger.info('To get PDB ID automatically, please change the name of crystal folder to PDBID.')
+            pdbid = input('Input PDB ID:').strip().upper()
+            logger.info('PDB ID: %s' % pdbid)
             if checkpdb(pdbid):
                 return pdbid
             else:
-                print('请输入正确的PDB ID!')
+                logger.warning('请输入正确的PDB ID!')
 
 def catch_lig(pdbfile) -> list:
     '''
@@ -61,9 +66,9 @@ def catch_lig(pdbfile) -> list:
     '''
     return  os.popen("cat %s | grep -w -E ^HET | awk '{print $2}'" % pdbfile).readlines()
 
-def get_ligname(pdbid=None) -> str:
+def get_ligname(pdbid) -> str:
     '''
-    尝试自动获取配体名 如有多个配体则获取用户输入的配体名并检查合法性
+    尝试自动获取配体RCSB ID 如有多个配体则获取用户输入的配体名并检查合法性
 
     Return
     ----------
@@ -72,18 +77,7 @@ def get_ligname(pdbid=None) -> str:
 
     '''
 
-    if not pdbid:
-        pdbid = get_pdbid()
-    
     pdbfile = pdbid + '.pdb'
-
-    if not os.path.exists(pdbfile):  # 下载PDB文件
-
-        print('%s.pdb is not found. Would you like to download it? (Y/N)' % pdbid)
-        if input().upper().strip() == 'Y':
-            downloadPDB(pdbid)
-        else:
-            print('PDB File is not Found. Exit.')
 
     # 抓取pdb原始结构文件(不可是已处理过的结构)中单一entry关于小分子的描述
     lis = catch_lig(pdbfile)  
@@ -91,22 +85,79 @@ def get_ligname(pdbid=None) -> str:
     if len(lis) == 0:
         raise RuntimeError('%s is an Apo Crystal.' % pdbid)
 
+    # 匹配得到配体候选列表
     for i in lis:
-        passed = check_ligname(i.strip())  # 匹配得到配体候选列表
+        passed = check_ligname(i.strip())  
         if passed:
             lig_name = passed.group()
-            if lig_name != 'HOH' and not lig_name in lig:  # 排除配体候选中的水分子与重复分子
+            # 排除配体候选中的水分子与重复分子
+            if lig_name != 'HOH' and not lig_name in lig:  
                 lig.append(lig_name)
 
     if len(lig) == 1:
         ligname = str(lig[0])
         return ligname
     else:
-        print('Crystal %s has more than one ligand:' % pdbid, ''.join(str(x)+' ' for x in lig), end='\n')
+        logger.info('Crystal %s has more than one ligand:' % pdbid, ''.join(str(x)+' ' for x in lig))
         while True:
             ligname = input('Please specify ligand name:').strip().upper()
             if check_ligname(ligname) and ligname in lig:
                 return ligname
             else:
-                print('Wrong ligand name, please try again.')
+                logger.warning('Wrong ligand name, please try again.')
     
+    
+def get_ligmol_info(file:str, ligname:str) -> str:
+    '''
+    以ligname为KEY 查找Maestro文件中的Molecule Number
+
+    Parameters
+    ----------
+    file : str
+        maestro文件PATH
+    ligname : str
+        配体ID(RCSB ID)
+
+    Return
+    ----------
+    str
+        配体所在Molecule Number
+
+    '''
+
+    from pyCADD.Dock.prepare import load_st
+    # 载入结构对象
+    st = load_st(file)  
+
+    # 获取结构中的配体所在Molecule object
+    def _get_mol_obj(st):   
+        residues = st.residue
+        for res in residues:
+            if res.pdbres.strip() == '%s' % ligname:
+                molnum = res.molecule_number
+                yield st.molecule[molnum]
+
+    mol = next(_get_mol_obj(st))
+
+    # 判断该molecule是否仅包括小分子本身(是否存在共价连接) 自动移除共价连接
+    if len(mol.residue) != 1:  
+        logger.info('%s in %s : A covalent bond may exist between the ligand and residue.' % (ligname, file))
+        logger.info('An attempt will be made to remove the covalent bond automatically.')
+        bonds = st.bond
+
+        for bond in bonds:
+            resname1 = bond.atom1.getResidue().pdbres.strip()
+            resname2 = bond.atom2.getResidue().pdbres.strip()
+            if resname1 == '%s' % ligname or resname2 == '%s' % ligname:
+                if resname1 != resname2:
+                    bond_to_del = bond
+            
+        if not bond_to_del:
+            raise RuntimeError('Can not delete covalent bonds automatically.')
+            
+        st.deleteBond(bond_to_del.atom1, bond_to_del.atom2)
+        st.write(file)
+
+        mol = next(_get_mol_obj(st))
+
+    return mol.number

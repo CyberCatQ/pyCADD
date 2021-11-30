@@ -1,4 +1,5 @@
 import re
+import os
 
 def checkpdb(pdb: str):
     '''
@@ -36,3 +37,39 @@ def check_ligname(ligname: str):
         return match
     else:
         return False
+
+def check_chain(pdbfile:str) -> str:
+    '''
+    检查链数并询问是否保留单链
+
+    Parameter
+    ---------
+    pdbfile : str
+        PDB文件PATH
+
+    Return
+    ----------
+    str
+        处理完成的PDB结构文件名
+    '''
+    from pyCADD.utils.getinfo import catch_lig
+    from pyCADD.Dock.core import keep_chain
+
+    lis = catch_lig(pdbfile)
+    if len(lis) > 1:
+        print('\n')
+        os.system('cat %s | grep -w -E ^HET' % pdbfile)
+        print('There are multiple ligand small molecules. \nDo you need to keep a single chain？(Y/N)')
+        _flag = input().strip().upper() # 是否保留单链的标志
+
+        if _flag == 'Y':
+            chain = input('Enter the Chain Code:').strip().upper()
+            pdbfile = keep_chain(pdbfile, chain)
+
+            return pdbfile
+        else:
+            print('\nChoosed Original Crystal.\n')
+            return pdbfile
+    
+    else:
+        return pdbfile
