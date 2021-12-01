@@ -1,7 +1,7 @@
 from pyCADD.utils import getinfo, check
 from pyCADD.Dock import core
 from pyCADD.Dock import data
-from schrodinger.protein.getpdb import get_pdb
+from pyCADD.Dock.prepare import getpdb
 
 import os
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -46,7 +46,7 @@ class Docker:
         self.pdbid = getinfo.get_pdbid()
 
         if not os.path.exists(self.pdbid + '.pdb'):
-            get_pdb(self.pdbid)
+            getpdb(self.pdbid)
 
         self.pdbfile = check.check_chain(self.pdbid + '.pdb')
         self.ligname = getinfo.get_ligname(self.pdbid)

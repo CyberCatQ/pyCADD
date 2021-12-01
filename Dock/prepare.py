@@ -1,5 +1,8 @@
 import os
 from schrodinger import structure as struc
+from schrodinger.protein.getpdb import get_pdb
+import logging
+logger = logging.getLogger('pyCADD.Dock.prepare')
 
 def load_st(st_file: str) -> object:
     '''
@@ -15,7 +18,7 @@ def load_st(st_file: str) -> object:
     object
         结构对象
     '''
-
+    logger.debug('Loading structure file: %s' % st_file)
     return next(struc.StructureReader(st_file))
 
 def convert_format(file_path:str, suffix:str) -> str:
@@ -44,3 +47,10 @@ def convert_format(file_path:str, suffix:str) -> str:
 
     st.write(convert_file)
     return convert_file
+
+def getpdb(pdbid:str) -> str:
+    '''
+    使用Schrodinger Module下载PDB文件
+    '''
+    logger.info('Downloading PDB file: %s' % pdbid + '.pdb')
+    return get_pdb(pdbid)

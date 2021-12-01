@@ -161,3 +161,60 @@ def get_ligmol_info(file:str, ligname:str) -> str:
         mol = next(_get_mol_obj(st))
 
     return mol.number
+
+def get_base_dir():
+    '''
+    获取pyCADD项目文件夹所在的Absolute PATH
+    '''
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+def get_project_dir():
+    '''
+    获取项目文件夹的Absolute PATH
+    '''
+    logger.debug('Current Working directory: %s' % os.getcwd())
+    return os.getcwd()
+
+def get_pdblist_from_recplist(receptor_list:list):
+    '''
+    获取输入的受体列表信息 剥离PDB ID信息并返回列表
+
+    Parameter
+    ----------
+    receptor_list : list
+        (受体PDBID, 配体ID)组成的列表
+    
+    Return
+    ----------
+    list
+        PDB ID列表
+    '''
+
+    pdblist = []
+    for pdb, lig in receptor_list:
+        pdblist.append(pdb)
+    
+    return pdblist
+
+def get_pdbfile_path_list(pdblist):
+    '''
+    将PDBID列表转换为对应的PDB文件PATH列表
+
+    Parameter
+    ----------
+    pdblist : list
+        PDB ID列表
+    
+    Return
+    ----------
+    list
+        PDB文件PATH列表
+    '''
+    
+    pdbfile_path_list = []
+    pdb_dir = get_project_dir() + '/pdb/'
+    for pdb in pdblist:
+        pdbfile = pdb_dir + pdb + '.pdb'
+        pdbfile_path_list.append(pdbfile)
+
+    return pdbfile_path_list

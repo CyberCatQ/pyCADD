@@ -7,7 +7,7 @@ from pyCADD.utils.getinfo import get_ligmol_info
 from schrodinger.application.glide import poseviewconvert as pvc
 from schrodinger.job import jobcontrol as jc
 
-logger = logging.getLogger('pyCADD.core')
+logger = logging.getLogger('pyCADD.Dock.core')
 
 def launch(cmd:str):
     '''
@@ -76,12 +76,12 @@ def minimize(pdbfile_path:str) -> str:
         return minimized_file
 
     prepwizard_command = 'prepwizard -f 3 -r 0.3 -propka_pH 7.0 -disulfides -s -j %s-Minimize %s %s' % (pdbfile.split('.')[0],
-                                                                                                            pdbfile, minimized_file)
+                                                                                                            pdbfile_path, minimized_file)
     launch(prepwizard_command)   # 阻塞至任务结束
 
     # 判断Minimized任务是否完成(是否生成Minimized结束的结构文件)
+    # 无法被优化的晶体结构
     if not os.path.exists(minimized_file):  
-        # 无法被优化的晶体结构
         raise RuntimeError('%s Crystal Minimization Process Failed.' % pdbfile.split('.')[0])  
     else:
         logger.info('PDB minimized file: %s Saved.\n' % minimized_file)
@@ -172,7 +172,7 @@ def split_com(complex_file_path:str, ligname:str) -> tuple:
         for res in residue_list:
             text = res.chain + ':' + res.pdbres.strip() + ' ' + str(res.resnum)
             resname_list.append(text)
-        logger.info('There are %s "%s" in %s: ' % (len(residue_list), ligname, complex_file), resname_list)
+        logger.info('There are %s "%s" in %s: %s' % (len(residue_list), ligname, complex_file, resname_list))
         logger.info('The First One is Selected.\n')
 
     lig_file = '%s_lig_%s.mae' % (pdbid, ligname)
@@ -180,16 +180,16 @@ def split_com(complex_file_path:str, ligname:str) -> tuple:
     com_file = '%s_com_%s.pdb' % (pdbid, ligname)
     # 生成并保存配体独立mae文件
     comp.writeLigand(lig_file)     
-    logger.info('Ligand file %s is generated.' % lig_file)     
+    logger.debug('Ligand file %s is generated.' % lig_file)     
     comp.writeReceptor(recep_file)
-    logger.info('Receptor file %s is generated.' % recep_file)
+    logger.debug('Receptor file %s is generated.' % recep_file)
     st.write(com_file)
-    logger.info('Complex file %s is generated.' % com_file)
+    logger.debug('Complex file %s is generated.' % com_file)
 
     # 自动生成PDB格式
     convert_format(lig_file, 'pdb')
     convert_format(recep_file, 'pdb')
-    logger.info('PDB format converted.\n')
+    logger.debug('PDB format converted.\n')
 
     return lig_file, recep_file
 

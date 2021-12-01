@@ -1,6 +1,21 @@
 import re
 import os
 
+def check_file(file_path:str) -> bool:
+    '''
+    检查文件是否存在
+    存在返回True 否则返回False
+
+    Parameter
+    ----------
+    file_path : str
+        文件PATH
+    
+    Return
+    ----------
+    '''
+    return os.path.exists(file_path)
+
 def checkpdb(pdb: str):
     '''
     检查PDB ID合法性
