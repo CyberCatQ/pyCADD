@@ -3,7 +3,7 @@ import multiprocessing
 import os
 
 from pyCADD.Dock.core import (dock, grid_generate, keep_chain, minimize,
-                              split_com)
+                              split_com, cal_mmgbsa)
 from pyCADD.Multidock.prepare import minimize_prepare, split_ligand
 from pyCADD.utils.getinfo import get_pdbfile_path_list, get_project_dir
 from pyCADD.utils.tool import mkdirs
@@ -194,7 +194,7 @@ def multi_split(receptor_list:list):
 
 def dock_in_pdbdir(pdbid, lig_file_path, grid_file_path, precision, calc_rmsd):
     '''
-    指定对接位置在PDB目录中的对接
+    进入PDB目录中作为对接位置的对接
     '''
     cwd = get_project_dir()
     dockfiles_dir = cwd + '/dockfiles/'
@@ -229,17 +229,66 @@ def self_dock(receptor_list:list, precision:str='SP', calc_rmsd:bool=True):
     pool.join()
 
 
-def multi_dock():
+def multi_dock(mapping, precision:str='SP'):
     '''
-    集合式对接
+    集合式对接核心
+    
+    Parameter
+    ----------
+    mapping : tuple|list
+        映射关系元组|列表
+        元组|列表中的每一个元素组成应该为(PDBID, 共结晶配体ID, 外部配体名)
+    precision : str
+        设定对接精度 默认SP
     '''
-    pass
+    cwd = get_project_dir()
+    ligand_dir = cwd + '/ligands/'
+    grid_dir = cwd + '/grid/'
+    pool = multiprocessing.Pool(os.cpu_count(), maxtasksperchild=1)
 
-def multi_cal_mmgbsa():
+    for pdbid, self_lig, ex_lig in mapping:
+        # self_lig: 该结晶自身的共结晶配体
+        # ex_lig: 单次对接要用的配体
+        # 当self_lig == ex_lig时即共结晶配体自对接
+        grid_file_path = grid_dir + '%s_glide_grid_%s.zip' % (pdbid, self_lig)
+        lig_file_path = ligand_dir + '%s.mae' % ex_lig
+        pool.apply_async(dock_in_pdbdir, (pdbid, lig_file_path, grid_file_path, precision, False), error_callback=error_handler, callback=success_handler)
+
+    pool.close()
+    pool.join()
+
+def cal_mmgbsa_in_pdbdir(pdbid:str, dock_file_path:str):
+    '''
+    进入PDB目录并以之作为结果目录的MMGBSA能量计算
+    '''
+    cwd = get_project_dir()
+    dockfiles_dir = cwd + '/dockfiles/'
+    pdb_dir = dockfiles_dir + pdbid + '/'
+    mkdirs([pdb_dir])
+    # 暂时进入dockfiles下的PDB文件夹 以计算对接并储存结果文件
+    os.chdir(pdb_dir)
+    cal_mmgbsa(dock_file_path)
+    os.chdir(cwd)
+
+def multi_cal_mmgbsa(mapping, precision:str='SP'):
     '''
     多进程 计算多个结构的MMGBSA结合能
+
+    Parameter
+    ----------
+    mapping : tuple|list
+        映射关系元组|列表
+        元组|列表中的每一个元素组成应该为(PDBID, 共结晶配体ID, 外部配体名)
+    precision : str
+        对接精度 用以定位文件
     '''
-    pass
+    pool = multiprocessing.Pool(os.cpu_count(), maxtasksperchild=1)
+    for pdbid, self_lig, ex_lig in mapping:
+        dock_file_path = '%s_%s_glide_dock_%s_%s.maegz' % (pdbid, self_lig, ex_lig, precision)
+        pool.apply_async(cal_mmgbsa_in_pdbdir, (pdbid, dock_file_path), error_callback=error_handler)
+
+    pool.close()
+    pool.join()
 
 def read_result():
     '''

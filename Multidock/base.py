@@ -1,25 +1,22 @@
 import os
-
-base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-log_dir = base_dir + '/logs'
-
-from datetime import datetime
-
-date = datetime.now()
-year = str(date.year)
-month = str(date.month)
-day = str(date.day)
-now = year + month.rjust(2, '0') + day.rjust(2, '0')
-
-# 配置log
 import logging
 
+from pyCADD.utils.tool import generate_logfile_name, mkdirs
+from pyCADD.Multidock import core
+from pyCADD.utils.getinfo import get_pdblist_from_recplist, get_project_dir
+
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# log_dir = base_dir + '/logs'
+
+#  配置log
 logger = logging.getLogger('pyCADD')
 logger.setLevel(level = logging.INFO)
 file_fmt = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 console_fmt = logging.Formatter('%(levelname)s - %(message)s')
 
-filehandler = logging.FileHandler(log_dir + '/%s.log' % now, 'a')
+global logfile
+logfile = generate_logfile_name()
+filehandler = logging.FileHandler(logfile, 'a')
 filehandler.setLevel(logging.INFO)
 filehandler.setFormatter(file_fmt)
 consolehandler = logging.StreamHandler()
@@ -28,10 +25,6 @@ consolehandler.setFormatter(console_fmt)
 
 logger.addHandler(filehandler)
 logger.addHandler(consolehandler)
-
-from pyCADD.Multidock import core
-from pyCADD.utils.getinfo import get_pdblist_from_recplist, get_project_dir
-from pyCADD.utils.tool import mkdirs
 
 
 class Multidock:
@@ -82,6 +75,14 @@ class Multidock:
     def required_dir(self):
         return [self.complex_dir, self.dockfiles_dir, self.grid_dir, self.ligands_dir, self.minimize_dir, self.pdb_dir, self.protein_dir]
 
+    @property
+    def logfile(self):
+        '''
+        获取当前任务log文件PATH
+        '''
+        global logfile
+        return  logfile
+
     def read_receptor(self, file_path:str):
         '''
         读入受体列表文件
@@ -96,13 +97,13 @@ class Multidock:
         '''
         self.ligand_list = core.read_ligands(file_path, self.ligands_dir)
         logger.info('Loaded ligands file: %s' % file_path)
-    
-    def _map(self):
+   
+    def map(self):
         '''
         建立映射关系
         '''
         self.mapping = core.map(self.receptor_list, self.ligand_list)
-        logger.info('Map complete.')
+        logger.info('Create mapping complete.')
 
     def get_pdblist(self):
         '''
@@ -110,7 +111,7 @@ class Multidock:
         '''
         return self.pdblist
     
-    def minimize(self):
+    def optimize(self):
         '''
         优化全部晶体
         '''
@@ -142,5 +143,21 @@ class Multidock:
         core.self_dock(self.receptor_list, precision, calc_rmsd)
         logger.info('Self-Dock Done.')
 
+    def ensemble_dock(self, precision:str='SP'):
+        '''
+        启动集合式对接
+        '''
+        logger.info('Prepare to run ensemble docking')
+        core.multi_dock(self.mapping, precision)
+        logger.info('Ensemble Docking Done.')
     
+    def calc_mmgbsa(self, precision:str='SP'):
+        '''
+        计算MMGBSA结合能
+        '''
+        logger.info('Prepare to calculate MM-GB/SA Binding Energy')
+        logger.warning('Attention: It may cost extremely much time')
+        core.multi_cal_mmgbsa(self.mapping, precision)
+        logger.info('MM-GB/SA binding energy calculate Done')
     
+
