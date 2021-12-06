@@ -1,6 +1,6 @@
 import os 
 import logging
-logger = logging.getLogger('pyCADD.utils.tool')
+from cloghandler import ConcurrentRotatingFileHandler
 
 def mkdirs(path_list:list):
     '''
@@ -11,7 +11,7 @@ def mkdirs(path_list:list):
     path_list : list
         要创建的PATH列表
     '''
-
+    logger = logging.getLogger('pyCADD.utils.tool')
     for path in path_list:
         try:
             os.mkdir(path)
@@ -30,7 +30,8 @@ def generate_logfile_name():
         log文件名
     '''
     # 默认储存log文件的目录PATH
-    log_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '/logs/'
+    log_dir = os.getcwd() + '/logs/'
+    mkdirs([log_dir])
 
     from datetime import datetime
     # 获取今日日期
@@ -47,3 +48,26 @@ def generate_logfile_name():
             i += 1
         else:
             return logfile
+
+def init_log(logname):
+    '''
+    初始化配置log
+    '''
+    logger = logging.getLogger(logname)
+    logger.setLevel(level = logging.DEBUG)
+    file_fmt = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_fmt = logging.Formatter('%(levelname)s - %(message)s')
+
+    logfile = generate_logfile_name()
+    filehandler = ConcurrentRotatingFileHandler(logfile, 'a')
+    filehandler.setLevel(logging.DEBUG)
+    filehandler.setFormatter(file_fmt)
+    consolehandler = logging.StreamHandler()
+    consolehandler.setLevel(logging.INFO)
+    consolehandler.setFormatter(console_fmt)
+
+    logger.addHandler(filehandler)
+    logger.addHandler(consolehandler)
+    logger.logfilename = logfile
+
+    return logger

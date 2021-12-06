@@ -1,13 +1,15 @@
-from pyCADD.utils import getinfo, check
-from pyCADD.Dock import core
-from pyCADD.Dock import data
-from pyCADD.Dock.prepare import getpdb
-
 import os
+
+from pyCADD.Dock import core, data
+from pyCADD.Dock.prepare import getpdb
+from pyCADD.utils import check, getinfo
+from pyCADD.utils.tool import init_log
+
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 log_dir = base_dir + '/logs'
 
 from datetime import datetime
+
 date = datetime.now()
 year = str(date.year)
 month = str(date.month)
@@ -15,21 +17,7 @@ day = str(date.day)
 now = year + month.rjust(2, '0') + day.rjust(2, '0')
 
 # 配置log
-import logging
-logger = logging.getLogger('pyCADD')
-logger.setLevel(level = logging.INFO)
-file_fmt = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-console_fmt = logging.Formatter('%(levelname)s - %(message)s')
-
-filehandler = logging.FileHandler(log_dir + '/%s.log' % now, 'a')
-filehandler.setLevel(logging.INFO)
-filehandler.setFormatter(file_fmt)
-consolehandler = logging.StreamHandler()
-consolehandler.setLevel(logging.INFO)
-consolehandler.setFormatter(console_fmt)
-
-logger.addHandler(filehandler)
-logger.addHandler(consolehandler)
+logger = init_log('pyCADD')
 
 class Docker:
 

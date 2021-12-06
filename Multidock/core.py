@@ -2,8 +2,7 @@ import logging
 import multiprocessing
 import os
 
-from pyCADD.Dock.core import (dock, grid_generate, keep_chain, minimize,
-                              split_com, cal_mmgbsa)
+from pyCADD.Dock.core import dock, grid_generate, minimize, split_com, cal_mmgbsa
 from pyCADD.Multidock.prepare import minimize_prepare, split_ligand
 from pyCADD.utils.getinfo import get_pdbfile_path_list, get_project_dir
 from pyCADD.utils.tool import mkdirs
@@ -33,6 +32,7 @@ def read_receptors(list_file_path:str) -> list:
 
     '''
     receptor_list = []
+    logger.debug('Reading receptors file: %s' % list_file_path)
 
     with open(list_file_path, 'r') as f:
         # 读取PDB列表中的每一行PDBID与配体名称信息
@@ -62,7 +62,7 @@ def read_ligands(maefile:str, dirname:str='./') -> list:
     list
         多组小分子配体名称
     '''
-
+    logger.debug('Loading ligands file: %s' % maefile)
     return split_ligand(maefile, dirname)
 
 
@@ -82,6 +82,9 @@ def map(receptor_list:list, ligand_list:list) -> tuple:
         映射关系元组
     '''
     tup = ()
+    logger.debug('There is/are %s receptor(s) to be mapped' % len(receptor_list))
+    logger.debug('There is/are %s ligand(s) to be mapped' % len(ligand_list))
+    logger.info('A map of %s X %s will be created.' % (len(receptor_list), len(ligand_list)))
     for receptor, lig in receptor_list:
         for ligand in ligand_list:
             tup += ((receptor, lig, ligand),)
@@ -101,8 +104,11 @@ def multi_minimize(pdblist:list):
     minimize_prepare(pdblist)
     
     cwd = get_project_dir()
+    logger.debug('Current working directory: %s' % cwd)
     # minimized文件存放目录
     minimize_dir = cwd + '/minimize/'
+    logger.debug('Minimized files will be saved in %s' % minimize_dir)
+
     pdbfiles = get_pdbfile_path_list(pdblist)
 
     # 暂时进入minimize文件存放目录 以优化晶体并保存结构文件于此处
@@ -111,7 +117,7 @@ def multi_minimize(pdblist:list):
     pool = multiprocessing.Pool(os.cpu_count(), maxtasksperchild=1)
 
     for pdbfile in pdbfiles:
-        pool.apply_async(minimize, (pdbfile,), error_callback=error_handler, callback=success_handler)
+        pool.apply_async(minimize, (pdbfile,), error_callback=error_handler)
 
     pool.close()
     pool.join()
@@ -131,8 +137,11 @@ def multi_grid_generate(receptor_list:list):
     '''
 
     cwd = get_project_dir()
+    logger.debug('Current working directory: %s' % cwd)
     grid_dir = cwd + '/grid/'
     minimize_dir = cwd + '/minimize/'
+    logger.debug('Grid files will be saved in %s' % grid_dir)
+    logger.debug('Minimized files will be used in %s' % minimize_dir)
     
     # 暂时进入grid文件存放目录 计算格点文件并保存结构于此处
     os.chdir(grid_dir)
@@ -141,7 +150,7 @@ def multi_grid_generate(receptor_list:list):
     for pdbid, lig in receptor_list:
         st_file_path = minimize_dir + '%s_minimized.mae' % pdbid
         # 默认格点大小20A
-        pool.apply_async(grid_generate, (pdbid, lig, st_file_path, 20), error_callback=error_handler, callback=success_handler)
+        pool.apply_async(grid_generate, (pdbid, lig, st_file_path, 20), error_callback=error_handler)
     
     pool.close()
     pool.join()
@@ -159,10 +168,15 @@ def multi_split(receptor_list:list):
         受体信息列表(PDBID, 配体ID)
     '''
     cwd = get_project_dir()
+    logger.debug('Current working directory: %s' % cwd)
+
     minimize_dir = cwd + '/minimize/'
     complex_dir = cwd + '/complex/'
     protein_dir = cwd + '/protein/'
     ligand_dir = cwd + '/ligands/'
+    logger.debug('Splitting files in %s' % minimize_dir)
+    logger.debug('Protein files will be saved in %s' % protein_dir)
+    logger.debug('Ligand files will be saved in %s' % ligand_dir)
 
     def _move(files_tuple):
         '''
@@ -216,8 +230,13 @@ def self_dock(receptor_list:list, precision:str='SP', calc_rmsd:bool=True):
         受体信息列表(PDBID, 配体ID)
     '''
     cwd = get_project_dir()
+    logger.debug('Current working directory: %s' % cwd)
+
     ligand_dir = cwd + '/ligands/'
     grid_dir = cwd + '/grid/'
+    logger.debug('Grid files will be used in %s' % grid_dir)
+    logger.debug('Ligand files will be used in %s' % ligand_dir)
+
     pool = multiprocessing.Pool(os.cpu_count(), maxtasksperchild=1)
 
     for pdbid, lig in receptor_list:
@@ -244,6 +263,10 @@ def multi_dock(mapping, precision:str='SP'):
     cwd = get_project_dir()
     ligand_dir = cwd + '/ligands/'
     grid_dir = cwd + '/grid/'
+    logger.debug('Current working directory: %s' % cwd)
+    logger.debug('Grid files will be used in %s' % grid_dir)
+    logger.debug('Ligand files will be used in %s' % ligand_dir)
+
     pool = multiprocessing.Pool(os.cpu_count(), maxtasksperchild=1)
 
     for pdbid, self_lig, ex_lig in mapping:
@@ -252,7 +275,7 @@ def multi_dock(mapping, precision:str='SP'):
         # 当self_lig == ex_lig时即共结晶配体自对接
         grid_file_path = grid_dir + '%s_glide_grid_%s.zip' % (pdbid, self_lig)
         lig_file_path = ligand_dir + '%s.mae' % ex_lig
-        pool.apply_async(dock_in_pdbdir, (pdbid, lig_file_path, grid_file_path, precision, False), error_callback=error_handler, callback=success_handler)
+        pool.apply_async(dock_in_pdbdir, (pdbid, lig_file_path, grid_file_path, precision, False), error_callback=error_handler)
 
     pool.close()
     pool.join()
@@ -312,7 +335,7 @@ def error_handler(error):
     '''
     Error 信息显示
     '''
-    logger.exception(error)
+    logger.error(error)
 
 def success_handler(info):
     '''

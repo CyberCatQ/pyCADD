@@ -1,31 +1,13 @@
 import os
-import logging
 
-from pyCADD.utils.tool import generate_logfile_name, mkdirs
+from pyCADD.utils.tool import init_log, mkdirs
 from pyCADD.Multidock import core
 from pyCADD.utils.getinfo import get_pdblist_from_recplist, get_project_dir
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# log_dir = base_dir + '/logs'
 
 #  配置log
-logger = logging.getLogger('pyCADD')
-logger.setLevel(level = logging.INFO)
-file_fmt = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-console_fmt = logging.Formatter('%(levelname)s - %(message)s')
-
-global logfile
-logfile = generate_logfile_name()
-filehandler = logging.FileHandler(logfile, 'a')
-filehandler.setLevel(logging.INFO)
-filehandler.setFormatter(file_fmt)
-consolehandler = logging.StreamHandler()
-consolehandler.setLevel(logging.INFO)
-consolehandler.setFormatter(console_fmt)
-
-logger.addHandler(filehandler)
-logger.addHandler(consolehandler)
-
+logger = init_log('pyCADD')
 
 class Multidock:
     '''
@@ -72,16 +54,18 @@ class Multidock:
         return self.project_dir + '/pdb'
         
     @property
+    def log_dir(self):
+        return self.project_dir + '/logs'
+    @property
     def required_dir(self):
-        return [self.complex_dir, self.dockfiles_dir, self.grid_dir, self.ligands_dir, self.minimize_dir, self.pdb_dir, self.protein_dir]
+        return [self.complex_dir, self.dockfiles_dir, self.grid_dir, self.ligands_dir, self.minimize_dir, self.pdb_dir, self.protein_dir, self.log_dir]
 
     @property
     def logfile(self):
         '''
         获取当前任务log文件PATH
         '''
-        global logfile
-        return  logfile
+        return logger.logfilename
 
     def read_receptor(self, file_path:str):
         '''
@@ -102,6 +86,7 @@ class Multidock:
         '''
         建立映射关系
         '''
+        logger.info('Creating mapping between receptors and ligands...')
         self.mapping = core.map(self.receptor_list, self.ligand_list)
         logger.info('Create mapping complete.')
 

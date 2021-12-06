@@ -21,10 +21,10 @@ def launch(cmd:str):
 
     cmd_list = cmd.split(' ')  # launch_job以列表形式提交参数
     job = jc.launch_job(cmd_list)
-    logger.info('Command: %s' % cmd)
-    logger.info('JobId: %s' % job.JobId)
-    logger.info('Job Name: %s' % job.Name)
-    logger.info('Job Status: %s\n' % job.Status)
+    logger.debug('Command: %s' % cmd)
+    logger.debug('JobId: %s' % job.JobId)
+    logger.debug('Job Name: %s' % job.Name)
+    logger.debug('Job Status: %s\n' % job.Status)
     job.wait()  # 阻塞进程 等待Job结束
 
 def keep_chain(pdbfile_path:str, chain_name:str) -> str:
@@ -48,7 +48,7 @@ def keep_chain(pdbfile_path:str, chain_name:str) -> str:
     st_chain_only = st.chain[chain_name].extractStructure()
     singlechain_file = '%s_chain_%s.mae' % (pdbfile.split('.')[0], chain_name)
     st_chain_only.write(singlechain_file)
-    logger.info('Keep the single chain structure: %s' % singlechain_file)
+    logger.debug('Keep the single chain structure: %s' % singlechain_file)
     return singlechain_file
 
 def minimize(pdbfile_path:str) -> str:
@@ -68,11 +68,11 @@ def minimize(pdbfile_path:str) -> str:
     '''
     
     pdbfile = os.path.basename(pdbfile_path)
-    logger.info('Prepare to minimize %s' % pdbfile)
+    logger.debug('Prepare to minimize %s' % pdbfile)
     minimized_file = str(pdbfile.split('.')[0] + '_minimized.mae')
 
     if os.path.exists(minimized_file):  # 如果已经进行过优化 为提高效率而跳过优化步骤
-        logger.info('File %s is existed.\n' % minimized_file)
+        logger.debug('File %s is existed.\n' % minimized_file)
         return minimized_file
 
     prepwizard_command = 'prepwizard -f 3 -r 0.3 -propka_pH 7.0 -disulfides -s -j %s-Minimize %s %s' % (pdbfile.split('.')[0],
@@ -84,7 +84,7 @@ def minimize(pdbfile_path:str) -> str:
     if not os.path.exists(minimized_file):  
         raise RuntimeError('%s Crystal Minimization Process Failed.' % pdbfile.split('.')[0])  
     else:
-        logger.info('PDB minimized file: %s Saved.\n' % minimized_file)
+        logger.debug('PDB minimized file: %s Saved.\n' % minimized_file)
         return minimized_file
 
 def grid_generate(pdbid:str, ligname:str, st_file_path:str, gridbox_size:int=20) -> str:
@@ -113,11 +113,11 @@ def grid_generate(pdbid:str, ligname:str, st_file_path:str, gridbox_size:int=20)
     outsize = gridbox_size + 10
 
     grid_file = pdbid + '_glide_grid_%s.zip' % ligname
-    logger.info('Prepare to generate grid file: %s' % grid_file)
+    logger.debug('Prepare to generate grid file: %s' % grid_file)
 
     # 如果已经生成了格点文件则跳过生成过程
     if os.path.exists(grid_file):   
-        logger.info('File %s is existed.\n' % grid_file)
+        logger.debug('File %s is existed.\n' % grid_file)
         return grid_file
 
     # 编写glide输入文件
@@ -131,7 +131,7 @@ def grid_generate(pdbid:str, ligname:str, st_file_path:str, gridbox_size:int=20)
         input_file.write('RECEP_FILE %s' % st_file_path)        # structure输入文件PATH
     launch('glide %s_grid_generate_%s.in -JOBNAME %s-%s-Grid-Generate' % (pdbid, ligname, pdbid, ligname))
 
-    logger.info('Grid File %s Generated.\n' % grid_file)
+    logger.debug('Grid File %s Generated.\n' % grid_file)
     return grid_file
 
 def split_com(complex_file_path:str, ligname:str) -> tuple:
@@ -172,8 +172,8 @@ def split_com(complex_file_path:str, ligname:str) -> tuple:
         for res in residue_list:
             text = res.chain + ':' + res.pdbres.strip() + ' ' + str(res.resnum)
             resname_list.append(text)
-        logger.info('There are %s "%s" in %s: %s' % (len(residue_list), ligname, complex_file, resname_list))
-        logger.info('The First One is Selected.\n')
+        logger.debug('There are %s "%s" in %s: %s' % (len(residue_list), ligname, complex_file, resname_list))
+        logger.debug('The First One is Selected.\n')
 
     lig_file = '%s_lig_%s.mae' % (pdbid, ligname)
     recep_file = '%s_pro_%s.mae' % (pdbid, ligname)     
@@ -220,12 +220,12 @@ def dock(lig_file_path:str, grid_file_path:str, precision:str='SP', calc_rmsd:bo
 
     # 正在对接的配体名称
     lig_name = os.path.basename(lig_file_path).split('.')[0].split('_')[-1]
-    logger.info('Prepare to dock %s on %s' % (lig_name, pdbid))
+    logger.debug('Prepare to dock %s on %s' % (lig_name, pdbid))
 
     dock_file = '%s_%s_glide_dock_%s_%s.maegz' % (pdbid, internal_ligand, lig_name, precision)
     # 如果已有对接成功文件 跳过对接步骤
     if os.path.exists(dock_file):     
-        logger.info('File %s is existed.\n' % dock_file)                             
+        logger.debug('File %s is existed.\n' % dock_file)                             
         return dock_file
 
     with open('%s_%s_glide_dock_%s_%s.in' % (pdbid, internal_ligand, lig_name, precision), 'w') as input_file:
@@ -248,7 +248,7 @@ def dock(lig_file_path:str, grid_file_path:str, precision:str='SP', calc_rmsd:bo
     if c != 0:
         raise RuntimeError('%s-%s Gilde Docking Failed' % (pdbid, lig_name))
 
-    logger.info('Docking Result File: %s_%s_glide_dock_%s_%s.maegz Saved.\n' % (pdbid, internal_ligand, lig_name, precision))
+    logger.debug('Docking Result File: %s_%s_glide_dock_%s_%s.maegz Saved.\n' % (pdbid, internal_ligand, lig_name, precision))
 
     return dock_file
 
@@ -273,12 +273,12 @@ def cal_mmgbsa(dock_file_path:str) -> str:
     pdbid = dock_file_name.split('_')[0]
     ligname = dock_file_name.split('_')[4]
 
-    logger.info('Prepare to Calculate MM-GB/SA Binding Energy : %s-%s' % (pdbid, ligname))
+    logger.debug('Prepare to Calculate MM-GB/SA Binding Energy : %s-%s' % (pdbid, ligname))
     mmgbsa_file = dock_file_name + '_mmgbsa.maegz'
 
     # 已计算则跳过计算过程
     if os.path.exists(mmgbsa_file):
-        logger.info('File %s is existed.\n' % mmgbsa_file)
+        logger.debug('File %s is existed.\n' % mmgbsa_file)
         return mmgbsa_file
 
     launch('prime_mmgbsa -j %s %s' % (mmgbsa_file.split('.')[0], dock_file_path))
@@ -286,7 +286,7 @@ def cal_mmgbsa(dock_file_path:str) -> str:
     if cmd != 0:
         raise RuntimeError('%s-%s Prime MM-GB/SA Calculating Failed.' % (pdbid, ligname))
         
-    logger.info('MM-GB/SA Calculating Result File: %s Saved.\n' % mmgbsa_file)
+    logger.debug('MM-GB/SA Calculating Result File: %s Saved.\n' % mmgbsa_file)
 
     return mmgbsa_file
 
@@ -308,9 +308,9 @@ def cal_volume(recep_file_path:str, lig_file_path:str) -> str:
     '''
     pdbid = os.path.basename(recep_file_path).split('_')[0]
     sitemap_file = '%s_sitemap_out.maegz' % pdbid
-    logger.info('Prepare to calculate volume of site in %s' % pdbid)
+    logger.debug('Prepare to calculate volume of site in %s' % pdbid)
     if os.path.exists(sitemap_file):
-        logger.info('File %s is existed.\n' % sitemap_file)
+        logger.debug('File %s is existed.\n' % sitemap_file)
         return sitemap_file
 
     launch('sitemap -sitebox 6 -keeplogs yes -ligmae %s -prot %s -j %s_sitemap' % (lig_file_path, recep_file_path, pdbid))
@@ -318,7 +318,7 @@ def cal_volume(recep_file_path:str, lig_file_path:str) -> str:
     if not os.path.exists(sitemap_file):
         raise RuntimeError('%s Sitemap Calculating Failed.' % pdbid)
 
-    logger.info('Sitemap Calculating File: %s Saved.\n' % sitemap_file)
+    logger.debug('Sitemap Calculating File: %s Saved.\n' % sitemap_file)
     return sitemap_file
 
 def cal_admet(lig_file_path:str):
@@ -340,17 +340,17 @@ def cal_admet(lig_file_path:str):
     prefix = lig_file.split('.')[0] + '_ADMET'
 
     admet_file = prefix + '.mae'
-    logger.info('Prepare to calculate ADMET properties: %s' % lig_file)
+    logger.debug('Prepare to calculate ADMET properties: %s' % lig_file)
     if os.path.exists(admet_file):
-        logger.info('File %s is existed.\n' % admet_file)
+        logger.debug('File %s is existed.\n' % admet_file)
         return admet_file
 
-    logger.info('Calculating ADMET Propeties of %s' % lig_file)
+    logger.debug('Calculating ADMET Propeties of %s' % lig_file)
 
     launch('qikprop -outname %s %s' % (prefix, lig_file_path))
     os.system('mv %s-out.mae %s' % (prefix, admet_file))
 
-    logger.info('Qikprop Calculation File: %s Saved.\n' % admet_file)
+    logger.debug('Qikprop Calculation File: %s Saved.\n' % admet_file)
 
     return admet_file
 

@@ -22,7 +22,7 @@ def extra_data(file_path:str) -> dict:
         Properties : Values
 
         '''
-    logger.info('Prepare to extract data from file %s' % file_path)
+    logger.debug('Prepare to extract data from file %s' % file_path)
     file = os.path.basename(file_path).split('.')[0]
     # 从文件名获取信息
     pdbid = file.split('_')[0]
@@ -111,7 +111,7 @@ def save_data(data_dic:dict, pdbid:str, ligname:str, precision:str='SP'):
         writer.writeheader()        # 写入标头
         writer.writerows([data_dic])  # 写入数据 自动匹配标头列
     
-    logger.info('%s-%s Data Saved.\n' % (pdbid, ligname))
+    logger.debug('%s-%s Data Saved.\n' % (pdbid, ligname))
 
 def extra_admet_data(admet_file_path:str) -> dict:
 
@@ -128,7 +128,7 @@ def extra_admet_data(admet_file_path:str) -> dict:
     dict
         提取数据组成的字典
     '''
-    logger.info('\nPrepare to extract ADMET data from file %s' % admet_file_path)
+    logger.debug('\nPrepare to extract ADMET data from file %s' % admet_file_path)
 
     admet_dic = {}
     st = load_st(admet_file_path)
@@ -164,4 +164,4 @@ def save_admet_data(admet_dic:dict, ligname:str):
         writer.writeheader()                # 写入标头
         writer.writerows([admet_dic])       # 写入数据 自动匹配标头列
 
-    logger.info('ADMET data of %s saved.\n' % ligname)
+    logger.debug('ADMET data of %s saved.\n' % ligname)

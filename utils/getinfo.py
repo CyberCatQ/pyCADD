@@ -172,7 +172,7 @@ def get_project_dir():
     '''
     获取项目文件夹的Absolute PATH
     '''
-    logger.debug('Current Working directory: %s' % os.getcwd())
+
     return os.getcwd()
 
 def get_pdblist_from_recplist(receptor_list:list):

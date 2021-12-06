@@ -1,5 +1,7 @@
 import os
 import threading
+import logging
+logger = logging.getLogger('pyCADD.Multidock.prepare')
 
 from schrodinger import structure as struc
 from pyCADD.utils.check import check_file
@@ -22,17 +24,30 @@ def split_ligand(maefile:str, dirname:str='./') -> list:
     list
         小分子名称列表
     '''
+
     dirname = os.path.abspath(dirname) + '/'
+    logger.debug('Prepare to split structure file %s to %s' % (maefile, dirname))
+
     ligand_list = []
     ligand_strucs = struc.StructureReader(maefile)
 
     for st in ligand_strucs:
         st_name = st.property['s_m_title']                          # 分子名称
+
+        # 判断是否是同名的立体异构化合物
+        i = 2
+        while True:
+            if st_name in ligand_list:
+                logger.debug('One homonymic ligand detected: %s' % st_name)
+                st_name = st.property['s_m_title'] + '-%s' % str(i)
+                i += 1
+            else:
+                break
+        ligand_list.append(st_name)
         st_maefile = dirname + st_name + '.mae'
         if not check_file(st_maefile):
-            st.write(st_maefile)                        # 写入单个mae文件
-        ligand_list.append(st_name)
-    
+            st.write(st_maefile)                                    # 写入单个mae文件
+        
     return ligand_list
 
 def download_pdblist(pdblist:list, dirname:str):
@@ -49,6 +64,8 @@ def download_pdblist(pdblist:list, dirname:str):
     dirname = os.path.abspath(dirname) + '/'
     pdblist_to_download = []
     cwd = os.getcwd()
+    logger.debug('PDB list: %s' % pdblist)
+    logger.debug('Downloading PDB files to %s\n' % dirname)
 
     for pdb in pdblist:
         pdbfile = dirname + pdb + '.pdb'
