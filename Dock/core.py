@@ -189,7 +189,7 @@ def split_com(complex_file_path:str, ligname:str) -> tuple:
     # 自动生成PDB格式
     convert_format(lig_file, 'pdb')
     convert_format(recep_file, 'pdb')
-    logger.debug('PDB format converted.\n')
+    logger.debug('PDB format converted.')
 
     return lig_file, recep_file
 
@@ -246,7 +246,7 @@ def dock(lig_file_path:str, grid_file_path:str, precision:str='SP', calc_rmsd:bo
     c = os.system('mv %s-%s-Glide-Dock-%s-%s_pv.maegz %s_%s_glide_dock_%s_%s.maegz' % (pdbid, internal_ligand, lig_name, precision, pdbid, internal_ligand, lig_name, precision))
     # 非0返回码示意对接执行出错
     if c != 0:
-        raise RuntimeError('%s-%s Gilde Docking Failed' % (pdbid, lig_name))
+        logger.warning('%s-%s Gilde Docking Failed' % (pdbid, lig_name))
 
     logger.debug('Docking Result File: %s_%s_glide_dock_%s_%s.maegz Saved.\n' % (pdbid, internal_ligand, lig_name, precision))
 
@@ -353,4 +353,4 @@ def cal_admet(lig_file_path:str):
     logger.debug('Qikprop Calculation File: %s Saved.\n' % admet_file)
 
     return admet_file
-
+    

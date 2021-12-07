@@ -1,6 +1,9 @@
 import os 
 import logging
 from cloghandler import ConcurrentRotatingFileHandler
+from rich.logging import RichHandler
+from rich.progress import SpinnerColumn, TextColumn,BarColumn,Progress, TimeElapsedColumn, TimeRemainingColumn
+from rich.table import Column
 
 def mkdirs(path_list:list):
     '''
@@ -56,13 +59,14 @@ def init_log(logname):
     logger = logging.getLogger(logname)
     logger.setLevel(level = logging.DEBUG)
     file_fmt = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    console_fmt = logging.Formatter('%(levelname)s - %(message)s')
+    console_fmt = logging.Formatter('%(message)s')
 
     logfile = generate_logfile_name()
     filehandler = ConcurrentRotatingFileHandler(logfile, 'a')
     filehandler.setLevel(logging.DEBUG)
     filehandler.setFormatter(file_fmt)
-    consolehandler = logging.StreamHandler()
+    # consolehandler = logging.StreamHandler()
+    consolehandler = RichHandler()
     consolehandler.setLevel(logging.INFO)
     consolehandler.setFormatter(console_fmt)
 
@@ -71,3 +75,32 @@ def init_log(logname):
     logger.logfilename = logfile
 
     return logger
+
+def _get_progress(name:str, description:str, total:int):
+    '''
+    创建进度条
+
+    Parameters
+    ----------
+    name : str
+        进度条进程名
+    description : str
+        进度条样式
+    total : int
+        标志项目总进度为100%时的长度
+
+    Reture
+    ----------
+    rich.progress.Progress, task ID
+        进度条对象, 任务ID(用于update)
+    '''
+
+    text_column = TextColumn("{task.description}", table_column=Column(), justify='right')
+    percent_column = TextColumn("[bold green]{task.percentage:.1f}%", table_column=Column())
+    bar_column = BarColumn(bar_width=None, table_column=Column())
+    progress = Progress(SpinnerColumn(), text_column, "•", TimeElapsedColumn(), "•", percent_column, bar_column, TimeRemainingColumn())
+
+    task = progress.add_task('[%s]%s' % (description, name), total=total, start=False)
+
+    return progress, task
+

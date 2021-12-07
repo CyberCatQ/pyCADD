@@ -7,6 +7,7 @@ from schrodinger import structure as struc
 from pyCADD.utils.check import check_file
 from pyCADD.utils.getinfo import get_project_dir
 from pyCADD.Dock.prepare import getpdb
+from pyCADD.utils.tool import _get_progress
 
 def split_ligand(maefile:str, dirname:str='./') -> list:
     '''
@@ -28,12 +29,17 @@ def split_ligand(maefile:str, dirname:str='./') -> list:
     dirname = os.path.abspath(dirname) + '/'
     logger.debug('Prepare to split structure file %s to %s' % (maefile, dirname))
 
+    
     ligand_list = []
     ligand_strucs = struc.StructureReader(maefile)
+    st_list = [st for st in ligand_strucs]                          # 结构读入内存
 
-    for st in ligand_strucs:
+    progress, task = _get_progress('Reading ligands', 'bold cyan', len(st_list))
+    progress.start()
+    progress.start_task(task)
+
+    for st in st_list:
         st_name = st.property['s_m_title']                          # 分子名称
-
         # 判断是否是同名的立体异构化合物
         i = 2
         while True:
@@ -48,6 +54,8 @@ def split_ligand(maefile:str, dirname:str='./') -> list:
         if not check_file(st_maefile):
             st.write(st_maefile)                                    # 写入单个mae文件
         
+        progress.update(task, advance=1)
+    progress.stop()
     return ligand_list
 
 def download_pdblist(pdblist:list, dirname:str):
