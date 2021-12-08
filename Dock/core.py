@@ -247,8 +247,9 @@ def dock(lig_file_path:str, grid_file_path:str, precision:str='SP', calc_rmsd:bo
     # 非0返回码示意对接执行出错
     if c != 0:
         logger.warning('%s-%s Gilde Docking Failed' % (pdbid, lig_name))
+        return
 
-    logger.debug('Docking Result File: %s_%s_glide_dock_%s_%s.maegz Saved.\n' % (pdbid, internal_ligand, lig_name, precision))
+    logger.debug('Docking Result File: %s_%s_glide_dock_%s_%s.maegz Saved.' % (pdbid, internal_ligand, lig_name, precision))
 
     return dock_file
 

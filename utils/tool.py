@@ -85,7 +85,7 @@ def _get_progress(name:str, description:str, total:int):
     name : str
         进度条进程名
     description : str
-        进度条样式
+        进度条样式(example: 'bold red')
     total : int
         标志项目总进度为100%时的长度
 

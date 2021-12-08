@@ -92,6 +92,7 @@ def map(receptor_list:list, ligand_list:list) -> tuple:
         progress.update(task, advance=1)
 
     for receptor, lig in receptor_list:
+        tup += ((receptor, lig, lig),)
         for ligand in ligand_list:
             tup += ((receptor, lig, ligand),)
         _update()
@@ -279,7 +280,6 @@ def self_dock(receptor_list:list, precision:str='SP', calc_rmsd:bool=True):
     pool.join()
     progress.stop()
 
-
 def multi_dock(mapping, precision:str='SP'):
     '''
     集合式对接核心
@@ -308,7 +308,8 @@ def multi_dock(mapping, precision:str='SP'):
     def _error_handler(error):
         _update()
         logger.error(error)
-
+        
+    logger.debug('Using Number of CPU: %s' % os.cpu_count())
     pool = multiprocessing.Pool(os.cpu_count(), maxtasksperchild=1)
 
     for pdbid, self_lig, ex_lig in mapping:
@@ -363,32 +364,9 @@ def multi_cal_mmgbsa(mapping, precision:str='SP'):
     pool.join()
     progress.stop()
 
-def read_result():
-    '''
-    读取对接结果文件 提取信息
-    '''
-
-def classify():
-    '''
-    根据信息标签 分类对接结果数据
-    '''
-    pass
-
-def save_data():
-    '''
-    保存已分类数据
-    '''
-    pass
-
-
 def error_handler(error):
     '''
     Error 信息显示
     '''
     logger.error(error)
 
-def success_handler(info):
-    '''
-    任务执行完成信息
-    '''
-    logger.debug('%s saved.' % info)

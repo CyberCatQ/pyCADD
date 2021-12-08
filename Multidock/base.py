@@ -1,7 +1,7 @@
 import os
 
 from pyCADD.utils.tool import init_log, mkdirs
-from pyCADD.Multidock import core
+from pyCADD.Multidock import core, data
 from pyCADD.utils.getinfo import get_pdblist_from_recplist, get_project_dir
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -56,9 +56,14 @@ class Multidock:
     @property
     def log_dir(self):
         return self.project_dir + '/logs'
+
+    @property
+    def result_dir(self):
+        return self.project_dir + '/results'
+        
     @property
     def required_dir(self):
-        return [self.complex_dir, self.dockfiles_dir, self.grid_dir, self.ligands_dir, self.minimize_dir, self.pdb_dir, self.protein_dir, self.log_dir]
+        return [self.complex_dir, self.dockfiles_dir, self.grid_dir, self.ligands_dir, self.minimize_dir, self.pdb_dir, self.protein_dir, self.log_dir, self.result_dir]
 
     @property
     def logfile(self):
@@ -147,4 +152,14 @@ class Multidock:
         core.multi_cal_mmgbsa(self.mapping, precision)
         logger.info('MM-GB/SA binding energy calculate Done')
         
-
+    def save_data(self, precision:str='SP'):
+        '''
+        提取计算数据
+        '''
+        logger.info('Saving data')
+        logger.debug('PDB list: %s' % self.pdblist)
+        data_dict = data.multi_read_result(self.mapping, precision)
+        logger.debug('Data dict: %s' % data_dict)
+        data.save_data(data_dict, self.pdblist)
+        logger.info('Data saved.')
+        

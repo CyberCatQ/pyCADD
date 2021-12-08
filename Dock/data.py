@@ -4,6 +4,7 @@ import os
 import re
 
 from pyCADD.Dock.prepare import load_st
+from pyCADD.utils.check import check_file
 from schrodinger import structure as struc
 logger = logging.getLogger('pyCADD.data')
 
@@ -24,8 +25,12 @@ def extra_data(file_path:str) -> dict:
         '''
     logger.debug('Prepare to extract data from file %s' % file_path)
     file = os.path.basename(file_path).split('.')[0]
+    if not check_file(file_path):
+        return
+
     # 从文件名获取信息
     pdbid = file.split('_')[0]
+    original_lig = file.split('_')[1]
     ligname = file.split('_')[4]
     precision = file.split('_')[5]
     
@@ -38,6 +43,7 @@ def extra_data(file_path:str) -> dict:
     # 需要提取的Property 公共项
     prop_dic['PDB'] = pdbid
     prop_dic['Ligand'] = ligname
+    prop_dic['Original'] = original_lig
     prop_dic['Docking_Score'] = lig_st.property['r_i_docking_score']  # 对接分数
     prop_dic['rotatable_bonds'] = lig_st.property['i_i_glide_rotatable_bonds']
     prop_dic['ligand_efficiency'] = lig_st.property['r_i_glide_ligand_efficiency']
@@ -58,7 +64,11 @@ def extra_data(file_path:str) -> dict:
         prop_dic['MMGBSA_dG_Bind'] = lig_st.property['r_psp_MMGBSA_dG_Bind']
     except KeyError:
         pass
-    
+    # 活性标签
+    try:
+        prop_dic['activity'] = lig_st.property['b_user_Activity']
+    except KeyError:
+        pass
     # SP精度特有项
     if precision == 'SP':
         prop_dic['lipo'] = lig_st.property['r_i_glide_lipo']
@@ -98,10 +108,10 @@ def save_data(data_dic:dict, pdbid:str, ligname:str, precision:str='SP'):
     precision : str
         对接精度
     '''
-    prop_xp = ['PDB', 'Ligand', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'Site_Score', 'Volume','ligand_efficiency', 
-            'XP_Hbond', 'rotatable_bonds', 'ecoul', 'evdw', 'emodel', 'energy', 'einternal']
-    prop_sp = ['PDB', 'Ligand', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'Site_Score', 'Volume', 'ligand_efficiency', 
-            'rotatable_bonds', 'ecoul', 'evdw', 'emodel', 'energy', 'einternal','lipo', 'hbond', 'metal', 'rewards', 'erotb', 'esite']
+    prop_xp = ['PDB', 'Ligand', 'Origianl', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'Site_Score', 'Volume','ligand_efficiency', 
+            'XP_Hbond', 'rotatable_bonds', 'ecoul', 'evdw', 'emodel', 'energy', 'einternal', 'activity']
+    prop_sp = ['PDB', 'Ligand', 'Origianl', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'Site_Score', 'Volume', 'ligand_efficiency', 
+            'rotatable_bonds', 'ecoul', 'evdw', 'emodel', 'energy', 'einternal','lipo', 'hbond', 'metal', 'rewards', 'erotb', 'esite', 'activity']
     
     with open(pdbid + '_FINAL_RESULTS_%s.csv' % ligname, 'w', encoding='UTF-8', newline='') as f:
         if precision == 'XP':
