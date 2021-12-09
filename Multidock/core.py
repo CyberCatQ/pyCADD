@@ -43,7 +43,14 @@ def read_receptors(list_file_path:str) -> list:
         pdb = i.split(',')[0].strip().upper()                   # PDB ID
         lig = i.split(',')[1].strip().upper()                   # 配体名称
         receptor_list.append((pdb, lig))                        # 将每一对作为元组储存至列表receptor_list
-        
+    
+    # 生成标签文件
+    cwd = get_project_dir()
+    with open(cwd + '/ligands/original.csv','w') as f:
+        f.write('Ligand,activity\n')
+        for pdbid, lig in receptor_list:
+            f.write('%s,1\n' % lig)
+
     return receptor_list
 
 def read_ligands(maefile:str, dirname:str='./') -> list:

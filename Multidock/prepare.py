@@ -31,6 +31,7 @@ def split_ligand(maefile:str, dirname:str='./') -> list:
 
     
     ligand_list = []
+    label_list = []
     ligand_strucs = struc.StructureReader(maefile)
     st_list = [st for st in ligand_strucs]                          # 结构读入内存
 
@@ -40,6 +41,7 @@ def split_ligand(maefile:str, dirname:str='./') -> list:
 
     for st in st_list:
         st_name = st.property['s_m_title']                          # 分子名称
+        st_activity = st.property['b_user_Activity']                # 活性标签
         # 判断是否是同名的立体异构化合物
         i = 2
         while True:
@@ -50,11 +52,19 @@ def split_ligand(maefile:str, dirname:str='./') -> list:
             else:
                 break
         ligand_list.append(st_name)
+        label_list.append((st_name, st_activity))
         st_maefile = dirname + st_name + '.mae'
         if not check_file(st_maefile):
             st.write(st_maefile)                                    # 写入单个mae文件
         
         progress.update(task, advance=1)
+
+    # 创建标签文件
+    with open(dirname + 'label.csv', 'w') as f:
+        f.write('Ligand,activity\n')
+        for st_name, st_activity in label_list:
+            f.write('%s,%s\n' % (st_name, st_activity))
+
     progress.stop()
     return ligand_list
 

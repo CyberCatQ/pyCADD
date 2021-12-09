@@ -65,9 +65,15 @@ def multi_read_result(mapping, precision:str='SP', mmgbsa:bool=False):
 
     return data_list
 
-def save_data(data_list:list, pdb_list:list):
+def save_data(data_list:list, pdblist:list):
     '''
     按照PDB 分类保存数据
+    Parameters
+    ----------
+    data_list : list
+        由数据字典组成的列表
+    pdblist : list
+        PDB ID列表(用以聚类结果)
     '''
     cwd = get_project_dir()
     result_dir = cwd + '/results/'
@@ -77,8 +83,43 @@ def save_data(data_list:list, pdb_list:list):
     data = pd.DataFrame(data_list)
     data.to_csv('TOTAL.csv')
     group = data.groupby('PDB')
-    for pdb in pdb_list:
+    for pdb in pdblist:
         group.get_group(pdb).to_csv('%s_DOCK_FINAL_RESULTS.csv' % pdb, index=False)
         logger.debug('PDB %s data saved.' % pdb)
+
+    os.chdir(cwd)
     
+
+def merge_data(pdblist):
+    '''
+    抽取所有配体在全部PDB中的对接分数 并合并为矩阵
+
+    Parameter
+    ----------
+    pdblist : list
+        PDB ID列表
+    '''
+    cwd = get_project_dir()
+    result_dir = cwd + '/results/'
+    logger.debug('Results files will be used in: %s' % result_dir)
+    os.chdir(result_dir)
+
+    data_list = []
+    for pdb in pdblist:
+        resultfile = '%s_DOCK_FINAL_RESULTS.csv' % pdb
+        data = pd.read_csv(resultfile, index_col='Ligand')
+        ds_data = data[['Docking_Score']]
+        data_list.append(ds_data.rename(columns={'Docking_Score' : pdb}))
+
+    original_ligand_label = pd.read_csv(cwd + '/ligands/original.csv', index_col='Ligand')
+    label_data = pd.read_csv(cwd + '/ligands/label.csv', index_col='Ligand')
+    label_data = pd.concat([original_ligand_label, label_data])
+
+    final = data_list[0].join(data_list[1:], how='outer')
+    final = final.join(label_data, how='left')
+    final.to_csv('matrix.csv', index=True)
+
+    os.chdir(cwd)
+
+
 

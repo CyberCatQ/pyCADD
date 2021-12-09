@@ -179,7 +179,10 @@ def split_com(complex_file_path:str, ligname:str) -> tuple:
     recep_file = '%s_pro_%s.mae' % (pdbid, ligname)     
     com_file = '%s_com_%s.pdb' % (pdbid, ligname)
     # 生成并保存配体独立mae文件
-    comp.writeLigand(lig_file)     
+    comp.writeLigand(lig_file) 
+    lig_st = load_st(lig_file)    
+    lig_st.property['b_user_Activity'] = 1
+    lig_st.write(lig_file)
     logger.debug('Ligand file %s is generated.' % lig_file)     
     comp.writeReceptor(recep_file)
     logger.debug('Receptor file %s is generated.' % recep_file)

@@ -159,7 +159,8 @@ class Multidock:
         logger.info('Saving data')
         logger.debug('PDB list: %s' % self.pdblist)
         data_dict = data.multi_read_result(self.mapping, precision)
-        logger.debug('Data dict: %s' % data_dict)
+        # logger.debug('Data dict: %s' % data_dict)
         data.save_data(data_dict, self.pdblist)
+        data.merge_data(self.pdblist)
         logger.info('Data saved.')
         
