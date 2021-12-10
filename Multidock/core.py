@@ -2,7 +2,7 @@ import logging
 import multiprocessing
 import os
 
-from pyCADD.Dock.core import dock, grid_generate, minimize, split_com, cal_mmgbsa
+from pyCADD.Dock.core import cal_admet, dock, grid_generate, minimize, split_com, cal_mmgbsa
 from pyCADD.Multidock.prepare import minimize_prepare, split_ligand
 from pyCADD.utils.getinfo import get_pdbfile_path_list, get_project_dir
 from pyCADD.utils.tool import mkdirs, _get_progress
@@ -316,8 +316,11 @@ def multi_dock(mapping, precision:str='SP'):
         _update()
         logger.error(error)
         
-    logger.debug('Using Number of CPU: %s' % os.cpu_count())
-    pool = multiprocessing.Pool(os.cpu_count(), maxtasksperchild=1)
+    cpu = os.cpu_count() - 2
+    logger.debug('Using Number of CPU: %s' % cpu)
+    
+
+    pool = multiprocessing.Pool(cpu, maxtasksperchild=1)
 
     for pdbid, self_lig, ex_lig in mapping:
         # self_lig: 该结晶自身的共结晶配体
@@ -325,11 +328,16 @@ def multi_dock(mapping, precision:str='SP'):
         # 当self_lig == ex_lig时即共结晶配体自对接
         grid_file_path = grid_dir + '%s_glide_grid_%s.zip' % (pdbid, self_lig)
         lig_file_path = ligand_dir + '%s.mae' % ex_lig
+        if self_lig == ex_lig:
+            lig_file_path = ligand_dir + '%s_lig_%s.mae' % (pdbid, self_lig)
         pool.apply_async(dock_in_pdbdir, (pdbid, lig_file_path, grid_file_path, precision, False), error_callback=_error_handler, callback=_update)
 
     pool.close()
     pool.join()
+    # progress.update(completed = len(mapping))
+
     progress.stop()
+
 
 def cal_mmgbsa_in_pdbdir(pdbid:str, dock_file_path:str):
     '''
@@ -376,4 +384,5 @@ def error_handler(error):
     Error 信息显示
     '''
     logger.error(error)
+    raise RuntimeError
 

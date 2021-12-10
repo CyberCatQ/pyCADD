@@ -97,8 +97,9 @@ def _get_progress(name:str, description:str, total:int):
 
     text_column = TextColumn("{task.description}", table_column=Column(), justify='right')
     percent_column = TextColumn("[bold green]{task.percentage:.1f}%", table_column=Column())
+    finished_column = TextColumn("[bold purple]{task.completed} of {task.total}")
     bar_column = BarColumn(bar_width=None, table_column=Column())
-    progress = Progress(SpinnerColumn(), text_column, "•", TimeElapsedColumn(), "•", percent_column, bar_column, TimeRemainingColumn())
+    progress = Progress(SpinnerColumn(), text_column, "•", TimeElapsedColumn(), "•", percent_column, bar_column, finished_column, TimeRemainingColumn())
 
     task = progress.add_task('[%s]%s' % (description, name), total=total, start=False)
 

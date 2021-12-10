@@ -2,30 +2,39 @@ import os
 import logging
 
 from pyCADD.Dock.prepare import convert_format, load_st
-from pyCADD.utils.check import checkpdb
+from pyCADD.utils.check import check_file, checkpdb
 from pyCADD.utils.getinfo import get_ligmol_info
 from schrodinger.application.glide import poseviewconvert as pvc
 from schrodinger.job import jobcontrol as jc
 
 logger = logging.getLogger('pyCADD.Dock.core')
 
-def launch(cmd:str):
+def launch(cmd:str, timeout:int=None):
     '''
         使用jobcontrol启动一项job并等待结束
 
         Parameters
         ----------
-        cmd ： str
+        cmd : str
             等待执行的命令字符串
+        timeout : int
+            超时时限(秒)
         '''
 
     cmd_list = cmd.split(' ')  # launch_job以列表形式提交参数
-    job = jc.launch_job(cmd_list)
+    job = jc.launch_job(cmd_list, timeout=timeout)
     logger.debug('Command: %s' % cmd)
     logger.debug('JobId: %s' % job.JobId)
     logger.debug('Job Name: %s' % job.Name)
     logger.debug('Job Status: %s\n' % job.Status)
     job.wait()  # 阻塞进程 等待Job结束
+
+    # 如果任务失败
+    if not job.StructureOutputFile:
+        raise RuntimeError('%s Failed' % job.Name)
+    else:
+        logger.debug('File %s saved.' % job.StructureOutputFile)
+
 
 def keep_chain(pdbfile_path:str, chain_name:str) -> str:
     '''
@@ -228,7 +237,8 @@ def dock(lig_file_path:str, grid_file_path:str, precision:str='SP', calc_rmsd:bo
     dock_file = '%s_%s_glide_dock_%s_%s.maegz' % (pdbid, internal_ligand, lig_name, precision)
     # 如果已有对接成功文件 跳过对接步骤
     if os.path.exists(dock_file):     
-        logger.debug('File %s is existed.\n' % dock_file)                             
+        logger.debug('File %s is existed.\n' % dock_file)    
+        logger.info('%s-%s Glide Docking Completed' % (pdbid, lig_name))                         
         return dock_file
 
     with open('%s_%s_glide_dock_%s_%s.in' % (pdbid, internal_ligand, lig_name, precision), 'w') as input_file:
@@ -245,13 +255,10 @@ def dock(lig_file_path:str, grid_file_path:str, precision:str='SP', calc_rmsd:bo
             input_file.write('POSTDOCK_XP_DELE 0.5\n')
 
     launch('glide %s_%s_glide_dock_%s_%s.in -JOBNAME %s-%s-Glide-Dock-%s-%s' % (pdbid, internal_ligand, lig_name, precision, pdbid, internal_ligand, lig_name, precision))
-
-    c = os.system('mv %s-%s-Glide-Dock-%s-%s_pv.maegz %s_%s_glide_dock_%s_%s.maegz' % (pdbid, internal_ligand, lig_name, precision, pdbid, internal_ligand, lig_name, precision))
-    # 非0返回码示意对接执行出错
-    if c != 0:
-        logger.warning('%s-%s Gilde Docking Failed' % (pdbid, lig_name))
-        return
-
+    if not check_file('%s-%s-Glide-Dock-%s-%s_pv.maegz' % (pdbid, internal_ligand, lig_name, precision)):
+        raise RuntimeError('%s-%s Glide Docking Failed' % (pdbid, lig_name))
+    os.system('mv %s-%s-Glide-Dock-%s-%s_pv.maegz %s_%s_glide_dock_%s_%s.maegz' % (pdbid, internal_ligand, lig_name, precision, pdbid, internal_ligand, lig_name, precision))
+    logger.info('%s-%s Glide Docking Completed' % (pdbid, lig_name))
     logger.debug('Docking Result File: %s_%s_glide_dock_%s_%s.maegz Saved.' % (pdbid, internal_ligand, lig_name, precision))
 
     return dock_file
