@@ -51,7 +51,7 @@ def read_receptors(list_file_path:str) -> list:
     with open(cwd + '/ligands/original.csv','w') as f:
         f.write('Ligand,activity\n')
         for pdbid, lig in receptor_list:
-            f.write('%s,1\n' % lig)
+            f.write('%s-lig-%s,origin\n' % (pdbid, lig))
 
     return receptor_list
 
@@ -283,7 +283,7 @@ def self_dock(receptor_list:list, precision:str='SP', calc_rmsd:bool=True):
     pool = multiprocessing.Pool(os.cpu_count(), maxtasksperchild=1)
 
     for pdbid, lig in receptor_list:
-        lig_file_path = ligand_dir + '%s_lig_%s.mae' % (pdbid, lig)
+        lig_file_path = ligand_dir + '%s-lig-%s.mae' % (pdbid, lig)
         grid_file_path = grid_dir + '%s_glide_grid_%s.zip' % (pdbid, lig)
         pool.apply_async(dock_in_pdbdir, (pdbid, lig_file_path, grid_file_path, precision, calc_rmsd), error_callback=_error_handler, callback=_update)
     
