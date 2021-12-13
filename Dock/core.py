@@ -31,7 +31,8 @@ def launch(cmd:str, timeout:int=None):
 
     # 如果任务失败
     if not job.StructureOutputFile:
-        raise RuntimeError('%s Failed' % job.Name)
+        logger.debug('Job %s Failed' % job.Name)
+        return
     else:
         logger.debug('File %s saved.' % job.StructureOutputFile)
 
@@ -256,7 +257,8 @@ def dock(lig_file_path:str, grid_file_path:str, precision:str='SP', calc_rmsd:bo
 
     launch('glide %s_%s_glide_dock_%s_%s.in -JOBNAME %s-%s-Glide-Dock-%s-%s' % (pdbid, internal_ligand, lig_name, precision, pdbid, internal_ligand, lig_name, precision))
     if not check_file('%s-%s-Glide-Dock-%s-%s_pv.maegz' % (pdbid, internal_ligand, lig_name, precision)):
-        raise RuntimeError('%s-%s Glide Docking Failed' % (pdbid, lig_name))
+        logger.error('%s-%s Glide Docking Failed' % (pdbid, lig_name))
+        return
     os.system('mv %s-%s-Glide-Dock-%s-%s_pv.maegz %s_%s_glide_dock_%s_%s.maegz' % (pdbid, internal_ligand, lig_name, precision, pdbid, internal_ligand, lig_name, precision))
     logger.info('%s-%s Glide Docking Completed' % (pdbid, lig_name))
     logger.debug('Docking Result File: %s_%s_glide_dock_%s_%s.maegz Saved.' % (pdbid, internal_ligand, lig_name, precision))

@@ -41,7 +41,15 @@ def split_ligand(maefile:str, dirname:str='./') -> list:
 
     for st in st_list:
         st_name = st.property['s_m_title']                          # 分子名称
-        st_activity = st.property['b_user_Activity']                # 活性标签
+
+        # 可能的活性标签名称 bool | string
+        label_name = ('b_user_Activity', 's_user_Activity', 'b_user_activity', 's_user_activity')
+        for label in label_name:
+            try:
+                st_activity = st.property[label]
+            except KeyError:
+                continue
+
         # 判断是否是同名的立体异构化合物
         i = 2
         while True:

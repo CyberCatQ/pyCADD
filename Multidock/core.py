@@ -7,6 +7,8 @@ from pyCADD.Multidock.prepare import minimize_prepare, split_ligand
 from pyCADD.utils.getinfo import get_pdbfile_path_list, get_project_dir
 from pyCADD.utils.tool import mkdirs, _get_progress
 
+from concurrent.futures import ProcessPoolExecutor
+
 logger = logging.getLogger('pyCADD.Multidock.core')
 
 def read_receptors(list_file_path:str) -> list:
@@ -89,6 +91,9 @@ def map(receptor_list:list, ligand_list:list) -> tuple:
         映射关系元组
     '''
     tup = ()
+    for recep, lig in receptor_list:
+        ligand_list.append(lig)
+
     logger.debug('There is/are %s receptor(s) to be mapped' % len(receptor_list))
     logger.debug('There is/are %s ligand(s) to be mapped' % len(ligand_list))
     logger.info('A map of %s X %s will be created.' % (len(receptor_list), len(ligand_list)))
@@ -99,7 +104,6 @@ def map(receptor_list:list, ligand_list:list) -> tuple:
         progress.update(task, advance=1)
 
     for receptor, lig in receptor_list:
-        tup += ((receptor, lig, lig),)
         for ligand in ligand_list:
             tup += ((receptor, lig, ligand),)
         _update()
@@ -312,14 +316,29 @@ def multi_dock(mapping, precision:str='SP'):
     progress.start_task(task)
     def _update(*arg):
         progress.update(task, advance=1)
+        arg.result()
+    '''
     def _error_handler(error):
         _update()
         logger.error(error)
-        
-    cpu = os.cpu_count() - 2
+    '''
+
+    cpu = os.cpu_count()
     logger.debug('Using Number of CPU: %s' % cpu)
     
+    # ProcessPoolExecutor 需要python >= 3.3
+    with ProcessPoolExecutor(cpu) as pool:
+        for pdbid, self_lig, ex_lig in mapping:
+            grid_file_path = grid_dir + '%s_glide_grid_%s.zip' % (pdbid, self_lig)
+            lig_file_path = ligand_dir + '%s.mae' % ex_lig
+            if self_lig == ex_lig:
+                lig_file_path = ligand_dir + '%s_lig_%s.mae' % (pdbid, self_lig)
+            future = pool.submit(dock_in_pdbdir, pdbid, lig_file_path, grid_file_path, precision, False)
+            future.add_done_callback(_update)
 
+    # Esemble dock中 multiprocessing.Pool存在重大BUG 已弃用
+    # 当ligands数量较多时 父进程将卡死于pool.join()
+    '''
     pool = multiprocessing.Pool(cpu, maxtasksperchild=1)
 
     for pdbid, self_lig, ex_lig in mapping:
@@ -335,7 +354,7 @@ def multi_dock(mapping, precision:str='SP'):
     pool.close()
     pool.join()
     # progress.update(completed = len(mapping))
-
+    '''
     progress.stop()
 
 
