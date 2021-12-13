@@ -185,9 +185,9 @@ def split_com(complex_file_path:str, ligname:str) -> tuple:
         logger.debug('There are %s "%s" in %s: %s' % (len(residue_list), ligname, complex_file, resname_list))
         logger.debug('The First One is Selected.\n')
 
-    lig_file = '%s_lig_%s.mae' % (pdbid, ligname)
-    recep_file = '%s_pro_%s.mae' % (pdbid, ligname)     
-    com_file = '%s_com_%s.pdb' % (pdbid, ligname)
+    lig_file = '%s-lig-%s.mae' % (pdbid, ligname)
+    recep_file = '%s-pro-%s.mae' % (pdbid, ligname)     
+    com_file = '%s-com-%s.pdb' % (pdbid, ligname)
     # 生成并保存配体独立mae文件
     comp.writeLigand(lig_file) 
     lig_st = load_st(lig_file)    
@@ -257,7 +257,7 @@ def dock(lig_file_path:str, grid_file_path:str, precision:str='SP', calc_rmsd:bo
 
     launch('glide %s_%s_glide_dock_%s_%s.in -JOBNAME %s-%s-Glide-Dock-%s-%s' % (pdbid, internal_ligand, lig_name, precision, pdbid, internal_ligand, lig_name, precision))
     if not check_file('%s-%s-Glide-Dock-%s-%s_pv.maegz' % (pdbid, internal_ligand, lig_name, precision)):
-        logger.error('%s-%s Glide Docking Failed' % (pdbid, lig_name))
+        logger.warning('%s-%s Glide Docking Failed' % (pdbid, lig_name))
         return
     os.system('mv %s-%s-Glide-Dock-%s-%s_pv.maegz %s_%s_glide_dock_%s_%s.maegz' % (pdbid, internal_ligand, lig_name, precision, pdbid, internal_ligand, lig_name, precision))
     logger.info('%s-%s Glide Docking Completed' % (pdbid, lig_name))

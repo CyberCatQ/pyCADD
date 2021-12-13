@@ -94,6 +94,7 @@ class Multidock:
         logger.info('Creating mapping between receptors and ligands...')
         self.mapping = core.map(self.receptor_list, self.ligand_list)
         self.job_count = len(self.mapping)
+        # logger.debug("Map: %s" % str(self.mapping))
         logger.info('Number of all jobs: %s' % self.job_count)
         logger.info('Create mapping complete.')
 

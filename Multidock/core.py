@@ -91,8 +91,8 @@ def map(receptor_list:list, ligand_list:list) -> tuple:
         映射关系元组
     '''
     tup = ()
-    for recep, lig in receptor_list:
-        ligand_list.append(lig)
+    for receptor, lig in receptor_list:
+        ligand_list.append('%s-lig-%s' % (receptor, lig))
 
     logger.debug('There is/are %s receptor(s) to be mapped' % len(receptor_list))
     logger.debug('There is/are %s ligand(s) to be mapped' % len(ligand_list))
@@ -331,8 +331,10 @@ def multi_dock(mapping, precision:str='SP'):
         for pdbid, self_lig, ex_lig in mapping:
             grid_file_path = grid_dir + '%s_glide_grid_%s.zip' % (pdbid, self_lig)
             lig_file_path = ligand_dir + '%s.mae' % ex_lig
+            '''
             if self_lig == ex_lig:
                 lig_file_path = ligand_dir + '%s_lig_%s.mae' % (pdbid, self_lig)
+            '''
             future = pool.submit(dock_in_pdbdir, pdbid, lig_file_path, grid_file_path, precision, False)
             future.add_done_callback(_update)
 
