@@ -108,9 +108,9 @@ def save_data(data_dic:dict, pdbid:str, ligname:str, precision:str='SP'):
     precision : str
         对接精度
     '''
-    prop_xp = ['PDB', 'Ligand', 'Origianl', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'Site_Score', 'Volume','ligand_efficiency', 
+    prop_xp = ['PDB', 'Ligand', 'Original', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'Site_Score', 'Volume','ligand_efficiency', 
             'XP_Hbond', 'rotatable_bonds', 'ecoul', 'evdw', 'emodel', 'energy', 'einternal', 'activity']
-    prop_sp = ['PDB', 'Ligand', 'Origianl', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'Site_Score', 'Volume', 'ligand_efficiency', 
+    prop_sp = ['PDB', 'Ligand', 'Original', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'Site_Score', 'Volume', 'ligand_efficiency', 
             'rotatable_bonds', 'ecoul', 'evdw', 'emodel', 'energy', 'einternal','lipo', 'hbond', 'metal', 'rewards', 'erotb', 'esite', 'activity']
     
     with open(pdbid + '_FINAL_RESULTS_%s.csv' % ligname, 'w', encoding='UTF-8', newline='') as f:

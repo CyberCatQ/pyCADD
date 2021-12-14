@@ -319,7 +319,7 @@ def cal_volume(recep_file_path:str, lig_file_path:str) -> str:
     str
         sitemap计算完成的文件名
     '''
-    pdbid = os.path.basename(recep_file_path).split('_')[0]
+    pdbid = os.path.basename(recep_file_path).split('-')[0]
     sitemap_file = '%s_sitemap_out.maegz' % pdbid
     logger.debug('Prepare to calculate volume of site in %s' % pdbid)
     if os.path.exists(sitemap_file):
