@@ -1,12 +1,13 @@
 import os
 from datetime import datetime
 
-from rich import box
+from rich import box, print
 from rich.console import Group
 from rich.padding import Padding
 from rich.panel import Panel
 from rich.table import Column, Table
 from rich.text import Text
+from rich.prompt import Prompt
 
 date = datetime.now()
 year = str(date.year)
@@ -20,11 +21,12 @@ class UI:
     pyCADD程序用户交互界面(user interface)
     '''
 
-    def __init__(self, menu_name: str = 'Main', additional_info: str = '') -> None:
+    def __init__(self, menu_name: str = 'Main') -> None:
         self.version = '1.30'
         self.update_date = '2021-12-14'
         self.menu_name = '[bold magenta]Menu: %s' % menu_name
-        self.additional_info = additional_info
+        self.options = ''
+        self.additional_info = ''
 
     @property
     def title(self) -> None:
@@ -73,10 +75,17 @@ class UI:
             (now, 'bold blue')
             )
 
-    def create_panel(self, options: list = None) -> None:
+    def create_panel(self, options: list = None, additional_info: str = '') -> None:
         '''
-        布局定位
+        建立并渲染UI
         '''
+        if options:
+            self.options = options
+        else:
+            options = self.options
+
+        if additional_info:
+            self.additional_info = self.additional_info + '\n' + additional_info
 
         grid_upper = Table(Column(self.title, justify='center'),
                            expand=True, show_edge=False, box=box.SIMPLE, padding=(1, 1))
@@ -120,21 +129,11 @@ class UI:
             Padding(self.menu_name, (1, 0, 0, 3)),
             Panel(
                 grid_lower, title='[bold]Analysis Options', title_align='left', padding=(1, 2))), expand=False)
-
-
-class UI_dock(UI):
-    '''
-    单晶体对接UI
-    '''
-
-    def __init__(self, menu_name: str = 'Simple Mode', additional_info: str = '') -> None:
-        super().__init__(menu_name=menu_name, additional_info=additional_info)
-
-
-class UI_Multimode(UI):
-    '''
-    多晶体对接UI
-    '''
-
-    def __init__(self, menu_name: str = 'Multiple Mode', additional_info: str = '') -> None:
-        super().__init__(menu_name=menu_name, additional_info=additional_info)
+        
+        print(self.panel)
+    
+    def get_input(self, text, choices:list=[], default=None):
+        '''
+        读取输入指令 返回flag
+        '''
+        return Prompt.ask(text, choices=choices, default=default, show_choices=False)
