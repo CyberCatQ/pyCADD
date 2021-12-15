@@ -4,6 +4,7 @@ from cloghandler import ConcurrentRotatingFileHandler
 from rich.logging import RichHandler
 from rich.progress import SpinnerColumn, TextColumn,BarColumn,Progress, TimeElapsedColumn, TimeRemainingColumn
 from rich.table import Column
+from configparser import ConfigParser
 
 def mkdirs(path_list:list):
     '''
@@ -105,3 +106,12 @@ def _get_progress(name:str, description:str, total:int):
 
     return progress, task
 
+class Myconfig(ConfigParser):
+    '''
+    重写以解决配置读取大小写修改问题
+    '''
+    def __init__(self, defaults=None):
+        ConfigParser.__init__(self, defaults=defaults)
+    
+    def optionxform(self, optionstr):
+        return optionstr

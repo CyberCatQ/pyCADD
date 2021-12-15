@@ -3,3 +3,5 @@ lib/*
 bin/autorun
 logs/
 test/
+database.ini
+genelist.ini

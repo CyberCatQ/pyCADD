@@ -1,8 +1,8 @@
 import os
 import logging
-import configparser
 
 from pyCADD.utils.check import checkpdb, check_ligname
+from pyCADD.utils.tool import Myconfig
 
 root_path = os.path.abspath(os.path.dirname(__file__)).split('pyCADD')[0]  # 项目总路径
 base_path = root_path + 'pyCADD/'                          # pyCADD程序路径
@@ -236,7 +236,7 @@ def get_config(config_file_path):
         配置信息对象
     '''
 
-    config = configparser.ConfigParser()
+    config = Myconfig()
     config.read(config_file_path)
 
     return config
