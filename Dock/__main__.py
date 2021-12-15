@@ -11,7 +11,13 @@ class UI_dock(UI):
     def run(self, flag):
 
         # 需要schrodinger安装目录中的run环境运行
-        from pyCADD.Dock.base import Docker
+        try:
+            from pyCADD.Dock.base import Docker
+        except ImportError:
+            import os
+            os.system('run python3 -m pip install rich ConcurrentLogHandler')
+            from pyCADD.Dock.base import Docker
+            
         docker = Docker()
         if flag == '1':
             docker.minimize()

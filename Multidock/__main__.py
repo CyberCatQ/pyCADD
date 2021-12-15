@@ -1,7 +1,13 @@
 import logging
 
 from pyCADD.ui import UI
-from pyCADD.Multidock.base import Multidock
+try:
+    from pyCADD.Multidock.base import Multidock
+except ImportError:
+    import os
+    os.system('run python3 -m pip install rich ConcurrentLogHandler')
+    from pyCADD.Multidock.base import Multidock
+
 logger = logging.getLogger('pyCADD.Multidock.UI')
 
 
@@ -31,12 +37,13 @@ class UI_Multimode(UI):
             self.create_panel(
                 additional_info='[bright_cyan]Loaded ligand file: %s' % self.ligand)
 
-        elif flag in '34567':
+        if flag in '345678':
             if not self.receptor:
                 logger.error('No receptor loaded.')
                 self.create_panel()
                 return
-            elif not self.ligand:
+        if flag in '678':
+            if not self.ligand:
                 logger.error('No ligand loaded.')
                 self.create_panel()
                 return
@@ -55,12 +62,20 @@ class UI_Multimode(UI):
             self.create_panel()
 
         elif flag == '6':
+            self.multidocker.optimize()
+            self.multidocker.split()
+            self.multidocker.grid_generate()
+            self.multidocker.self_dock()
             self.multidocker.map()
             self.multidocker.ensemble_dock()
             self.multidocker.save_data()
             self.create_panel()
 
         elif flag == '7':
+            self.multidocker.optimize()
+            self.multidocker.split()
+            self.multidocker.grid_generate()
+            self.multidocker.self_dock()
             self.multidocker.map()
             self.multidocker.ensemble_dock('XP')
             self.multidocker.save_data('XP')
@@ -82,8 +97,8 @@ if __name__ == '__main__':
         '3. Optimize structures of receptors',
         '4. Create grid files for receptors',
         '5. Re-dock receptors with self-ligand',
-        '6. Run ensemble docking (SP precision)',
-        '7. Run ensemble docking (XP precision)',
+        '6. Run standard workflow of ensemble docking (SP precision)',
+        '7. Run standard workflow of ensemble docking (XP precision)',
         '8. Extract and save data',
         '0. Exit'
     ]
