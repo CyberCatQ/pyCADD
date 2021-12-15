@@ -1,5 +1,7 @@
 import os
 import logging
+import configparser
+
 from pyCADD.utils.check import checkpdb, check_ligname
 
 root_path = os.path.abspath(os.path.dirname(__file__)).split('pyCADD')[0]  # 项目总路径
@@ -218,3 +220,23 @@ def get_pdbfile_path_list(pdblist):
         pdbfile_path_list.append(pdbfile)
 
     return pdbfile_path_list
+
+def get_config(config_file_path):
+    '''
+    获取配置文件信息
+
+    Parameter
+    ---------
+    config_file_path : str
+        配置文件路径
+
+    Return
+    ---------
+    ConfigParser
+        配置信息对象
+    '''
+
+    config = configparser.ConfigParser()
+    config.read(config_file_path)
+
+    return config
