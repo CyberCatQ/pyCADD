@@ -221,6 +221,29 @@ def get_pdbfile_path_list(pdblist):
 
     return pdbfile_path_list
 
+def get_gridfile_path_list(receptor_list:list):
+    '''
+    将receptor list转换为对应的PDB grid文件PATH列表
+
+    Parameter
+    ----------
+    receptor_list : list
+        (受体PDBID, 配体ID)组成的列表
+    
+    Return
+    ----------
+    list
+        Grid文件PATH列表
+    '''
+
+    gridfile_path_list = []
+    grid_dir = get_project_dir() + '/grid/'
+    for pdbid, lig in receptor_list:
+        gridfile = grid_dir + '%s_glide_grid_%s.zip' % (pdbid, lig)
+        gridfile_path_list.append(gridfile)
+    
+    return gridfile_path_list
+
 def get_config(config_file_path):
     '''
     获取配置文件信息

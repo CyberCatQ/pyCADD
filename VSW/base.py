@@ -21,9 +21,9 @@ class VSW(Multidock):
     '''
 
     def __init__(self) -> None:
-        self.pdb_list = []              # 由基因索取到的PDB ID列表 由元组(PDBID, Ligand)组成
-        self.grid_num = ''              # 总计需要进行VSW的PDB数量(创建的pipeline数量)
-        self.gene_config = {}       # 受体配置信息
+        self.pdblist = []               # 由基因索取到的PDB ID列表 由元组(PDBID, Ligand)组成
+        self.grid_num = 1               # 总计需要进行VSW的PDB数量(创建的pipeline数量)
+        self.gene_config = {}           # 受体配置信息
         self.database_config = {}       # 化合物库配置信息
         mkdirs(self.required_dir)
         self.read_gene()
@@ -86,9 +86,10 @@ class VSW(Multidock):
         '''
         logger.info('Current Gene List: %s' % self.genelist)
         self.gene = Prompt.ask('Enter the required gene', choices=self.genelist, show_choices=False)
+        logger.info('Current Gene: %s' % self.gene)
         return self.gene
 
-    def get_pdblist(self):
+    def get_receptor_list(self) -> None:
         '''
         读取基因对应的PDB列表文件
         '''
@@ -98,6 +99,35 @@ class VSW(Multidock):
         pdblist_file = self.vsw_dir + self.gene + '.txt'
         if not check_file(pdblist_file):
             pdblist_file = input('Enter the path of %s PDB list: ' % self.gene).strip()
+            if not check_file(pdblist_file):
+                raise(FileNotFoundError('%s not found.' % pdblist_file))
 
         self.read_receptor(pdblist_file)
+        logger.info('Current Gene PDB List: %s' % self.pdblist)
+        logger.info('PDB list length: %s' % str(len(self.pdblist)))
+    
+    def select_database(self) -> None:
+        '''
+        打印当前化合物库信息并获取用户指定的化合物库名称
+        '''
+        logger.info('Current compounds library list: %s' % self.database_list)
+        self.database = Prompt.ask('Enter the required library', choices=self.database_list, show_choices=False)
+        logger.info('Current database: %s' % self.database)
+        logger.info('Current database file path: %s' % self._get_database_path(self.database))
+        return self.database
+    
+    def _get_database_path(self, name) -> None:
+        '''
+        返回化合物库路径
+        '''
+        return self.database_config[name]
+
+    def generate_input_file(self) -> None:
+        '''
+        生成VSW输入文件
+        '''
+        jobname = self.gene + '_' + 'VSW'
+        core.gen_input_file(self.receptor_list, self._get_database_path(self.database), jobname)
+        logger.info('VSW input file %s generated.' % (jobname + '.inp'))
+
     
