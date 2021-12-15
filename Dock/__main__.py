@@ -1,4 +1,7 @@
+import sys
+
 from pyCADD.ui import UI
+
 
 class UI_dock(UI):
     '''
@@ -103,9 +106,13 @@ if __name__ == '__main__':
             '6. Specified ligand docking', 
             '7. Internal ligand docking automatically (SP precision)', 
             '8. Internal ligand docking automatically (XP precision)',
-            '9. ADMET Prediction of ligand'
+            '9. ADMET Prediction of ligand',
+            '0. Exit'
         ]
 
     ui_dock.create_panel(options)
-    flag = ui_dock.get_input(enter_text, choices=[str(i) for i in range(1, 10)])
+    flag = ui_dock.get_input(enter_text, choices=[str(i) for i in range(0, 10)])
+    if flag == '0':
+        sys.exit(0)
+
     ui_dock.run(flag)

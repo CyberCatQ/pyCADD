@@ -35,7 +35,7 @@ class UI:
         '''
         return Text.assemble(
             ('pyCADD', 'bold medium_spring_green'), 
-            ' -- A ', ('Python Script', 'bold yellow'), 
+            ' -- A ', ('Python Package', 'bold yellow'), 
             ' For ', 
             ('Computer-aid Drug Design', 'bold cyan')
             )
@@ -49,7 +49,7 @@ class UI:
             'Developer: ', 
             ('YuHang Wu', 'bold'), 
             ' ( School of Pharmaceutical Sciences, Xiamen University )'
-            )
+            ,'\n', 'Github: https://github.com/YuHang-W0/pyCADD')
 
     @property
     def version_info(self) -> None:
