@@ -49,7 +49,7 @@ class UI:
             'Developer: ', 
             ('YuHang Wu', 'bold'), 
             ' ( School of Pharmaceutical Sciences, Xiamen University )'
-            ,'\n', 'Github: https://github.com/YuHang-W0/pyCADD')
+            ,'\n', 'Github: https://github.com/CyberCatQ/pyCADD')
 
     @property
     def version_info(self) -> None:
