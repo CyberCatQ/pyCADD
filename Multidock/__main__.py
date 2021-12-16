@@ -24,7 +24,7 @@ class UI_Multimode(UI):
 
     def run(self, flag):
         # 需要schrodinger安装目录中的run环境运行
-
+        
         if flag == '1':
             self.receptor = input('Enter the receptor list file PATH: ')
             self.multidocker.read_receptor(self.receptor)

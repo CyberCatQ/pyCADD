@@ -75,9 +75,19 @@ class UI:
             (now, 'bold blue')
             )
 
-    def create_panel(self, options: list = None, additional_info: str = '') -> None:
+    def create_panel(self, options: list = None, additional_info: str = '', options_label:str='Analysis Options', show_panel:bool=True) -> None:
         '''
         建立并渲染UI
+        Parameters
+        ----------
+        options : list
+            选项框内容
+        additional_info : str
+            选项框上方的额外信息
+        options_label : str
+            选项框标签名
+        show_panel : bool
+            是否显示UI
         '''
         if options:
             self.options = options
@@ -128,9 +138,10 @@ class UI:
             additional_column,
             Padding(self.menu_name, (1, 0, 0, 3)),
             Panel(
-                grid_lower, title='[bold]Analysis Options', title_align='left', padding=(1, 2))), expand=False)
+                grid_lower, title='[bold]%s' % options_label, title_align='left', padding=(1, 2))), expand=False)
         
-        print(self.panel)
+        if show_panel:
+            print(self.panel)
     
     def get_input(self, text, choices:list=[], default=None):
         '''

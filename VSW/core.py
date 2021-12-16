@@ -59,9 +59,9 @@ def gen_input_file(recep_list:list, lig_file:str, jobname:str=''):
     '''
     cwd = get_project_dir()
     vsw_dir = cwd + '/vsw/'
-
-    os.chdir(vsw_dir)
+    
     grid_path_list = get_gridfile_path_list(recep_list)                         # 生成Grid文件名列表
+    os.chdir(vsw_dir)
     grid_num = len(grid_path_list)                                              # 即将为输入文件写入的Pipeline数量 即PDB总数
 
     input_file = jobname + '.inp'
