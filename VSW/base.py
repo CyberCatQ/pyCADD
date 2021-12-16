@@ -1,13 +1,13 @@
 import logging
 import os
-from pyCADD.Dock.core import launch
+from threading import Thread
 
+from pyCADD.Dock.core import launch
 from pyCADD.Multidock.base import Multidock
 from pyCADD.utils.check import check_file
-from pyCADD.utils.tool import mkdirs, _get_progress
+from pyCADD.utils.tool import _get_progress, check_file_update_progress, mkdirs
 from pyCADD.VSW import core
 from rich.prompt import Prompt
-
 
 logger = logging.getLogger('pyCADD.VSW.base')
 
@@ -23,7 +23,6 @@ class VSW(Multidock):
 
     def __init__(self) -> None:
         self.pdblist = []               # 由基因索取到的PDB ID列表 由元组(PDBID, Ligand)组成
-        self.grid_num = 0               # 总计需要进行VSW的PDB数量(创建的pipeline数量)
         self.gene_config = {}           # 受体配置信息
         self.database_config = {}       # 化合物库配置信息
         mkdirs(self.required_dir)
@@ -128,11 +127,48 @@ class VSW(Multidock):
         '''
         生成VSW输入文件
         '''
-        jobname = self.gene + '_' + self.database + '_VSW'
-        inputfile = jobname + '.inp'
-        self.input_file = core.gen_input_file(self.receptor_list, self._get_database_path(self.database), jobname)
+        self.jobname = self.gene + '_' + self.database + '_VSW'
+        inputfile = self.jobname + '.inp'
+        self.input_file = core.gen_input_file(self.receptor_list, self._get_database_path(self.database), self.jobname)
         logger.info('VSW input file %s generated.' % inputfile)
         return inputfile
+
+    def _get_vsw_files_list(self):
+        '''
+        VSW过程应该生成的文件名
+        '''
+        prefix = self.jobname
+        files = []
+        for i in range(1, len(self.pdblist) + 1):
+            pre_htvs_dock_file = prefix + '-PRE_DOCK_HTVS_%s.out' % str(i)
+            htvs_dock_file = prefix + '-DOCK_HTVS_%s.out' % str(i)
+            pull_htvs_dock_file = prefix + '-PULL_HTVS_%s.out' % str(i)
+
+            pre_sp_dock_file = prefix + '-PRE_DOCK_SP_%s.out' % str(i)
+            sp_dock_file = prefix + '-DOCK_SP_%s.out' % str(i)
+            pull_sp_dock_file = prefix + '-PULL_SP_%s.out' % str(i)
+
+            pre_xp_dock_file = prefix + '-PRE_DOCK_XP_%s.out' % str(i)
+            xp_dock_file = prefix + '-DOCK_XP_%s.out' % str(i)
+
+            MMGBSA_file = prefix + '-MMGBSA_%s.out' % str(i)
+            
+            files.append([
+                pre_htvs_dock_file, 
+                htvs_dock_file, 
+                pull_htvs_dock_file, 
+                pre_sp_dock_file, 
+                sp_dock_file,
+                pull_sp_dock_file,
+                pre_xp_dock_file,
+                xp_dock_file,
+                MMGBSA_file
+                ])
+            
+        merge_file = prefix + '-DOCKMERGE.out'
+        files.append(merge_file)
+
+        return files
 
     def run(self) -> None:
         '''
@@ -145,8 +181,20 @@ class VSW(Multidock):
         progress.start()
         progress.start_task(task)
         
-        logger.info('Running VSW ...')
+        logger.info('Running VSW')
         os.chdir(self.vsw_dir)
+
+        # 检查文件是否生成并更新进度条
+        files_will_be_created = self._get_vsw_files_list()
+        threads = []
+
+        for file in files_will_be_created:
+            t = Thread(target=check_file_update_progress, args=(file, progress, task, 3))
+            threads.append(t)
+        for t in threads:
+            # 无需阻塞
+            t.start()
+
         cpu = os.cpu_count()
         try:
             launch('vsw %s -OVERWRITE -host_glide localhost:%s -host_prime localhost:%s -adjust -NJOBS %s -TMPLAUNCHDIR' % (self.input_file, cpu, cpu, cpu))
@@ -154,5 +202,4 @@ class VSW(Multidock):
             logger.exception(e)
             return
 
-        progress.update(task, completed = 100)
         os.chdir(self.project_dir)

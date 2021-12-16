@@ -1,15 +1,18 @@
-import os 
+import os
 import logging
+import time
+
 from cloghandler import ConcurrentRotatingFileHandler
 from rich.logging import RichHandler
-from rich.progress import SpinnerColumn, TextColumn,BarColumn,Progress, TimeElapsedColumn, TimeRemainingColumn
+from rich.progress import SpinnerColumn, TextColumn, BarColumn, Progress, TimeElapsedColumn, TimeRemainingColumn
 from rich.table import Column
 from configparser import ConfigParser
 
-def mkdirs(path_list:list):
+
+def mkdirs(path_list: list):
     '''
     获取包含多个PATH的列表 尝试创建列表中的所有目录
-    
+
     Parameter
     ----------
     path_list : list
@@ -22,6 +25,7 @@ def mkdirs(path_list:list):
             logger.info('Created directory %s' % path)
         except FileExistsError:
             continue
+
 
 def generate_logfile_name():
     '''
@@ -53,13 +57,15 @@ def generate_logfile_name():
         else:
             return logfile
 
+
 def init_log(logname):
     '''
     初始化配置log
     '''
     logger = logging.getLogger(logname)
-    logger.setLevel(level = logging.DEBUG)
-    file_fmt = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logger.setLevel(level=logging.DEBUG)
+    file_fmt = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     console_fmt = logging.Formatter('%(message)s')
 
     logfile = generate_logfile_name()
@@ -77,7 +83,8 @@ def init_log(logname):
 
     return logger
 
-def _get_progress(name:str, description:str, total:int):
+
+def _get_progress(name: str, description: str, total: int, start:bool=False):
     '''
     创建进度条
 
@@ -86,7 +93,7 @@ def _get_progress(name:str, description:str, total:int):
     name : str
         进度条进程名
     description : str
-        进度条样式(example: 'bold red')
+        进度条名称样式(example: 'bold red')
     total : int
         标志项目总进度为100%时的长度
 
@@ -96,22 +103,52 @@ def _get_progress(name:str, description:str, total:int):
         进度条对象, 任务ID(用于update)
     '''
 
-    text_column = TextColumn("{task.description}", table_column=Column(), justify='right')
-    percent_column = TextColumn("[bold green]{task.percentage:.1f}%", table_column=Column())
-    finished_column = TextColumn("[bold purple]{task.completed} of {task.total}")
+    text_column = TextColumn("{task.description}",
+                             table_column=Column(), justify='right')
+    percent_column = TextColumn(
+        "[bold green]{task.percentage:.1f}%", table_column=Column())
+    finished_column = TextColumn(
+        "[bold purple]{task.completed} of {task.total}")
     bar_column = BarColumn(bar_width=None, table_column=Column())
-    progress = Progress(SpinnerColumn(), text_column, "•", TimeElapsedColumn(), "•", percent_column, bar_column, finished_column, TimeRemainingColumn())
+    progress = Progress(SpinnerColumn(), text_column, "•", TimeElapsedColumn(
+    ), "•", percent_column, bar_column, finished_column, TimeRemainingColumn())
 
-    task = progress.add_task('[%s]%s' % (description, name), total=total, start=False)
+    task = progress.add_task('[%s]%s' % (
+        description, name), total=total, start=start)
 
     return progress, task
+
+
+def check_file_update_progress(file_path: str, progress:Progress, task_ID: str, time_sleep: int = 3):
+    '''
+    定时检查文件是否存在 已存在则更新进度条
+
+    Parameters
+    ----------
+    file_path : str
+        检查的文件路径
+    progress : rich.progress.Progress
+        进度条对象
+    task_ID : str
+        要更新的进度条任务ID
+    time_sleep : int
+        检查间隔时间
+
+    '''
+    while os.path.exists(file_path) == False:
+        time.sleep(time_sleep)
+    
+    progress.update(task_ID, advance=1)
+    time.sleep(0.5)
+
 
 class Myconfig(ConfigParser):
     '''
     重写以解决配置读取大小写修改问题
     '''
+
     def __init__(self, defaults=None):
         ConfigParser.__init__(self, defaults=defaults)
-    
+
     def optionxform(self, optionstr):
         return optionstr

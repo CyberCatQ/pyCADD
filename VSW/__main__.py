@@ -43,6 +43,10 @@ class UI_VSW(UI):
         '''
 
         _options = self.vsw.genelist
+        if not _options:
+            logger.error('No gene registed.')
+            return
+
         self.create_panel(_options, options_label='Registed Gene')
         self.gene = self.vsw.get_gene()
         self.vsw.get_receptor_list()
@@ -56,6 +60,10 @@ class UI_VSW(UI):
         打印当前化合物库信息并获取用户指定的化合物库名称
         '''
         _options = self.vsw.database_list
+        if not _options:
+            logger.error('No database registed.')
+            return
+
         self.create_panel(_options, options_label='Registed Database')
         self.database = self.vsw.select_database()
         self.create_panel(additional_info='Current Database: %s' %
@@ -101,6 +109,7 @@ class UI_VSW(UI):
             family = 'GENE'
 
             register.reg_gene(gene_name, family, pdbids_path)
+            self.vsw.read_gene()
             self.create_panel()
 
         elif flag == '6':
@@ -110,18 +119,21 @@ class UI_VSW(UI):
             label = 'DATABASE'
 
             register.reg_database(database_name, label, database_path)
+            self.vsw.read_databse()
             self.create_panel()
 
         elif flag == '7':
             gene_name = input('Enter the gene name: ').strip()
             family = 'GENE'
             register.del_gene(gene_name, family)
+            self.vsw.read_gene()
             self.create_panel()
 
         elif flag == '8':
             database_name = input('Enter the database name: ').strip()
             label = 'DATABASE'
             register.del_database(database_name, label)
+            self.vsw.read_databse()
             self.create_panel()
 
 
