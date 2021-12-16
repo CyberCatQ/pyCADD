@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 from threading import Thread
 
 from pyCADD.Dock.core import launch
@@ -153,18 +154,9 @@ class VSW(Multidock):
 
             MMGBSA_file = prefix + '-MMGBSA_%s.out' % str(i)
             
-            files.append([
-                pre_htvs_dock_file, 
-                htvs_dock_file, 
-                pull_htvs_dock_file, 
-                pre_sp_dock_file, 
-                sp_dock_file,
-                pull_sp_dock_file,
-                pre_xp_dock_file,
-                xp_dock_file,
-                MMGBSA_file
-                ])
-            
+            for file in [pre_htvs_dock_file, htvs_dock_file, pull_htvs_dock_file, pre_sp_dock_file, sp_dock_file, pull_sp_dock_file, pre_xp_dock_file, xp_dock_file, MMGBSA_file]:
+                files.append(file)
+
         merge_file = prefix + '-DOCKMERGE.out'
         files.append(merge_file)
 
@@ -177,23 +169,26 @@ class VSW(Multidock):
         if not self.input_file:
             raise RuntimeError('No input file loaded.')
 
-        progress, task = _get_progress('VSW', 'bold cyan', 100)
-        progress.start()
-        progress.start_task(task)
-        
         logger.info('Running VSW')
         os.chdir(self.vsw_dir)
 
         # 检查文件是否生成并更新进度条
         files_will_be_created = self._get_vsw_files_list()
-        threads = []
 
+        progress, task = _get_progress('VSW', 'bold cyan', len(files_will_be_created))
+        progress.start()
+        progress.start_task(task)
+
+        threads = []
+        logger.debug('Files need to be checked: %s' % files_will_be_created)
         for file in files_will_be_created:
+            logger.debug('Checking file: %s' % file)
             t = Thread(target=check_file_update_progress, args=(file, progress, task, 3))
             threads.append(t)
         for t in threads:
             # 无需阻塞
             t.start()
+            time.sleep(0.2)
 
         cpu = os.cpu_count()
         try:
@@ -201,5 +196,7 @@ class VSW(Multidock):
         except Exception as e:
             logger.exception(e)
             return
+        
+        progress.stop()
 
         os.chdir(self.project_dir)

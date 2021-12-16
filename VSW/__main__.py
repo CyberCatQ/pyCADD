@@ -25,6 +25,7 @@ class UI_VSW(UI):
         self.vsw = VSW()
         self.gene = ''
         self.database = ''
+        self.inputfile = ''
         self.main_options = [
             '1. Select Gene',
             '2. Select Database',

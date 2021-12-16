@@ -12,7 +12,7 @@ def main():
         '0. Exit'
     ]
     ui.create_panel(options)
-    flag = ui.get_input(enter_text, ['1', '2', '3'])
+    flag = ui.get_input(enter_text, [str(i) for i in range(0, 4)], default='0')
 
     if flag == '0':
         sys.exit(0)
