@@ -3,10 +3,11 @@ import logging
 import requests
 
 from pyCADD.utils.check import checkpdb, check_ligname
+from pyCADD.utils.getinfo import get_project_dir
 from pyCADD.utils.tool import Myconfig
 
-root_path = os.path.abspath(os.path.dirname(__file__)).split('pyCADD')[0]  # 项目总路径
-base_path = root_path + 'pyCADD/'                          # pyCADD程序路径
+root_path = get_project_dir()
+
 base_url = 'https://files.rcsb.org/download/'
 logger = logging.getLogger('pyCADD.getinfo')
 

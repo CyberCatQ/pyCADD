@@ -19,11 +19,9 @@ class Multidock:
         self.receptor_list = []
         self.ligand_list = []
         mkdirs(self.required_dir)
+        self.project_dir = get_project_dir()
 
     # 一些必要的目录
-    @property
-    def project_dir(self):
-        return get_project_dir()
 
     @property
     def dockfiles_dir(self):

@@ -54,10 +54,11 @@ class UI_dock(UI):
             docker.cal_mmgbsa()
 
         elif flag == '6':
-            docker.minimize()
-            docker.grid_generate()
+            
             precision = input('Enter the docking precision(SP|XP):').strip().upper()
             ligand_file = input('Enter the ligand PATH:').strip()
+            docker.minimize()
+            docker.grid_generate()
             docker.set_precision(precision)
             docker.dock(ligand_file)
             docker.cal_volume()
