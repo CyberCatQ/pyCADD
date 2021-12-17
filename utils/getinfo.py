@@ -100,7 +100,7 @@ def get_ligname(pdbid) -> str:
         ligname = str(lig[0])
         return ligname
     else:
-        logger.info('Crystal %s has more than one ligand:' % pdbid, ''.join(str(x)+' ' for x in lig))
+        logger.info('Crystal %s has more than one ligand: %s' % (pdbid, ''.join(str(x)+' ' for x in lig)))
         while True:
             ligname = input('Please specify ligand name:').strip().upper()
             if check_ligname(ligname) and ligname in lig:

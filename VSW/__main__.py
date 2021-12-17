@@ -1,3 +1,4 @@
+import time
 import logging
 
 from pyCADD.ui import UI
@@ -144,6 +145,7 @@ if __name__ == '__main__':
     ui_vsw = UI_VSW()
     ui_vsw.create_panel(ui_vsw.main_options)
     while True:
+        time.sleep(0.5)
         flag = ui_vsw.get_input(enter_text, choices=[
                                 str(i) for i in range(0, 9)], default='0')
         if flag == '0':
