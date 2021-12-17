@@ -1,5 +1,6 @@
 import os
 import logging
+import requests
 
 from pyCADD.utils.check import checkpdb, check_ligname
 from pyCADD.utils.tool import Myconfig
@@ -22,9 +23,14 @@ def downloadPDB(pdbid) -> None:
     if os.path.exists(pdbfile):
         return
 
-    logger.info('Downloading %s ...' % pdbid)
+    logger.debug('Downloading %s ...' % pdbid)
     url = base_url + pdbid + '.pdb'
-    os.system('wget -q %s' % url)
+    response = requests.get(url)
+    pdb_data = response.text
+    with open(pdbid + '.pdb', 'w') as f:
+        f.write(pdb_data)
+    
+    logger.debug('%s.pdb downloaded.' % pdbid)
 
 def get_pdbid() -> str:
     '''

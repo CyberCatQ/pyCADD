@@ -1,6 +1,6 @@
 import os
 from schrodinger import structure as struc
-from schrodinger.protein.getpdb import get_pdb
+from pyCADD.utils.getinfo import downloadPDB as get_pdb
 import logging
 logger = logging.getLogger('pyCADD.Dock.prepare')
 
@@ -50,7 +50,7 @@ def convert_format(file_path:str, suffix:str) -> str:
 
 def getpdb(pdbid:str) -> str:
     '''
-    使用Schrodinger Module下载PDB文件
+    下载PDB文件
     '''
     logger.info('Downloading PDB file: %s' % pdbid + '.pdb')
     return get_pdb(pdbid)
