@@ -18,8 +18,8 @@ class Multidock:
         self.pdblist = []
         self.receptor_list = []
         self.ligand_list = []
-        mkdirs(self.required_dir)
         self.project_dir = get_project_dir()
+        mkdirs(self.required_dir)
 
     # 一些必要的目录
 
