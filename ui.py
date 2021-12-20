@@ -7,7 +7,7 @@ from rich.padding import Padding
 from rich.panel import Panel
 from rich.table import Column, Table
 from rich.text import Text
-from rich.prompt import Prompt
+from rich.prompt import Confirm, Prompt
 
 date = datetime.now()
 year = str(date.year)
@@ -148,3 +148,9 @@ class UI:
         读取输入指令 返回flag
         '''
         return Prompt.ask(text, choices=choices, default=default, show_choices=False)
+    
+    def get_confirm(self, text):
+        '''
+        读取输入指令 返回确认值
+        '''
+        return Confirm.ask(text)

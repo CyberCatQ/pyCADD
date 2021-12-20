@@ -54,6 +54,10 @@ def extra_data(file_path:str) -> dict:
     prop_dic['emodel'] = lig_st.property['r_i_glide_emodel']
     prop_dic['precision'] = precision
 
+    # 其他属性
+    for key in lig_st.property.keys():
+        prop_dic[key] = lig_st.property[key]
+
     # rmsd项
     try:
         prop_dic['rmsd'] = lig_st.property['r_i_glide_rmsd_to_input']
@@ -93,7 +97,7 @@ def extra_data(file_path:str) -> dict:
     
     return prop_dic
 
-def save_data(data_dic:dict, pdbid:str, ligname:str, precision:str='SP'):
+def save_data(data_dic:dict, pdbid:str, ligname:str, precision:str='SP', additional_col:list=[]):
     '''
     储存一般数据为csv
 
@@ -107,19 +111,28 @@ def save_data(data_dic:dict, pdbid:str, ligname:str, precision:str='SP'):
         配体ID(RCSB ID)
     precision : str
         对接精度
+    additional_col : list
+        额外需要提取的数据列名(maestro原始名称)
     '''
     prop_xp = ['PDB', 'Ligand', 'Original', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'Site_Score', 'Volume','ligand_efficiency', 
             'XP_Hbond', 'rotatable_bonds', 'ecoul', 'evdw', 'emodel', 'energy', 'einternal', 'activity']
     prop_sp = ['PDB', 'Ligand', 'Original', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'Site_Score', 'Volume', 'ligand_efficiency', 
             'rotatable_bonds', 'ecoul', 'evdw', 'emodel', 'energy', 'einternal','lipo', 'hbond', 'metal', 'rewards', 'erotb', 'esite', 'activity']
     
+    if precision == 'SP':
+        fields = prop_sp
+    elif precision == 'XP':
+        fields = prop_xp
+    
+    if additional_col:
+        for col in additional_col:
+            fields.append(col)
+        
     with open(pdbid + '_FINAL_RESULTS_%s.csv' % ligname, 'w', encoding='UTF-8', newline='') as f:
-        if precision == 'XP':
-            writer = csv.DictWriter(f, fieldnames=prop_xp)
-        elif precision == 'SP':
-            writer = csv.DictWriter(f, fieldnames=prop_sp)
-        writer.writeheader()        # 写入标头
-        writer.writerows([data_dic])  # 写入数据 自动匹配标头列
+
+        writer = csv.DictWriter(f, fieldnames=fields, extrasaction='ignore')
+        writer.writeheader()            # 写入标头
+        writer.writerows([data_dic])    # 写入数据 自动匹配标头列
     
     logger.debug('%s-%s Data Saved.\n' % (pdbid, ligname))
 

@@ -3,10 +3,9 @@ import logging
 import requests
 
 from pyCADD.utils.check import checkpdb, check_ligname
-from pyCADD.utils.getinfo import get_project_dir
 from pyCADD.utils.tool import Myconfig
 
-root_path = get_project_dir()
+root_path = os.getcwd()
 
 base_url = 'https://files.rcsb.org/download/'
 logger = logging.getLogger('pyCADD.getinfo')

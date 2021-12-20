@@ -151,7 +151,7 @@ class Multidock:
         core.multi_cal_mmgbsa(self.mapping, precision)
         logger.info('MM-GB/SA binding energy calculate Done')
         
-    def save_data(self, precision:str='SP'):
+    def save_data(self, precision:str='SP', additional_col:list=[]):
         '''
         提取计算数据
         '''
@@ -159,7 +159,7 @@ class Multidock:
         logger.debug('PDB list: %s' % self.pdblist)
         data_dict = data.multi_read_result(self.mapping, precision)
         # logger.debug('Data dict: %s' % data_dict)
-        data.save_data(data_dict, self.pdblist)
+        data.save_data(data_dict, self.pdblist, additional_col=additional_col)
         data.merge_data(self.pdblist)
         logger.info('Data saved.')
         

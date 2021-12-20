@@ -65,7 +65,7 @@ def multi_read_result(mapping, precision:str='SP', mmgbsa:bool=False):
 
     return data_list
 
-def save_data(data_list:list, pdblist:list):
+def save_data(data_list:list, pdblist:list, additional_col:list=[]):
     '''
     按照PDB 分类保存数据
     Parameters
@@ -74,13 +74,21 @@ def save_data(data_list:list, pdblist:list):
         由数据字典组成的列表
     pdblist : list
         PDB ID列表(用以聚类结果)
+    additional_col : list
+        额外需要提取的数据列名称(maestro原始列名 e.g: r_i_glide_gscore)
     '''
     cwd = get_project_dir()
     result_dir = cwd + '/results/'
     logger.debug('Results files will be saved in: %s' % result_dir)
     os.chdir(result_dir)
 
-    data = pd.DataFrame(data_list)
+    prop = ['PDB', 'Ligand', 'Original', 'Docking_Score', 'MMGBSA_dG_Bind', 'rmsd', 'precision', 'Site_Score', 'Volume','ligand_efficiency', 
+            'XP_Hbond', 'rotatable_bonds', 'ecoul', 'evdw', 'emodel', 'energy', 'einternal', 'activity' ,'lipo', 'hbond', 'metal', 'rewards', 'erotb', 'esite']
+    if additional_col:
+        for col in additional_col:
+            prop.append(col)
+            
+    data = pd.DataFrame(data_list, columns=prop)
     data.to_csv('TOTAL.csv')
     group = data.groupby('PDB')
     for pdb in pdblist:

@@ -1,5 +1,7 @@
 import logging
 
+from numpy import add
+
 from pyCADD.ui import UI
 try:
     from pyCADD.Multidock.base import Multidock
@@ -82,8 +84,14 @@ class UI_Multimode(UI):
             self.create_panel()
 
         elif flag == '8':
-            self.get_input('Enter the docking precision:', ['SP', 'XP'], 'SP')
-            self.multidocker.save_data()
+            precision = self.get_input('Enter the docking precision:', ['SP', 'XP'], 'SP')
+            self.multidocker.map()
+
+            additional_col = []
+            if self.get_confirm('Additional columns need to be extracted?'):
+                additional_col = input('Enter the additional columns(split with comma): ').strip().split(',')
+
+            self.multidocker.save_data(precision, additional_col)
             self.create_panel()
 
 
@@ -107,7 +115,7 @@ if __name__ == '__main__':
 
     while True:
         flag = ui_multimode.get_input(
-            enter_text, choices=[str(i) for i in range(0, 8)])
+            enter_text, choices=[str(i) for i in range(0, 9)])
         if flag == '0':
             break
         ui_multimode.run(flag)
