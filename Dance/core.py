@@ -19,7 +19,7 @@ def read_matrix(file_path:str):
     raw_data = pd.read_csv(file_path, index_col=0)
     return raw_data
     
-def docking_data(raw_data:DataFrame):
+def read_docking_data(raw_data:DataFrame):
     '''
     提取对接分数部分
     Parameter
@@ -34,7 +34,7 @@ def docking_data(raw_data:DataFrame):
 
     return raw_data.drop(columns=raw_data.columns[-1])
 
-def get_auc(data:DataFrame, label:str, pos_label, save:bool=False):
+def get_auc(data:DataFrame, label:str, pos_label, save:bool=False, ascending:bool=False):
     '''
     ROC曲线下面积
     依据label列作为标签
@@ -50,6 +50,8 @@ def get_auc(data:DataFrame, label:str, pos_label, save:bool=False):
         显式指定阳性标签样式 如为列表则可指定多个标签
     save : bool
         是否存储ROC曲线图片
+    ascending : bool
+        是否以升序方式排序(如score为负数 则应为True)
 
     Return
     ---------
@@ -78,6 +80,8 @@ def get_auc(data:DataFrame, label:str, pos_label, save:bool=False):
     plt.title('ROC curve')
 
     for index in data.columns[:-1]:
+        if ascending:
+            data[index] = - data[index]
         fpr, tpr, thersholds = roc_curve(data[label], data[index])
         auc = roc_auc_score(data[label], data[index])
         auc_dict[index] = auc

@@ -39,7 +39,7 @@ def minimum(data: DataFrame):
     data : DataFrame
         待计算数据
     '''
-    return data.min(axis=1)
+    return Series(data.min(axis=1), name='Min')
 
 
 def maximum(data: DataFrame):
