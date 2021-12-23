@@ -1,9 +1,10 @@
+import logging
 import os
 
 from pyCADD.Dock import core, data
 from pyCADD.Dock.prepare import getpdb
 from pyCADD.utils import check, getinfo
-from pyCADD.utils.tool import init_log
+
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 log_dir = base_dir + '/logs'
@@ -17,7 +18,7 @@ day = str(date.day)
 now = year + month.rjust(2, '0') + day.rjust(2, '0')
 
 # 配置log
-logger = init_log('pyCADD')
+logger = logging.getLogger('pyCADD.Dock.base')
 
 class Docker:
 

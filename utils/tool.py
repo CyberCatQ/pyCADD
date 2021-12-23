@@ -58,7 +58,7 @@ def generate_logfile_name():
             return logfile
 
 
-def init_log(logname):
+def _init_log(logname):
     '''
     初始化配置log
     '''
@@ -82,6 +82,12 @@ def init_log(logname):
     logger.logfilename = logfile
 
     return logger
+
+def init_log(logname):
+    '''
+    getLogger
+    '''
+    return logging.getLogger(logname)
 
 
 def _get_progress(name: str, description: str, total: int, start:bool=False):

@@ -1,13 +1,14 @@
+import logging
 import os
 
-from pyCADD.utils.tool import init_log, mkdirs
+from pyCADD.utils.tool import mkdirs
 from pyCADD.Multidock import core, data
 from pyCADD.utils.getinfo import get_pdblist_from_recplist, get_project_dir
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 #  配置log
-logger = init_log('pyCADD')
+logger = logging.getLogger('pyCADD.Multidock.base')
 
 class Multidock:
     '''

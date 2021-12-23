@@ -1,10 +1,9 @@
 
+import logging
 from rich.prompt import Prompt
 from pyCADD.Dance import core, algorithm
-from pyCADD.utils.tool import init_log
 
-
-logger = init_log('pyCADD')
+logger = logging.getLogger('pyCADD.Dance.base')
 
 
 class Dancer:
