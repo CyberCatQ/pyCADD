@@ -40,13 +40,13 @@ class UI_Multimode(UI):
 
         if flag in '345678':
             if not self.receptor:
-                logger.error('No receptor loaded.')
                 self.create_panel()
+                logger.error('No receptor loaded.')
                 return
         if flag in '678':
             if not self.ligand:
-                logger.error('No ligand loaded.')
                 self.create_panel()
+                logger.error('No ligand loaded.')
                 return
 
         if flag == '3':

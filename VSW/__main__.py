@@ -83,9 +83,11 @@ class UI_VSW(UI):
         elif flag == '3':
             if not self.gene:
                 logger.error('No Gene selected.')
+                self.create_panel()
                 return
             elif not self.database:
                 logger.error('No database selected.')
+                self.create_panel()
                 return
 
             self.inputfile = self.vsw.generate_input_file()
@@ -94,6 +96,7 @@ class UI_VSW(UI):
 
         elif flag == '4':
             if not self.inputfile:
+                self.create_panel()
                 logger.error('No input file created.')
                 return
 
@@ -101,8 +104,9 @@ class UI_VSW(UI):
             self.vsw.split()
             self.vsw.grid_generate()
             self.vsw.run()
-            logger.info('VSW job completed.')
             self.create_panel()
+            logger.info('VSW job completed.')
+            
 
         elif flag == '5':
             gene_name = input('Enter the gene name: ').strip()
