@@ -153,7 +153,7 @@ class UI:
         '''
         读取输入指令 返回确认值
         '''
-        return Confirm.ask(text, default='y')
+        return Confirm.ask(text, default=True)
     
     def clear_info(self):
         '''
