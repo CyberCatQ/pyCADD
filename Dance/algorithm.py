@@ -1,5 +1,6 @@
 # 数据融合规则算法
 
+from os import name
 from pandas import DataFrame, Series
 
 
@@ -68,7 +69,7 @@ def std(data: DataFrame, axis: int = 1):
     return Series(data.std(axis=axis), name='std')
 
 
-def z_score(data: DataFrame):
+def z_score(data: DataFrame, ratio: tuple = (0.7, 0.3)):
     '''
     标准分数(Z-score) : 对DataFrame数据进行标准分数变换
     Z-score-combined = 0.7 * Z-score-receptor + 0.3 * Z-score-ligand
@@ -77,18 +78,23 @@ def z_score(data: DataFrame):
     ----------
     data : DataFrame
         待计算数据
+    ratio : tuple
+        z_score组合权重比例(A : B)
+            A: 受体Z_score分数权重 default: 0.7
+            B: 配体Z_score分数权重 default: 0.3
 
     Return
     tuple(DataFrame, DataFrame, DataFrame)
         z_score_receptor, z_score_ligand, z_score_combined
     '''
+    receptor_ratio, ligand_ratio = ratio
+    z_score_receptor = Series(
+        ((data - data.mean()) / data.std()).mean(axis=1), name='z_score_receptor')
+    z_score_ligand = Series(
+        (((data.T - data.T.mean()) / data.T.std()).T).mean(axis=1), name='z_score_ligand')
+    z_score_combined = Series(
+        receptor_ratio * z_score_receptor + ligand_ratio * z_score_ligand.fillna(0), name='Z_score_combined')
 
-    z_score_receptor = (data - data.mean()) / data.std()
-    z_score_ligand = ((data.T - data.T.mean()) / data.T.std()).T
-    z_score_combined = 0.7 * z_score_receptor + 0.3 * z_score_ligand.fillna(0)
-
-    # 对于NaN值 填充10作为惩罚值
-    z_score_combined['mean'] = z_score_combined.fillna(10).mean(axis=1)
     return z_score_receptor, z_score_ligand, z_score_combined
 
 
