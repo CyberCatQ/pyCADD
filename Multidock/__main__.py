@@ -1,8 +1,7 @@
 import logging
 
-from numpy import add
-
 from pyCADD.ui import UI
+
 try:
     from pyCADD.Multidock.base import Multidock
 except ImportError:
@@ -89,7 +88,7 @@ class UI_Multimode(UI):
 
             additional_col = []
             if self.get_confirm('Additional columns need to be extracted?'):
-                additional_col = input('Enter the additional columns(split with comma): ').strip().split(',')
+                additional_col = input('Enter the additional columns(separated by commas): ').strip().split(',')
 
             self.multidocker.save_data(precision, additional_col)
             self.create_panel()
