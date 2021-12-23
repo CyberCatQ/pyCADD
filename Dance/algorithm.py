@@ -53,7 +53,8 @@ def maximum(data: DataFrame):
     '''
     return Series(data.max(axis=1), name='MAX')
 
-def std(data: DataFrame, axis:int=1):
+
+def std(data: DataFrame, axis: int = 1):
     '''
     计算标准偏差
 
@@ -66,6 +67,7 @@ def std(data: DataFrame, axis:int=1):
     '''
     return Series(data.std(axis=axis), name='std')
 
+
 def z_score(data: DataFrame):
     '''
     标准分数(Z-score) : 对DataFrame数据进行标准分数变换
@@ -75,7 +77,7 @@ def z_score(data: DataFrame):
     ----------
     data : DataFrame
         待计算数据
-    
+
     Return
     tuple(DataFrame, DataFrame, DataFrame)
         z_score_receptor, z_score_ligand, z_score_combined

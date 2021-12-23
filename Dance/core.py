@@ -1,10 +1,12 @@
 import os
+
+import matplotlib.pyplot as plt
 import pandas as pd
 from pandas import DataFrame, Series
-from sklearn.metrics import roc_curve, roc_auc_score
-import matplotlib.pyplot as plt
+from sklearn.metrics import roc_auc_score, roc_curve
 
-def read_matrix(file_path:str):
+
+def read_matrix(file_path: str):
     '''
     读取数据矩阵
 
@@ -19,8 +21,9 @@ def read_matrix(file_path:str):
     '''
     raw_data = pd.read_csv(file_path, index_col=0)
     return raw_data
-    
-def read_docking_data(raw_data:DataFrame, label_col:str):
+
+
+def read_docking_data(raw_data: DataFrame, label_col: str):
     '''
     提取对接分数部分
     Parameter
@@ -38,7 +41,8 @@ def read_docking_data(raw_data:DataFrame, label_col:str):
 
     return raw_data.drop(label_col, axis=1)
 
-def merge(data_list:list):
+
+def merge(data_list: list):
     '''
     合并Series
     Parameter
@@ -48,12 +52,13 @@ def merge(data_list:list):
     '''
     return pd.concat(data_list, axis=1)
 
-def get_auc(data:DataFrame, label_col:str, pos_label, save:bool=False, ascending:bool=False):
+
+def get_auc(data: DataFrame, label_col: str, pos_label, save: bool = False, ascending: bool = False):
     '''
     ROC曲线下面积
     依据label列作为标签
     自动计算DataFrame的所有列的ROC曲线下面积AUC值
-    
+
     Parameters
     ----------
     data : DataFrame
@@ -79,14 +84,15 @@ def get_auc(data:DataFrame, label_col:str, pos_label, save:bool=False, ascending
     for _label in pos_label:
         data[label_col].replace(_label, value=1, inplace=True)
 
-    data[label_col] = pd.to_numeric(data[label_col], errors='coerce').fillna(0).astype('int32')
-    
+    data[label_col] = pd.to_numeric(
+        data[label_col], errors='coerce').fillna(0).astype('int32')
+
     # 标签列移至末尾
     _label_col = data.pop(label_col)
     data.insert(data.shape[1], column=label_col, value=_label_col)
     auc_dict = {}
 
-    plt.figure(figsize=(10,10), dpi=300.0)
+    plt.figure(figsize=(10, 10), dpi=300.0)
     plt.xlim([0.0, 1.0])
     plt.ylim([0.0, 1.0])
     plt.xlabel('False Positive Rate')
@@ -100,9 +106,9 @@ def get_auc(data:DataFrame, label_col:str, pos_label, save:bool=False, ascending
         auc = roc_auc_score(data[label_col], data[index])
         auc_dict[index] = auc
         plt.plot(fpr, tpr, label='%s (area = %.2f)' % (index, auc))
-    plt.plot([0 ,1], [0, 1], linestyle='--')
+    plt.plot([0, 1], [0, 1], linestyle='--')
     plt.legend(loc='lower right')
-    
+
     cwd_name = os.path.basename(os.getcwd())
     if save:
         plt.savefig('%s-ROC.jpg' % cwd_name)
@@ -110,8 +116,3 @@ def get_auc(data:DataFrame, label_col:str, pos_label, save:bool=False, ascending
     plt.show()
 
     return Series(auc_dict, name='AUC')
-        
-
-
-
-

@@ -1,7 +1,8 @@
 
 import logging
+
+from pyCADD.Dance import algorithm, core
 from rich.prompt import Prompt
-from pyCADD.Dance import core, algorithm
 
 logger = logging.getLogger('pyCADD.Dance.base')
 
@@ -23,15 +24,17 @@ class Dancer:
     @property
     def activity_data(self):
         return self.raw_data[self.label_col]
-        
-    def read_data(self, file_path:str):
+
+    def read_data(self, file_path: str):
         '''
         读取对接结果数据
         '''
 
         self.raw_data = core.read_matrix(file_path)
-        self.label_col = Prompt.ask('Enter the column name of label', choices=list(self.raw_data.columns), default=self.raw_data.columns[-1])
-        self.docking_data = core.read_docking_data(self.raw_data, self.label_col)
+        self.label_col = Prompt.ask('Enter the column name of label', choices=list(
+            self.raw_data.columns), default=self.raw_data.columns[-1])
+        self.docking_data = core.read_docking_data(
+            self.raw_data, self.label_col)
 
     def mean(self, method: str = 'ave'):
         '''
@@ -40,7 +43,8 @@ class Dancer:
         self.mean_data = algorithm.average(self.docking_data, method)
         self.current_data.append(self.mean_data.name)
         self.current_data_dic[self.mean_data.name] = self.mean_data
-        logger.debug('Mean value(method: %s) has been appended to current data.' % method)
+        logger.debug(
+            'Mean value(method: %s) has been appended to current data.' % method)
 
     def min(self):
         '''
@@ -64,7 +68,8 @@ class Dancer:
         '''
         合并指定的数据
         '''
-        logger.debug('Datasets required merge: %s' % data_list)
+        logger.debug('Datasets required merge:\n%s' % '\n'.join('Name: ' + str(dataset.name) +
+                     ', Length: ' + str(dataset.size) + ' ,dtype: ' + str(dataset.dtype) for dataset in data_list))
         self.merge_data = core.merge(data_list)
 
     def auc(self, pos_label, save: bool = False, ascending: bool = False):
@@ -72,4 +77,5 @@ class Dancer:
         生成ROC曲线并计算AUC
         '''
 
-        self.auc_data = core.get_auc(self.merge_data, self.label_col, pos_label, save, ascending)
+        self.auc_data = core.get_auc(
+            self.merge_data, self.label_col, pos_label, save, ascending)
