@@ -12,12 +12,14 @@ class Dancer:
     Data analyzer for CADD
     '''
 
-    def __init__(self) -> None:
-        self.raw_data = ''                              # 矩阵原始数据
-        self.docking_data = ''                          # 对接分数数据
-        self.merge_data = ''
+    def __init__(self, file_path=None) -> None:
+        self.raw_data = None                            # 矩阵原始数据
+        self.docking_data = None                        # 对接分数数据
+        self.merge_data = None
         self.current_data = []                          # 计算完成的数据
         self.current_data_dic = {}
+        self.file_path = file_path                      # 矩阵文件路径
+        self.read_data(self.file_path)
 
     @property
     def activity_data(self):
@@ -27,7 +29,7 @@ class Dancer:
         '''
         读取对接结果数据
         '''
-    
+
         self.raw_data = core.read_matrix(file_path)
         self.label_col = Prompt.ask('Enter the column name of label', choices=list(self.raw_data.columns), default=self.raw_data.columns[-1])
         self.docking_data = core.read_docking_data(self.raw_data, self.label_col)

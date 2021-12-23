@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from pandas import DataFrame, Series
 from sklearn.metrics import roc_curve, roc_auc_score
@@ -102,8 +103,9 @@ def get_auc(data:DataFrame, label_col:str, pos_label, save:bool=False, ascending
     plt.plot([0 ,1], [0, 1], linestyle='--')
     plt.legend(loc='lower right')
     
+    cwd_name = os.path.basename(os.getcwd())
     if save:
-        plt.savefig('%s-ROC.jpg' % label_col)
+        plt.savefig('%s-ROC.jpg' % cwd_name)
 
     plt.show()
 
