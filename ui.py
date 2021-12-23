@@ -154,3 +154,9 @@ class UI:
         读取输入指令 返回确认值
         '''
         return Confirm.ask(text)
+    
+    def clear_info(self):
+        '''
+        清空额外信息内容
+        '''
+        self.additional_info = ''

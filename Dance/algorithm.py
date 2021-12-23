@@ -39,7 +39,7 @@ def minimum(data: DataFrame):
     data : DataFrame
         待计算数据
     '''
-    return Series(data.min(axis=1), name='Min')
+    return Series(data.min(axis=1), name='MIN')
 
 
 def maximum(data: DataFrame):
@@ -51,7 +51,7 @@ def maximum(data: DataFrame):
     data : DataFrame
         待计算数据
     '''
-    return data.max(axis=1)
+    return Series(data.max(axis=1), name='MAX')
 
 def std(data: DataFrame, axis:int=1):
     '''
@@ -64,7 +64,7 @@ def std(data: DataFrame, axis:int=1):
     axis : int
         计算坐标轴 row: 0, column: 1
     '''
-    return data.std(axis=axis)
+    return Series(data.std(axis=axis), name='std')
 
 def z_score(data: DataFrame):
     '''
