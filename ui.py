@@ -22,8 +22,8 @@ class UI:
     '''
 
     def __init__(self, menu_name: str = 'Main') -> None:
-        self.version = '1.31'
-        self.update_date = '2021-12-16'
+        self.version = '1.32'
+        self.update_date = '2021-12-23'
         self.menu_name = '[bold magenta]Menu: %s' % menu_name
         self.options = ''
         self.additional_info = ''
@@ -153,7 +153,7 @@ class UI:
         '''
         读取输入指令 返回确认值
         '''
-        return Confirm.ask(text)
+        return Confirm.ask(text, default='y')
     
     def clear_info(self):
         '''

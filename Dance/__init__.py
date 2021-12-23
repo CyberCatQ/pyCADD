@@ -1,3 +1,3 @@
 '''
-Data Analysis for Computer-aid drug design
+Data Analyzer for Computer-aid drug design
 '''
