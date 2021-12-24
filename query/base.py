@@ -79,142 +79,16 @@ class Query:
             要搜索的全部基因列表
         '''
         os.chdir(self.pdblist_dir)
-        core.search(self.gene_list)
+        core.search_rcsb(self.gene_list)
         os.chdir(self.project_dir)
 
-
-    def __save_data(self, request, gene):
+    def query(self):
         '''
-        发送请求内容 存储从服务器返回的信息为json文件
-
-        Parameters
-        ----------
-        request : str
-            请求内容
-        gene : str
-            用以命名json文件的基因名称
+        搜索晶体信息
         '''
-        
-        response = requests.get(request)                        # request get方法发送请求 获取response内容
-        json_data = response.text                               # response内容以json解析
-        with open(json_dir_path + gene + '.json','w') as f:     # 存储为json
-            f.write(json_data)
-
-    def query(self, gene_list=[]):
-        '''
-        向RCSB服务器提交请求 获取PDB晶体信息
-        请求晶体信息内容：
-            PDB ID
-            晶体标题
-            晶体相关文献
-            文献作者
-            晶体配体亲和力实验数据(如果有)
-            配体总数量
-            聚体(肽链)总数量
-            配体名称
-            配体RCSB ID
-            配体结合肽链编号
-            配体SMILES式
-            肽链名称
-            肽链源基因名
-            肽链编号
-        
-        Parameters
-        ----------
-        gene_list: list
-            要请求的基因列表
-        '''
-        print('Query Crystals Info from RCSB Server...')
-        if not gene_list:
-            gene_list = self.gene_list                                          # 读取所有列表文件名称
-
-        pdbids = ''
-        url = 'https://data.rcsb.org/graphql?query='                            # API接口
-        for gene in gene_list:
-            pdbids = ''
-            gene = gene.strip()
-            
-            if os.path.exists(json_dir_path + gene + '.json'):
-                print('%s Crystals Information Already Exists. Skip.' % gene)
-                continue
-            print('[Get %s Crystals Information]' % gene)
-
-            with open(pdblist_dir_path + gene + '.txt', 'r') as f:
-                pdbs = f.readlines()
-                if pdbs:                                                        # 将所有PDBID 以逗号分割并相连 组成请求字符串
-                    for i in pdbs:
-                        pdbids = pdbids + "\"" + i.strip() + "\"" + ','
-                    pdbids = pdbids.strip(',')
-
-                    # 请求内容 与解析部分关联 谨慎修改
-                    query = '''\
-{
-	entries(entry_ids: [%s])
-	{
-		rcsb_id
-		rcsb_primary_citation {
-			pdbx_database_id_DOI
-			rcsb_authors
-			title
-		}
-		rcsb_binding_affinity {
-		comp_id
-			value
-			provenance_code
-			type
-			unit
-		}
-		rcsb_entry_container_identifiers {
-			entry_id
-		}
-		rcsb_entry_info {
-			deposited_nonpolymer_entity_instance_count
-			deposited_polymer_entity_instance_count
-		}
-		struct {
-			title
-		}
-		polymer_entities {
-			entity_poly {
-				rcsb_entity_polymer_type
-			}
-			rcsb_entity_source_organism {
-				rcsb_gene_name {
-					value
-				}
-			}
-			rcsb_polymer_entity {
-				pdbx_description
-			}
-			rcsb_polymer_entity_container_identifiers {
-				auth_asym_ids
-			}
-		}
-		nonpolymer_entities {
-			nonpolymer_comp {
-				chem_comp {
-					id
-					name
-				}
-				rcsb_chem_comp_descriptor {
-					SMILES
-				}
-			}
-			rcsb_nonpolymer_entity_container_identifiers {
-				auth_asym_ids
-			}
-		}
-	}
-}
-    ''' % pdbids
-                    query = parse.quote(query)              # 将请求内容以url编码
-                    request = url + query                   # 组装请求url
-
-                    self.__save_data(request, gene)         # 发送请求 保存返回数据为json文件
-                    sleep(2)
-                else:
-                    print('WARNING: %s.txt has no crystal.' % gene)
-        print('\nQuery Complete.')
+        logger.info('Query Crystals Info from RCSB Server...')
+        core.query_rcsb(self.gene_list)
+        logger.info('Query Complete.')
 
 
     def convert_csv(self, gene_list=[]):
