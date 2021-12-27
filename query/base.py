@@ -1,21 +1,16 @@
 import csv
 import json
+import logging
 import os
 import re
-import logging
 
 logger = logging.getLogger('pyCADD.query.base')
 
-from time import sleep
-from urllib import parse
-
 import pandas as pd
-import requests
-
-
-from pyCADD.utils.tool import mkdirs
-from pyCADD.utils.getinfo import get_project_dir
 from pyCADD.query import core
+from pyCADD.utils.getinfo import get_project_dir
+from pyCADD.utils.tool import mkdirs
+
 
 class Query:
     '''

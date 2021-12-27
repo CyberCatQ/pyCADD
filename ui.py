@@ -149,11 +149,11 @@ class UI:
         '''
         return Prompt.ask(text, choices=choices, default=default, show_choices=False)
     
-    def get_confirm(self, text):
+    def get_confirm(self, text, default=True):
         '''
         读取输入指令 返回确认值
         '''
-        return Confirm.ask(text, default=True)
+        return Confirm.ask(text, default=default)
     
     def clear_info(self):
         '''
