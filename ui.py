@@ -143,7 +143,7 @@ class UI:
         if show_panel:
             print(self.panel)
     
-    def get_input(self, text, choices:list=[], default=None):
+    def get_input(self, text, choices:list=None, default=None):
         '''
         读取输入指令 返回flag
         '''

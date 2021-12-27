@@ -17,7 +17,7 @@ class UI_Dance(UI):
         super().__init__(menu_name=menu_name)
         self.merged = False
         self.dancer = None
-        self.main_option = [
+        self.main_options = [
             '1. Read docking data matrix',
             '2. Calculate the arithmetic mean',
             '3. Calculate the geometric mean',
@@ -26,12 +26,14 @@ class UI_Dance(UI):
             '6. Calculate Z-score',
             '7. Merge datasets',
             '8. Draw ROC curve and calculate the AUC',
+            '9. Draw Scatter',
             '0. Exit'
         ]
 
     def _print_current_data(self):
         self.clear_info()
-        self.create_panel(additional_info='Current datasets: %s' % self.dancer.current_data)
+        self.create_panel(additional_info='Current datasets: %s' %
+                          self.dancer.current_data)
 
     def run(self, flag):
 
@@ -41,7 +43,7 @@ class UI_Dance(UI):
                 if self.get_confirm('Dectected results file: %s \nUse it?' % default_matrix_file):
                     file_path = default_matrix_file
                 else:
-                    file_path = input('Enter the matrix file path: ').strip()
+                    file_path = input('Enter the matrix file path').strip()
             else:
                 file_path = input('Enter the matrix file path: ').strip()
 
@@ -86,7 +88,8 @@ class UI_Dance(UI):
             self._print_current_data()
 
         elif flag == '6':
-            receptor_ratio = float(input('Enter the ratio of receptor z_score: '))
+            receptor_ratio = float(
+                input('Enter the ratio of receptor z_score: '))
             ligand_ratio = float(input('Enter the ratio of ligand z_score: '))
             total = receptor_ratio + ligand_ratio
 
@@ -147,14 +150,40 @@ class UI_Dance(UI):
             logger.info('ROC curve image file %s-ROC.jpg saved.' %
                         os.path.basename(os.getcwd()))
 
+        elif flag == '9':
+
+            logger.info('Label column: %s' % self.dancer.label_col)
+            labels = list(self.dancer.activity_data.value_counts().index)
+            logger.info('Labels in column: %s' % labels)
+            pos_label = input(
+                'Enter all positive labels(separated by commas): ').split(',')
+
+            # 简易校验
+            for label in pos_label:
+                if label not in labels:
+                    self.create_panel()
+                    logger.error('%s is not in the label column.' % label)
+                    return
+            logger.info('Positive labels: %s' % pos_label)
+
+            score_name = self.get_input(
+                'Enter the name of score', default='Docking_Score')
+            logger.info('Score Name: %s' % score_name)
+
+            self.dancer.scatter(pos_label, score_name, True)
+            self.create_panel()
+            logger.info('Scatter plot %s-Scatter.jpg saved.' %
+                        os.path.basename(os.getcwd()))
+
 
 if __name__ == '__main__':
     enter_text = '[bold]Enter the Code of Options'
     ui_dance = UI_Dance()
-    ui_dance.create_panel(ui_dance.main_option)
+    ui_dance.create_panel(ui_dance.main_options)
 
     while True:
-        flag = ui_dance.get_input(enter_text, [str(i) for i in range(0, 9)])
+        flag = ui_dance.get_input(enter_text, choices=[str(
+            i) for i in range(len(ui_dance.main_options))], default='0')
         if flag == '0':
             break
 

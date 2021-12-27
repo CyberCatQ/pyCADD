@@ -112,7 +112,7 @@ if __name__ == '__main__':
         ]
 
     ui_dock.create_panel(options)
-    flag = ui_dock.get_input(enter_text, choices=[str(i) for i in range(0, 10)])
+    flag = ui_dock.get_input(enter_text, choices=[str(i) for i in range(len(options))], default='0')
     if flag == '0':
         sys.exit(0)
 

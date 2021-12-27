@@ -113,8 +113,7 @@ if __name__ == '__main__':
     ui_multimode.create_panel(options)
 
     while True:
-        flag = ui_multimode.get_input(
-            enter_text, choices=[str(i) for i in range(0, 9)])
+        flag = ui_multimode.get_input(enter_text, choices=[str(i) for i in range(len(options))], default='0')
         if flag == '0':
             break
         ui_multimode.run(flag)
