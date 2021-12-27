@@ -64,14 +64,14 @@ class Dancer:
         self.current_data_dic[self.max_data.name] = self.max_data
         logger.debug('Maximum value has been appended to current data.')
 
-    def z_score(self, ratio:tuple=(0.7, 0.3)):
+    def z_score(self, ratio: tuple = (0.7, 0.3)):
         '''
         计算z_score
         '''
-        
-        self.z_score_receptor, self.z_score_ligand, self.z_score_combined = algorithm.z_score(self.docking_data, ratio)
-        
-          
+
+        self.z_score_receptor, self.z_score_ligand, self.z_score_combined = algorithm.z_score(
+            self.docking_data, ratio)
+
         for dataset in [self.z_score_receptor, self.z_score_ligand, self.z_score_combined]:
             self.current_data.append(dataset.name)
             self.current_data_dic[dataset.name] = dataset.fillna(10)
@@ -81,7 +81,7 @@ class Dancer:
         self.current_data_dic[self.z_score_combined.name] = self.z_score_combined
         '''
         logger.debug('Z-score dataset has been appended to current data.')
-        
+
     def merge(self, data_list):
         '''
         合并指定的数据
@@ -97,3 +97,10 @@ class Dancer:
 
         self.auc_data = core.get_auc(
             self.merge_data, self.label_col, pos_label, save, ascending)
+
+    def scatter(self, pos_label, score_name: str = 'Docking_Score', save: bool = False):
+        '''
+        生成散点分布图
+        '''
+        core.get_scatter(self.raw_data, self.label_col,
+                         pos_label, score_name, save)
