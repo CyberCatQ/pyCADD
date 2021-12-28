@@ -23,7 +23,7 @@ class UI:
     '''
 
     def __init__(self, menu_name: str = 'Main') -> None:
-        self.version = '1.33'
+        self.version = '1.3.3'
         self.update_date = '2021-12-28'
         self.menu_name = '[bold magenta]Menu: %s' % menu_name
         self.options = ''
