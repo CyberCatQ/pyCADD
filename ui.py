@@ -22,8 +22,8 @@ class UI:
     '''
 
     def __init__(self, menu_name: str = 'Main') -> None:
-        self.version = '1.32'
-        self.update_date = '2021-12-23'
+        self.version = '1.33'
+        self.update_date = '2021-12-28'
         self.menu_name = '[bold magenta]Menu: %s' % menu_name
         self.options = ''
         self.additional_info = ''
@@ -143,11 +143,11 @@ class UI:
         if show_panel:
             print(self.panel)
     
-    def get_input(self, text, choices:list=None, default=None):
+    def get_input(self, text, choices:list=None, default=None, show_default=True, show_choices=False):
         '''
         读取输入指令 返回flag
         '''
-        return Prompt.ask(text, choices=choices, default=default, show_choices=False)
+        return Prompt.ask(text, choices=choices, default=default, show_choices=show_choices, show_default=show_default)
     
     def get_confirm(self, text, default=True):
         '''

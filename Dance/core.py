@@ -161,6 +161,15 @@ def get_scatter(data: DataFrame, label_col: str, pos_label, score_name: str = 'D
         阳性标签列名
     pos_lael : str | int | list
         显式指定阳性标签样式 如为列表则可指定多个标签
+    score_name : str
+        数据值名称
+    save : bool
+        是否保存散点图文件
+    
+    Return
+    ----------
+    str
+        生成的散点图文件路径(save == True时)
     '''
 
     processed_data = _format_data(data, label_col, pos_label, score_name)
@@ -169,10 +178,66 @@ def get_scatter(data: DataFrame, label_col: str, pos_label, score_name: str = 'D
                     y=score_name, hue='activity', alpha=0.75, s=50)
     plt.xlabel('PDB Crystals')
     plt.ylabel(score_name)
-    plt.title('%s Scatter' % score_name)
 
     cwd_name = os.path.basename(os.getcwd())
+    plt.title('%s %s Scatter' %(cwd_name ,score_name))
+
     if save:
         plt.savefig('%s-Scatter.jpg' % cwd_name)
+        return os.path.abspath('%s-Scatter.jpg' % cwd_name)
+
+    plt.show()
+
+def correlate(data: DataFrame, method:str='pearson'):
+    '''
+    计算相关系数矩阵
+
+    Parameters
+    ----------
+    data: DataFrame
+        需要计算的数据
+    method : str
+        相关系数计算方法
+            kendall是定类变量的统计
+            pearson是对定距变量的统计
+            spearman是对定序变量的统计
+    
+    Return
+    ----------
+    DataFrame
+        相关系数矩阵
+    '''
+    return data.corr(method=method)
+
+def heatmap(data:DataFrame, vmin:float=None, vmax:float=None, save:bool=True):
+    '''
+    绘制热力图
+    
+    Parameters
+    ----------
+    data : DataFrame
+        数据源
+    vmin : float
+        数据值下限
+    vmax : float
+        数据值上限
+    save : bool
+        是否保存热力图文件
+    
+    Return
+    ----------
+    str
+        生成的散点图文件路径(save == True时)
+    '''
+    plt.figure(figsize=(10, 10),dpi=300.0)
+    sns.heatmap(data=data, square=True, cmap='RdBu_r', annot=True, fmt='.2f', linewidths=0.1, vmin=vmin, vmax=vmax)
+    plt.xlabel('PDB Crystals')
+    plt.ylabel('PDB Crystals')
+    cwd_name = os.path.basename(os.getcwd())
+    plt.title('%s Correlation Heatmap' % cwd_name)
+
+    if save:
+        plt.savefig('%s-Correlation.jpg' % cwd_name)
+        return os.path.abspath('%s-Correlation.jpg' % cwd_name)
 
     plt.show()

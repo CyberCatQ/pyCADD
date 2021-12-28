@@ -98,17 +98,6 @@ def z_score(data: DataFrame, ratio: tuple = (0.7, 0.3)):
     return z_score_receptor, z_score_ligand, z_score_combined
 
 
-def P_value(data: DataFrame):
-    '''
-    pearson相关系数矩阵
-
-    Kendall是定类变量的统计
-    pearson是对定距变量的统计
-    spearman是对定序变量的统计
-    '''
-    return data.corr(method='pearson')
-
-
 def relative(data: DataFrame):
     '''
     相对分数 : 与(单个)参考值的相对比值

@@ -28,6 +28,11 @@ class Dancer:
     def read_data(self, file_path: str):
         '''
         读取对接结果数据
+
+        Parameter
+        ---------
+        file_path : str
+            数据文件路径(matrix文件)
         '''
 
         self.raw_data = core.read_matrix(file_path)
@@ -39,6 +44,12 @@ class Dancer:
     def mean(self, method: str = 'ave'):
         '''
         计算对接分数均值项
+        Parameter
+        ---------
+        method : str
+            均值计算方法
+                ave: 算术平均值
+                geo: 几何平均值
         '''
         self.mean_data = algorithm.average(self.docking_data, method)
         self.current_data.append(self.mean_data.name)
@@ -67,6 +78,10 @@ class Dancer:
     def z_score(self, ratio: tuple = (0.7, 0.3)):
         '''
         计算z_score
+        Parameter 
+        ---------
+        ratio : tuple
+            组合Z值中 receptor平均Z值 与 ligand平均Z值的比例
         '''
 
         self.z_score_receptor, self.z_score_ligand, self.z_score_combined = algorithm.z_score(
@@ -85,6 +100,10 @@ class Dancer:
     def merge(self, data_list):
         '''
         合并指定的数据
+        Parameter
+        ---------
+        data_list : list
+            需要合并的数据组成的列表
         '''
         logger.debug('Datasets required merge:\n%s' % '\n'.join('Name: ' + str(dataset.name) +
                      ', Length: ' + str(dataset.size) + ' ,dtype: ' + str(dataset.dtype) for dataset in data_list))
@@ -93,6 +112,15 @@ class Dancer:
     def auc(self, pos_label, save: bool = False, ascending: bool = False):
         '''
         生成ROC曲线并计算AUC
+        Parameters
+        ----------
+        pos_label : str | int | list
+            支持的表示阳性标签的类型
+        save : bool
+            是否保存ROC曲线图文件
+        ascending : bool
+            是否以升序方式排序数据(针对数据为负值 越负者越优的情况)
+
         '''
 
         self.auc_data = core.get_auc(
@@ -101,6 +129,37 @@ class Dancer:
     def scatter(self, pos_label, score_name: str = 'Docking_Score', save: bool = False):
         '''
         生成散点分布图
+
+        Parameters
+        ----------
+        pos_label : str | int | list
+            支持的表示阳性标签的类型
+        score_name : str
+            数据值的名称
+        save : bool
+            是否保存散点图文件
+
         '''
-        core.get_scatter(self.raw_data, self.label_col,
-                         pos_label, score_name, save)
+        scatter_file = core.get_scatter(self.raw_data, self.label_col,
+                                        pos_label, score_name, save)
+        if save:
+            logger.debug('%s saved.' % scatter_file)
+
+    def correlate(self, method: str = 'pearson', save: bool = False):
+        '''
+        生成相关性系数热力图
+
+        Parameters
+        ----------
+        method : str
+            计算相关系数的方法
+                pearson, kendall, spearman
+        save : bool
+            是否保存热力图文件
+
+        '''
+        logger.debug('correlation method: %s' % method)
+        self.corr_data = core.correlate(self.docking_data)
+        heatmap_file = core.heatmap(self.corr_data, 0, 1, save)
+        if save:
+            logger.debug('%s saved.' % heatmap_file)

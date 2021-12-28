@@ -8,6 +8,7 @@ from pyCADD.utils.check import check_file
 logger = logging.getLogger('pyCADD.Dance.UI')
 enter_text = '[bold]Enter the Code of Options'
 
+
 class UI_Dance(UI):
     '''
     数据处理程序UI
@@ -37,6 +38,7 @@ class UI_Dance(UI):
         self.draw_options = [
             '1. Draw ROC curve and calculate the AUC',
             '2. Draw Scatter',
+            '3. Draw Correlation Heatmap',
             '0. Back'
         ]
 
@@ -57,13 +59,15 @@ class UI_Dance(UI):
             _need_merge = self.dancer.current_data
         logger.info('Merging datasets: %s' % _need_merge)
 
-        data_list = [self.dancer.current_data_dic[index] for index in _need_merge]
+        data_list = [self.dancer.current_data_dic[index]
+                     for index in _need_merge]
         data_list.append(self.dancer.activity_data)
         self.dancer.merge(data_list)
         self.merged = True
 
-        self.create_panel(additional_info='Merged datasets: %s' % _need_merge, show_panel=False)
-    
+        self.create_panel(additional_info='Merged datasets: %s' %
+                          _need_merge, show_panel=False)
+
     def _get_label_info(self):
         '''
         获取标签相关基本信息
@@ -71,7 +75,8 @@ class UI_Dance(UI):
         logger.info('Label column: %s' % self.dancer.label_col)
         labels = list(self.dancer.activity_data.value_counts().index)
         logger.info('Labels in column: %s' % labels)
-        self.pos_label = input('Enter the positive labels(separated by commas): ').split(',')
+        self.pos_label = input(
+            'Enter the positive labels(separated by commas): ').split(',')
 
         # 简易校验
         for label in self.pos_label:
@@ -109,20 +114,22 @@ class UI_Dance(UI):
                 self.create_panel()
                 logger.error('No matrix dataset read.')
                 return
-        
+
         if flag == '2':
             self.create_panel(self.calc_options)
             while True:
-                flag = self.get_input(enter_text, choices=[str(i) for i in range(len(self.calc_options))], default='0')
+                flag = self.get_input(enter_text, choices=[str(
+                    i) for i in range(len(self.calc_options))], default='0')
                 if flag == '0':
                     self.create_panel(self.main_options)
                     return
                 self.calculate(flag)
-        
+
         elif flag == '3':
             self.create_panel(self.draw_options)
             while True:
-                flag = self.get_input(enter_text, choices=[str(i) for i in range(len(self.draw_options))], default='0')
+                flag = self.get_input(enter_text, choices=[str(
+                    i) for i in range(len(self.draw_options))], default='0')
                 if flag == '0':
                     self.create_panel(self.main_options)
                     return
@@ -159,8 +166,10 @@ class UI_Dance(UI):
             self._print_current_data()
 
         elif flag == '5':
-            receptor_ratio = float(self.get_input('Enter the ratio of receptor z_score', default='7'))
-            ligand_ratio = float(self.get_input('Enter the ratio of ligand z_score', default='3'))
+            receptor_ratio = float(self.get_input(
+                'Enter the ratio of receptor z_score', default='7'))
+            ligand_ratio = float(self.get_input(
+                'Enter the ratio of ligand z_score', default='3'))
             total = receptor_ratio + ligand_ratio
 
             receptor_ratio /= total
@@ -171,7 +180,7 @@ class UI_Dance(UI):
             self._print_current_data()
             logger.info('Calculating Z-score with %s : %s' % ratio)
             logger.info('Z-score calculate done.')
-            
+
     def plot(self, flag):
         '''
         绘图菜单
@@ -204,6 +213,16 @@ class UI_Dance(UI):
             self.dancer.scatter(self.pos_label, score_name, True)
             self.create_panel()
             logger.info('Scatter plot %s-Scatter.jpg saved.' %
+                        os.path.basename(os.getcwd()))
+
+        elif flag == '3':
+
+            method = self.get_input('Enter the method of correlation', choices=[
+                                    'pearson', 'kendall', 'spearman'], default='pearson')
+            logger.info('Correlation method: %s' % method)
+            self.dancer.correlate(method, True)
+            self.create_panel()
+            logger.info('Heatmap %s-Correlation.jpg saved.' %
                         os.path.basename(os.getcwd()))
 
 
