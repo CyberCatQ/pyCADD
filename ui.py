@@ -1,4 +1,5 @@
 import os
+import platform
 from datetime import datetime
 
 from rich import box, print
@@ -27,6 +28,9 @@ class UI:
         self.menu_name = '[bold magenta]Menu: %s' % menu_name
         self.options = ''
         self.additional_info = ''
+        self.schrodinger = os.environ['SCHRODINGER']
+        if not self.schrodinger:
+            self.schrodinger = Text('Not installed', style='bold red')
 
     @property
     def title(self) -> None:
@@ -48,8 +52,10 @@ class UI:
         return Text.assemble(
             'Developer: ', 
             ('YuHang Wu', 'bold'), 
-            ' ( School of Pharmaceutical Sciences, Xiamen University )'
-            ,'\n', 'Github: https://github.com/CyberCatQ/pyCADD')
+            ' ( School of Pharmaceutical Sciences, Xiamen University )',
+            '\nEmail: ',('yuhangxmu@stu.xmu.edu.cn', 'purple'),
+            '\nGithub: https://github.com/CyberCatQ/pyCADD'
+            )
 
     @property
     def version_info(self) -> None:
@@ -57,9 +63,9 @@ class UI:
         版本信息
         '''
         return Text.assemble(
-            'Version ', 
+            'Version  ', 
             (self.version, 'bold blue'), 
-            '   Last Update: ', 
+            '    Last update:  ', 
             (self.update_date, 'bold blue')
             )
 
@@ -69,10 +75,13 @@ class UI:
         系统基本信息
         '''
         return Text.assemble(
-            'Number of parallel threads:  ', 
-            (str(os.cpu_count()), 'bold blue'), 
+            'Platform: ', (platform.system(), 'bold blue'),
             '  Current date: ', 
-            (now, 'bold blue')
+            (now, 'bold blue'),
+            '\nNumber of parallel threads: ', 
+            (str(os.cpu_count()), 'bold blue'), 
+            '  Python Version: ',(platform.python_version(), 'bold blue'),
+            '\nSchrodinger: ', self.schrodinger
             )
 
     def create_panel(self, options: list = None, additional_info: str = '', options_label:str='Analysis Options', show_panel:bool=True) -> None:
