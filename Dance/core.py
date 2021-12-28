@@ -128,7 +128,7 @@ def get_auc(data: DataFrame, label_col: str, pos_label, save: bool = False, asce
     plt.ylim([0.0, 1.0])
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
-    plt.title('ROC curve')
+    plt.title('%s ROC curve' % os.path.basename(os.getcwd()))
 
     for index in data.columns[:-1]:
         if ascending:
@@ -173,11 +173,15 @@ def get_scatter(data: DataFrame, label_col: str, pos_label, score_name: str = 'D
     '''
 
     processed_data = _format_data(data, label_col, pos_label, score_name)
+    processed_data[label_col].replace(1, 'Positive', inplace=True)
+    processed_data[label_col].replace(0, 'Negative', inplace=True)
+
     plt.figure(figsize=(10, 10), dpi=300.0)
     sns.scatterplot(data=processed_data, x='PDB',
-                    y=score_name, hue='activity', alpha=0.75, s=50)
+                    y=score_name, hue='activity',hue_order=['Negative', 'Positive'], alpha=0.75, s=50)
     plt.xlabel('PDB Crystals')
     plt.ylabel(score_name)
+    plt.legend(loc='upper right')
 
     cwd_name = os.path.basename(os.getcwd())
     plt.title('%s %s Scatter' %(cwd_name ,score_name))

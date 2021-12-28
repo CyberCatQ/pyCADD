@@ -218,7 +218,7 @@ class UI_Dance(UI):
         elif flag == '3':
 
             method = self.get_input('Enter the method of correlation', choices=[
-                                    'pearson', 'kendall', 'spearman'], default='pearson')
+                                    'pearson', 'kendall', 'spearman'], default='pearson', show_choices=True)
             logger.info('Correlation method: %s' % method)
             self.dancer.correlate(method, True)
             self.create_panel()
