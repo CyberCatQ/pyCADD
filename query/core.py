@@ -3,9 +3,8 @@ from urllib import parse
 import os
 import logging
 import requests
+import json
 from time import sleep
-
-from rcsbsearch import rcsb_attributes as attrs
 
 from pyCADD.utils.getinfo import get_project_dir
 logger = logging.getLogger('pyCADD.query.core')
@@ -62,8 +61,49 @@ def get_input():
         d = {}
         d[gene] = name
         return d
+
+def _search_gene(gene:str):
+    '''
+    搜索基因相关PDB
+    Parameter
+    ---------
+    gene : str
+        查询基因名
+    Return
+    ---------
+    list
+        PDB ID 列表
+    '''
+    url = 'https://search.rcsb.org/rcsbsearch/v1/query'
+    query = {
+    "query":{
+        "type" : "terminal",
+        "service" : "text",
+        "parameters":{
+            'attribute': "rcsb_entity_source_organism.rcsb_gene_name.value",
+            "operator" : "exact_match",
+            "value" : gene
+        }
+    },
+    "return_type": "entry"
+            }
+    data = json.dumps(query)
+
+    response = requests.post(url, data)
+    logger.debug('Searching %s status code: %s' % (gene, response.status_code))
+    # 空结果情况
+    if response.status_code != 200:
+        return None
+
+    results_text = json.loads(response.text)
+    results = []
+
+    for result_item in results_text['result_set']:
+        results.append(result_item['identifier'])
     
-def search_rcsb(gene_list=[]):
+    return results
+    
+def search_rcsb(gene_list:list):
     '''
     在RCSB服务器搜索列表中的基因相关晶体PDBID 存储为文本文件
 
@@ -81,15 +121,12 @@ def search_rcsb(gene_list=[]):
     for gene in gene_list:
         gene = gene.strip()
         logger.info('[Searching %s]' % gene)
+        results = _search_gene(gene)
 
-        query = attrs.rcsb_entity_source_organism.rcsb_gene_name.value == gene
-        results = set(query())
         if results:
             with open(gene + '.txt','w') as file:
                 for id in results:
                     file.write(id + '\n')
-        else:
-            results = None
 
         logger.info('%s Search Results: %s' % (gene, results))
     
