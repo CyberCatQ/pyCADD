@@ -23,7 +23,7 @@ class UI:
     '''
 
     def __init__(self, menu_name: str = 'Main') -> None:
-        self.version = '1.3.3'
+        self.version = '1.3.4'
         self.update_date = '2021-12-28'
         self.menu_name = '[bold magenta]Menu: %s' % menu_name
         self.options = ''
@@ -63,9 +63,9 @@ class UI:
         版本信息
         '''
         return Text.assemble(
-            'Version  ', 
+            'Version:  ', 
             (self.version, 'bold blue'), 
-            '    Last update:  ', 
+            '  Last update:  ', 
             (self.update_date, 'bold blue')
             )
 
