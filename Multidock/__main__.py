@@ -87,8 +87,8 @@ class UI_Multimode(UI):
             self.multidocker.map()
 
             additional_col = []
-            if self.get_confirm('Additional columns need to be extracted?'):
-                additional_col = input('Enter the additional columns(separated by commas): ').strip().split(',')
+            if self.get_confirm('Additional columns need to be extracted?', default=False):
+                additional_col = input('Enter the ORIGINAL name of columns (separated by commas): ').strip().split(',')
 
             self.multidocker.save_data(precision, additional_col)
             self.create_panel()
