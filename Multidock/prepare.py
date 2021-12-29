@@ -51,10 +51,6 @@ def split_ligand(maefile:str, dirname:str='./') -> list:
             except KeyError:
                 continue
         
-        # 如果是没有标签的结构文件
-        if not st_activity:
-            st_activity = ''
-
         # 判断是否是同名的立体异构化合物
         i = 2
         while True:
