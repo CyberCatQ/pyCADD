@@ -127,6 +127,8 @@ def merge_data(pdblist):
     final = final.join(label_data, how='left')
     final.to_csv('matrix.csv', index=True)
 
+    final[final['activity'] == 'origin'].to_csv('reference.csv', index=True)
+
     os.chdir(cwd)
 
 
