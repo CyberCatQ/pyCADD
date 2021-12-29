@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-with open('pyCADD/README.md') as f:
+with open('README.md') as f:
     long_description = f.read()
 
 __version__ = "Undefined"
