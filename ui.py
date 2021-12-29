@@ -16,15 +16,21 @@ month = str(date.month)
 day = str(date.day)
 now = "%s-%s-%s" % (year, month, day)
 
+__version__= "Undefined"
+__update_date__ = "Undefined"
 
+for line in open(os.path.dirname(os.path.abspath(__file__)) + '/__init__.py'):
+    if line.startswith('__version__') or line.startswith("__update_date__"):
+        exec(line.strip())
+    
 class UI:
     '''
     pyCADD程序用户交互界面(user interface)
     '''
 
     def __init__(self, menu_name: str = 'Main') -> None:
-        self.version = '1.3.4'
-        self.update_date = '2021-12-28'
+        self.version = __version__
+        self.update_date = __update_date__
         self.menu_name = '[bold magenta]Menu: %s' % menu_name
         self.options = ''
         self.additional_info = ''
