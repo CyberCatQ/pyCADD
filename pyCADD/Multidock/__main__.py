@@ -1,15 +1,17 @@
 import logging
+import os
 
 from pyCADD.ui import UI
+from pyCADD.utils.check import check_file
 
 try:
     from pyCADD.Multidock.base import Multidock
 except ImportError:
-    import os
     os.system('run python3 -m pip install rich ConcurrentLogHandler')
     from pyCADD.Multidock.base import Multidock
 
 logger = logging.getLogger('pyCADD.Multidock.UI')
+cwd_name = os.path.basename(os.getcwd())
 
 
 class UI_Multimode(UI):
@@ -25,15 +27,27 @@ class UI_Multimode(UI):
 
     def run(self, flag):
         # 需要schrodinger安装目录中的run环境运行
-        
+
         if flag == '1':
-            self.receptor = input('Enter the receptor list file PATH: ')
+            default_recpfile = None
+            if check_file('%s.csv' % cwd_name):
+                default_recpfile = '%s.csv' % cwd_name
+            elif check_file('%s.txt' % cwd_name):
+                default_recpfile = '%s.txt' % cwd_name
+
+            self.receptor = self.get_input('Enter the receptor list file PATH', default=default_recpfile)
             self.multidocker.read_receptor(self.receptor)
             self.create_panel(
                 additional_info='[bright_cyan]Loaded receptor file: %s' % self.receptor)
 
         elif flag == '2':
-            self.ligand = input('Enter the ligand structure file PATH: ')
+            default_ligfile = None
+            if check_file('%s.mae' % cwd_name):
+                default_ligfile = '%s.mae' % cwd_name
+            elif check_file('%s.maegz' % cwd_name):
+                default_ligfile = '%s.maegz' % cwd_name
+
+            self.ligand = self.get_input('Enter the ligand structure file PATH', default=default_ligfile)
             self.multidocker.read_ligands(self.ligand)
             self.create_panel(
                 additional_info='[bright_cyan]Loaded ligand file: %s' % self.ligand)
@@ -83,12 +97,14 @@ class UI_Multimode(UI):
             self.create_panel()
 
         elif flag == '8':
-            precision = self.get_input('Enter the docking precision:', ['SP', 'XP'], 'SP')
+            precision = self.get_input(
+                'Enter the docking precision:', ['SP', 'XP'], 'SP')
             self.multidocker.map()
 
             additional_col = []
             if self.get_confirm('Additional columns need to be extracted?', default=False):
-                additional_col = input('Enter the ORIGINAL name of columns (separated by commas): ').strip().split(',')
+                additional_col = input(
+                    'Enter the ORIGINAL name of columns (separated by commas): ').strip().split(',')
 
             self.multidocker.save_data(precision, additional_col)
             self.create_panel()
@@ -113,7 +129,8 @@ if __name__ == '__main__':
     ui_multimode.create_panel(options)
 
     while True:
-        flag = ui_multimode.get_input(enter_text, choices=[str(i) for i in range(len(options))], default='0')
+        flag = ui_multimode.get_input(
+            enter_text, choices=[str(i) for i in range(len(options))], default='0')
         if flag == '0':
             break
         ui_multimode.run(flag)
