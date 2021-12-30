@@ -1,6 +1,7 @@
 import multiprocessing
 import os
 import logging
+import re
 
 import pandas as pd
 from pyCADD.Dock.data import extra_data
@@ -127,7 +128,13 @@ def merge_data(pdblist):
     final = final.join(label_data, how='left')
     final.to_csv('matrix.csv', index=True)
 
-    final[final['activity'] == 'origin'].to_csv('reference.csv', index=True)
+    _IDs = {}
+    _ref_ligands = {}
+    for index, row in final[final['activity'] == 'origin'].iterrows():
+        _IDs[index[:4]] = row[index[:4]]
+        _ref_ligands[index[:4]] = re.search(r'(?<=-lig-)[a-zA-Z0-9]+', index).group()
+    
+    pd.DataFrame([_IDs, _ref_ligands], index=['Reference', 'Original ligand']).to_csv('reference.csv')
 
     os.chdir(cwd)
 
