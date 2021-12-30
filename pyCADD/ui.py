@@ -35,9 +35,11 @@ class UI:
         self.options = ''
         self.additional_info = ''
         self.schrodinger = os.environ['SCHRODINGER']
+        self.schrodinger_check = True
         if not self.schrodinger:
             self.schrodinger = Text('Not installed', style='bold red')
-
+            self.schrodinger_check = False
+            
     @property
     def title(self) -> None:
         '''
@@ -69,9 +71,10 @@ class UI:
         版本信息
         '''
         return Text.assemble(
-            'Version:  ', 
+            'Version:  ',
             (self.version, 'bold blue'), 
-            '  Last update:  ', 
+            ' ' * (9-len(self.version)),
+            'Last update:  ', 
             (self.update_date, 'bold blue')
             )
 
@@ -81,12 +84,14 @@ class UI:
         系统基本信息
         '''
         return Text.assemble(
-            'Platform: ', (platform.system(), 'bold blue'),
-            '  Current date: ', 
+            'Platform: ', 
+            (platform.system(), 'bold blue'),
+            ' ' * (9-len(platform.system())),
+            'Current date: ', 
             (now, 'bold blue'),
             '\nNumber of parallel threads: ', 
             (str(os.cpu_count()), 'bold blue'), 
-            '  Python Version: ',(platform.python_version(), 'bold blue'),
+            ' Python Version: ',(platform.python_version(), 'bold blue'),
             '\nSchrodinger: ', self.schrodinger
             )
 

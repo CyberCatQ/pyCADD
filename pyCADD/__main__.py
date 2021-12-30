@@ -1,5 +1,9 @@
 import os
 import sys
+import logging
+
+logger = logging.getLogger(__name__)
+
 from pyCADD.ui import UI
 enter_text = '[bold]Enter the Code of Options'
 
@@ -17,8 +21,12 @@ def main():
 
     if flag == '0':
         sys.exit(0)
-
-    elif flag == '1':
+    elif flag in '12':
+        if not ui.schrodinger_check:
+            logger.error('Schrodinger platform is not installed.')
+            return
+            
+    if flag == '1':
         os.system('run python3 -m pyCADD.Dock')
 
     elif flag == '2':
