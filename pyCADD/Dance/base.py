@@ -12,12 +12,15 @@ class Dancer:
     Data analyzer for CADD
     '''
 
-    def __init__(self, file_path=None) -> None:
+    def __init__(self, file_path=None, label_col=None) -> None:
         self.raw_data = None                            # 矩阵原始数据
         self.docking_data = None                        # 对接分数数据
         self.merge_data = None
         self.current_data = []                          # 计算完成的数据
         self.current_data_dic = {}
+        self.label_col = label_col
+        if not file_path:
+            raise ValueError('Require matrix file path.')
         self.file_path = file_path                      # 矩阵文件路径
         self.read_data(self.file_path)
 
@@ -36,7 +39,8 @@ class Dancer:
         '''
 
         self.raw_data = core.read_matrix(file_path)
-        self.label_col = Prompt.ask('Enter the column name of label', choices=list(
+        if not self.label_col:
+            self.label_col = Prompt.ask('Enter the column name of label', choices=list(
             self.raw_data.columns), default=self.raw_data.columns[-1])
         self.docking_data = core.read_docking_data(
             self.raw_data, self.label_col)
@@ -160,6 +164,7 @@ class Dancer:
         '''
         logger.debug('correlation method: %s' % method)
         self.corr_data = core.correlate(self.docking_data)
+        self.corr_data.to_csv('results/correlation.csv')
         heatmap_file = core.heatmap(self.corr_data, 0, 1, save)
         if save:
             logger.debug('%s saved.' % heatmap_file)

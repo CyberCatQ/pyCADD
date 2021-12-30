@@ -175,6 +175,7 @@ def get_scatter(data: DataFrame, label_col: str, pos_label, score_name: str = 'D
     processed_data = _format_data(data, label_col, pos_label, score_name)
     processed_data[label_col].replace(1, 'Positive', inplace=True)
     processed_data[label_col].replace(0, 'Negative', inplace=True)
+    processed_data.to_csv('scatter.csv')
 
     plt.figure(figsize=(10, 10), dpi=300.0)
     sns.scatterplot(data=processed_data, x='PDB',
