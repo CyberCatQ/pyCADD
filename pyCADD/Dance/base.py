@@ -100,6 +100,22 @@ class Dancer:
         self.current_data_dic[self.z_score_combined.name] = self.z_score_combined
         '''
         logger.debug('Z-score dataset has been appended to current data.')
+    
+    def scp(self):
+        '''
+        原始单晶体对接得分(single-conformation performance)排序数据
+
+        Parameter
+        ---------
+        reference_data : str
+            参考数据文件路径(csv)
+        '''
+        
+        self.relative_data = algorithm.relative(self.docking_data)
+        for column in self.relative_data.columns:
+            self.current_data.append(column)
+            self.current_data_dic[column] = self.relative_data[column]
+        logger.debug('SCP data has been appended to current data.')
 
     def merge(self, data_list):
         '''

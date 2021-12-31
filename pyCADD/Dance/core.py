@@ -133,8 +133,9 @@ def get_auc(data: DataFrame, label_col: str, pos_label, save: bool = False, asce
     for index in data.columns[:-1]:
         if ascending:
             data[index] = - data[index]
-        fpr, tpr, thersholds = roc_curve(data[label_col], data[index])
-        auc = roc_auc_score(data[label_col], data[index])
+        _column = data[[label_col, index]].dropna(how='any')
+        fpr, tpr, thersholds = roc_curve(_column[label_col], _column[index])
+        auc = roc_auc_score(_column[label_col], _column[index])
         auc_dict[index] = auc
         plt.plot(fpr, tpr, label='%s (area = %.2f)' % (index, auc))
     plt.plot([0, 1], [0, 1], linestyle='--')

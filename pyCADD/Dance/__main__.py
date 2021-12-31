@@ -32,6 +32,7 @@ class UI_Dance(UI):
             '3. Calculate the minimum value',
             '4. Calculate the maximum value',
             '5. Calculate Z-score',
+            '6. Calculate single-conformation performance',
             '0. Back'
         ]
 
@@ -180,6 +181,22 @@ class UI_Dance(UI):
             self._print_current_data()
             logger.info('Calculating Z-score with %s : %s' % ratio)
             logger.info('Z-score calculate done.')
+        
+        elif flag == '6':
+            logger.info('Calculating single-conformation performance')
+            ''' 
+            default_reference = os.path.abspath('results/reference.csv')
+            if check_file(default_reference):
+                if self.get_confirm('Detected reference file: %s \nUse it?' % default_reference):
+                    reference_file = default_reference
+                else:
+                    reference_file = self.get_input('Enter the referenced data file path')
+            else:
+                reference_file = self.get_input('Enter the referenced data file path')
+            '''
+            self.dancer.scp()
+            self._print_current_data()
+            logger.info('SCP calculate done.')
 
     def plot(self, flag):
         '''

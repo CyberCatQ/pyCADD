@@ -1,6 +1,5 @@
 # 数据融合规则算法
-
-from os import name
+import pandas as pd
 from pandas import DataFrame, Series
 
 
@@ -39,6 +38,11 @@ def minimum(data: DataFrame):
     ----------
     data : DataFrame
         待计算数据
+
+    Return
+    ----------
+    Series
+        最小值结果数据列
     '''
     return Series(data.min(axis=1), name='MIN')
 
@@ -51,6 +55,11 @@ def maximum(data: DataFrame):
     ----------
     data : DataFrame
         待计算数据
+
+    Return
+    ----------
+    Series
+        最大值结果数据列
     '''
     return Series(data.max(axis=1), name='MAX')
 
@@ -65,6 +74,11 @@ def std(data: DataFrame, axis: int = 1):
         待计算数据
     axis : int
         计算坐标轴 row: 0, column: 1
+
+    Return
+    ----------
+    Series
+        标准差结果数据列
     '''
     return Series(data.std(axis=axis), name='std')
 
@@ -84,6 +98,7 @@ def z_score(data: DataFrame, ratio: tuple = (0.7, 0.3)):
             B: 配体Z_score分数权重 default: 0.3
 
     Return
+    ----------
     tuple(DataFrame, DataFrame, DataFrame)
         z_score_receptor, z_score_ligand, z_score_combined
     '''
@@ -101,10 +116,23 @@ def z_score(data: DataFrame, ratio: tuple = (0.7, 0.3)):
 def relative(data: DataFrame):
     '''
     相对分数 : 与(单个)参考值的相对比值
-    '''
+    Parameters
+    ----------
+    data : DataFrame
+        待计算数据
 
-
-def relative_ave(data: DataFrame):
+    Return
+    ----------
+    DataFrame
+        相对分数结果数据
     '''
-    相对分数(平均) : 与多个参考值的平均的相对比值
-    '''
+    _processed = []
+    for column in data.columns:
+        try:
+            #ref_value = float(reference_data.loc['Reference', column])
+            result = data[column] #/ ref_value
+            _processed.append(result)
+        except KeyError:
+            _processed.append(data[column])
+        
+    return pd.DataFrame(_processed).T
