@@ -20,7 +20,7 @@ class UI_Gauss(UI):
 
         self.main_options = [
             '1. Set Charge & spin multiplicity',
-            '2. Select DFT & basis set',
+            '2. Select DFT, basis set and PCM solvent',
             '3. Gaussian structure optimization',
             '4. Single point energy calculation',
             '5. Excited state calculation',
@@ -71,8 +71,8 @@ class UI_Gauss(UI):
         spin_multi = self.get_input(
             'Enter the spin multiplicity(default to 1)', default='1')
 
-        self.gauss.set_charge(charge)
-        self.gauss.set_multispin(spin_multi)
+        self.gauss.set_charge(int(charge))
+        self.gauss.set_multispin(int(spin_multi))
 
         self._init_setting = True
 
@@ -114,7 +114,7 @@ class UI_Gauss(UI):
 
         if flag == '3':
 
-            logger.info('Gauss input file %s created.')
+            logger.info('Gauss input file %s is created.')
 
 if __name__ == '__main__':
     enter_text = '[bold]Enter the Code of Options'

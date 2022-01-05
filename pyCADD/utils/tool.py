@@ -158,3 +158,27 @@ class Myconfig(ConfigParser):
 
     def optionxform(self, optionstr):
         return optionstr
+
+
+def tail_progress(file:str, callback, wait=0.1):
+    '''
+    追踪文件末尾行内容
+
+    Parameters
+    ----------
+    file : str
+        追踪的文件
+    callback : func
+        回调函数 函数返回True时结束追踪
+    wait : int | float
+        追踪间隔时长(s)
+    '''
+
+    with open(file) as f:
+        f.seek(0, os.SEEK_END)
+        while True:
+            line = f.readline()
+            if line:
+                if callback(line):
+                    break
+            time.sleep(wait)
