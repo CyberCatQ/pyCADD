@@ -13,7 +13,8 @@ def main():
         '1. Simple Mode',
         '2. Multiple Mode',
         '3. VSW',
-        '4. Dance (Data Analyzer)',
+        '4. Gaussian Calculation',
+        '5. Dance (Data Analyzer)',
         '0. Exit'
     ]
     ui.create_panel(options)
@@ -36,8 +37,10 @@ def main():
         os.system('run python3 -m pyCADD.VSW')
     
     elif flag == '4':
-        os.system('python -m pyCADD.Dance')
+        os.system('python -m pyCADD.Gauss')
         
+    elif flag == '5':
+        os.system('python -m pyCADD.Dance')
 
 if __name__ == '__main__':
     main()

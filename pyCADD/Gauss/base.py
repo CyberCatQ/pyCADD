@@ -94,7 +94,7 @@ class Gauss:
         logger.info('Current structure file: %s' % self.st_path)
         logger.info('Current Setting: Charge = %s  Multiplicity = %s  DFT = %s  Basis_set = %s Solvent = %s' % (self.charge, self.spin_multi, self.dft, self.basis_set, self.solvent))
         
-    def create_inputfile(self, job_name:str='opt'):
+    def create_inputfile(self, job_name:str, loose:bool=True):
         '''
         创建当前设定状态下的输入文件
         Parameter
@@ -103,24 +103,46 @@ class Gauss:
             任务名
                 opt 结构优化
                 energy 单点能量计算
+                absorb 激发态激发能(吸收)
+                emission 激发态发射能
+        loose : bool
+            是否提高优化任务中的收敛限 更快收敛
+        
+        Return
+        ----------
+        str
+            创建的高斯输入文件名称
         '''
         self._print_current_info()
         if job_name == 'opt':
             self.job = 'Optimize'
-            self.input_file, self.chk_file = core.generate_opt(self.st_path, self.charge, self.spin_multi, self.dft, self.basis_set, self.solvent)
+            self.input_file, self.chk_file = core.generate_opt(self.st_path, self.charge, self.spin_multi, self.dft, self.basis_set, self.solvent, loose)
         elif job_name == 'energy':
             self.job = 'Single Point Energy'
             self.input_file, self.chk_file = core.generate_energy(self.st_path, self.charge, self.spin_multi, self.dft, self.basis_set, self.solvent)
+        elif job_name == 'absorb':
+            self.job = 'Absorption Energy of Excited States'
+            # 计算吸收(激发)能量 KEYWORD即计算TDDFT下的单点能
+            self.input_file, self.chk_file = core.generate_energy(self.st_path, self.charge, self.spin_multi, self.dft, self.basis_set, self.solvent, correct=False, td=True)
+        elif job_name == 'emission':
+            self.job = 'Emission Energy of Excited States'
+            # 计算发射能量 Keyword即计算TDDFT下的结构优化
+            self.input_file, self.chk_file = core.generate_opt(self.st_path, self.charge, self.spin_multi, self.dft, self.basis_set, self.solvent, False, False, td=True)
+
         else:
-            raise RuntimeError('Invaild job name.')
+            logger.error('Invaild job name. No file is created.')
+            return
 
         logger.info('Current job name: %s' % self.job)
         logger.info('Input file %s saved.' % self.input_file)
+
+        return self.input_file
         
     def run(self):
         '''
         启动任务
         '''
+        logger.info('Curren job: %s' % self.job)
         logger.info('Current input file: %s' % self.input_file)
         logger.info('Current system usage: CPU = %s  Mem = %s' % (self.cpu_count, self.mem) )
         logger.info('Prepare to running calculation')
