@@ -37,6 +37,9 @@ class UI:
         self.schrodinger = Text(os.environ['SCHRODINGER'], style='u i')
         self.gauss_dir = Text(os.environ['GAUSS_HOME'], style='u i')
 
+        self._additional_info_dict = {}
+        self._info_index = 0
+
         self.gauss_check = True
         self.schrodinger_check = True
         if not self.schrodinger:
@@ -103,15 +106,21 @@ class UI:
             '\nGaussian: ', self.gauss_dir
             )
 
-    def create_panel(self, options: list = None, additional_info: str = '', options_label:str='Analysis Options', show_panel:bool=True) -> None:
+    @property
+    def info_index(self):
+        self._info_index += 1
+        return self._info_index
+
+    def create_panel(self, options: list = None, additional_info:'str | dict'=None, options_label: str = 'Analysis Options', show_panel: bool = True) -> None:
         '''
         建立并渲染UI
         Parameters
         ----------
         options : list
             选项框内容
-        additional_info : str
-            选项框上方的额外信息
+        additional_info : str | dict
+            选项框上方的额外信息  
+            传入字典时 可用于修改已存在的同key信息内容
         options_label : str
             选项框标签名
         show_panel : bool
@@ -122,8 +131,12 @@ class UI:
         else:
             options = self.options
 
-        if additional_info:
-            self.additional_info = self.additional_info + '\n' + additional_info
+        if isinstance(additional_info, str):
+            self._additional_info_dict[str(self.info_index)] = additional_info
+            # self.additional_info = self.additional_info + '\n' + additional_info
+        elif isinstance(additional_info, dict):
+            for key, value in additional_info.items():
+                self._additional_info_dict[key] = value
 
         grid_upper = Table(Column(self.title, justify='center'),
                            expand=True, show_edge=False, box=box.SIMPLE, padding=(1, 1))
@@ -154,9 +167,10 @@ class UI:
                     right = ''
                 grid_lower.add_row(left, right)
 
-        if self.additional_info:
+        if self._additional_info_dict:
+            info_text = ''.join(info + '\n' for info in self._additional_info_dict.values()).strip()
             additional_column = Padding(
-                '[bold]' + self.additional_info, (1, 0, 0, 3))
+                '[bold]' + info_text, (1, 0, 0, 3))
         else:
             additional_column = ''
 
@@ -171,13 +185,13 @@ class UI:
         if show_panel:
             print(self.panel)
     
-    def get_input(self, text, choices:list=None, default=None, show_default=True, show_choices=False):
+    def get_input(self, text:str, choices:list=None, default=None, show_default:bool=True, show_choices:bool=False):
         '''
         读取输入指令 返回flag
         '''
         return Prompt.ask(text, choices=choices, default=default, show_choices=show_choices, show_default=show_default)
     
-    def get_confirm(self, text, default=True):
+    def get_confirm(self, text:str, default=True):
         '''
         读取输入指令 返回确认值
         '''
