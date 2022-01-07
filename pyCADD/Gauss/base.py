@@ -151,7 +151,7 @@ class Gauss:
         os.system('nohup %s < %s > %s &' %(self.gauss, self.input_file, self.output_file))
         logger.info('Job has been submitted. ')
 
-        logger.info('Start to tracing output file')
+        logger.info('Start tracing output file')
         core.tail_gauss_job(self.output_file)
         logger.info('Calculation done. %s is saved.' % self.output_file)
 
