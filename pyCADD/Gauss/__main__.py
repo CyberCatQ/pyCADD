@@ -45,7 +45,7 @@ class UI_Gauss(UI):
                                         default=str(os.cpu_count()))
         self.mem = self.get_input(
             'Enter the memory size to be used(GB)', default='16') + 'GB'
-        self.create_panel(additional_info='[bright_cyan]CPU: %s   Memory: %s' % (
+        self.create_panel(additional_info='CPU: [bright_cyan]%s[/]   Memory: [bright_cyan]%s[/]' % (
             self.cpu_count, self.mem), show_panel=False)
 
     def _get_original_st(self):
@@ -59,7 +59,7 @@ class UI_Gauss(UI):
             self.origin_st = origin_st
             logger.debug('Origin file: %s' % self.origin_st)
             self.create_panel(
-                additional_info='Original structure file: %s' % self.origin_st, show_panel=False)
+                additional_info='Original structure file: [bright_cyan]%s[/]' % self.origin_st, show_panel=False)
         else:
             raise FileNotFoundError('File %s not found.' % origin_st)
 
@@ -101,12 +101,12 @@ class UI_Gauss(UI):
         if flag == '1':
             self._basic_init()
             self.create_panel(
-                additional_info='[bright_cyan]Charge: %s' % self.gauss.charge, show_panel=False)
+                additional_info='Charge: [bright_cyan]%s[/]' % self.gauss.charge, show_panel=False)
             self.create_panel(
-                additional_info='[bright_cyan]Spin multiplicity: %s' % self.gauss.spin_multi)
+                additional_info='Spin multiplicity: [bright_cyan]%s[/]' % self.gauss.spin_multi)
         elif flag == '2':
             self._method_init()
-            self.create_panel(additional_info='[bright_cyan]DFT: %s  Basis set: %s  Solvent: %s' % (
+            self.create_panel(additional_info='DFT: [bright_cyan]%s[/]  Basis set: [bright_cyan]%s[/]  Solvent: [bright_cyan]%s[/]' % (
                 self.dft, self.basis_set, self.solvent))
         else:
             if not self._init_setting:

@@ -12,8 +12,8 @@ from rich.prompt import Confirm, Prompt
 
 date = datetime.now()
 year = str(date.year)
-month = str(date.month)
-day = str(date.day)
+month = str(date.month).rjust(2,'0')
+day = str(date.day).rjust(2,'0')
 now = "%s-%s-%s" % (year, month, day)
 
 __version__= "Undefined"
@@ -34,11 +34,18 @@ class UI:
         self.menu_name = '[bold magenta]Menu: %s' % menu_name
         self.options = ''
         self.additional_info = ''
-        self.schrodinger = os.environ['SCHRODINGER']
+        self.schrodinger = Text(os.environ['SCHRODINGER'], style='u i')
+        self.gauss_dir = Text(os.environ['GAUSS_HOME'], style='u i')
+
+        self.gauss_check = True
         self.schrodinger_check = True
         if not self.schrodinger:
             self.schrodinger = Text('Not installed', style='bold red')
             self.schrodinger_check = False
+        
+        if not self.gauss_dir:
+            self.gauss_dir = Text('Not installed', style='bold red')
+            self.gauss_check = False
             
     @property
     def title(self) -> None:
@@ -92,7 +99,8 @@ class UI:
             '\nNumber of parallel threads: ', 
             (str(os.cpu_count()), 'bold blue'), 
             ' Python Version: ',(platform.python_version(), 'bold blue'),
-            '\nSchrodinger: ', self.schrodinger
+            '\nSchrodinger: ', self.schrodinger,
+            '\nGaussian: ', self.gauss_dir
             )
 
     def create_panel(self, options: list = None, additional_info: str = '', options_label:str='Analysis Options', show_panel:bool=True) -> None:
