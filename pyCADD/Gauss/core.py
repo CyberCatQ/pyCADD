@@ -231,11 +231,11 @@ def generate_fchk(chk_file:str):
     '''
     生成fchk文件
     '''
-    os.system('formchk %s' % chk_file)
+    os.system('formchk %s > /dev/null' % chk_file)
     logger.debug('fchk file %s is saved.' % chk_file.split('.')[0] + '.fchk')
 
 
-def _check_gauss_finished(line):
+def _check_gauss_finished(line: str):
     '''
     检查高斯计算任务是否结束
 
@@ -265,4 +265,17 @@ def tail_gauss_job(output_file:str):
     '''
     tail_progress(output_file, _check_gauss_finished)
     
+def _get_system_info(gauss_path:str):
+    '''
+    读取当前高斯计算资源文件设定
+    Parameter
+    ---------
+    gauss_path : str
+        高斯可执行文件路径
+    '''
+
+    default_route = os.path.dirname(gauss_path) + '/Default.Route'
+    with open(default_route,'r') as f:
+        cpu_info, mem_info = f.read().splitlines()
+    return cpu_info[4:], mem_info[4:]
 

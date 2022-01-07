@@ -21,32 +21,62 @@ class UI_Gauss(UI):
         self.main_options = [
             '1. Set Charge & spin multiplicity',
             '2. Select DFT, basis set and PCM solvent',
-            '3. Gaussian structure optimization',
-            '4. Single point energy calculation',
-            '5. Absorption energy of excited states calculation',
-            '6. Emission energy of excited states calculation',
+            '3. Calculation system setting',
+            '4. Gaussian structure optimization',
+            '5. Single point energy calculation',
+            '6. Absorption energy of excited states calculation',
+            '7. Emission energy of excited states calculation',
             '0. Exit'
         ]
 
         self._init_setting = False
         self._init_method = False
-        self._system_init()
+        self._current_system_setting()
         self._get_original_st()
-        self.gauss = Gauss(self.origin_st, self.cpu_count, self.mem)
-        self.gauss.set_system()
+        self.gauss = Gauss(self.origin_st)
         self.create_panel(self.main_options)
 
-    def _system_init(self):
+    @property
+    def _system_loading(self):
+        '''
+        当前系统计算资源信息
+        Return
+        ----------
+        cpu(s), memory
+        '''
+        return Gauss.system_info
+    
+    @property
+    def cpu_count(self):
+        '''
+        CPU核心数量
+        '''
+        return self._system_loading[0]
+    
+    @property
+    def mem(self):
+        '''
+        内存大小
+        '''
+        return self._system_loading[1]
+
+    def _current_system_setting(self):
+        '''
+        当前实际系统计算资源信息
+        '''
+        self.create_panel(additional_info={'system': 'CPU: [bright_cyan]%s[/]   Memory: [bright_cyan]%s[/]' % (self.cpu_count, self.mem)}, show_panel=False)
+
+    def set_system(self):
         '''
         设定计算核心数量与内存大小
         '''
-        self.cpu_count = self.get_input('Enter the number of CPU to be used', 
+        cpu_count = self.get_input('Enter the number of CPU to be used', 
                                         choices=[str(i + 1) for i in range(os.cpu_count())], 
                                         default=str(os.cpu_count()))
-        self.mem = self.get_input(
+        mem = self.get_input(
             'Enter the memory size to be used(GB)', default='16') + 'GB'
-        self.create_panel(additional_info='CPU: [bright_cyan]%s[/]   Memory: [bright_cyan]%s[/]' % (
-            self.cpu_count, self.mem), show_panel=False)
+        self.gauss.set_system(cpu_count, mem)
+        self.create_panel(additional_info={'system' : 'CPU: [bright_cyan]%s[/]   Memory: [bright_cyan]%s[/]' % (cpu_count, mem)}, show_panel=False)
 
     def _get_original_st(self):
         '''
@@ -63,7 +93,7 @@ class UI_Gauss(UI):
         else:
             raise FileNotFoundError('File %s not found.' % origin_st)
 
-    def _basic_init(self, charge=None, spin_multi=None):
+    def _basic_init(self, charge:'int | str'=None, spin_multi:'int | str'=None):
         '''
         获取与设定电荷量与自旋多重度
         '''
@@ -108,6 +138,10 @@ class UI_Gauss(UI):
             self._method_init()
             self.create_panel(additional_info='DFT: [bright_cyan]%s[/]  Basis set: [bright_cyan]%s[/]  Solvent: [bright_cyan]%s[/]' % (
                 self.dft, self.basis_set, self.solvent))
+        elif flag == '3':
+            self.set_system()
+            self.create_panel()
+            logger.info('System setting changed.')
         else:
             if not self._init_setting:
                 logger.info('Charge and spin multiplicity are not defined.')
@@ -122,7 +156,7 @@ class UI_Gauss(UI):
                 logger.info('DFT and basis set are not defined.')
                 self._method_init()
                 
-        if flag == '3':
+        if flag == '4':
             loose = self.get_confirm('Use loose mode?')
             self.input_file = self.gauss.create_inputfile('opt', loose)
             logger.info('Gauss input file %s is created.' % self.input_file)
@@ -130,26 +164,27 @@ class UI_Gauss(UI):
                 self.gauss.run()
             self.create_panel()
         
-        elif flag == '4':
+        elif flag == '5':
             self.input_file = self.gauss.create_inputfile('energy')
             logger.info('Gauss input file %s is created.' % self.input_file)
             if self.get_confirm('Running energy calculation job?'):
                 self.gauss.run()
             self.create_panel()
         
-        elif flag == '5':
+        elif flag == '6':
             self.input_file = self.gauss.create_inputfile('absorb')
             logger.info('Gauss input file %s is created.' % self.input_file)
             if self.get_confirm('Running absorption energy calculation job?'):
                 self.gauss.run()
             self.create_panel()
 
-        elif flag == '6':
+        elif flag == '7':
             self.input_file = self.gauss.create_inputfile('emission')
             logger.info('Gauss input file %s is created.' % self.input_file)
             if self.get_confirm('Running emission energy calculation job?'):
                 self.gauss.run()
             self.create_panel()
+
 
 if __name__ == '__main__':
     enter_text = '[bold]Enter the Code of Options'

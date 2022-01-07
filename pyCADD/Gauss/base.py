@@ -10,22 +10,38 @@ class Gauss:
     Gaussian 计算调用模块
     '''
 
-    def __init__(self, st_path: str, cpu_count: int = None, mem: str = '4GB') -> None:
+    def __init__(self, st_path: str) -> None:
         self.charge = None                  # 电荷数
         self.spin_multi = None              # 自旋多重度
         self.dft = None                     # 泛函数
         self.basis_set = None               # 基组
         self.solvent = None                 # PCM模型溶剂
         self.job = None                     # 任务名
-        self.gauss = core.get_gaussian()    # 高斯可执行文件路径
+        
 
         self.st_path = st_path              # 原始结构文件路径
         self.read_origin_st()
 
-        if not cpu_count:
-            cpu_count = os.cpu_count()
-        self.cpu_count = cpu_count          # 计算将使用的CPU核心数量
-        self.mem = mem                      # 计算将使用的内存大小
+        # Default
+        self.cpu_count = os.cpu_count()     # 计算将使用的CPU核心数量
+        self.mem = '4GB'                    # 计算将使用的内存大小
+
+    @classmethod
+    @property
+    def gauss(cls):
+        return core.get_gaussian()    # 高斯可执行文件路径
+
+    @classmethod
+    @property
+    def system_info(cls):
+        '''
+        当前系统计算资源信息
+        
+        Return
+        ----------
+        cpu(s), memory
+        '''
+        return core._get_system_info(cls.gauss)
 
     def read_origin_st(self):
         '''
@@ -44,11 +60,19 @@ class Gauss:
         self.atom_count = re.search(
             r'(?<=Totally)[ 0-9]+', st_info).group().strip()
 
-    def set_system(self):
+    @classmethod
+    def set_system(cls, cpu_count, mem):
         '''
         计算资源设定
+
+        Parameters
+        ----------
+        cpu_count : int
+            计算使用核心数量
+        mem : str
+            计算使用内存大小
         '''
-        core.system_default(self.gauss, self.cpu_count, self.mem)
+        core.system_default(cls.gauss, cpu_count, mem)
         logger.debug('CPU & Memory usage has been changed.')
 
     def set_charge(self, charge:int=0):
