@@ -53,12 +53,9 @@ class Gauss:
         q
         EOF''' % self.st_path).read().strip()
         self.base_name = os.path.basename(self.st_path).split('.')[0]
-        self.molecule_wt = re.search(
-            r'(?<=Molecule weight:)[0-9. ]+', st_info).group().strip()
-        self.formula = re.search(
-            r'(?<=Formula:)[A-Za-z0-9 ]+', st_info).group().strip()
-        self.atom_count = re.search(
-            r'(?<=Totally)[ 0-9]+', st_info).group().strip()
+        #self.molecule_wt = re.search(r'(?<=Molecule weight:)[0-9. ]+', st_info).group().strip()
+        #self.formula = re.search(r'(?<=Formula:)[A-Za-z0-9 ]+', st_info).group().strip()
+        #self.atom_count = re.search(r'(?<=Totally)[ 0-9]+', st_info).group().strip()
 
     @classmethod
     def set_system(cls, cpu_count, mem):

@@ -5,7 +5,7 @@ from pyCADD.ui import UI
 from pyCADD.Gauss.base import Gauss
 
 logger = logging.getLogger('pyCADD.Gauss')
-access_DFT = ['B3LYP', 'PBE0', 'CAM-B3LYP']
+access_DFT = ['B3LYP', 'PBEPBE', 'CAM-B3LYP', 'PBE1PBE']
 access_basis_set = ['6-31g*', '6-311g*', 'def2SVP', 'def2TZVP', 'def2TZVPP']
 access_solvent = ['water', 'methanol', 'ethanol', 'None']
 
@@ -89,7 +89,7 @@ class UI_Gauss(UI):
             self.origin_st = origin_st
             logger.debug('Origin file: %s' % self.origin_st)
             self.create_panel(
-                additional_info='Original structure file: [bright_cyan]%s[/]' % self.origin_st, show_panel=False)
+                additional_info={ "origin" : 'Original structure file: [bright_cyan]%s[/]' % self.origin_st}, show_panel=False)
         else:
             raise FileNotFoundError('File %s not found.' % origin_st)
 
@@ -131,13 +131,12 @@ class UI_Gauss(UI):
         if flag == '1':
             self._basic_init()
             self.create_panel(
-                additional_info='Charge: [bright_cyan]%s[/]' % self.gauss.charge, show_panel=False)
+                additional_info={"charge" : 'Charge: [bright_cyan]%s[/]' % self.gauss.charge}, show_panel=False)
             self.create_panel(
-                additional_info='Spin multiplicity: [bright_cyan]%s[/]' % self.gauss.spin_multi)
+                additional_info={"spin_multi" : 'Spin multiplicity: [bright_cyan]%s[/]' % self.gauss.spin_multi})
         elif flag == '2':
             self._method_init()
-            self.create_panel(additional_info='DFT: [bright_cyan]%s[/]  Basis set: [bright_cyan]%s[/]  Solvent: [bright_cyan]%s[/]' % (
-                self.dft, self.basis_set, self.solvent))
+            self.create_panel(additional_info={"method":'DFT: [bright_cyan]%s[/]  Basis set: [bright_cyan]%s[/]  Solvent: [bright_cyan]%s[/]' % (self.dft, self.basis_set, self.solvent)})
         elif flag == '3':
             self.set_system()
             self.create_panel()
