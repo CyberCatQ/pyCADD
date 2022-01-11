@@ -148,7 +148,7 @@ class Gauss:
         elif job_name == 'emission':
             self.job = 'Emission Energy of Excited States'
             # 计算发射能量 Keyword即计算TDDFT下的结构优化
-            self.input_file, self.chk_file = core.generate_opt(self.st_path, self.charge, self.spin_multi, self.dft, self.basis_set, self.solvent, False, False, td=True)
+            self.input_file, self.chk_file = core.generate_opt(self.st_path, self.charge, self.spin_multi, self.dft, self.basis_set, self.solvent, loose=False, correct=True, td=True, freq=True)
 
         else:
             logger.error('Invaild job name. No file is created.')

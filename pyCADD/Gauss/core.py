@@ -9,7 +9,7 @@ from pyCADD.utils.tool import tail_progress
 logger = logging.getLogger(__name__)
 
 
-def generate_opt(original_st: str, charge: int, multiplicity: int, dft: str = 'B3LYP', basis_set: str = '6-31g*', solvent: str = 'water', loose: bool = True, correct: bool = True, td: bool = False):
+def generate_opt(original_st: str, charge: int, multiplicity: int, dft: str = 'B3LYP', basis_set: str = '6-31g*', solvent: str = 'water', loose: bool = True, correct: bool = True, td: bool = False, freq:bool=False):
     '''
     生成Gaussian结构优化输入文件
 
@@ -31,6 +31,8 @@ def generate_opt(original_st: str, charge: int, multiplicity: int, dft: str = 'B
         是否提高优化任务中的收敛限 更快收敛
     td : bool
         是否为激发态结构优化计算(计算荧光/磷光发射能用)
+    freq : bool
+        是否计算频率
 
     Return
     ----------
@@ -81,9 +83,14 @@ def generate_opt(original_st: str, charge: int, multiplicity: int, dft: str = 'B
         correct_cofig = ' em=GD3BJ'
     else:
         correct_cofig = ''
+    # 频率
+    if freq:
+        freq_kw = ' freq'
+    else:
+        freq_kw = ''
 
-    keyword = '# %s %s/%s%s%s%s' % (opt_config,
-                                    dft, basis_set, correct_cofig, TD, scrf)
+    keyword = '# %s %s/%s%s%s%s%s' % (opt_config,
+                                    dft, basis_set, correct_cofig, TD, scrf, freq_kw)
 
     os.system('''
     cat << EOF > %s
