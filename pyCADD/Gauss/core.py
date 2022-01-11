@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from rich.prompt import Confirm
 
 from pyCADD.utils.check import check_file
@@ -7,10 +8,11 @@ from pyCADD.utils.tool import tail_progress
 
 logger = logging.getLogger(__name__)
 
-def generate_opt(original_st:str, charge:int, multiplicity:int, dft:str='B3LYP', basis_set:str='6-31g*', solvent:str='water', loose:bool=True, correct:bool=True, td:bool=False):
+
+def generate_opt(original_st: str, charge: int, multiplicity: int, dft: str = 'B3LYP', basis_set: str = '6-31g*', solvent: str = 'water', loose: bool = True, correct: bool = True, td: bool = False):
     '''
     生成Gaussian结构优化输入文件
-    
+
     Parameters
     ----------
     original_st : str
@@ -80,7 +82,8 @@ def generate_opt(original_st:str, charge:int, multiplicity:int, dft:str='B3LYP',
     else:
         correct_cofig = ''
 
-    keyword = '# %s %s/%s%s%s%s' % (opt_config, dft, basis_set, correct_cofig, TD, scrf)
+    keyword = '# %s %s/%s%s%s%s' % (opt_config,
+                                    dft, basis_set, correct_cofig, TD, scrf)
 
     os.system('''
     cat << EOF > %s
@@ -98,10 +101,11 @@ EOF
 
     return opt_file, chk_file
 
-def generate_energy(original_st:str, charge:int, multiplicity:int, dft:str='B3LYP', basis_set:str='6-31g*', solvent:str='water', correct:bool=True, td:bool=False):
+
+def generate_energy(original_st: str, charge: int, multiplicity: int, dft: str = 'B3LYP', basis_set: str = '6-31g*', solvent: str = 'water', correct: bool = True, td: bool = False):
     '''
     生成Gaussian单点能计算输入文件
-    
+
     Parameters
     ----------
     original_st : str
@@ -180,6 +184,7 @@ EOF
 
     return energy_file, chk_file
 
+
 def get_gaussian():
     '''
     获取高斯可执行文件路径
@@ -194,15 +199,16 @@ def get_gaussian():
     if g16:
         gaussian = g16
     elif g09:
-        logger.warning('You are using gaussian 09, that may cause some unknown errors.\nGaussian 16 is recommend.')
+        logger.warning(
+            'You are using gaussian 09, that may cause some unknown errors.\nGaussian 16 is recommend.')
         gaussian = g09
     else:
         logger.error('Gaussian is not installed.')
         return None
     return gaussian
-    
 
-def system_default(gauss_path:str, cpu_count:int, memory:str):
+
+def system_default(gauss_path: str, cpu_count: int, memory: str):
     '''
     修改系统计算资源占用设定
 
@@ -222,12 +228,14 @@ def system_default(gauss_path:str, cpu_count:int, memory:str):
     '''
 
     default_route = os.path.dirname(gauss_path) + '/Default.Route'
-    with open(default_route,'w') as f:
+    with open(default_route, 'w') as f:
         f.write('-P- %s\n' % cpu_count)
         f.write('-M- %s\n' % memory)
-    logger.debug('Default system setting changed: CPU = %s  Mem = %s' % (cpu_count, memory))
-    
-def generate_fchk(chk_file:str):
+    logger.debug('Default system setting changed: CPU = %s  Mem = %s' %
+                 (cpu_count, memory))
+
+
+def generate_fchk(chk_file: str):
     '''
     生成fchk文件
     '''
@@ -255,7 +263,8 @@ def _check_gauss_finished(line: str):
     else:
         return False
 
-def tail_gauss_job(output_file:str):
+
+def tail_gauss_job(output_file: str):
     '''
     追踪高斯计算任务进度
     Parameter
@@ -264,10 +273,12 @@ def tail_gauss_job(output_file:str):
         高斯计算任务输出文件路径
     '''
     tail_progress(output_file, _check_gauss_finished)
-    
-def _get_system_info(gauss_path:str):
+
+
+def _get_system_info(gauss_path: str):
     '''
     读取当前高斯计算资源文件设定
+
     Parameter
     ---------
     gauss_path : str
@@ -275,7 +286,82 @@ def _get_system_info(gauss_path:str):
     '''
 
     default_route = os.path.dirname(gauss_path) + '/Default.Route'
-    with open(default_route,'r') as f:
+    with open(default_route, 'r') as f:
         cpu_info, mem_info = f.read().splitlines()
     return cpu_info[4:], mem_info[4:]
 
+
+def get_mo(fchk_file: str):
+    '''
+    获取HOMO/LUMO分子轨道编号
+
+    Parameters
+    ----------
+    fchk_file : str
+        高斯计算检查点文件(非二进制)
+
+    Return
+    ----------
+    dict[str, dict]
+        HOMO, LUMO分子轨道相关信息, gap值  
+
+        {
+        'homo': 
+                {'index': homo_index, 
+                'energy': homo_energy}, 
+                
+        'lumo': 
+            {'index': lumo_index, 
+            'energy': lumo_energy}, 
+
+        'gap': gap value
+        }
+    '''
+    mo_info = os.popen('''Multiwfn %s << EOF
+    0
+    q
+    EOF
+    ''' % fchk_file).read()
+    homo_index = int(re.search(r'[ \d]+(?=is HOMO)', mo_info).group().strip())
+    homo_energy = float(
+        re.search(r'(?<=is HOMO, energy:)[-\d. ]+', mo_info).group().strip())
+    lumo_index = int(re.search(r'[ \d]+(?=is LUMO)', mo_info).group().strip())
+    lumo_energy = float(
+        re.search(r'(?<=is LUMO, energy:)[-\d. ]+', mo_info).group().strip())
+    gap = float(
+        re.search(r'(?<=HOMO-LUMO gap:)[-\d. ]+', mo_info).group().strip())
+
+    return {'homo': {'index': homo_index, 'energy': homo_energy}, 'lumo': {'index': lumo_index, 'energy': lumo_energy}, 'gap': gap}
+
+
+def cube_file_generate(fchk_file: str, mo: int):
+    '''
+    生成分子轨道 Grid文件
+
+    Parameters
+    ----------
+    fchk_file : str
+        高斯计算检查点文件(非二进制)
+    mo : int
+        分子轨道(MO)编号
+
+    Return
+    ----------
+    str
+        生成的Grid文件名
+    '''
+
+    logger.info('Extracting MO %s from %s' % (mo, fchk_file))
+    os.system('''
+    Multiwfn %s > /dev/null << EOF
+    200
+    3
+    %s
+    2
+    1
+    0
+    q
+    EOF
+    ''' % (fchk_file, mo))
+
+    return 'orb' + str(mo).rjust(6, '0') + '.cub'
