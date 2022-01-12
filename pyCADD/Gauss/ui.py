@@ -25,6 +25,7 @@ class UI_Gauss(UI):
             '5. Single point energy calculation',
             '6. Absorption energy of excited states calculation',
             '7. Emission energy of excited states calculation',
+            '8. Extract MO cube files',
             '0. Exit'
         ]
 
@@ -33,7 +34,7 @@ class UI_Gauss(UI):
         self._current_system_setting()
         self._get_original_st()
         self.gauss = Gauss(self.origin_st)
-        self.create_panel(self.main_options)
+        self.create_panel(self.main_options, additional_info = {"file_type": 'File type: [bright_cyan]%s[/]' % self.gauss.file_type})
 
     @property
     def _system_loading(self):
@@ -181,4 +182,21 @@ class UI_Gauss(UI):
             logger.info('Gauss input file %s is created.' % self.input_file)
             if self.get_confirm('Running emission energy calculation job?'):
                 self.gauss.run()
+            self.create_panel()
+        
+        elif flag == '8':
+            if self.gauss.file_type != 'format check point(.fchk)':
+                logger.error('Require a fchk file.')
+                return
+
+            self.gauss.get_mo_info()
+            logger.info('Current HOMO: %s, energy: %s' % (self.gauss.homo_index, self.gauss.homo_energy))
+            logger.info('Current LUMO: %s, energy: %s' % (self.gauss.lumo_index, self.gauss.lumo_energy))
+            logger.info('HOMO-LUMO Gap: %s' % self.gauss.gap)
+            if self.get_confirm('Extract HOMO/LUMO cube file?', default=True):
+                mos = [self.gauss.homo_index, self.gauss.lumo_index]
+            else:
+                mos = self.get_input('Enter the MO(s) need to be extracted(separated by comma)').split(',')
+            for mo in mos:
+                self.gauss.extract_cube(mo)
             self.create_panel()

@@ -245,10 +245,16 @@ def system_default(gauss_path: str, cpu_count: int, memory: str):
 def generate_fchk(chk_file: str):
     '''
     生成fchk文件
-    '''
-    os.system('formchk %s > /dev/null' % chk_file)
-    logger.debug('fchk file %s is saved.' % chk_file.split('.')[0] + '.fchk')
 
+    Return
+    ----------
+    str
+        生成的fchk文件
+    '''
+    fchk_file = chk_file.split('.')[0] + '.fchk'
+    os.system('formchk %s > /dev/null' % chk_file)
+    logger.debug('fchk file %s is saved.' % fchk_file)
+    return fchk_file
 
 def _check_gauss_finished(line: str):
     '''
@@ -300,7 +306,7 @@ def _get_system_info(gauss_path: str):
 
 def get_mo(fchk_file: str):
     '''
-    获取HOMO/LUMO分子轨道编号
+    获取HOMO/LUMO分子轨道信息
 
     Parameters
     ----------
@@ -343,7 +349,7 @@ def get_mo(fchk_file: str):
 
 def cube_file_generate(fchk_file: str, mo: int):
     '''
-    生成分子轨道 Grid文件
+    生成分子轨道cube Grid文件
 
     Parameters
     ----------
@@ -358,7 +364,7 @@ def cube_file_generate(fchk_file: str, mo: int):
         生成的Grid文件名
     '''
 
-    logger.info('Extracting MO %s from %s' % (mo, fchk_file))
+    logger.debug('Extracting MO %s from %s' % (mo, fchk_file))
     os.system('''
     Multiwfn %s > /dev/null << EOF
     200

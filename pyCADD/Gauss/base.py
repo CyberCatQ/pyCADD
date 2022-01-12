@@ -17,8 +17,8 @@ class Gauss:
         self.basis_set = None               # 基组
         self.solvent = None                 # PCM模型溶剂
         self.job = None                     # 任务名
-        
 
+        self.file_type = None               # 文件类型
         self.st_path = st_path              # 原始结构文件路径
         self.read_origin_st()
 
@@ -42,7 +42,7 @@ class Gauss:
         cpu(s), memory
         '''
         return core._get_system_info(cls.gauss)
-
+    
     def read_origin_st(self):
         '''
         读取原始结构文件名与基础信息
@@ -53,9 +53,20 @@ class Gauss:
         q
         EOF''' % self.st_path).read().strip()
         self.base_name = os.path.basename(self.st_path).split('.')[0]
-        #self.molecule_wt = re.search(r'(?<=Molecule weight:)[0-9. ]+', st_info).group().strip()
-        #self.formula = re.search(r'(?<=Formula:)[A-Za-z0-9 ]+', st_info).group().strip()
-        #self.atom_count = re.search(r'(?<=Totally)[ 0-9]+', st_info).group().strip()
+        if self.st_path.endswith('.out'):
+            self.output_file = self.st_path
+            self.file_type = 'Gaussian out(.out)'
+        elif self.st_path.endswith('.chk'):
+            self.chk_file = self.st_path
+            self.file_type = 'check point(.chk)'
+        elif self.st_path.endswith('.fchk'):
+            self.fchk_file = self.st_path
+            self.file_type = 'format check point(.fchk)'
+        elif self.st_path.endswith('.gjf'):
+            self.input_file = self.st_path
+            self.file_type = 'Gaussian input(.gjf)'
+        else:
+            self.file_type = 'Other'
 
     @classmethod
     def set_system(cls, cpu_count, mem):
@@ -158,7 +169,36 @@ class Gauss:
         logger.info('Input file %s saved.' % self.input_file)
 
         return self.input_file
-        
+    
+    def get_mo_info(self):
+        '''
+        获取HOMO/LUMO分子轨道信息
+        '''
+        info_dict = core.get_mo(self.fchk_file)
+        homo_dict = info_dict['homo']
+        lumo_dict = info_dict['lumo']
+        gap_value = info_dict['gap']
+
+        self.homo_index = homo_dict['index']
+        self.homo_energy = homo_dict['energy']
+        self.lumo_index = lumo_dict['index']
+        self.lumo_energy = lumo_dict['energy']
+        self.gap = gap_value
+
+    def extract_cube(self, mo:int):
+        '''
+        提取分子轨道cube格点文件
+
+        Parameters
+        ----------
+        mo : int
+            分子轨道(MO)编号
+        '''
+        logger.debug('Current fchk file: %s' % self.fchk_file)
+        logger.info('Extracting MO: %s' % mo)
+        cube_file = core.cube_file_generate(self.fchk_file, mo)
+        logger.info('MO %s cube file %s created.' % (mo, cube_file))
+
     def run(self):
         '''
         启动任务
@@ -176,8 +216,8 @@ class Gauss:
         core.tail_gauss_job(self.output_file)
         logger.info('Calculation done. %s is saved.' % self.output_file)
 
-        core.generate_fchk(self.chk_file)
-
+        self.fchk_file = core.generate_fchk(self.chk_file)
+        logger.info('Formchk file created %s.' % self.fchk_file)
         
 
         
