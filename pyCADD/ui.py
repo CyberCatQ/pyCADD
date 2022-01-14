@@ -35,7 +35,7 @@ class UI:
         self.options = ''
         self.additional_info = ''
         self.schrodinger = Text(os.environ['SCHRODINGER'], style='u i')
-        self.gauss_dir = Text(os.environ['GAUSS_HOME'], style='u i')
+        self.gauss_dir = Text(os.path.dirname(os.popen('which g16').read()), style='u i')
 
         self._additional_info_dict = {}
         self._info_index = 0
