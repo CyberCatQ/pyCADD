@@ -1,3 +1,4 @@
+import imp
 import logging
 import os
 import time
@@ -7,6 +8,7 @@ from pyCADD.Dock.core import launch
 from pyCADD.Multidock.base import Multidock
 from pyCADD.utils.check import check_file
 from pyCADD.utils.tool import _get_progress, check_file_update_progress, mkdirs
+from pyCADD.utils.getinfo import get_project_dir
 from pyCADD.VSW import core
 from rich.prompt import Prompt
 
@@ -26,6 +28,7 @@ class VSW(Multidock):
         self.pdblist = []               # 由基因索取到的PDB ID列表 由元组(PDBID, Ligand)组成
         self.gene_config = {}           # 受体配置信息
         self.database_config = {}       # 化合物库配置信息
+        self.project_dir = get_project_dir()
         mkdirs(self.required_dir)
         self.read_gene()
         self.read_databse()

@@ -26,6 +26,9 @@ def main():
         if not ui.schrodinger_check:
             logger.error('Schrodinger platform is not installed.')
             return
+        else:
+            if os.system(r'run python3 -c "import pyCADD"') != 0:
+                os.system('run python3 -m pip install pyCADD >/dev/null')
             
     if flag == '1':
         os.system('run python3 -m pyCADD.Dock')
