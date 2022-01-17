@@ -68,6 +68,7 @@ class UI_dock(UI):
             precision = input('Enter the docking precision(SP|XP):').strip().upper()
             ligand_file = input('Enter the ligand PATH:').strip()
             docker.minimize()
+            docker.split()
             docker.grid_generate()
             docker.set_precision(precision)
             docker.dock(ligand_file)
