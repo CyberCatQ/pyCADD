@@ -23,7 +23,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     entry_points={
-        'console_scripts': ['pyCADD = pyCADD.__main__:main', 'pycadd = pyCADD.__main__:main']
+        'console_scripts': ['pyCADD = pyCADD.__main__:main', 'pycadd = pyCADD.__main__:main', 'pycadd-gauss = pyCADD.Gauss.__main__:main']
     }
 
 )
