@@ -1,10 +1,14 @@
+import atexit
 import logging
 import os
 import re
-from rich.prompt import Confirm
+import signal
+import subprocess
+import sys
 
 from pyCADD.utils.check import check_file
 from pyCADD.utils.tool import tail_progress
+from rich.prompt import Confirm
 
 logger = logging.getLogger(__name__)
 
@@ -103,7 +107,7 @@ def generate_opt(original_st: str, charge: int, multiplicity: int, dft: str = 'B
 EOF
 ''' % (opt_file, r"%chk", chk_file, keyword, molname + td_suffix, charge, multiplicity))
 
-    os.system("awk '{if (NR>5) print }' tmp.gjf >> %s" % opt_file)
+    os.system('''awk '{if (NR>5 && $1 !~ "[0-9]") print }' tmp.gjf >> %s''' % opt_file)
     os.remove('tmp.gjf')
 
     return opt_file, chk_file
@@ -296,11 +300,20 @@ def _get_system_info(gauss_path: str):
     ---------
     gauss_path : str
         高斯可执行文件路径
+    Return
+    ---------
+    tuple[str, str]
+        CPU, memory
     '''
 
     default_route = os.path.dirname(gauss_path) + '/Default.Route'
+    if not check_file(default_route):
+        with open(default_route, 'w') as f:
+            f.write('-P- 8\n')
+            f.write('-M- 4GB')
     with open(default_route, 'r') as f:
         cpu_info, mem_info = f.read().splitlines()
+
     return cpu_info[4:], mem_info[4:]
 
 
@@ -378,3 +391,90 @@ def cube_file_generate(fchk_file: str, mo: int):
     ''' % (fchk_file, mo))
 
     return 'orb' + str(mo).rjust(6, '0') + '.cub'
+
+class Daemon:
+    def __init__(self, cmd, pidfile='/tmp/daemon.pid', stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
+        self.stdin = stdin
+        self.stdout = stdout
+        self.stderr = stderr
+        self.pidfile = pidfile
+        self.cmd = cmd
+
+    def daemonize(self):
+        if os.path.exists(self.pidfile):
+            raise RuntimeError('Already running.')
+        pid = os.fork()
+        # First fork (detaches from parent)
+        try:
+            if pid > 0:
+                raise SystemExit(0)
+        except OSError as e:
+            raise RuntimeError('fork #1 faild: {0} ({1})\n'.format(e.errno, e.strerror))
+
+        #os.chdir('/')
+        os.setsid()
+        os.umask(0o22)
+
+        # Second fork (relinquish session leadership)
+        _pid = os.fork()
+        try:
+            if _pid > 0:
+                raise SystemExit(0)
+        except OSError as e:
+            raise RuntimeError('fork #2 faild: {0} ({1})\n'.format(e.errno, e.strerror))
+
+        # Flush I/O buffers
+        sys.stdout.flush()
+        sys.stderr.flush()
+
+        # Replace file descriptors for stdin, stdout, and stderr
+        '''        
+        with open(self.stdin, 'rb', 0) as f:
+            os.dup2(f.fileno(), sys.stdin.fileno())
+        with open(self.stdout, 'ab', 0) as f:
+            os.dup2(f.fileno(), sys.stdout.fileno())
+        with open(self.stderr, 'ab', 0) as f:
+            os.dup2(f.fileno(), sys.stderr.fileno())
+        '''
+        # Write the PID file
+        with open(self.pidfile, 'w') as f:
+            print(os.getpid(), file=f)
+        
+        # Arrange to have the PID file removed on exit/signal
+        atexit.register(lambda: os.remove(self.pidfile))
+
+        signal.signal(signal.SIGTERM, self.__sigterm_handler)
+        
+
+    # Signal handler for termination (required)
+    @staticmethod
+    def __sigterm_handler(signo, frame):
+        raise SystemExit(1)
+
+    def start(self):
+        try:
+            self.daemonize()
+        except RuntimeError as e:
+            print(e, file=sys.stderr)
+            raise SystemExit(1)
+
+        self.run()
+
+    def stop(self):
+        try:
+            if os.path.exists(self.pidfile):
+                with open(self.pidfile) as f:
+                    os.kill(int(f.read()), signal.SIGTERM)
+            else:
+                print('Not running.', file=sys.stderr)
+                raise SystemExit(1)
+        except OSError as e:
+            if 'No such process' in str(e) and os.path.exists(self.pidfile): 
+                os.remove(self.pidfile)
+
+    def restart(self):
+        self.stop()
+        self.start()
+
+    def run(self):
+        subprocess.Popen(self.cmd, shell=True)

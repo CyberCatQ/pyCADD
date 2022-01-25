@@ -14,7 +14,7 @@ class UI_Gauss(UI):
     Gauss 计算脚本UI
     '''
 
-    def __init__(self, menu_name: str = 'Gaussian Calculate') -> None:
+    def __init__(self, menu_name: str = 'Gaussian Calculate', original_st:str = None) -> None:
         super().__init__(menu_name=menu_name)
 
         self.main_options = [
@@ -32,7 +32,13 @@ class UI_Gauss(UI):
         self._init_setting = False
         self._init_method = False
         self._current_system_setting()
-        self._get_original_st()
+        if not original_st:
+            self._get_original_st()
+        else:
+            self.origin_st = original_st
+        logger.debug('Origin file: %s' % self.origin_st)
+        self.create_panel(additional_info={ "origin" : 'Original structure file: [bright_cyan]%s[/]' % self.origin_st}, show_panel=False)
+        
         self.gauss = Gauss(self.origin_st)
         self.create_panel(self.main_options, additional_info = {"file_type": 'File type: [bright_cyan]%s[/]' % self.gauss.file_type})
 
@@ -87,9 +93,6 @@ class UI_Gauss(UI):
             'Need an original structure for calculation.\nEnter the file path of molecule structure')
         if check_file(origin_st):
             self.origin_st = origin_st
-            logger.debug('Origin file: %s' % self.origin_st)
-            self.create_panel(
-                additional_info={ "origin" : 'Original structure file: [bright_cyan]%s[/]' % self.origin_st}, show_panel=False)
         else:
             raise FileNotFoundError('File %s not found.' % origin_st)
 

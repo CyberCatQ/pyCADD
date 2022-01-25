@@ -2,9 +2,13 @@ import sys
 
 from pyCADD.Gauss.ui import UI_Gauss
 
-if __name__ == '__main__':
+def main():
     enter_text = '[bold]Enter the Code of Options'
-    ui_gauss = UI_Gauss()
+    if len(sys.argv) != 1:
+        original_st = sys.argv[1]
+    else:
+        original_st = None
+    ui_gauss = UI_Gauss(original_st=original_st)
 
     while True:
         flag = ui_gauss.get_input(enter_text, choices=[str(i) for i in range(len(ui_gauss.main_options))], default='0')
@@ -12,3 +16,6 @@ if __name__ == '__main__':
             sys.exit(0)
         
         ui_gauss.run(flag)
+
+if __name__ == '__main__':
+    main()

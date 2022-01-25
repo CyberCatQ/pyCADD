@@ -1,6 +1,5 @@
 import os
 import logging
-import re
 logger = logging.getLogger(__name__)
 
 from pyCADD.Gauss import core
@@ -22,10 +21,6 @@ class Gauss:
         self.st_path = st_path              # 原始结构文件路径
         self.read_origin_st()
 
-        # Default
-        self.cpu_count = os.cpu_count()     # 计算将使用的CPU核心数量
-        self.mem = '4GB'                    # 计算将使用的内存大小
-
     @classmethod
     @property
     def gauss(cls):
@@ -41,7 +36,8 @@ class Gauss:
         ----------
         cpu(s), memory
         '''
-        return core._get_system_info(cls.gauss)
+        cls.cpu_count, cls.mem = core._get_system_info(cls.gauss)
+        return cls.cpu_count, cls.mem
     
     def read_origin_st(self):
         '''
@@ -159,7 +155,7 @@ class Gauss:
         elif job_name == 'emission':
             self.job = 'Emission Energy of Excited States'
             # 计算发射能量 Keyword即计算TDDFT下的结构优化
-            self.input_file, self.chk_file = core.generate_opt(self.st_path, self.charge, self.spin_multi, self.dft, self.basis_set, self.solvent, loose=False, correct=True, td=True, freq=True)
+            self.input_file, self.chk_file = core.generate_opt(self.st_path, self.charge, self.spin_multi, self.dft, self.basis_set, self.solvent, loose=False, correct=True, td=True)
 
         else:
             logger.error('Invaild job name. No file is created.')
@@ -209,15 +205,20 @@ class Gauss:
         logger.info('Prepare to running calculation')
         self.output_file = self.input_file.split('.')[0] + '.out'
 
-        os.system('nohup %s < %s > %s &' %(self.gauss, self.input_file, self.output_file))
+        
+        daemon = core.Daemon(cmd = "%s < %s > %s && formchk %s > /dev/null" %(self.gauss, self.input_file, self.output_file, self.chk_file))
+        daemon.start()
+
         logger.info('Job has been submitted. ')
+        print('You can safely exit the shell at any time.')
 
-        logger.info('Start tracing output file')
-        core.tail_gauss_job(self.output_file)
-        logger.info('Calculation done. %s is saved.' % self.output_file)
+        #logger.info('Start tracing output file ...')
+        #core.tail_gauss_job(self.output_file)
+        #logger.info('Calculation done. %s is saved.' % self.output_file)
 
-        self.fchk_file = core.generate_fchk(self.chk_file)
-        logger.info('Formchk file created %s.' % self.fchk_file)
+        #self.fchk_file = core.generate_fchk(self.chk_file)
+        fchk_file = self.chk_file.split('.')[0] + '.fchk'
+        logger.info('Formchk file created %s.' % fchk_file)
         
 
         
