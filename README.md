@@ -16,10 +16,14 @@ pyCADD
 ## Required
 
 * [Schrodinger Suite](https://www.schrodinger.com/)2018-2 或更高版本
-* [AMBER](http://ambermd.org/) 18 或更高版本 (要使用PMEMD 请安装CUDA 9.0或以上版本)
-* [Gaussian](http://gaussian.com/) 09.D01 或更高版本 (默认为g16)
-* [Multiwfn 3.7](http://sobereva.com/multiwfn/)
-
+* [AMBER](http://ambermd.org/) 18 或更高版本
+* [Gaussian](http://gaussian.com/) 16.A01 或更高版本
+* [Multiwfn](http://sobereva.com/multiwfn/) 3.7 或更高版本
+* CUDA 9.0 或以上版本
+### ！Attention
+* `pyCADD` 不包含以上所需程序的安装与许可证 您需要自行获得授权并安装恰当
+* 使用本应用程序进行学术研究必须遵守以上所需各程序的相关文献引用规定
+  
 ### Python Version  
 
 * 3.6 or Higher  
@@ -50,6 +54,7 @@ pyCADD
 |*Dance*    | 数据处理脚本集合  |  
 |*VSW*            | 自动化虚拟筛选 |
 |*query* | 自动化晶体信息查询与处理 |
+|*Gauss* | 自动编写高斯结构优化、单点能、TDDFT等计算任务输入文件并启动计算任务 |
 
 
 | 开发中 | Function |  
@@ -71,6 +76,7 @@ pyCADD
 即可安装 `pyCADD`  
 
 随后 您可以使用命令 `pycadd` 或 `pyCADD` 来启动应用程序
+也可使用命令 `pycadd-gauss` 直接运行 *Gauss* 模块
 
 `pyCADD` 提供一个用户友好的界面使您能够轻易使用需要的功能, 请自行尝试。
 
@@ -130,6 +136,13 @@ pyCADD
 * 所有集合式对接工作完成后, 将自动提取重要的对接结果数据, 并保存在 `result` 目录下的 `_DOCK_FINAL_RESULTS.csv`字样的文件中, 且将产生汇总文件`matrix.csv` 及 `TOTAL.csv`
 * 如您仅需提取已完成工作的数据而不执行集合式对接, 请在载入受体与配体信息后使用 `Multiple Mode` 的功能8
 
+## Gaussian Calculation Module
+您可以直接运行 `pycadd-gauss` 并依据提示输入初始结构文件路径
+
+或使用命令行  
+    
+    pycadd-gauss [input_file_path]
+来直接载入初始结构文件
 
 * * *
 此脚本仅限于学习和批评使用, 请勿用作其他用途。  
@@ -137,4 +150,4 @@ pyCADD
 
 YH. W  
 School of Pharmaceutical Sciences, Xiamen University  
-2021-12-28
+2022-01-25
