@@ -144,6 +144,8 @@ class UI_Gauss(UI):
             self.set_system()
             self.create_panel()
             logger.info('System setting changed.')
+        elif flag == '8':
+            pass
         else:
             if not self._init_setting:
                 logger.info('Charge and spin multiplicity are not defined.')
@@ -164,28 +166,28 @@ class UI_Gauss(UI):
             logger.info('Gauss input file %s is created.' % self.input_file)
             if self.get_confirm('Running optimization job?'):
                 self.gauss.run()
-            self.create_panel()
+            #self.create_panel()
         
         elif flag == '5':
             self.input_file = self.gauss.create_inputfile('energy')
             logger.info('Gauss input file %s is created.' % self.input_file)
             if self.get_confirm('Running energy calculation job?'):
                 self.gauss.run()
-            self.create_panel()
+            #self.create_panel()
         
         elif flag == '6':
             self.input_file = self.gauss.create_inputfile('absorb')
             logger.info('Gauss input file %s is created.' % self.input_file)
             if self.get_confirm('Running absorption energy calculation job?'):
                 self.gauss.run()
-            self.create_panel()
+            #self.create_panel()
 
         elif flag == '7':
             self.input_file = self.gauss.create_inputfile('emission')
             logger.info('Gauss input file %s is created.' % self.input_file)
             if self.get_confirm('Running emission energy calculation job?'):
                 self.gauss.run()
-            self.create_panel()
+            #self.create_panel()
         
         elif flag == '8':
             if self.gauss.file_type != 'format check point(.fchk)':
@@ -193,13 +195,13 @@ class UI_Gauss(UI):
                 return
 
             self.gauss.get_mo_info()
-            logger.info('Current HOMO: %s, energy: %s' % (self.gauss.homo_index, self.gauss.homo_energy))
-            logger.info('Current LUMO: %s, energy: %s' % (self.gauss.lumo_index, self.gauss.lumo_energy))
-            logger.info('HOMO-LUMO Gap: %s' % self.gauss.gap)
+            logger.info('Current HOMO: %s, energy: %s eV' % (self.gauss.homo_index, self.gauss.homo_energy))
+            logger.info('Current LUMO: %s, energy: %s eV' % (self.gauss.lumo_index, self.gauss.lumo_energy))
+            logger.info('HOMO-LUMO Gap: %s eV' % self.gauss.gap)
             if self.get_confirm('Extract HOMO/LUMO cube file?', default=True):
                 mos = [self.gauss.homo_index, self.gauss.lumo_index]
             else:
                 mos = self.get_input('Enter the MO(s) need to be extracted(separated by comma)').split(',')
             for mo in mos:
                 self.gauss.extract_cube(mo)
-            self.create_panel()
+            #self.create_panel()

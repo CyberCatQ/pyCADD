@@ -16,6 +16,8 @@ def main():
             sys.exit(0)
         
         ui_gauss.run(flag)
+        if flag not in '123':
+            break
 
 if __name__ == '__main__':
     main()

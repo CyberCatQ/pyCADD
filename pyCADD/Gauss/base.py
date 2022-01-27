@@ -41,13 +41,9 @@ class Gauss:
     
     def read_origin_st(self):
         '''
-        读取原始结构文件名与基础信息
+        读取原始结构文件名与格式信息
         '''
-        # 基于Multiwfn
-        st_info = os.popen('''
-        Multiwfn %s << EOF
-        q
-        EOF''' % self.st_path).read().strip()
+
         self.base_name = os.path.basename(self.st_path).split('.')[0]
         if self.st_path.endswith('.out'):
             self.output_file = self.st_path
@@ -209,16 +205,15 @@ class Gauss:
         daemon = core.Daemon(cmd = "%s < %s > %s && formchk %s > /dev/null" %(self.gauss, self.input_file, self.output_file, self.chk_file))
         daemon.start()
 
-        logger.info('Job has been submitted. ')
-        print('You can safely exit the shell at any time.')
+        logger.info('Job has been submitted. You can safely exit the shell at any time.')
 
         #logger.info('Start tracing output file ...')
         #core.tail_gauss_job(self.output_file)
         #logger.info('Calculation done. %s is saved.' % self.output_file)
 
         #self.fchk_file = core.generate_fchk(self.chk_file)
-        fchk_file = self.chk_file.split('.')[0] + '.fchk'
-        logger.info('Formchk file created %s.' % fchk_file)
+        #fchk_file = self.chk_file.split('.')[0] + '.fchk'
+        #logger.info('Formchk file created %s.' % fchk_file)
         
 
         

@@ -11,7 +11,7 @@ from pyCADD.utils.tool import tail_progress
 from rich.prompt import Confirm
 
 logger = logging.getLogger(__name__)
-
+ratio = 27.2114313131
 
 def generate_opt(original_st: str, charge: int, multiplicity: int, dft: str = 'B3LYP', basis_set: str = '6-31g*', solvent: str = 'water', loose: bool = True, correct: bool = True, td: bool = False, freq:bool=False):
     '''
@@ -190,7 +190,7 @@ def generate_energy(original_st: str, charge: int, multiplicity: int, dft: str =
 EOF
 ''' % (energy_file, r"%chk", chk_file, keyword, molname + td_suffix, charge, multiplicity))
 
-    os.system("awk '{if (NR>5) print }' tmp.gjf >> %s" % energy_file)
+    os.system('''awk '{if (NR>5 && $1 !~ "[0-9]") print }' tmp.gjf >> %s''' % energy_file)
     os.remove('tmp.gjf')
 
     return energy_file, chk_file
@@ -343,19 +343,27 @@ def get_mo(fchk_file: str):
         'gap': gap value
         }
     '''
-    mo_info = os.popen('''Multiwfn %s << EOF
-    0
-    q
-    EOF
-    ''' % fchk_file).read()
+    mo_pipe = subprocess.Popen('Multiwfn %s ' % fchk_file, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    mo_info = ''
+
+    for line in iter(mo_pipe.stdout.readline, b''):
+        if re.search(r'Ghost atoms', line.decode('utf-8')):
+            logger.warning('Ghost atoms (Bq) are found in this file')
+            mo_pipe.stdin.write(b'y\n')
+            mo_pipe.stdin.flush()
+        if re.search(r'300 Other functions', line.decode('utf-8')):
+            mo_pipe.stdin.write(b'0\n')
+            mo_pipe.stdin.write(b'q\n')
+            mo_pipe.stdin.flush()
+        mo_info += line.decode('utf-8')
+    mo_pipe.stdin.close()
+    mo_pipe.stdout.close()
+        
     homo_index = int(re.search(r'[ \d]+(?=is HOMO)', mo_info).group().strip())
-    homo_energy = float(
-        re.search(r'(?<=is HOMO, energy:)[-\d. ]+', mo_info).group().strip())
+    homo_energy = '%.6f' % (float(re.search(r'(?<=is HOMO, energy:)[-\d. ]+', mo_info).group().strip()) * ratio)
     lumo_index = int(re.search(r'[ \d]+(?=is LUMO)', mo_info).group().strip())
-    lumo_energy = float(
-        re.search(r'(?<=is LUMO, energy:)[-\d. ]+', mo_info).group().strip())
-    gap = float(
-        re.search(r'(?<=HOMO-LUMO gap:)[-\d. ]+', mo_info).group().strip())
+    lumo_energy = '%.6f' % (float(re.search(r'(?<=is LUMO, energy:)[-\d. ]+', mo_info).group().strip()) * ratio)
+    gap = '%.6f' % (float(re.search(r'(?<=HOMO-LUMO gap:)[-\d. ]+', mo_info).group().strip()) * ratio)
 
     return {'homo': {'index': homo_index, 'energy': homo_energy}, 'lumo': {'index': lumo_index, 'energy': lumo_energy}, 'gap': gap}
 
@@ -378,17 +386,21 @@ def cube_file_generate(fchk_file: str, mo: int):
     '''
 
     logger.debug('Extracting MO %s from %s' % (mo, fchk_file))
-    os.system('''
-    Multiwfn %s > /dev/null << EOF
-    200
-    3
-    %s
-    2
-    1
-    0
-    q
-    EOF
-    ''' % (fchk_file, mo))
+    _excute_pipe = subprocess.Popen('Multiwfn %s ' % fchk_file, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+
+    for line in iter(_excute_pipe.stdout.readline, b''):
+        if re.search(r'Ghost atoms', line.decode('utf-8')):
+            _excute_pipe.stdin.write(b'y\n')
+            _excute_pipe.stdin.flush()
+        if re.search(r'300 Other functions', line.decode('utf-8')):
+            _excute_pipe.stdin.write(b'200\n')
+            _excute_pipe.stdin.write(b'3\n')
+            _excute_pipe.stdin.write(b'%s\n' % bytes(str(mo), 'utf-8'))
+            _excute_pipe.stdin.write(b'2\n')
+            _excute_pipe.stdin.write(b'1\n')
+            _excute_pipe.stdin.write(b'0\n')
+            _excute_pipe.stdin.write(b'q\n')
+            _excute_pipe.stdin.flush()
 
     return 'orb' + str(mo).rjust(6, '0') + '.cub'
 
@@ -477,4 +489,4 @@ class Daemon:
         self.start()
 
     def run(self):
-        subprocess.Popen(self.cmd, shell=True)
+        subprocess.Popen(self.cmd, shell=True, bufsize=1)
