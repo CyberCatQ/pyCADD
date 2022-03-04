@@ -29,6 +29,20 @@ def average(data: DataFrame, method: str = 'ave'):
     else:
         raise RuntimeError('Invalid average value method.')
 
+def geo_average(data: DataFrame):
+    '''
+    几何平均 : 计算DataFrame数据的几何平均值
+    Parameters
+    ----------
+    data : DataFrame
+        待计算数据
+
+    Return
+    ----------
+    Series
+        几何平均结果数据列
+    '''
+    return Series(- pow(data.prod(axis=1).abs(), 1/data.notna().sum(axis=1)), name='GEO')
 
 def minimum(data: DataFrame):
     '''
