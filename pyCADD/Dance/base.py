@@ -1,8 +1,12 @@
-
+import numpy as np
 import logging
+import json
+import os
+from pandas import Series
 
 from pyCADD.Dance import algorithm, core
-from rich.prompt import Prompt
+from rich.prompt import Prompt, Confirm
+from sklearn.model_selection import train_test_split
 
 logger = logging.getLogger('pyCADD.Dance.base')
 
@@ -14,11 +18,12 @@ class Dancer:
 
     def __init__(self, file_path=None, label_col=None) -> None:
         self.raw_data = None                            # 矩阵原始数据
-        self.docking_data = None                        # 对接分数数据
-        self.merge_data = None
+        self.docking_data = None                        # 对接分数数据(X)
+        self.merge_data = None                          # 合并后的数据
         self.current_data = []                          # 计算完成的数据
-        self.current_data_dic = {}
-        self.label_col = label_col
+        self.current_data_dic = {}                      # 计算完成的数据字典{name: data}
+        self.label_col = label_col                      # 标签列名
+        self.label = None                               # 标签列(y)         
         if not file_path:
             raise ValueError('Require matrix file path.')
         self.file_path = file_path                      # 矩阵文件路径
@@ -26,7 +31,7 @@ class Dancer:
 
     @property
     def activity_data(self):
-        return self.raw_data[self.label_col]
+        return self.label
 
     def read_data(self, file_path: str):
         '''
@@ -42,10 +47,10 @@ class Dancer:
         if not self.label_col:
             self.label_col = Prompt.ask('Enter the column name of label', choices=list(
             self.raw_data.columns), default=self.raw_data.columns[-1])
-        self.docking_data = core.read_docking_data(
+        self.docking_data, self.label = core.split_data(
             self.raw_data, self.label_col)
 
-    def mean(self, method: str = 'ave'):
+    def mean(self, method: str = 'ave', ignore_nan: bool = True):
         '''
         计算对接分数均值项
         Parameter
@@ -54,27 +59,40 @@ class Dancer:
             均值计算方法
                 ave: 算术平均值
                 geo: 几何平均值
+        ignore_nan : bool
+            是否忽略NaN值(默认True)
         '''
-        self.mean_data = algorithm.average(self.docking_data, method)
+        _data_to_mean = self.docking_data.replace(0, np.nan) if ignore_nan else self.docking_data
+        self.mean_data = algorithm.average(_data_to_mean, method)
         self.current_data.append(self.mean_data.name)
         self.current_data_dic[self.mean_data.name] = self.mean_data
         logger.debug(
             'Mean value(method: %s) has been appended to current data.' % method)
 
-    def min(self):
+    def min(self, ignore_nan: bool = True):
         '''
         计算最小值项
+        Parameter
+        ---------
+        ignore_nan : bool
+            是否忽略NaN值(默认True)
         '''
-        self.min_data = algorithm.minimum(self.docking_data)
+        _data_to_min = self.docking_data.replace(0, np.nan) if ignore_nan else self.docking_data
+        self.min_data = algorithm.minimum(_data_to_min)
         self.current_data.append(self.min_data.name)
         self.current_data_dic[self.min_data.name] = self.min_data
         logger.debug('Minimum value has been appended to current data.')
 
-    def max(self):
+    def max(self, ignore_nan: bool = True):
         '''
         计算最大值项
+        Parameter
+        ---------
+        ignore_nan : bool
+            是否忽略NaN值(默认True)
         '''
-        self.max_data = algorithm.maximum(self.docking_data)
+        _data_to_max = self.docking_data.replace(0, np.nan) if ignore_nan else self.docking_data
+        self.max_data = algorithm.maximum(_data_to_max)
         self.current_data.append(self.max_data.name)
         self.current_data_dic[self.max_data.name] = self.max_data
         logger.debug('Maximum value has been appended to current data.')
@@ -101,21 +119,16 @@ class Dancer:
         '''
         logger.debug('Z-score dataset has been appended to current data.')
     
-    def scp(self):
+    def best_scp(self):
         '''
-        原始单晶体对接得分(single-conformation performance)排序数据
-
-        Parameter
-        ---------
-        reference_data : str
-            参考数据文件路径(csv)
+        原始最佳单晶体对接得分(best single-conformation performance) AUC数据
+        全数据集验证
         '''
         
-        self.relative_data = algorithm.relative(self.docking_data)
-        for column in self.relative_data.columns:
-            self.current_data.append(column)
-            self.current_data_dic[column] = self.relative_data[column]
-        logger.debug('SCP data has been appended to current data.')
+        self.best_SCP, self.best_SCP_score = core.get_best_SCP(self.docking_data, self.label)
+        self.current_data.append('Best_SCP-%s' % self.best_SCP)
+        self.current_data_dic['Best_SCP-%s' % self.best_SCP] = self.docking_data[self.best_SCP]
+        logger.debug('Best SCP-%s data has been appended to current data.' % self.best_SCP)
 
     def merge(self, data_list):
         '''
@@ -129,7 +142,9 @@ class Dancer:
                      ', Length: ' + str(dataset.size) + ' ,dtype: ' + str(dataset.dtype) for dataset in data_list))
         self.merge_data = core.merge(data_list)
 
-    def auc(self, pos_label, save: bool = False, ascending: bool = False):
+        return self.merge_data
+
+    def auc(self, save: bool = False, lower_is_better: bool = True):
         '''
         生成ROC曲线并计算AUC
         Parameters
@@ -138,13 +153,12 @@ class Dancer:
             支持的表示阳性标签的类型
         save : bool
             是否保存ROC曲线图文件
-        ascending : bool
-            是否以升序方式排序数据(针对数据为负值 越负者越优的情况)
-
+        lower_is_better : bool
+            是否为负样本的ROC曲线(默认为True)
         '''
 
-        self.auc_data = core.get_auc(
-            self.merge_data, self.label_col, pos_label, save, ascending)
+        self.auc_data = core.get_roc(
+            self.merge_data, self.activity_data, save, lower_is_better)
 
     def scatter(self, pos_label, score_name: str = 'Docking_Score', save: bool = False):
         '''
@@ -184,3 +198,164 @@ class Dancer:
         heatmap_file = core.heatmap(self.corr_data, 0, 1, save)
         if save:
             logger.debug('%s saved.' % heatmap_file)
+
+class Dancer_ML(Dancer):
+    '''
+    Dancer for Machine Learning
+    '''
+
+    def __init__(self, file_path=None, label_col=None) -> None:
+        super().__init__(file_path, label_col)
+        self.support_methods = ['Dummy', 'GBT', 'LR']
+        self.method = None
+        self.model = None
+        self.params_file = None
+        self.params = None
+        self.splits = None
+        self.RANDOM_STATE = 0
+        self.test_size = 0.2
+        self._train_test_split(self.test_size)
+
+        self.eva_models = {}
+        self.evaluation_results = {}
+    
+    @property
+    def X(self):
+        return self.docking_data
+
+    @property
+    def y(self):
+        return self.activity_data
+
+    def _train_test_split(self, test_size:float=0.2):
+        '''
+        训练集 测试集拆分
+        '''
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.docking_data, self.activity_data, test_size=test_size, random_state=self.RANDOM_STATE, stratify=self.activity_data)
+    
+    def get_splits(self, repeats:int=30, cv:int=4):
+        '''
+        得到训练集和测试集的索引
+        '''
+        self.splits = core.get_splits(self.docking_data, self.activity_data, repeats, cv, self.RANDOM_STATE)
+
+    def set_method(self, method: str):
+        '''
+        设定ML方法
+        '''
+        self.model = None
+        self.params_file = None
+
+        if method not in self.support_methods:
+            raise ValueError('Method %s is not supported.' % method)
+        
+        if method == 'GBT':
+            self.method = 'ml_XGBClassifier'
+            self.params_file = 'best_params_XGBClassifier.json'
+            try:
+                from xgboost import XGBClassifier
+                self.model = XGBClassifier()
+            except ImportError:
+                raise ImportError('xgboost is not installed.')
+        elif method == 'LR':
+            self.method = 'ml_LogisticRegression'
+            self.params_file = 'best_params_LogisticRegression.json'
+            try:
+                from sklearn.linear_model import LogisticRegression
+                self.model = LogisticRegression()
+            except ImportError:
+                raise ImportError('sklearn is not installed.')
+        elif method == 'Dummy':
+            self.method = 'ml_DummyClassifier'
+            self.params_file = 'best_params_DummyClassifier.json'
+            try:
+                from sklearn.dummy import DummyClassifier
+                self.model = DummyClassifier(strategy='stratified')
+                self.eva_models[self.method] = self.model
+            except ImportError:
+                raise ImportError('sklearn is not installed.')
+        logger.debug('Method %s has been set.' % self.method)
+        
+        if os.path.exists(self.params_file):
+            if Confirm.ask('Params file %s exists, Use it?' % self.params_file, default=True):
+                self.params = json.load(open(self.params_file))
+                self.set_params(self.params)
+                logger.info('Params have been set:\n %s' % self.model.get_params())
+            else:
+                logger.info('Params file %s has been ignored.' % self.params_file)
+
+    def set_params(self, params:dict=None):
+        '''
+        设定超参数
+        Parameter
+        ---------
+        params : dict 
+            超参数字典
+        '''
+        if params:
+            params = self.params
+        else:
+            self.params = params
+        self.model.set_params(**params)
+        self.eva_models[self.method] = self.model
+    
+    def hyperparam_tuning(self, param_grid:dict, method:str='gird', *args, **kwargs):
+        '''
+        超参数调优
+        '''
+        logger.debug('Current Model: %s' % self.method)
+        logger.debug('Params Grid:\n%s' % param_grid)
+        self.params = core.hyperparam_tuning(self.model, param_grid, self.X_train, self.y_train, method=method, save=True,**kwargs)
+        logger.debug('Best Params:\n%s' % self.params)
+        self.set_params(self.params)
+
+    def train(self):
+        '''
+        训练模型
+        '''
+        if not self.params:
+            logger.error('Params have not been set.')
+            return
+        
+        self.model.fit(self.X_train, self.y_train)
+        logger.info('Model %s has been trained.' % self.method)
+    
+    def consensus_scoring(self):
+        '''
+        共识评分
+        '''
+        self.eva_models['cs_mean'] = algorithm.average
+        self.eva_models['cs_geo'] = algorithm.geo_average
+        self.eva_models['cs_min'] = algorithm.minimum
+
+    def scp_report(self):
+        '''
+        SCP策略交叉测试报告
+        '''
+        self.scp_performance = core.get_SCP_report(self.splits, self.X, self.y)
+
+    def models_evaluation_report(self):
+        '''
+        30x4模型交叉验证评估报告
+        '''
+        if not self.eva_models:
+            logger.error('No model has been set.')
+            return
+        self.evaluation_results = core.CV_model_evaluation(self.eva_models, self.X, self.y, random_state=self.RANDOM_STATE)
+    
+    def roc_auc(self):
+        '''
+        ROC曲线
+        '''
+        model_predicts = []
+        X = self.X_test
+        y = self.y_test
+
+        for model_name, model in self.eva_models.items():
+            if model_name.startswith('cs_'):
+                model_predicts.append(model(X.replace(0, np.nan)))
+            elif model_name.startswith('ml_'):
+                model_predicts.append(Series(model.predict_proba(X)[:, 1] * -1, name=model_name, index=X.index))
+
+        core.get_roc(self.merge(model_predicts), y)
+

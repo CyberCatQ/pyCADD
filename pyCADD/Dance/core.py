@@ -8,7 +8,7 @@ import json
 
 from pandas import DataFrame, Series
 from sklearn.metrics import roc_auc_score, roc_curve
-from sklearn.model_selection import train_test_split, GridSearchCV, RandomizedSearchCV
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.model_selection import RepeatedStratifiedKFold
 
 logger = logging.getLogger(__name__)
@@ -29,9 +29,9 @@ def read_matrix(file_path: str):
     raw_data = pd.read_csv(file_path, index_col=0)
     return raw_data
 
-
+'''
 def read_docking_data(raw_data: DataFrame, label_col: str):
-    '''
+    
     提取对接分数部分
     Parameter
     ---------
@@ -44,10 +44,64 @@ def read_docking_data(raw_data: DataFrame, label_col: str):
     ---------
     DataFrame
         纯对接分数数据对象
-    '''
+    
 
     return raw_data.drop(label_col, axis=1)
+'''
 
+def _standrad_label(data: DataFrame, label_col: str, positive: ...='origin'):
+    '''
+    标准化标签为二进制
+    Parameters
+    ----------
+    data : DataFrame
+        待标准化的数据
+    label_col : str
+        标签列名
+    positive : str | int | list
+        正样本标签
+    
+    Return
+    ----------
+    DataFrame
+        标准化后的数据
+    '''
+    if isinstance(positive, str) or isinstance(positive, int):
+        positive = [positive] 
+
+    # 标准化阳性标签为1
+    for _label in positive:
+        data[label_col].replace(_label, value=1, inplace=True)
+    # object转int
+    data[label_col] = data[label_col].astype(int)
+
+    return data
+
+def split_data(data: DataFrame, label_col:str=None, preprocess:bool=True, positive:str='origin'):
+    '''
+    拆分数据与标签
+    
+    Parameters
+    ----------
+    data : DataFrame
+        待拆分数据
+    label_col : str
+        标签列名
+    preprocess : bool
+        是否预处理数据(默认为True)
+        填充Nan值为0, 并且将标签二进制化
+    positive : str | int | list
+        正样本标签(preprosses为True时有效)
+
+    Return  
+    ----------
+    DataFrame, Series
+        拆分后的数据和标签
+    '''
+    if preprocess:
+        data.fillna(0, inplace=True)
+        data = _standrad_label(data, label_col, positive)
+    return data.drop(label_col, axis=1), data[label_col]
 
 def merge(data_list: list):
     '''
@@ -58,27 +112,6 @@ def merge(data_list: list):
         包含需要合并的Series的列表
     '''
     return pd.concat(data_list, axis=1)
-
-
-def _standrad_label(data: DataFrame, label_col: str, pos_label: str):
-    '''
-    标准化标签为二进制
-    '''
-    if isinstance(pos_label, str) or isinstance(pos_label, int):
-        pos_label = [pos_label]
-
-    for _label in pos_label:
-        data[label_col].replace(_label, value=1, inplace=True)
-
-    data[label_col] = pd.to_numeric(
-        data[label_col], errors='coerce').fillna(0).astype('int32')
-
-    # 标签列移至末尾
-    _label_col = data.pop(label_col)
-    data.insert(data.shape[1], column=label_col, value=_label_col)
-
-    return data
-
 
 def _format_data(data: DataFrame, label_col: str, pos_label, score_name: str = 'Docking_Score'):
     '''
@@ -99,7 +132,7 @@ def _format_data(data: DataFrame, label_col: str, pos_label, score_name: str = '
     return total_data
 
 
-def get_auc(data: DataFrame, label_col: str, pos_label, save: bool = False, ascending: bool = False):
+def get_roc(X: DataFrame, y_ture: Series , save: bool = False, lower_is_better: bool = True):
     '''
     ROC曲线下面积
     依据label列作为标签
@@ -107,25 +140,20 @@ def get_auc(data: DataFrame, label_col: str, pos_label, save: bool = False, asce
 
     Parameters
     ----------
-    data : DataFrame
-        待计算数据
-    label : str
-        阳性标签列名
-    pos_lael : str | int | list
-        显式指定阳性标签样式 如为列表则可指定多个标签
+    X : DataFrame  
+        待计算的数据
+    y_ture : Series
+        标签列
     save : bool
         是否存储ROC曲线图片
-    ascending : bool
-        是否以升序方式排序(如score为负数 则应为True)
+    lower_is_better : bool
+        是否为负样本的ROC曲线(默认为True)
 
     Return
     ---------
     Series
         曲线下面积AUC数据
     '''
-
-    # 标签列二进制化
-    data = _standrad_label(data, label_col, pos_label)
 
     auc_dict = {}
 
@@ -136,12 +164,11 @@ def get_auc(data: DataFrame, label_col: str, pos_label, save: bool = False, asce
     plt.ylabel('True Positive Rate')
     plt.title('%s ROC curve' % os.path.basename(os.getcwd()))
 
-    for index in data.columns[:-1]:
-        if ascending:
-            data[index] = - data[index]
-        _column = data[[label_col, index]].dropna(how='any')
-        fpr, tpr, thersholds = roc_curve(_column[label_col], _column[index])
-        auc = roc_auc_score(_column[label_col], _column[index])
+    for index in X.columns:
+        if lower_is_better:
+            X[index] = X[index] * -1
+        fpr, tpr, thersholds = roc_curve(y_ture, X[index])
+        auc = roc_auc_score(y_ture, X[index])
         auc_dict[index] = auc
         plt.plot(fpr, tpr, label='%s (area = %.2f)' % (index, auc))
     plt.plot([0, 1], [0, 1], linestyle='--')
@@ -254,26 +281,7 @@ def heatmap(data:DataFrame, vmin:float=None, vmax:float=None, save:bool=True):
 
     plt.show()
 
-def split_data(data, label_col:str=None):
-    '''
-    拆分数据与标签
-    
-    Parameters
-    ----------
-    data : DataFrame
-        待拆分数据
-
-    Return  
-    ----------
-    DataFrame, Series
-        拆分后的数据和标签
-    '''
-    if label_col is None:
-        return data.iloc[:,:-1], data.iloc[:,-1]
-    else:
-        return data.drop(label_col, axis=1), data[label_col]
-
-def hyperparam_tuning(model, params, X, y, scoring='roc_auc', cv=5, n_jobs=-1, method='grid', save=False, model_name=None):
+def hyperparam_tuning(model, param_gird:dict, X:DataFrame, y:Series, scoring:str='roc_auc', cv:int=5, n_jobs:int=-1, method:str='grid', save:bool=True, model_name:str=None):
     '''
     超参数调优
 
@@ -281,8 +289,8 @@ def hyperparam_tuning(model, params, X, y, scoring='roc_auc', cv=5, n_jobs=-1, m
     ----------
     model : object
         需要调优的模型
-    params : dict
-        模型参数
+    param_grid : dict
+        
     X : DataFrame
         训练集
     y : Series
@@ -308,9 +316,9 @@ def hyperparam_tuning(model, params, X, y, scoring='roc_auc', cv=5, n_jobs=-1, m
         调优后的模型参数
     '''
     if method == 'grid':
-        cv_search = GridSearchCV(estimator=model, param_grid=params, scoring=scoring, cv=cv, n_jobs=n_jobs)
+        cv_search = GridSearchCV(estimator=model, param_grid=param_gird, scoring=scoring, cv=cv, n_jobs=n_jobs)
     elif method == 'random':
-        cv_search = RandomizedSearchCV(estimator=model, param_distributions=params, scoring=scoring, cv=cv, n_jobs=n_jobs)
+        cv_search = RandomizedSearchCV(estimator=model, param_distributions=param_gird, scoring=scoring, cv=cv, n_jobs=n_jobs)
     else:
         raise ValueError('Invalid method: %s' % method)
     
@@ -321,21 +329,74 @@ def hyperparam_tuning(model, params, X, y, scoring='roc_auc', cv=5, n_jobs=-1, m
     logger.info('Best CV score: %s' % best_score)
 
     if save:
-        with open('best_params_%s.json' % (model_name if model_name else model.__class__.__name__), 'w') as f:
+        params_file = 'best_params_%s.json' % (model_name if model_name else model.__class__.__name__ )
+        with open(params_file, 'w') as f:
             json.dump(best_params, f)
+        logger.info('Params file %s saved.' % params_file)
     return best_params
 
-
-def _GS_result_report(model, params, X_train, X_test, y_train, y_test):
+def get_splits(X:DataFrame, y:Series, n_repeats:int=30, n_splits:int=4, random_state:int=42):
     '''
-    网格搜索结果报告(ROC-AUC评估)
+    为交叉验证创建训练集和测试集索引
+    Parameters
+    ----------
+    X : DataFrame
+        总数据集
+    y : Series
+        总标签集
+    n_repeats : int
+        重复次数 n
+    n_splits : int
+        拆分次数 m
+    random_state : int
+        随机种子
+
+    Returns
+    -------
+    list
+        索引列表(训练集, 测试集)
+    '''
+    cv = RepeatedStratifiedKFold(n_repeats=n_repeats, n_splits=n_splits, random_state=random_state)
+    return [*cv.split(X, y)]
+
+def cross_validation(model, splits, X, y):
+    '''
+    交叉验证
 
     Parameters
     ----------
     model : object
         需要评估的模型
-    params : dict
-        调优后的模型参数
+    splits : list
+        分割集合
+    X : DataFrame
+        总数据集
+    y : Series  
+        标签
+    
+    Return
+    ----------
+    list
+        n x m 次模型交叉验证AUC值
+    '''
+    validation_results = []
+
+    for train_index, test_index in splits:
+        X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+        train_score, test_score = get_auc_score(model, X_train, X_test, y_train, y_test)
+        validation_results.append(test_score)
+    
+    return validation_results
+
+def get_auc_score(model, X_train:DataFrame, X_test:DataFrame, y_train:Series, y_test:Series):
+    '''
+    模型ROC-AUC评估
+
+    Parameters
+    ----------
+    model : object
+        需要评估的模型
     X_train : DataFrame
         训练集
     X_test : DataFrame
@@ -344,10 +405,13 @@ def _GS_result_report(model, params, X_train, X_test, y_train, y_test):
         训练集标签
     y_test : Series
         测试集标签
-
+    
+    Return
+    ----------
+    tuple(float, float)
+        训练集和测试集的ROC-AUC值
     '''
-    if params:
-        model.set_params(**params)
+
     model.fit(X_train, y_train)
     y_train_predicted = model.predict_proba(X_train)[:,1]
     y_test_predicted = model.predict_proba(X_test)[:,1]
@@ -355,9 +419,9 @@ def _GS_result_report(model, params, X_train, X_test, y_train, y_test):
     test_score = roc_auc_score(y_test, y_test_predicted)
     return train_score, test_score
 
-def get_best_SCP(X, y_true):
+def get_best_SCP(X:DataFrame, y_true:Series, lower_is_better:bool=True):
     '''
-    获取单构象最佳Performance ROC-AUC
+    获取单构象最佳Performance及其ROC-AUC值
 
     Parameters
     ----------
@@ -365,42 +429,62 @@ def get_best_SCP(X, y_true):
         训练集
     y_true : Series
         标签
+    lower_is_better : bool
+        是否为下降性指标
 
     Return
     ----------
-    float
-        best_SCP
+    tuple(str, float)
+        best_SCP, best_SCP_score
     '''
     results_dict = {}
     comformations = X.columns
     for comformation in comformations:
-        scp = X[comformation] * -1
+        if lower_is_better:
+            scp = X[comformation] * -1
+        else:
+            scp = X[comformation]
         results_dict[comformation] = roc_auc_score(y_true, scp)
     
-    best_scp = max(results_dict.values())
-    return best_scp   
+    return max(results_dict.items(), key=lambda x: x[1])
 
-def get_SCP_report(X, y, n_repeats:int=30, n_splits:int=4, random_state=42):
+def get_SCP_report(splits, X, y):
     '''
-    最佳SCP策略报告
+    SCP策略交叉测试报告
 
+    Parameters
+    ----------
+    splits : list   
+        索引列表(训练集, 测试集)
+    X : DataFrame
+        总数据集
+    y : Series
+        标签
+
+    Return
+    ----------
+    list
+        SCP策略测试AUC值
     '''
-    cv = RepeatedStratifiedKFold(n_splits=n_splits, n_repeats=n_repeats, random_state=random_state)
-    splits = [*cv.split(X, y)]
+
     scp_performance = []
 
     for train_index, test_index in splits:
         X_train, X_test = X.iloc[train_index], X.iloc[test_index]
         y_train, y_test = y.iloc[train_index], y.iloc[test_index]
-        best_scp = get_best_SCP(X_test, y_test)
-        scp_performance.append(best_scp)
+        best_scp_score = get_best_SCP(X_test, y_test)[1]
+        scp_performance.append(best_scp_score)
         
-    logger.info('SCP score: %.4f' % (np.mean(scp_performance)))
-    logger.info('SCP Max score: %.4f' % (np.max(scp_performance)))
-    logger.info('SCP std: %.4f' % (np.std(scp_performance)))
-    
+    _mean = np.mean(scp_performance)
+    _max = np.max(scp_performance)
+    _std = np.std(scp_performance)
+    logger.info('SCP score: %.4f' % (_mean))
+    logger.info('SCP Max score: %.4f' % (_max))
+    logger.info('SCP std: %.4f' % (_std))
 
-def CV_model_evaluation(models:dict, X:pd.DataFrame, y:pd.Series, n_repeats=30, n_splits=4, random_state=42, scoring='roc_auc'):
+    return scp_performance
+    
+def CV_model_evaluation(models:dict, X:DataFrame, y:Series, n_repeats=30, n_splits=4, random_state=42, plot:bool=False):
     '''
     (30)x(4)模型评估
 
@@ -413,21 +497,21 @@ def CV_model_evaluation(models:dict, X:pd.DataFrame, y:pd.Series, n_repeats=30, 
     y : Series
         总标签
     n_repeats : int
-        训练次数
+        训练次数 n
     n_splits : int
-        数据集分割数
+        数据集分割数 k
     random_state : int
         随机种子
-    scoring : str
-        评估标准
+    plot : bool
+        是否绘制ROC图
     
     Return
     ----------
     dict
-        模型评估结果
+        模型交叉评估AUC结果列
     '''
-    cv = RepeatedStratifiedKFold(n_splits=n_splits, n_repeats=n_repeats, random_state=random_state)
-    splits = [*cv.split(X, y)]
+
+    splits = get_splits(X, y, n_repeats, n_splits, random_state)
     final_results = {}
 
     for model_name, model in models.items():
@@ -435,43 +519,18 @@ def CV_model_evaluation(models:dict, X:pd.DataFrame, y:pd.Series, n_repeats=30, 
         logger.info('Evaluating model: %s' % model_name)
         _current_result = []
 
-        # n_repeats x n_splits 交叉验证 
-        for train_index, test_index in splits:
-            X_train, X_test = X.iloc[train_index], X.iloc[test_index]
-            y_train, y_test = y.iloc[train_index], y.iloc[test_index]
-            if model_name.startswith('ml_'):
-                train_score, test_score = _GS_result_report(model, None, X_train, X_test, y_train, y_test)
-            elif model_name.startswith('cs_'):
+        if model_name.startswith('ml_'):
+            _current_result = cross_validation(model, splits, X, y)
+        elif model_name.startswith('cs_'):
+            for train_index, test_index in splits:
+                X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+                y_train, y_test = y.iloc[train_index], y.iloc[test_index]
                 y_predicted = model(X_test.replace(0, np.nan)) * -1
                 test_score = roc_auc_score(y_test, y_predicted)
-            _current_result.append(test_score)
+                _current_result.append(test_score)
 
-        final_results[model_name] = np.mean(_current_result)
-        logger.info('%s CV score: %s' % (model_name, final_results[model_name]))
-    logger.info('Final results: %s' % final_results)
+        final_results[model_name] = _current_result
+        _mean = np.mean(_current_result)
+        logger.info('%s CV score: %s' % (model_name, _mean))
+
     return final_results
-
-def _get_model_params(model_name, params_file):
-    '''
-    获取模型参数
-
-    Parameters
-    ----------
-    model_name : str
-        模型名称
-    params_file : str
-        模型参数文件
-
-    Return
-    ----------
-    dict
-        模型参数
-    '''
-    if model_name.startswith('ml_'):
-        params = pd.read_csv(params_file).to_dict()
-    elif model_name.startswith('cs_'):
-        params = None
-    else:
-        raise ValueError('Invalid model name: %s' % model_name)
-    return params
-
