@@ -212,7 +212,7 @@ class Dancer_ML(Dancer):
         self.params_file = None
         self.params = None
         self.splits = None
-        self.RANDOM_STATE = 0
+        self.RANDOM_STATE = 42
         self.test_size = 0.2
         self._train_test_split(self.test_size)
 
@@ -235,7 +235,7 @@ class Dancer_ML(Dancer):
     
     def get_splits(self, repeats:int=30, cv:int=4):
         '''
-        得到训练集和测试集的索引
+        得到多重交叉验证的训练集和测试集的索引
         '''
         self.splits = core.get_splits(self.docking_data, self.activity_data, repeats, cv, self.RANDOM_STATE)
 
@@ -252,28 +252,17 @@ class Dancer_ML(Dancer):
         if method == 'GBT':
             self.method = 'ml_XGBClassifier'
             self.params_file = 'best_params_XGBClassifier.json'
-            try:
-                from xgboost import XGBClassifier
-                self.model = XGBClassifier()
-            except ImportError:
-                raise ImportError('xgboost is not installed.')
+            self.model = algorithm.gbt_classifier()
         elif method == 'LR':
             self.method = 'ml_LogisticRegression'
             self.params_file = 'best_params_LogisticRegression.json'
-            try:
-                from sklearn.linear_model import LogisticRegression
-                self.model = LogisticRegression()
-            except ImportError:
-                raise ImportError('sklearn is not installed.')
+            self.model = algorithm.logistic_regression()
         elif method == 'Dummy':
             self.method = 'ml_DummyClassifier'
             self.params_file = 'best_params_DummyClassifier.json'
-            try:
-                from sklearn.dummy import DummyClassifier
-                self.model = DummyClassifier(strategy='stratified')
-                self.eva_models[self.method] = self.model
-            except ImportError:
-                raise ImportError('sklearn is not installed.')
+            self.model = algorithm.dummy_classifier(strategy='stratified')
+            self.eva_models[self.method] = self.model
+
         logger.debug('Method %s has been set.' % self.method)
         
         if os.path.exists(self.params_file):
@@ -302,6 +291,14 @@ class Dancer_ML(Dancer):
     def hyperparam_tuning(self, param_grid:dict, method:str='gird', *args, **kwargs):
         '''
         超参数调优
+
+        Parameters
+        ----------
+        param_grid : dict
+            超参数取值范围字典
+        method : str
+            调优方法
+                grid, random
         '''
         logger.debug('Current Model: %s' % self.method)
         logger.debug('Params Grid:\n%s' % param_grid)
@@ -348,6 +345,7 @@ class Dancer_ML(Dancer):
         ROC曲线
         '''
         model_predicts = []
+        # 测试集验证
         X = self.X_test
         y = self.y_test
 

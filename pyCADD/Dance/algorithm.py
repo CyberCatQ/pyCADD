@@ -126,9 +126,9 @@ def z_score(data: DataFrame, ratio: tuple = (0.7, 0.3)):
 
     return z_score_receptor, z_score_ligand, z_score_combined
 
-
+'''
 def relative(data: DataFrame):
-    '''
+    
     相对分数 : 与(单个)参考值的相对比值
     Parameters
     ----------
@@ -139,7 +139,7 @@ def relative(data: DataFrame):
     ----------
     DataFrame
         相对分数结果数据
-    '''
+    
     _processed = []
     for column in data.columns:
         try:
@@ -150,3 +150,51 @@ def relative(data: DataFrame):
             _processed.append(data[column])
         
     return pd.DataFrame(_processed).T
+'''
+# Machine Learning
+
+def gbt_classifier(**params):
+    '''
+    梯度提升树
+    Parameters
+    ----------
+    params : dict
+        超参数
+    '''
+    try:
+        from xgboost import XGBClassifier
+    except ImportError:
+        raise RuntimeError('XGBoost is not installed.')
+    
+    return XGBClassifier(**params)
+
+def logistic_regression(**params):
+    '''
+    逻辑回归
+    Parameters
+    ----------
+    params : dict
+        超参数
+    '''
+    try:
+        from sklearn.linear_model import LogisticRegression
+    except ImportError:
+        raise RuntimeError('Sklearn is not installed.')
+    
+    return LogisticRegression(**params)
+
+def dummy_classifier(**params):
+    '''
+    简单规则预测分类器
+
+    Parameters
+    ----------
+    params : dict
+        超参数
+    '''
+    try:
+        from sklearn.dummy import DummyClassifier
+    except ImportError:
+        raise RuntimeError('Sklearn is not installed.')
+    
+    return DummyClassifier(**params)
