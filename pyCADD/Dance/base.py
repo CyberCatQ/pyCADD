@@ -206,7 +206,7 @@ class Dancer_ML(Dancer):
 
     def __init__(self, file_path=None, label_col=None) -> None:
         super().__init__(file_path, label_col)
-        self.support_methods = ['Dummy', 'GBT', 'LR']
+        self.support_methods = ['Dummy', 'GBT', 'LR', 'RF', 'NBC']
         self.method = None
         self.model = None
         self.params_file = None
@@ -262,7 +262,15 @@ class Dancer_ML(Dancer):
             self.params_file = 'best_params_DummyClassifier.json'
             self.model = algorithm.dummy_classifier(strategy='stratified')
             self.eva_models[self.method] = self.model
-
+        elif method == 'RF':
+            self.method = 'ml_RandomForestClassifier'
+            self.params_file = 'best_params_RandomForestClassifier.json'
+            self.model = algorithm.randomforest_classifier()
+        elif method == 'NBC':
+            self.method = 'ml_GaussianNB'
+            self.params_file = 'best_params_GaussianNB.json'
+            self.model = algorithm.naive_bayes_classifier()
+            
         logger.debug('Method %s has been set.' % self.method)
         
         if os.path.exists(self.params_file):
@@ -288,7 +296,7 @@ class Dancer_ML(Dancer):
         self.model.set_params(**params)
         self.eva_models[self.method] = self.model
     
-    def hyperparam_tuning(self, param_grid:dict, method:str='gird', *args, **kwargs):
+    def hyperparam_tuning(self, param_grid:dict, method:str='grid', *args, **kwargs):
         '''
         超参数调优
 

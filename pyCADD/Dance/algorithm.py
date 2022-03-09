@@ -198,3 +198,35 @@ def dummy_classifier(**params):
         raise RuntimeError('Sklearn is not installed.')
     
     return DummyClassifier(**params)
+
+def randomforest_classifier(**params):
+    '''
+    随机森林分类器
+
+    Parameters
+    ----------
+    params : dict
+        超参数
+    '''
+    try:
+        from sklearn.ensemble import RandomForestClassifier
+    except ImportError:
+        raise RuntimeError('Sklearn is not installed.')
+    
+    return RandomForestClassifier(**params)
+
+def naive_bayes_classifier(**params):
+    '''
+    朴素贝叶斯分类器
+
+    Parameters
+    ----------
+    params : dict
+        超参数
+    '''
+    try:
+        from sklearn.naive_bayes import GaussianNB
+    except ImportError:
+        raise RuntimeError('Sklearn is not installed.')
+    
+    return GaussianNB(**params)
