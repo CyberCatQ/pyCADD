@@ -245,6 +245,7 @@ class Dancer_ML(Dancer):
         '''
         self.model = None
         self.params_file = None
+        self.parms = None
 
         if method not in self.support_methods:
             raise ValueError('Method %s is not supported.' % method)
@@ -261,7 +262,6 @@ class Dancer_ML(Dancer):
             self.method = 'ml_DummyClassifier'
             self.params_file = 'best_params_DummyClassifier.json'
             self.model = algorithm.dummy_classifier(strategy='stratified')
-            self.eva_models[self.method] = self.model
         elif method == 'RF':
             self.method = 'ml_RandomForestClassifier'
             self.params_file = 'best_params_RandomForestClassifier.json'
@@ -270,16 +270,25 @@ class Dancer_ML(Dancer):
             self.method = 'ml_GaussianNB'
             self.params_file = 'best_params_GaussianNB.json'
             self.model = algorithm.naive_bayes_classifier()
-            
-        logger.debug('Method %s has been set.' % self.method)
         
+        self.eva_models[self.method] = self.model
+        logger.debug('Method %s has been set.' % self.method)
+
+    def check_params_file(self):
+        '''
+        尝试检查参数文件是否存在
+        '''
         if os.path.exists(self.params_file):
             if Confirm.ask('Params file %s exists, Use it?' % self.params_file, default=True):
                 self.params = json.load(open(self.params_file))
                 self.set_params(self.params)
-                logger.info('Params have been set:\n %s' % self.model.get_params())
+                return True
             else:
                 logger.info('Params file %s has been ignored.' % self.params_file)
+                return False
+        else:
+            logger.info('Params file %s does not exists.' % self.params_file)
+            return False
 
     def set_params(self, params:dict=None):
         '''
@@ -294,7 +303,7 @@ class Dancer_ML(Dancer):
         else:
             self.params = params
         self.model.set_params(**params)
-        self.eva_models[self.method] = self.model
+        logger.info('Params have been set:\n %s' % self.model.get_params())
     
     def hyperparam_tuning(self, param_grid:dict, method:str='grid', *args, **kwargs):
         '''
@@ -319,9 +328,8 @@ class Dancer_ML(Dancer):
         训练模型
         '''
         if not self.params:
-            logger.error('Params have not been set.')
-            return
-        
+            logger.info('Params have not been set, use default params.')
+
         self.model.fit(self.X_train, self.y_train)
         logger.info('Model %s has been trained.' % self.method)
     
@@ -348,7 +356,7 @@ class Dancer_ML(Dancer):
             return
         self.evaluation_results = core.CV_model_evaluation(self.eva_models, self.X, self.y, random_state=self.RANDOM_STATE)
     
-    def roc_auc(self):
+    def roc_auc(self, save:bool=False):
         '''
         ROC曲线
         '''
@@ -363,5 +371,5 @@ class Dancer_ML(Dancer):
             elif model_name.startswith('ml_'):
                 model_predicts.append(Series(model.predict_proba(X)[:, 1] * -1, name=model_name, index=X.index))
 
-        core.get_roc(self.merge(model_predicts), y)
+        core.get_roc(self.merge(model_predicts), y, save=save)
 
