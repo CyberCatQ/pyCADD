@@ -338,6 +338,7 @@ def hyperparam_tuning(model, param_gird:dict, X:DataFrame, y:Series, scoring:str
 def get_splits(X:DataFrame, y:Series, n_repeats:int=30, n_splits:int=4, random_state:int=42):
     '''
     为交叉验证创建训练集和测试集索引
+
     Parameters
     ----------
     X : DataFrame
@@ -493,9 +494,9 @@ def CV_model_evaluation(models:dict, X:DataFrame, y:Series, n_repeats=30, n_spli
     models : dict
         所有需要评估的模型 {'model_name': model}
     X : DataFrame
-        总数据集
+        训练数据集
     y : Series
-        总标签
+        训练集标签
     n_repeats : int
         训练次数 n
     n_splits : int
