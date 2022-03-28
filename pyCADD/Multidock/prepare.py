@@ -73,6 +73,7 @@ def split_ligand(maefile:str, dirname:str='./') -> list:
         f.write('Ligand,activity\n')
         for st_name, st_activity in label_list:
             f.write('%s,%s\n' % (st_name, st_activity))
+    logger.debug('Ligand label file created: %s' % (dirname + 'label.csv'))
 
     progress.stop()
     return ligand_list

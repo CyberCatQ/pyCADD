@@ -239,7 +239,7 @@ def dock(lig_file_path:str, grid_file_path:str, precision:str='SP', calc_rmsd:bo
     # 如果已有对接成功文件 跳过对接步骤
     if os.path.exists(dock_file):     
         logger.debug('File %s is existed.\n' % dock_file)    
-        logger.info('%s-%s Glide Docking Completed' % (pdbid, lig_name))                         
+        logger.debug('%s-%s Glide Docking Completed' % (pdbid, lig_name))                         
         return dock_file
 
     with open('%s_%s_glide_dock_%s_%s.in' % (pdbid, internal_ligand, lig_name, precision), 'w') as input_file:
@@ -260,7 +260,7 @@ def dock(lig_file_path:str, grid_file_path:str, precision:str='SP', calc_rmsd:bo
         logger.warning('%s-%s Glide Docking Failed' % (pdbid, lig_name))
         return
     os.system('mv %s-%s-Glide-Dock-%s-%s_pv.maegz %s_%s_glide_dock_%s_%s.maegz' % (pdbid, internal_ligand, lig_name, precision, pdbid, internal_ligand, lig_name, precision))
-    logger.info('%s-%s Glide Docking Completed' % (pdbid, lig_name))
+    logger.debug('%s-%s Glide Docking Completed' % (pdbid, lig_name))
     logger.debug('Docking Result File: %s_%s_glide_dock_%s_%s.maegz Saved.' % (pdbid, internal_ligand, lig_name, precision))
 
     return dock_file
