@@ -8,14 +8,18 @@ from pyCADD.utils.check import check_file
 from schrodinger import structure as struc
 logger = logging.getLogger('pyCADD.data')
 
-def extra_data(file_path:str) -> dict:
+def extra_data(file_path:str, extra_ligand_file:bool=False, lig_pos_dir:str=None) -> dict:
     '''
-    从对接或计算完成的Maestro文件中提取一般数据
+    从对接或计算完成的Maestro文件中提取一般数据或配体文件
 
     Parameters
     ----------
     file_path : str
         对接完成的文件PATH
+    extra_ligand_file : bool
+        是否需要提取配体文件
+    lig_pos_dir : str
+        配体文件要保存到的路径(仅在extra_ligand_file为True时有效)
 
     Return
     ----------
@@ -94,6 +98,11 @@ def extra_data(file_path:str) -> dict:
             prop_dic['Volume'] = site_st.property['r_sitemap_volume']
         except KeyError:
             pass
+    
+    if extra_ligand_file:
+        lig_pos_dir = lig_pos_dir if lig_pos_dir is not None else './lig_postures'
+        os.mkdir(lig_pos_dir, exist_ok=True)
+        lig_st.write('%s/%s_ligpos.mae' % (lig_pos_dir, file))
     
     return prop_dic
 

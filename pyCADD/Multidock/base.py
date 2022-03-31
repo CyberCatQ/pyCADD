@@ -85,6 +85,7 @@ class Multidock:
         '''
         self.ligand_list = core.read_ligands(file_path, self.ligands_dir)
         logger.info('Loaded ligands file: %s' % file_path)
+        # logger.debug('Size of ligand list: %s' % self.ligand_list.__sizeof__())
    
     def map(self):
         '''
@@ -94,6 +95,7 @@ class Multidock:
         self.mapping = core.map(self.receptor_list, self.ligand_list)
         self.job_count = len(self.mapping)
         # logger.debug("Map: %s" % str(self.mapping))
+        # logger.debug('Size of mapping: %s' % self.mapping.__sizeof__())
         logger.info('Number of all jobs: %s' % self.job_count)
         logger.info('Create mapping complete.')
 

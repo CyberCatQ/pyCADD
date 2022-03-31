@@ -10,6 +10,7 @@ from pyCADD.utils.tool import mkdirs, _get_progress
 from concurrent.futures import ProcessPoolExecutor
 
 logger = logging.getLogger('pyCADD.Multidock.core')
+CPU_NUM = os.cpu_count() - 12
 
 def read_receptors(list_file_path:str) -> list:
     '''
@@ -137,7 +138,7 @@ def multi_minimize(pdblist:list):
     # 暂时进入minimize文件存放目录 以优化晶体并保存结构文件于此处
     os.chdir(minimize_dir)
     # 最大进程数为CPU核心数量 1:1
-    pool = multiprocessing.Pool(os.cpu_count(), maxtasksperchild=1)
+    pool = multiprocessing.Pool(CPU_NUM, maxtasksperchild=1)
     # 进度条
     progress.start_task(task)
     for pdbfile in pdbfiles:
@@ -175,7 +176,7 @@ def multi_grid_generate(receptor_list:list):
 
     # 暂时进入grid文件存放目录 计算格点文件并保存结构于此处
     os.chdir(grid_dir)
-    pool = multiprocessing.Pool(os.cpu_count(), maxtasksperchild=1)
+    pool = multiprocessing.Pool(CPU_NUM, maxtasksperchild=1)
 
     for pdbid, lig in receptor_list:
         st_file_path = minimize_dir + '%s_minimized.mae' % pdbid
@@ -229,7 +230,7 @@ def multi_split(receptor_list:list):
         _update()
     # 暂时进入复合物存放的文件夹准备拆分复合物
     os.chdir(complex_dir)
-    pool = multiprocessing.Pool(os.cpu_count(), maxtasksperchild=1)
+    pool = multiprocessing.Pool(CPU_NUM, maxtasksperchild=1)
 
     for pdbid, lig in receptor_list:
         complex_file_path = minimize_dir + '%s_minimized.mae' % pdbid
@@ -280,7 +281,7 @@ def self_dock(receptor_list:list, precision:str='SP', calc_rmsd:bool=True):
     logger.debug('Grid files will be used in %s' % grid_dir)
     logger.debug('Ligand files will be used in %s' % ligand_dir)
 
-    pool = multiprocessing.Pool(os.cpu_count(), maxtasksperchild=1)
+    pool = multiprocessing.Pool(CPU_NUM, maxtasksperchild=1)
 
     for pdbid, lig in receptor_list:
         lig_file_path = ligand_dir + '%s-lig-%s.mae' % (pdbid, lig)
@@ -323,11 +324,10 @@ def multi_dock(mapping, precision:str='SP'):
         logger.error(error)
     '''
 
-    cpu = os.cpu_count()
-    logger.debug('Using Number of CPU: %s' % cpu)
+    logger.debug('Using Number of CPU: %s' % CPU_NUM)
     
     # ProcessPoolExecutor 需要python >= 3.3
-    with ProcessPoolExecutor(cpu) as pool:
+    with ProcessPoolExecutor(CPU_NUM) as pool:
         for pdbid, self_lig, ex_lig in mapping:
             grid_file_path = grid_dir + '%s_glide_grid_%s.zip' % (pdbid, self_lig)
             lig_file_path = ligand_dir + '%s.mae' % ex_lig
@@ -391,7 +391,7 @@ def multi_cal_mmgbsa(mapping, precision:str='SP'):
     def _update(*arg):
         progress.update(task, advance=1)
 
-    pool = multiprocessing.Pool(os.cpu_count(), maxtasksperchild=1)
+    pool = multiprocessing.Pool(CPU_NUM, maxtasksperchild=1)
     for pdbid, self_lig, ex_lig in mapping:
         dock_file_path = '%s_%s_glide_dock_%s_%s.maegz' % (pdbid, self_lig, ex_lig, precision)
         pool.apply_async(cal_mmgbsa_in_pdbdir, (pdbid, dock_file_path), error_callback=error_handler, callback=_update)
