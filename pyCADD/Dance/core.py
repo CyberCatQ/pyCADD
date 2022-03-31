@@ -7,7 +7,7 @@ import logging
 import json
 
 from pandas import DataFrame, Series
-from sklearn.metrics import roc_auc_score, roc_curve
+from sklearn.metrics import roc_auc_score, roc_curve, f1_score, precision_score, recall_score, accuracy_score
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.model_selection import RepeatedStratifiedKFold
 
@@ -360,39 +360,9 @@ def get_splits(X:DataFrame, y:Series, n_repeats:int=30, n_splits:int=4, random_s
     cv = RepeatedStratifiedKFold(n_repeats=n_repeats, n_splits=n_splits, random_state=random_state)
     return [*cv.split(X, y)]
 
-def cross_validation(model, splits, X, y):
+def get_score(model, X_train:DataFrame, X_test:DataFrame, y_train:Series, y_test:Series, score):
     '''
-    交叉验证
-
-    Parameters
-    ----------
-    model : object
-        需要评估的模型
-    splits : list
-        分割集合
-    X : DataFrame
-        总数据集
-    y : Series  
-        标签
-    
-    Return
-    ----------
-    list
-        n x m 次模型交叉验证AUC值
-    '''
-    validation_results = []
-
-    for train_index, test_index in splits:
-        X_train, X_test = X.iloc[train_index], X.iloc[test_index]
-        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
-        train_score, test_score = get_auc_score(model, X_train, X_test, y_train, y_test)
-        validation_results.append(test_score)
-    
-    return validation_results
-
-def get_auc_score(model, X_train:DataFrame, X_test:DataFrame, y_train:Series, y_test:Series):
-    '''
-    模型ROC-AUC评估
+    模型评估
 
     Parameters
     ----------
@@ -406,6 +376,8 @@ def get_auc_score(model, X_train:DataFrame, X_test:DataFrame, y_train:Series, y_
         训练集标签
     y_test : Series
         测试集标签
+    score : callable
+        评估方法
     
     Return
     ----------
@@ -416,8 +388,8 @@ def get_auc_score(model, X_train:DataFrame, X_test:DataFrame, y_train:Series, y_
     model.fit(X_train, y_train)
     y_train_predicted = model.predict_proba(X_train)[:,1]
     y_test_predicted = model.predict_proba(X_test)[:,1]
-    train_score = roc_auc_score(y_train, y_train_predicted)
-    test_score = roc_auc_score(y_test, y_test_predicted)
+    train_score = score(y_train, y_train_predicted)
+    test_score = score(y_test, y_test_predicted)
     return train_score, test_score
 
 def get_best_SCP(X:DataFrame, y_true:Series, lower_is_better:bool=True):
@@ -484,8 +456,40 @@ def get_SCP_report(splits, X, y):
     logger.info('SCP std: %.4f' % (_std))
 
     return scp_performance
+
+def cross_validation(model, splits, X, y, score):
+    '''
+    交叉验证
+
+    Parameters
+    ----------
+    model : object
+        需要评估的模型
+    splits : list
+        分割集合
+    X : DataFrame
+        总数据集
+    y : Series  
+        标签
+    score : callable
+        评估方法
     
-def CV_model_evaluation(models:dict, X:DataFrame, y:Series, n_repeats=30, n_splits=4, random_state=42, plot:bool=False):
+    Return
+    ----------
+    list
+        n x m 次模型交叉验证AUC值
+    '''
+    validation_results = []
+
+    for train_index, test_index in splits:
+        X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+        train_score, test_score = get_score(model, X_train, X_test, y_train, y_test, score)
+        validation_results.append(test_score)
+    
+    return validation_results
+
+def CV_model_evaluation(models:dict, X:DataFrame, y:Series, n_repeats=30, n_splits=4, random_state=42, plot:bool=False, score_name:str='AUC'):
     '''
     (30)x(4)模型评估
 
@@ -514,24 +518,38 @@ def CV_model_evaluation(models:dict, X:DataFrame, y:Series, n_repeats=30, n_spli
 
     splits = get_splits(X, y, n_repeats, n_splits, random_state)
     final_results = {}
+    if score_name == 'AUC':
+        score = roc_auc_score
+    elif score_name == 'F1':
+        score = f1_score
+    elif score_name == 'Accuracy':
+        score = accuracy_score
+    elif score_name == 'Precision':
+        score = precision_score
+    elif score_name == 'Recall':
+        score = recall_score
+    else:
+        raise ValueError('score_name must be one of AUC, F1, Accuracy, Precision, Recall')
 
     for model_name, model in models.items():
 
         logger.info('Evaluating model: %s' % model_name)
-        _current_result = []
-
-        if model_name.startswith('ml_'):
-            _current_result = cross_validation(model, splits, X, y)
-        elif model_name.startswith('cs_'):
-            for train_index, test_index in splits:
-                X_train, X_test = X.iloc[train_index], X.iloc[test_index]
-                y_train, y_test = y.iloc[train_index], y.iloc[test_index]
-                y_predicted = model(X_test.replace(0, np.nan)) * -1
-                test_score = roc_auc_score(y_test, y_predicted)
-                _current_result.append(test_score)
-
+        _current_result = cross_validation(model, splits, X, y, score)
         final_results[model_name] = _current_result
+
         _mean = np.mean(_current_result)
-        logger.info('%s CV score: %s' % (model_name, _mean))
+        logger.info('%s CV %s mean score: %s' % (model_name, score_name, _mean))
+
+    
+    if plot:
+        scp_performance = get_SCP_report(splits, X, y)
+        plt.figure(figsize=(20, 20))
+        result_df = pd.DataFrame(final_results)
+        plt.axhline(np.max(scp_performance), color='r', linestyle='--', lw=2)
+        plt.axhline(np.mean(scp_performance), color='y', linestyle='--', lw=2)
+        plt.axhline(0.5, color='g', linestyle='--', lw=2)
+        plt.legend(['Max SCP', 'Mean SCP', 'Random'], loc='lower right')
+        sns.violinplot(data=result_df, palette='Set2', inner='point', split=True)
+        plt.show()
 
     return final_results

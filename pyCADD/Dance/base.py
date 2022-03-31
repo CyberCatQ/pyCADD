@@ -194,7 +194,7 @@ class Dancer:
         '''
         logger.debug('correlation method: %s' % method)
         self.corr_data = core.correlate(self.docking_data)
-        self.corr_data.to_csv('results/correlation.csv')
+        #self.corr_data.to_csv('results/correlation.csv')
         heatmap_file = core.heatmap(self.corr_data, 0, 1, save)
         if save:
             logger.debug('%s saved.' % heatmap_file)
@@ -298,10 +298,10 @@ class Dancer_ML(Dancer):
         params : dict 
             超参数字典
         '''
-        if params:
-            params = self.params
-        else:
+        if params is not None:
             self.params = params
+        else:
+            params = self.params
         self.model.set_params(**params)
         logger.info('Params have been set:\n %s' % self.model.get_params())
     
@@ -333,13 +333,16 @@ class Dancer_ML(Dancer):
         self.model.fit(self.X_train, self.y_train)
         logger.info('Model %s has been trained.' % self.method)
     
-    def consensus_scoring(self):
+    def add_consensus_scoring(self):
         '''
-        共识评分
+        结果中加入共识评分方法:
+            平均值
+            几何平均值
+            最小值
         '''
-        self.eva_models['cs_mean'] = algorithm.average
-        self.eva_models['cs_geo'] = algorithm.geo_average
-        self.eva_models['cs_min'] = algorithm.minimum
+        self.eva_models['cs_mean'] = algorithm.Average(lower_is_better=True)
+        self.eva_models['cs_geo'] = algorithm.Geo_Average(lower_is_better=True)
+        self.eva_models['cs_min'] = algorithm.Minimum(lower_is_better=True)
 
     def scp_report(self):
         '''

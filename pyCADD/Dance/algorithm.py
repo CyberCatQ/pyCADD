@@ -1,8 +1,135 @@
 # 数据融合规则算法
 import pandas as pd
+import numpy as np
 from pandas import DataFrame, Series
 
+# 包装为类
+class Consensus:
+    '''
+    共识算法基类
+    '''
+    def __init__(self, X:DataFrame=None, y:Series=None, lower_is_better=False):
+        '''
+        Parameters
+        ----------
+        data : DataFrame
+            待计算数据
+        lower_is_better : bool
+            是否为下降性指标
+        '''
+        self.X = X
+        self.y = y
+        self.result = None
+        self.lower_is_better = lower_is_better
+    
+    def fit(self):
+        '''
+        共识算法计算
+        '''
+        raise NotImplementedError
+    
+    def predict(self, X:DataFrame=None, y:Series=None):
+        if X is not None:
+            self.fit(X, y)
+        return self.result if self.result is not None else None
 
+    def predict_proba(self, X:DataFrame=None, y:Series=None):
+        '''
+        按照计算结果进行预测
+        '''
+        if X is not None:
+            self.fit(X, y)
+        return pd.DataFrame(self.result).reset_index().to_numpy() if self.result is not None else None
+
+    def score(self, method, labels=None):
+        '''
+        评分
+        Parameters
+        ----------
+        method : callable
+            评分函数
+        labels : list | ndarray | Series
+            实际标签
+        '''
+        if labels is not None:
+            self.y = labels
+        if self.y is None:
+            raise ValueError('labels is None')
+        return method(self.y, self.result) if self.result is not None else None
+
+class Average(Consensus):
+    '''
+    算数平均值模型
+    '''
+    def __init__(self, X=None, y=None, lower_is_better=False):
+        super().__init__(X, y, lower_is_better)
+        self.result = None
+        
+    def fit(self, X:DataFrame=None, y:Series=None):
+        '''
+        计算算数平均
+        '''
+        self.X = X.replace(0, np.nan) if X is not None else self.X
+        self.y = y if y is not None else self.y
+        self.result = self.X.mean(axis=1)
+        if self.lower_is_better:
+            self.result = -1 * self.result
+
+class Geo_Average(Consensus):
+    '''
+    几何平均值模型
+    '''
+    def __init__(self, X=None, y=None, lower_is_better=False):
+        super().__init__(X, y, lower_is_better)
+        self.result = None
+        
+    def fit(self, X:DataFrame=None, y:Series=None):
+        '''
+        计算几何平均
+        '''
+        self.X = X.replace(0, np.nan) if X is not None else self.X
+        self.y = y if y is not None else self.y
+        self.result = Series(-1 * pow(self.X.prod(axis=1).abs(), 1/self.X.notna().sum(axis=1)), name='GEO')
+        if self.lower_is_better:
+            self.result = -1 * self.result
+
+class Minimum(Consensus):
+    '''
+    最小值模型
+    '''
+    def __init__(self, X=None, y=None, lower_is_better=False):
+        super().__init__(X, y, lower_is_better)
+        self.result = None
+        
+    def fit(self, X:DataFrame=None, y:Series=None):
+        '''
+        计算几何平均
+        '''
+        self.X = X.replace(0, np.nan) if X is not None else self.X
+        self.y = y if y is not None else self.y
+        self.result = self.X.min(axis=1)
+        if self.lower_is_better:
+            self.result = -1 * self.result
+
+class Maximum(Consensus):
+    '''
+    最大值模型
+    '''
+    def __init__(self, X=None, y=None, lower_is_better=False):
+        super().__init__(X, y, lower_is_better)
+        self.result = None
+        
+    def fit(self, X:DataFrame=None, y:Series=None):
+        '''
+        计算几何平均
+        '''
+        self.X = X.replace(0, np.nan) if X is not None else self.X
+        self.y = y if y is not None else self.y
+        self.result = self.X.max(axis=1)
+        if self.lower_is_better:
+            self.result = -1 * self.result
+
+# 函数
 def average(data: DataFrame, method: str = 'ave'):
     '''
     平均值算法 : 计算并生成DataFrame对接数据的平均值列  
