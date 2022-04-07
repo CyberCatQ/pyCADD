@@ -1,5 +1,6 @@
 import logging
 import os
+import warnings
 
 from pyCADD.utils.tool import mkdirs
 from pyCADD.Multidock import core, data
@@ -20,6 +21,7 @@ class Multidock:
         self.receptor_list = []
         self.ligand_list = []
         self.project_dir = get_project_dir()
+        warnings.filterwarnings("ignore")
         mkdirs(self.required_dir)
 
     # 一些必要的目录

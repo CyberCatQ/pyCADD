@@ -85,7 +85,7 @@ def minimize(pdbfile_path:str) -> str:
         logger.debug('File %s is existed.\n' % minimized_file)
         return minimized_file
 
-    prepwizard_command = 'prepwizard -f 3 -r 0.3 -propka_pH 7.0 -disulfides -s -j %s-Minimize %s %s' % (pdbfile.split('.')[0],
+    prepwizard_command = 'prepwizard -fillsidechains -fillloops -f 3 -r 0.3 -propka_pH 7.0 -disulfides -watdist 0.0 -s -j %s-Minimize %s %s' % (pdbfile.split('.')[0],
                                                                                                             pdbfile_path, minimized_file)
     launch(prepwizard_command)   # 阻塞至任务结束
 

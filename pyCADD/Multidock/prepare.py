@@ -128,5 +128,3 @@ def minimize_prepare(pdblist:list):
     cwd = get_project_dir()
     pdb_dir = cwd + '/pdb/'
     download_pdblist(pdblist, pdb_dir)
-
-
