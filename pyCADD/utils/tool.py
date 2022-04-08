@@ -141,3 +141,21 @@ class Myconfig(ConfigParser):
 
     def optionxform(self, optionstr):
         return optionstr
+
+def get_config(config_file: str) -> Myconfig:
+    '''
+    读取配置文件
+
+    Parameter
+    ----------
+    config_file : str
+        配置文件路径
+
+    Return
+    ----------
+    Myconfig
+        配置文件对象
+    '''
+    config = Myconfig()
+    config.read(config_file)
+    return config
