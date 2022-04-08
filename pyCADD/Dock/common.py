@@ -3,6 +3,8 @@ import os
 import logging
 
 from schrodinger import structure as struc
+from schrodinger.job import jobcontrol as jc
+from schrodinger.application.glide import poseviewconvert as pvc
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +18,7 @@ def check_pdb(pdb: str):
         合法返回True 否则返回False
     '''
 
-    if re.fullmatch(r'^\d[0-9a-zA-Z]{3,}$', pdb) is not None:
+    if re.fullmatch(r'^\d[0-9a-zA-Z]{3,}$', pdb):
         return True
     else:
         return False
@@ -45,6 +47,33 @@ def get_input_pdbid() -> str:
             else:
                 logger.warning('请输入正确的PDB ID!')
 
+def launch(cmd:str, timeout:int=None):
+    '''
+    使用jobcontrol启动一项job并等待结束
+
+    Parameters
+    ----------
+    cmd : str
+        等待执行的命令字符串
+    timeout : int
+        超时时限(秒)
+    '''
+
+    cmd_list = cmd.split(' ')  # launch_job以列表形式提交参数
+    job = jc.launch_job(cmd_list, timeout=timeout)
+    logger.debug('Command: %s' % cmd)
+    logger.debug('JobId: %s' % job.JobId)
+    logger.debug('Job Name: %s' % job.Name)
+    logger.debug('Job Status: %s\n' % job.Status)
+    job.wait()  # 阻塞进程 等待Job结束
+
+    # 如果任务失败
+    if not job.StructureOutputFile:
+        logger.debug('Job %s Failed' % job.Name)
+        return
+    else:
+        logger.debug('File %s saved.' % job.StructureOutputFile)
+
 class BaseFile:
     '''
     基本文件类型
@@ -54,6 +83,7 @@ class BaseFile:
         self.file_name = os.path.split(path)[-1]
         self.file_dir = os.path.split(path)[0]
         self.file_ext = os.path.splitext(path)[-1]
+        self.file_prefix = os.path.splitext(path)[0]
 
 class PDBFile(BaseFile):
     '''
@@ -67,7 +97,7 @@ class PDBFile(BaseFile):
             PDB文件路径
         '''
         super().__init__(path)
-        self.pdbid = os.path.split(path)[-1].split('.')[0]
+        self.pdbid = self.file_prefix
         
     def get_lig(self) -> list:
         '''
@@ -133,7 +163,16 @@ class MaestroFile(BaseFile):
     '''
     def __init__(self, path) -> None:
         super().__init__(path)
-        self.structure = self.get_first_structure(path)
+        _pdbid_from_file = self.file_prefix.split('_')[0]
+        self.pdbid = _pdbid_from_file if check_pdb(_pdbid_from_file) else None
+
+    @property
+    def st_reader(self):
+        return struc.StructureReader(self.file_path)
+
+    @property
+    def structure(self):
+        return self.get_first_structure(self.file_path)
     
     @staticmethod
     def get_first_structure(file_path: str):
@@ -234,7 +273,52 @@ class MaestroFile(BaseFile):
             mol = next(self._get_mol_obj(ligname))
 
         return mol.number
+    
+    def split(self, ligname:str) -> tuple:
+        '''
+        将Maestro文件分割为受体与配体
 
+        Parameter
+        ----------
+        ligname : str
+            配体小分子名称
+
+        Return
+        ----------
+        tuple
+            分割后的文件名(recepfile_PATH, ligfile_PATH)
+        '''
+        st = self.structure
+        pdbid = self.pdbid
+        _residue_list = [res for res in self.structure.residue if res.pdbres.strip() == ligname]
+        _res_info = ' '.join([res.chain + ':' + res.pdbres.strip() for res in _residue_list])
+
+        if len(_residue_list) != 1:
+            logger.debug(f'There are {len(_residue_list)} "{ligname}" in {self.file_name}: {_res_info}')
+            logger.debug('The First One is Selected.')
+        _residue = _residue_list[0]
+
+
+        complex_file = pvc.Complex(st, ligand_asl=_residue.getAsl(), ligand_properties=st.property.keys())
+
+        _lig_file = f'{pdbid}-lig-{ligname}.mae'
+        _recep_file = f'{pdbid}-pro-{ligname}.mae'
+        _complex_file = f'{pdbid}-com-{ligname}.mae'
+
+        complex_file.writeLigand(_lig_file)
+        complex_file.writeReceptor(_recep_file) 
+        complex_file.write(_complex_file)
+    
+        return _recep_file, _lig_file
+
+class GridFile(BaseFile):
+    def __init__(self, file_path: str):
+        super().__init__(file_path)
+        _pdbid_from_file = self.file_prefix.split('_')[0]
+        self.pdbid = _pdbid_from_file if check_pdb(_pdbid_from_file) else None
+        # 共结晶配体名称
+        # sample grid file name: 1FBY_glide-grid_9CR.mae
+        self.internal_ligand = self.file_prefix.split('_')[2]
 
 class ReceptorInputFile(BaseFile):
     '''
