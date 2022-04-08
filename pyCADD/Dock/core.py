@@ -1,7 +1,7 @@
 import os
 import logging
 
-from pyCADD.Dock.common import launch, PDBFile, MaestroFile, GridFile
+from pyCADD.Dock.common import launch, PDBFile, MaestroFile, GridFile, ComplexFile, DockResultFile
 
 logger = logging.getLogger(__name__)
 

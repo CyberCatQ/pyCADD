@@ -212,6 +212,13 @@ class MaestroFile(BaseFile):
         st.write(converted_file)
         return converted_file
 
+class ComplexFile(MaestroFile):
+    '''
+    Maestro单结构复合物文件类型
+    '''
+    def __init__(self, path) -> None:
+        super().__init__(path)
+
     def _get_mol_obj(self, ligname: str):   
         '''
         获取结构中的配体所在Molecule object
@@ -273,7 +280,7 @@ class MaestroFile(BaseFile):
             mol = next(self._get_mol_obj(ligname))
 
         return mol.number
-    
+
     def split(self, ligname:str) -> tuple:
         '''
         将Maestro文件分割为受体与配体
@@ -311,7 +318,33 @@ class MaestroFile(BaseFile):
     
         return _recep_file, _lig_file
 
+class DockResultFile(MaestroFile):
+    '''
+    Maestro对接结果文件类型
+        structure[0]: receptor
+        structure[1]: ligand
+    '''
+    def __init__(self, path) -> None:
+        super().__init__(path)
+
+class ReceptorFile(MaestroFile):
+    '''
+    Maestro受体文件类型
+    '''
+    def __init__(self, path) -> None:
+        super().__init__(path)
+
+class LigandFile(MaestroFile):
+    '''
+    Maestro配体文件类型
+    '''
+    def __init__(self, path) -> None:
+        super().__init__(path)
+
 class GridFile(BaseFile):
+    '''
+    网格文件类型(.zip)
+    '''
     def __init__(self, file_path: str):
         super().__init__(file_path)
         _pdbid_from_file = self.file_prefix.split('_')[0]
@@ -320,7 +353,7 @@ class GridFile(BaseFile):
         # sample grid file name: 1FBY_glide-grid_9CR.mae
         self.internal_ligand = self.file_prefix.split('_')[2]
 
-class ReceptorInputFile(BaseFile):
+class MultiInputFile(BaseFile):
     '''
     pyCADD受体列表输入文件
     '''
