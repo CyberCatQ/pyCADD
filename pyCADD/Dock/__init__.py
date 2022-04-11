@@ -1,0 +1,157 @@
+import logging
+import os
+
+from pyCADD.Dock.common import ComplexFile, LigandFile, PDBFile, ReceptorFile, DockResultFile, GridFile, get_input_pdbid
+from pyCADD.Dock.core import keep_chain, minimize, grid_generate, dock, calc_mmgbsa, calc_admet, calc_volume
+from pyCADD.Dock.data import extra_docking_data, extra_admet_data
+from pyCADD.utils.tool import download_pdb
+logger = logging.getLogger('pyCADD.Dock.Docker')
+class Docker:
+    '''
+    Ligand Docking 控制台对象
+    '''
+    
+    def __init__(self) -> None:
+        self.pdbid = get_input_pdbid()
+        pdb_file_path = os.path.join(os.getcwd(), self.pdbid + '.pdb')
+        if not os.path.exists(pdb_file_path):
+            download_pdb(self.pdbid, os.getcwd())
+        self.pdb_file = PDBFile(pdb_file_path)
+        self.lig_name = self.pdb_file.get_lig_name()
+
+        self.precision = None                         # 默认对接精度SP
+        self.calc_rmsd = False                        # 默认不计算RMSD
+
+        self.minimized_file = None                    # Minimized化完成的文件名
+        self.grid_file = None                         # 格点文件名
+        self.lig_file = None                          # 内源配体文件名
+        self.recep_file = None                        # 受体文件名
+        self.dock_file = None                         # 对接结果文件名
+        self.mmgbsa_file = None                       # 结合能计算结果文件名
+        self.sitemap_file = None                      # 结合口袋体积计算结果文件名
+        self.admet_file = None                        # ADMET计算结果文件名
+
+        self.data_dic = None                          # 一般计算结果字典
+        self.admet_dic = None                         # ADMET计算结果字典
+
+    def set_precision(self, precision: str) -> None:
+        '''
+        设置对接精度
+        '''
+        logger.info(f'Set precision: {precision}')
+        self.precision = precision
+    
+    def set_calc_rmsd(self, calc_rmsd: bool) -> None:
+        '''
+        设置是否计算RMSD
+        '''
+        logger.info(f'Set calc_rmsd: {calc_rmsd}')
+        self.calc_rmsd = calc_rmsd
+    
+    def minimize(self, side_chain:bool=True, missing_loop:bool=True, del_water:bool=True, *args, **kwargs) -> None:
+        '''
+        优化晶体并执行能量最小化
+
+        Parameters
+        ----------
+        side_chain : bool, optional
+            是否优化侧链, 默认True
+        missing_loop : bool, optional
+            是否优化缺失的loop, 默认True
+        del_water : bool, optional
+            是否删除水分子, 默认True
+        *args : list, optional
+            优化参数, 默认None
+        **kwargs : dict, optional
+            优化参数, 默认None
+        '''
+        logger.info(f'Prepare to optimize structure: {self.pdbid}')
+        self.minimized_file = minimize(self.pdb_file, side_chain=side_chain, missing_loop=missing_loop, del_water=del_water, *args, **kwargs)
+        logger.info(f'{self.pdbid} Minimized structure done')
+    
+    def grid_generate(self, *args, **kwargs) -> None:
+        '''
+        生成格点
+
+        Parameters
+        ----------
+        *args : list, optional
+            格点参数, 默认None
+        **kwargs : dict, optional
+            格点参数, 默认None
+        '''
+        logger.info(f'Prepare to generate grid: {self.pdbid}')
+        self.grid_file = grid_generate(self.minimized_file, self.lig_name, *args, **kwargs)
+        logger.info(f'{self.pdbid} Grid generated')
+    
+    def split_complex(self) -> None:
+        '''
+        拆分复合物结构
+        '''
+        logger.info(f'Prepare to split complex: {self.pdbid}')
+        self.recep_file, self.lig_file = self.minimized_file.split(self.lig_name)
+        logger.info(f'{self.pdbid} Split complex done')
+    
+    def dock(self, *args, **kwargs) -> None:
+        '''
+        对接
+
+        Parameters
+        ----------
+        *args : list, optional
+            对接参数, 默认None
+        **kwargs : dict, optional
+            对接参数, 默认None
+        '''
+        logger.info(f'Prepare to dock: {self.pdbid}')
+        self.dock_file = dock(self.lig_file, self.grid_file, self.precision, self.calc_rmsd, *args, **kwargs)
+        logger.info(f'{self.pdbid} {self.precision} Docking done')
+    
+    def calc_mmgbsa(self, *args, **kwargs) -> None:
+        '''
+        计算结合能
+
+        Parameters
+        ----------
+        *args : list, optional
+            计算结合能参数, 默认None
+        **kwargs : dict, optional
+            计算结合能参数, 默认None
+        '''
+        logger.info(f'Prepare to calculate MMGBSA: {self.pdbid}')
+        self.mmgbsa_file = calc_mmgbsa(self.dock_file, *args, **kwargs)
+        logger.info(f'{self.pdbid} MMGBSA calculated')
+    
+    def calc_volume(self, *args, **kwargs) -> None:
+        '''
+        计算结合口袋体积
+
+        Parameters
+        ----------
+        *args : list, optional
+            计算结合口袋体积参数, 默认None
+        **kwargs : dict, optional
+            计算结合口袋体积参数, 默认None
+        '''
+        logger.info(f'Prepare to calculate volume: {self.pdbid}')
+        self.sitemap_file = calc_volume(self.recep_file, self.lig_file, *args, **kwargs)
+        logger.info(f'{self.pdbid} Volume calculated')
+    
+    def calc_admet(self, *args, **kwargs) -> None:
+        '''
+        计算ADMET
+
+        Parameters
+        ----------
+        *args : list, optional
+            计算ADMET参数, 默认None
+        **kwargs : dict, optional
+            计算ADMET参数, 默认None
+        '''
+        logger.info(f'Prepare to calculate ADMET: {self.pdbid}')
+        self.admet_file = calc_admet(self.lig_file, *args, **kwargs)
+        logger.info(f'{self.pdbid} ADMET calculated')
+
+
+
+

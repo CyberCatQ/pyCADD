@@ -352,24 +352,40 @@ class DockResultFile(MaestroFile):
     '''
     def __init__(self, path) -> None:
         super().__init__(path)
-    
+        self.internal_ligand_name = self.file_prefix.split('_')[1]
+        self.docking_ligand_name = self.file_prefix.split('_')[3]
+        self.precision = self.file_prefix.split('_')[4]
+
     @property
     def merged_file(self) -> ComplexFile:
         '''
         合并对接结果的受体与配体为一个复合物文件
         '''
-        st = self.structure
-        pdbid = self.pdbid
+        st = self.structures
         _complex_file = f'{self.file_prefix}-complex.mae'
         _complex_st = st[0].merge(st[1], copy_props=True)    
         _complex_st.write(_complex_file)
         return ComplexFile(_complex_file)
 
+    @property
+    def docking_receptor_st(self) -> Structure:
+        '''
+        返回对接结果的受体结构
+        '''
+        return self.structures[0]
+
+    @property
+    def docking_ligand_st(self) -> Structure:
+        '''
+        返回对接结果的配体结构
+        '''
+        return self.structures[1]
+
     def get_receptor_file(self) -> ReceptorFile:
         '''
         获取对接结果中的受体文件
         '''
-        docking_recep_st = self.structure[0]
+        docking_recep_st = self.docking_receptor_st
         output_lig_file = f'{self.file_prefix}_recep_posture.mae'
         docking_recep_st.write(output_lig_file)
         return ReceptorFile(output_lig_file)
@@ -378,7 +394,7 @@ class DockResultFile(MaestroFile):
         '''
         获取对接结果中的配体姿势文件
         '''
-        docking_lig_st = self.structure[1]
+        docking_lig_st = self.docking_ligand_st
         output_lig_file = f'{self.file_prefix}_lig_posture.mae'
         docking_lig_st.write(output_lig_file)
         return LigandFile(output_lig_file)
