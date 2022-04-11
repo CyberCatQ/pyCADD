@@ -1,7 +1,7 @@
 import os
 import logging
 
-from pyCADD.Dock.common import launch, PDBFile, MaestroFile, GridFile, ComplexFile, DockResultFile
+from pyCADD.Dock.common import launch, PDBFile, MaestroFile, GridFile, LigandFile, ComplexFile, DockResultFile
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ def keep_chain(pdbfile:PDBFile, chain_name:str) -> PDBFile:
     st_chain_only.write(singlechain_file)
     return PDBFile(singlechain_file)
 
-def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_water:bool=True, overwrite:bool=False) -> MaestroFile:
+def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_water:bool=True, overwrite:bool=False) -> ComplexFile:
     '''
     调用prepwizard模块优化PDB结构
 
@@ -48,7 +48,7 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
     
     Return
     ----------
-    MaestroFile
+    ComplexFile
         完成优化后的Maestro文件
 
     '''
@@ -81,7 +81,7 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
         raise RuntimeError('%s Crystal Minimization Process Failed.' % pdbfile.pdbid)
     else:
         logger.debug('PDB minimized file: %s Saved.\n' % minimized_file)
-        return MaestroFile(minimized_file)
+        return ComplexFile(minimized_file)
 
 def grid_generate(maestrofile:MaestroFile, ligname:str, gridbox_size:int=20, overwrite:bool=False) -> GridFile:
     '''
@@ -136,13 +136,13 @@ def grid_generate(maestrofile:MaestroFile, ligname:str, gridbox_size:int=20, ove
     logger.debug('Grid File %s Generated.\n' % grid_file)
     return GridFile(grid_file)
 
-def dock(lig_file:MaestroFile, grid_file:GridFile, precision:str='SP', calc_rmsd:bool=False, overwrite:bool=False) -> MaestroFile:
+def dock(lig_file:LigandFile, grid_file:GridFile, precision:str='SP', calc_rmsd:bool=False, overwrite:bool=False) -> DockResultFile:
     '''
     一对一/多对一 glide dock任务输入文件编写与运行
 
     Parameters
     ----------
-    lig_file : MaestroFile
+    lig_file : LigandFile
         配体文件
     grid_file_path : GridFile
         格点文件
@@ -155,7 +155,7 @@ def dock(lig_file:MaestroFile, grid_file:GridFile, precision:str='SP', calc_rmsd
 
     Return
     ---------
-    MaestroFile
+    DockResultFile
         对接结果文件
     '''
     pdbid = grid_file.pdbid if grid_file.pdbid else 'unknown'
@@ -199,7 +199,7 @@ def dock(lig_file:MaestroFile, grid_file:GridFile, precision:str='SP', calc_rmsd
     logger.debug(f'{pdbid}-{docking_ligand} Glide Docking Completed')
     logger.debug(f'Docking Result File: {dock_result_file} Saved.')
 
-    return MaestroFile(dock_result_file)
+    return DockResultFile(dock_result_file)
 
 def calc_mmgbsa(complex_file:MaestroFile, overwrite:bool=False) -> MaestroFile:
     '''
@@ -240,7 +240,7 @@ def calc_mmgbsa(complex_file:MaestroFile, overwrite:bool=False) -> MaestroFile:
 
     return MaestroFile(mmgbsa_result_file)
 
-def calc_volume(recep_file:MaestroFile, lig_file:MaestroFile, overwrite:bool=False) -> MaestroFile:
+def calc_volume(recep_file:MaestroFile, lig_file:LigandFile, overwrite:bool=False) -> ComplexFile:
     '''
     Sitemap计算结合口袋体积
 
@@ -271,9 +271,9 @@ def calc_volume(recep_file:MaestroFile, lig_file:MaestroFile, overwrite:bool=Fal
         return None
 
     logger.debug('Sitemap Calculating File: %s Saved.\n' % sitemap_result_file)
-    return MaestroFile(sitemap_result_file)
+    return ComplexFile(sitemap_result_file)
 
-def calc_admet(lig_file:MaestroFile, overwrite:bool=False) -> MaestroFile:
+def calc_admet(lig_file:LigandFile, overwrite:bool=False) -> MaestroFile:
     '''
     计算单个化合物/配体的ADMET特征描述符
 

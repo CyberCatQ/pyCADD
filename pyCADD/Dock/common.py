@@ -2,7 +2,9 @@ import re
 import os
 import logging
 
+from typing import List
 from schrodinger import structure as struc
+from schrodinger.structure import StructureReader, Structure, StructureWriter
 from schrodinger.job import jobcontrol as jc
 from schrodinger.application.glide import poseviewconvert as pvc
 
@@ -82,8 +84,9 @@ class BaseFile:
         self.file_path = path
         self.file_name = os.path.split(path)[-1]
         self.file_dir = os.path.split(path)[0]
-        self.file_ext = os.path.splitext(path)[-1]
-        self.file_prefix = os.path.splitext(path)[0]
+        self.file_ext = os.path.splitext(self.file_name)[-1]
+        self.file_prefix = os.path.splitext(self.file_name)[0]
+        self.file_suffix = self.file_ext
 
 class PDBFile(BaseFile):
     '''
@@ -167,15 +170,15 @@ class MaestroFile(BaseFile):
         self.pdbid = _pdbid_from_file if check_pdb(_pdbid_from_file) else None
 
     @property
-    def st_reader(self):
-        return struc.StructureReader(self.file_path)
+    def st_reader(self) -> StructureReader:
+        return StructureReader(self.file_path)
 
     @property
-    def structure(self):
-        return self.get_first_structure(self.file_path)
+    def structure(self) -> List[Structure]:
+        return [st for st in self.st_reader]
     
     @staticmethod
-    def get_first_structure(file_path: str):
+    def get_first_structure(file_path: str) -> Structure:
         '''
         获取Maestro文件中的第一个结构
 
@@ -184,7 +187,7 @@ class MaestroFile(BaseFile):
         file_path : str
             Maestro文件路径
         '''
-        return next(struc.StructureReader(file_path))
+        return next(StructureReader(file_path))
 
     @staticmethod
     def convert_format(file_path, to_format: str) -> str:
@@ -197,6 +200,11 @@ class MaestroFile(BaseFile):
             文件路径
         to_format : str
             转换后的格式
+        
+        Return
+        ----------
+        str
+            转换后的文件路径
         '''
         st = MaestroFile.get_first_structure(file_path)
         prefix, suffix = os.path.splitext(file_path)
@@ -215,11 +223,13 @@ class MaestroFile(BaseFile):
 class ComplexFile(MaestroFile):
     '''
     Maestro单结构复合物文件类型
+    仅包含一个Entry
     '''
     def __init__(self, path) -> None:
         super().__init__(path)
+        self.structure = self.structure[0]
 
-    def _get_mol_obj(self, ligname: str):   
+    def _get_mol_obj(self, ligname: str) -> struc._Molecule:
         '''
         获取结构中的配体所在Molecule object
 
@@ -228,13 +238,12 @@ class ComplexFile(MaestroFile):
         ligname : str
             配体名称
         '''
-        residues = self.structure.residue
-        for res in residues:
+        for res in self.structure.residue:
             if res.pdbres.strip() == '%s' % ligname:
                 molnum = res.molecule_number
                 yield self.structure.molecule[molnum]
 
-    def _del_covalent_bond(self, ligname):
+    def _del_covalent_bond(self, ligname) -> None:
         '''
         删除共价键
 
@@ -268,7 +277,8 @@ class ComplexFile(MaestroFile):
 
         Return
         ----------
-
+        str
+            Molecule Number
         '''
         mol = next(self._get_mol_obj(ligname))
 
@@ -305,7 +315,6 @@ class ComplexFile(MaestroFile):
             logger.debug('The First One is Selected.')
         _residue = _residue_list[0]
 
-
         complex_file = pvc.Complex(st, ligand_asl=_residue.getAsl(), ligand_properties=st.property.keys())
 
         _lig_file = f'{pdbid}-lig-{ligname}.mae'
@@ -317,15 +326,6 @@ class ComplexFile(MaestroFile):
         complex_file.write(_complex_file)
     
         return _recep_file, _lig_file
-
-class DockResultFile(MaestroFile):
-    '''
-    Maestro对接结果文件类型
-        structure[0]: receptor
-        structure[1]: ligand
-    '''
-    def __init__(self, path) -> None:
-        super().__init__(path)
 
 class ReceptorFile(MaestroFile):
     '''
@@ -340,6 +340,52 @@ class LigandFile(MaestroFile):
     '''
     def __init__(self, path) -> None:
         super().__init__(path)
+        
+class DockResultFile(MaestroFile):
+    '''
+    Maestro对接结果文件类型
+    仅含有2个Entry
+        structure[0]: receptor
+        structure[1]: ligand
+    '''
+    def __init__(self, path) -> None:
+        super().__init__(path)
+    
+    @property
+    def merged_file(self) -> ComplexFile:
+        '''
+        合并对接结果的受体与配体为一个复合物文件
+        '''
+        st = self.structure
+        pdbid = self.pdbid
+        _complex_file = f'{self.file_prefix}-complex.mae'
+        _complex_st = st[0].merge(st[1], copy_props=True)    
+        _complex_st.write(_complex_file)
+        return ComplexFile(_complex_file)
+
+    def get_receptor_file(self) -> ReceptorFile:
+        '''
+        获取对接结果中的受体文件
+        '''
+        docking_recep_st = self.structure[0]
+        output_lig_file = f'{self.file_prefix}_recep_posture.mae'
+        docking_recep_st.write(output_lig_file)
+        return ReceptorFile(output_lig_file)
+        
+    def get_ligand_file(self) -> LigandFile:
+        '''
+        获取对接结果中的配体姿势文件
+        '''
+        docking_lig_st = self.structure[1]
+        output_lig_file = f'{self.file_prefix}_lig_posture.mae'
+        docking_lig_st.write(output_lig_file)
+        return LigandFile(output_lig_file)
+    
+    def get_merged_file(self) -> ComplexFile:
+        '''
+        获取对接结果的合并文件
+        '''
+        return self.merged_file
 
 class GridFile(BaseFile):
     '''
