@@ -4,7 +4,7 @@ import logging
 
 from typing import List
 from schrodinger import structure as struc
-from schrodinger.structure import StructureReader, Structure, StructureWriter
+from schrodinger.structure import StructureReader, Structure
 from schrodinger.job import jobcontrol as jc
 from schrodinger.application.glide import poseviewconvert as pvc
 
@@ -66,7 +66,7 @@ def launch(cmd:str, timeout:int=None):
     logger.debug('Command: %s' % cmd)
     logger.debug('JobId: %s' % job.JobId)
     logger.debug('Job Name: %s' % job.Name)
-    logger.debug('Job Status: %s\n' % job.Status)
+    logger.debug('Job Status: %s' % job.Status)
     job.wait()  # 阻塞进程 等待Job结束
 
     # 如果任务失败
@@ -81,9 +81,9 @@ class BaseFile:
     基本文件类型
     '''
     def __init__(self, path) -> None:
-        self.file_path = path
-        self.file_name = os.path.split(path)[-1]
-        self.file_dir = os.path.split(path)[0]
+        self.file_path = os.path.abspath(path)
+        self.file_name = os.path.split(self.file_path)[-1]
+        self.file_dir = os.path.split(self.file_path)[0]
         self.file_ext = os.path.splitext(self.file_name)[-1]
         self.file_prefix = os.path.splitext(self.file_name)[0]
         self.file_suffix = self.file_ext
@@ -112,7 +112,7 @@ class PDBFile(BaseFile):
         list
             配体小分子信息列表
         '''
-        return os.popen("cat %s | grep -w -E ^HET | awk '{print $2}'" % self.pdbfile_path).read().splitlines()
+        return os.popen("cat %s | grep -w -E ^HET | awk '{print $2}'" % self.file_path).read().splitlines()
 
     def get_lig_name(self) -> str:
         '''
@@ -174,7 +174,7 @@ class MaestroFile(BaseFile):
         return StructureReader(self.file_path)
 
     @property
-    def structure(self) -> List[Structure]:
+    def structures(self) -> List[Structure]:
         return [st for st in self.st_reader]
     
     @staticmethod
@@ -197,7 +197,7 @@ class MaestroFile(BaseFile):
         Parameter
         ----------
         file_path : str
-            文件路径
+            需要转换的文件路径
         to_format : str
             转换后的格式
         
@@ -227,7 +227,7 @@ class ComplexFile(MaestroFile):
     '''
     def __init__(self, path) -> None:
         super().__init__(path)
-        self.structure = self.structure[0]
+        self.structure = self.structures[0]
 
     def _get_mol_obj(self, ligname: str) -> struc._Molecule:
         '''
@@ -323,9 +323,9 @@ class ComplexFile(MaestroFile):
 
         complex_file.writeLigand(_lig_file)
         complex_file.writeReceptor(_recep_file) 
-        complex_file.write(_complex_file)
+        st.write(_complex_file)
     
-        return _recep_file, _lig_file
+        return ReceptorFile(_recep_file), LigandFile(_lig_file)
 
 class ReceptorFile(MaestroFile):
     '''
@@ -333,6 +333,7 @@ class ReceptorFile(MaestroFile):
     '''
     def __init__(self, path) -> None:
         super().__init__(path)
+        self.pdbid = self.pdbid if self.pdbid else self.file_name.split('-')[0]
 
 class LigandFile(MaestroFile):
     '''
@@ -340,6 +341,7 @@ class LigandFile(MaestroFile):
     '''
     def __init__(self, path) -> None:
         super().__init__(path)
+        self.pdbid = self.pdbid if self.pdbid else self.file_name.split('-')[0]
         
 class DockResultFile(MaestroFile):
     '''

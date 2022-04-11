@@ -1,6 +1,6 @@
-from pyCADD.utils.tool import _init_log
+from pyCADD.utils.log import _init_log
 
-__version__= '1.4.0'
-__update_date__ = '2022-03-21'
+__version__= '1.5.0'
+__update_date__ = '2022-04-11'
 
 _init_log('pyCADD')

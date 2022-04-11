@@ -1,7 +1,7 @@
 import os
 import logging
 
-from pyCADD.Dock.common import launch, PDBFile, MaestroFile, GridFile, LigandFile, ComplexFile, DockResultFile
+from pyCADD.Dock.common import launch, PDBFile, MaestroFile, GridFile, LigandFile, ReceptorFile, ComplexFile, DockResultFile
 
 logger = logging.getLogger(__name__)
 
@@ -21,11 +21,10 @@ def keep_chain(pdbfile:PDBFile, chain_name:str) -> PDBFile:
     PDBFile
         保留单链结构的PDB文件
     '''
-
+    singlechain_file = '%s_chain_%s.mae' % (pdbfile.pdbid, chain_name)
     logger.debug('Keep the single chain structure: %s' % singlechain_file)
     st = MaestroFile.get_first_structure(pdbfile.file_path)  # 读取原始PDB结构
     st_chain_only = st.chain[chain_name].extractStructure()
-    singlechain_file = '%s_chain_%s.mae' % (pdbfile.pdbid, chain_name)
     st_chain_only.write(singlechain_file)
     return PDBFile(singlechain_file)
 
@@ -58,8 +57,8 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
     minimized_file = pdbid + '_minimized.mae'
 
     if not overwrite and os.path.exists(minimized_file):  # 如果已经进行过优化 为提高效率而跳过优化步骤
-        logger.debug('File %s is existed.\n' % minimized_file)
-        return MaestroFile(minimized_file)
+        logger.debug('File %s is existed.' % minimized_file)
+        return ComplexFile(minimized_file)
 
     _job_name = '%s-Minimize' % pdbfile.pdbid
     prepwizard_command = 'prepwizard -f 3 -r 0.3 -propka_pH 7.0 -disulfides -s -j %s' % _job_name
@@ -80,10 +79,10 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
     if not os.path.exists(minimized_file):  
         raise RuntimeError('%s Crystal Minimization Process Failed.' % pdbfile.pdbid)
     else:
-        logger.debug('PDB minimized file: %s Saved.\n' % minimized_file)
-        return ComplexFile(minimized_file)
+        logger.debug('PDB minimized file: %s Saved.' % minimized_file)
+    return ComplexFile(minimized_file)
 
-def grid_generate(maestrofile:MaestroFile, ligname:str, gridbox_size:int=20, overwrite:bool=False) -> GridFile:
+def grid_generate(complex_file:ComplexFile, ligname:str, gridbox_size:int=20, overwrite:bool=False) -> GridFile:
     '''
     自动编写glide grid输入文件并启动Glide Grid生成任务
 
@@ -105,14 +104,14 @@ def grid_generate(maestrofile:MaestroFile, ligname:str, gridbox_size:int=20, ove
 
     '''
 
-    lig_molnum = maestrofile.get_lig_molnum(ligname)
-    pdbid = maestrofile.pdbid if maestrofile.pdbid else 'unknown'
+    lig_molnum = complex_file.get_lig_molnum(ligname)
+    pdbid = complex_file.pdbid if complex_file.pdbid else 'unknown'
     grid_file = f'{pdbid}_glide-grid_{ligname}.zip'
     logger.debug(f'Prepare to generate grid file: {grid_file}')
 
     # 如果已经生成了格点文件则跳过生成过程
     if os.path.exists(grid_file) and not overwrite: 
-        logger.debug('File %s is existed.\n' % grid_file)
+        logger.debug('File %s is existed.' % grid_file)
         return GridFile(grid_file)
 
     input_file = f'{pdbid}_glide-grid_{ligname}.in'
@@ -125,7 +124,7 @@ def grid_generate(maestrofile:MaestroFile, ligname:str, gridbox_size:int=20, ove
         'INNERBOX 10,10,10\n',
         'OUTERBOX %d,%d,%d \n' % (outsize, outsize, outsize),
         'LIGAND_MOLECULE %s\n' % lig_molnum,
-        'RECEP_FILE %s\n' % maestrofile.file_path
+        'RECEP_FILE %s\n' % complex_file.file_path
     ]
 
     with open(input_file, 'w') as f:  
@@ -133,7 +132,7 @@ def grid_generate(maestrofile:MaestroFile, ligname:str, gridbox_size:int=20, ove
 
     launch(f'glide {input_file} -JOBNAME {job_name}')
 
-    logger.debug('Grid File %s Generated.\n' % grid_file)
+    logger.debug('Grid File %s Generated.' % grid_file)
     return GridFile(grid_file)
 
 def dock(lig_file:LigandFile, grid_file:GridFile, precision:str='SP', calc_rmsd:bool=False, overwrite:bool=False) -> DockResultFile:
@@ -168,8 +167,8 @@ def dock(lig_file:LigandFile, grid_file:GridFile, precision:str='SP', calc_rmsd:
     logger.debug(f'Prepare to dock {docking_ligand} on {pdbid}')
     # 如果已有对接成功文件 跳过对接步骤
     if os.path.exists(dock_result_file) and not overwrite:     
-        logger.debug('File %s is existed.\n' % dock_result_file)                           
-        return MaestroFile(dock_result_file)
+        logger.debug('File %s is existed.' % dock_result_file)                           
+        return DockResultFile(dock_result_file)
 
     input_file = f'{pdbid}_{internal_ligand}_glide-dock_{docking_ligand}_{precision}.in'
     job_name = f'{pdbid}-{internal_ligand}-Glide-Dock-{docking_ligand}-{precision}'
@@ -201,7 +200,7 @@ def dock(lig_file:LigandFile, grid_file:GridFile, precision:str='SP', calc_rmsd:
 
     return DockResultFile(dock_result_file)
 
-def calc_mmgbsa(complex_file:MaestroFile, overwrite:bool=False) -> MaestroFile:
+def calc_mmgbsa(maestrofile:DockResultFile, overwrite:bool=False) -> ComplexFile:
     '''
     计算MM-GBSA结合能
 
@@ -217,30 +216,29 @@ def calc_mmgbsa(complex_file:MaestroFile, overwrite:bool=False) -> MaestroFile:
 
     '''
     
-    # 按照dock()自动生成的文件名获取相关信息
-    prefix = complex_file.file_prefix
-
+    prefix = maestrofile.file_prefix
     logger.debug('Prepare to Calculate MM-GB/SA Binding Energy : %s' % prefix)
     mmgbsa_result_file = prefix + '_mmgbsa.maegz'
+    job_name = f'{prefix}_mmgbsa'
 
     # 已计算则跳过计算过程
     if os.path.exists(mmgbsa_result_file) and not overwrite:
-        logger.debug('File %s is existed.\n' % mmgbsa_result_file)
-        return MaestroFile(mmgbsa_result_file)
+        logger.debug('File %s is existed.' % mmgbsa_result_file)
+        return ComplexFile(mmgbsa_result_file)
 
-    launch(f'prime_mmgbsa -j {prefix} {complex_file.file_path}')
+    launch(f'prime_mmgbsa -j {job_name} {maestrofile.file_path}')
     
     try:
-        os.rename(f'{prefix}-out.magez', mmgbsa_result_file)
+        os.rename(f'{job_name}-out.maegz', mmgbsa_result_file)
     except Exception:
         logger.debug(f'{prefix} Prime MM-GB/SA Calculating Failed')
         return None
 
-    logger.debug(f'MM-GB/SA Calculating Result File: {mmgbsa_result_file} Saved.\n')
+    logger.debug(f'MM-GB/SA Calculating Result File: {mmgbsa_result_file} Saved.')
 
-    return MaestroFile(mmgbsa_result_file)
+    return ComplexFile(mmgbsa_result_file)
 
-def calc_volume(recep_file:MaestroFile, lig_file:LigandFile, overwrite:bool=False) -> ComplexFile:
+def calc_volume(recep_file:ReceptorFile, lig_file:LigandFile, overwrite:bool=False) -> ComplexFile:
     '''
     Sitemap计算结合口袋体积
 
@@ -261,8 +259,8 @@ def calc_volume(recep_file:MaestroFile, lig_file:LigandFile, overwrite:bool=Fals
     logger.debug('Prepare to calculate volume of site in %s' % pdbid)
 
     if os.path.exists(sitemap_result_file) and not overwrite:
-        logger.debug('File %s is existed.\n' % sitemap_result_file)
-        return MaestroFile(sitemap_result_file)
+        logger.debug('File %s is existed.' % sitemap_result_file)
+        return ComplexFile(sitemap_result_file)
 
     launch(f'sitemap -sitebox 6 -keeplogs yes -ligmae {lig_file.file_path} -prot {recep_file.file_path} -j {pdbid}_sitemap')
     
@@ -270,12 +268,12 @@ def calc_volume(recep_file:MaestroFile, lig_file:LigandFile, overwrite:bool=Fals
         logger.debug(f'{pdbid} Sitemap Calculating Failed')
         return None
 
-    logger.debug('Sitemap Calculating File: %s Saved.\n' % sitemap_result_file)
+    logger.debug('Sitemap Calculating File: %s Saved.' % sitemap_result_file)
     return ComplexFile(sitemap_result_file)
 
-def calc_admet(lig_file:LigandFile, overwrite:bool=False) -> MaestroFile:
+def calc_admet(lig_file:LigandFile, overwrite:bool=False) -> LigandFile:
     '''
-    计算单个化合物/配体的ADMET特征描述符
+    计算化合物/配体的ADMET特征描述符
 
     Parameter  
     ----------
@@ -293,16 +291,16 @@ def calc_admet(lig_file:LigandFile, overwrite:bool=False) -> MaestroFile:
     logger.debug('Prepare to calculate ADMET properties: %s' % prefix)
 
     if os.path.exists(admet_result_file) and not overwrite:
-        logger.debug('File %s is existed.\n' % admet_result_file)
-        return MaestroFile(admet_result_file)
+        logger.debug('File %s is existed.' % admet_result_file)
+        return LigandFile(admet_result_file)
 
     launch(f'qikprop -outname {prefix} {lig_file.file_path}')
     try:
-        os.rename(prefix + '.mae', admet_result_file)
+        os.rename(prefix + '-out.mae', admet_result_file)
     except Exception:
         logger.debug(f'{prefix} ADMET Calculating Failed')
         return None
 
-    logger.debug('Qikprop Calculation File: %s Saved.\n' % admet_result_file)
-    return MaestroFile(admet_result_file)
+    logger.debug('Qikprop Calculation File: %s Saved.' % admet_result_file)
+    return LigandFile(admet_result_file)
     
