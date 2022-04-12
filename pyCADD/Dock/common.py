@@ -81,6 +81,10 @@ class BaseFile:
     基本文件类型
     '''
     def __init__(self, path) -> None:
+
+        if not os.path.exists(path):
+            raise FileNotFoundError('File %s not found' % path)
+
         self.file_path = os.path.abspath(path)
         self.file_name = os.path.split(self.file_path)[-1]
         self.file_dir = os.path.split(self.file_path)[0]
@@ -101,19 +105,83 @@ class PDBFile(BaseFile):
         '''
         super().__init__(path)
         self.pdbid = self.file_prefix
+        self.lig_name = None
         
-    def get_lig(self) -> list:
+    def _catch_lig(self) -> list:
         '''
         从PDB文件获取配体小分子信息
         按行分割并返回列表
 
         Return
         ----------
-        list
+        list[dict]
             配体小分子信息列表
         '''
-        return os.popen("cat %s | grep -w -E ^HET | awk '{print $2}'" % self.file_path).read().splitlines()
+        result_list = []
+        _items = ['id', 'chain', 'resid', 'atom_num']
+        with open(self.file_path, 'r') as f:
+            lines = f.read().splitlines()
+        for line in lines:
+            if line.startswith('HET '):
+                match = ','.join(line.split()[1:])
+                lig_dict = {k:v for k,v in zip(_items, match.split(','))}
+                result_list.append(lig_dict)
+        return result_list
 
+    def _input_from_list(self) -> dict:
+        '''
+        获取索引的配体小分子信息(仅限于liglist内)
+
+        Return
+        ----------
+        dict
+            配体小分子信息
+        '''
+        liglist = self._catch_lig()
+        while True:
+            ligindex = int(input('Please specify ligand index:').strip())
+            if ligindex < len(liglist):
+                return liglist[ligindex]
+            else:
+                logger.warning('Wrong index, please try agagin.')
+
+    def get_lig(self, select_first:bool=False) -> dict:
+        '''
+        从PDB文件获取配体小分子信息:
+            Name, Chain, Resid, Atom_num
+        
+        Parameters
+        ----------
+        select_first : bool
+            存在多个配体时 是否自动选择第一个(默认为False)
+        
+        Return
+        ----------
+        dict
+            配体小分子信息
+        '''
+        lig_list = self._catch_lig()
+    
+        # 去除水分子
+        lig_list = [lig for lig in lig_list if lig['id'] != 'HOH']
+
+        if len(lig_list) == 0:
+            return None
+        elif len(lig_list) == 1:
+            return lig_list[0]
+        else:
+            fmt = '{0:<10}{1:<10}{2:<10}{3:<10}{4:<10}'
+            logger.info('Crystal %s has multiple ligands' % self.pdbid)
+            print(fmt.format('Index', 'Name', 'Chain', 'Resid', 'Atom_num'))
+            for index, lig in enumerate(lig_list):
+                print(fmt.format(index, *lig.values()))
+
+            if select_first:
+                logger.debug('Selected the first ligand: %s' % lig_list[0])
+                return lig_list[0]
+
+            return self._input_from_list()
+        
     def get_lig_name(self) -> str:
         '''
         从PDB文件获取配体小分子名称
@@ -124,41 +192,24 @@ class PDBFile(BaseFile):
         str
             配体小分子名称
         '''
-
-        lig_list = self.get_lig()
-
-        # 去除水分子
-        try:
-            lig_list.remove('HOH')
-        except ValueError:
-            pass
-
-        # 去除重复分子
-        lig_set = set(lig_list)
-
-        if len(lig_list) == 0:
-            return None
-        elif len(lig_list) == 1:
-            return lig_list[0]
-        else:
-            logger.info('Crystal %s has multiple ligands: %s' % (self.pdbid, ' '.join(lig_set)))
-            return self._input_from_list(lig_set)
-
-    def _input_from_list(self) -> str:
+        return self.get_lig()['id']
+    
+    def keep_chain(self, chain_name:str=None):
         '''
-        获取限制性输入的配体小分子名称(仅限于liglist内)
-
-        Return
+        返回保留单链的结构
+        
+        Parameters
         ----------
-        str
-            配体小分子名称
+        chain : str
+            需要保留的链(默认为配体所在链)
+
         '''
-        while True:
-            ligname = input('Please specify ligand name:').strip().upper()
-            if ligname in self.get_lig():
-                return ligname
-            else:
-                logger.warning('Wrong ligand name, please try again.')
+        chain_name = chain_name if chain_name is not None else self.get_lig()['chain']
+        singlechain_file = '%s_chain_%s.mae' % (self.pdbid, chain_name)
+        st = MaestroFile.get_first_structure(self.file_path)  # 读取原始PDB结构
+        st_chain_only = st.chain[chain_name].extractStructure()
+        st_chain_only.write(singlechain_file)
+        return MaestroFile(singlechain_file)
 
 class MaestroFile(BaseFile):
     '''
@@ -219,6 +270,35 @@ class MaestroFile(BaseFile):
 
         st.write(converted_file)
         return converted_file
+    
+    def minimize(self, side_chain:bool=True, missing_loop:bool=True, del_water:bool=True, overwrite:bool=False):
+        '''
+        优化结构并执行能量最小化
+        '''
+        pdbid = self.pdbid
+        minimized_file = pdbid + '_minimized.mae'
+        if not overwrite and os.path.exists(minimized_file):  # 如果已经进行过优化 为提高效率而跳过优化步骤
+            logger.info('File %s is existed.' % minimized_file)
+            return ComplexFile(minimized_file)
+
+        _job_name = '%s-Minimize' % pdbid
+        prepwizard_command = 'prepwizard -f 3 -r 0.3 -propka_pH 7.0 -disulfides -s -j %s' % _job_name
+        if side_chain:
+            prepwizard_command += ' -fillsidechains'
+        if missing_loop:
+            prepwizard_command += ' -fillloops'
+        if del_water:
+            prepwizard_command += ' -watdist 0.0'
+
+        
+        prepwizard_command += ' %s' % self.file_path    # 将pdb文件传入prepwizard
+        prepwizard_command += ' %s' % minimized_file    # 将优化后的文件保存到minimized_file
+        launch(prepwizard_command)
+
+        if not os.path.exists(minimized_file):  
+            raise RuntimeError('%s Crystal Minimization Process Failed.' % pdbid)
+        else:
+            return ComplexFile(minimized_file)
 
 class ComplexFile(MaestroFile):
     '''
@@ -342,6 +422,27 @@ class LigandFile(MaestroFile):
     def __init__(self, path) -> None:
         super().__init__(path)
         self.pdbid = self.pdbid if self.pdbid else self.file_name.split('-')[0]
+    
+    def calc_admet(self, overwrite:bool=False):
+        '''
+        计算化合物/配体的ADMET特征描述符
+        '''
+        prefix = self.file_prefix + '_ADMET'
+        admet_result_file = prefix + '.mae'
+
+        if os.path.exists(admet_result_file) and not overwrite:
+            logger.info('File %s is existed.' % admet_result_file)
+            return LigandFile(admet_result_file)
+
+        launch(f'qikprop -outname {prefix} {self.file_path}')
+        try:
+            os.rename(prefix + '-out.mae', admet_result_file)
+        except Exception:
+            logger.warning(f'{prefix} ADMET Calculating Failed')
+            return None
+
+        return LigandFile(admet_result_file)
+        
         
 class DockResultFile(MaestroFile):
     '''
@@ -404,6 +505,40 @@ class DockResultFile(MaestroFile):
         获取对接结果的合并文件
         '''
         return self.merged_file
+
+    def extract_docking_data(self) -> dict:
+        '''
+        提取对接数据
+        '''
+        lig_st = self.docking_ligand_st
+        self.prop_dic = {}
+        for key in lig_st.property.keys():
+            self.prop_dic[key] = lig_st.property[key]
+        
+        return self.prop_dic
+
+    def calc_mmgbsa(self, overwrite:bool=False) -> ComplexFile:
+        '''
+        计算MM-GBSA结合能
+        '''
+        prefix = self.file_prefix
+        mmgbsa_result_file = prefix + '_mmgbsa.maegz'
+        job_name = f'{prefix}_mmgbsa'
+
+        # 已计算则跳过计算过程
+        if os.path.exists(mmgbsa_result_file) and not overwrite:
+            logger.info('File %s is existed.' % mmgbsa_result_file)
+            return ComplexFile(mmgbsa_result_file)
+
+        launch(f'prime_mmgbsa -j {job_name} {self.file_path}')
+        
+        try:
+            os.rename(f'{job_name}-out.maegz', mmgbsa_result_file)
+        except Exception:
+            logger.info(f'{prefix} Prime MM-GB/SA Calculating Failed')
+            return None
+
+        return ComplexFile(mmgbsa_result_file)
 
 class GridFile(BaseFile):
     '''

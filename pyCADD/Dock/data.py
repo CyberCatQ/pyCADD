@@ -5,8 +5,25 @@ from typing import List
 
 from pyCADD.Dock.common import DockResultFile, LigandFile
 from pyCADD.Dock.config import DefaultDataConfig, DataConfig
-from schrodinger import structure as struc
 logger = logging.getLogger(__name__)
+
+def _save_data(output_file:str, data:list, fields:list):
+    '''
+    储存数据为csv
+
+    Parameter
+    ----------
+    output_file : str
+        输出文件路径
+    data_dic : dict
+        数据内容 {property : data}
+    fields : List[str]
+        数据提取项配置
+    '''
+    with open(output_file, 'w', encoding='UTF-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fields, extrasaction='ignore')
+        writer.writeheader()            # 写入标头
+        writer.writerows(data)          # 写入数据 自动匹配标头列
 
 def extra_docking_data(dock_result_file:DockResultFile) -> dict:
     '''
@@ -79,7 +96,7 @@ def extra_docking_data(dock_result_file:DockResultFile) -> dict:
 
     return prop_dic
 
-def save_data(data_dic:dict, configs:DataConfig=None):
+def save_docking_data(dock_result_file:DockResultFile, configs:DataConfig=None):
     '''
     储存一般数据为csv
 
@@ -90,19 +107,18 @@ def save_data(data_dic:dict, configs:DataConfig=None):
     configs : DataConfig
         数据提取项配置
     '''
+    data_dic = extra_docking_data(dock_result_file)
     pdbid = data_dic['PDB']
     ligand_name = data_dic['Ligand']
     precision = data_dic['precision']
+
     property_config = DefaultDataConfig(precision) if configs is None else configs
     fields = property_config.properties
 
-
-    with open(f'{pdbid}_{ligand_name}_FINAL_RESULTS.csv', 'w', encoding='UTF-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fields, extrasaction='ignore')
-        writer.writeheader()            # 写入标头
-        writer.writerows([data_dic])    # 写入数据 自动匹配标头列
-    
+    output_file = f'{pdbid}_{ligand_name}_FINAL_RESULTS.csv'
+    _save_data(output_file, [data_dic], fields)
     logger.debug('%s-%s Data Saved.' % (pdbid, ligand_name))
+    return output_file
 
 def extra_admet_data(admet_file:LigandFile) -> List[dict]:
 
@@ -123,14 +139,15 @@ def extra_admet_data(admet_file:LigandFile) -> List[dict]:
 
     admet_list = []
 
-    for st in admet_file.st_reader:
+    for index, st in enumerate(admet_file.st_reader):
         curr_prop_dict = {}
+        curr_prop_dict['Title'] = st.property['s_m_title']
+        curr_prop_dict['index'] = index
         for _key in st.property.keys():
-            curr_prop_dict['Title'] = st.property['s_m_title']
             # Qikprop生成的分子描述符键名
-            if re.match(r'^[ri]_qp_.+', _key):                           
-                key = re.search(r'(?<=[ri]_qp_).+', _key).group()
-                curr_prop_dict[key] = st.property[_key]
+            _match = re.match(r'^[ri]_qp_.+', _key)
+            if _match:
+                curr_prop_dict[_match.group()] = st.property[_key]
         admet_list.append(curr_prop_dict)
         
     return admet_list
@@ -148,9 +165,6 @@ def save_admet_data(admet_file:LigandFile):
     admet_property = list(data_list[0].keys())
     output_file = f'{admet_file.file_prefix}_ADMET_RESULT.csv'
 
-    with open(output_file, 'w', encoding='UTF-8') as f:
-        writer = csv.DictWriter(f, fieldnames=admet_property, extrasaction='ignore')
-        writer.writeheader()     # 写入标头
-        writer.writerows(data_list)       # 写入数据 自动匹配标头列
-
+    _save_data(output_file, data_list, admet_property)
     logger.debug(f'ADMET data {output_file} saved.')
+    return output_file
