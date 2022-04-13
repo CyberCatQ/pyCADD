@@ -564,11 +564,24 @@ class MultiInputFile(BaseFile):
             受体列表输入文件路径
         '''
         super().__init__(path)
-        self.pdbid_list = None
         self.pairs_list = None
+        self.pdbid_list = None
+        self.parse_file()
 
+    def read(self, file_path:str) -> None:
+        '''
+        读取输入文件
 
-    def parse_file(self, file_path: str) -> None:
+        Parameter
+        ----------
+        file_path : str
+            输入文件路径
+        '''
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f'File {file_path} not found.')
+        self.parse_file(file_path)
+
+    def parse_file(self, file_path: str=None) -> None:
         '''
         解析受体输入文件
         文件中含有多行的 逗号分隔的PDBID与配体ID
@@ -586,6 +599,7 @@ class MultiInputFile(BaseFile):
         file_path : str
             受体列表文件路径
         '''
+        file_path = self.file_path if file_path is None else file_path
         with open(file_path, 'r') as f:
             raw_list = f.read().splitlines()
         
@@ -596,12 +610,16 @@ class MultiInputFile(BaseFile):
         '''
         获取受体列表
         '''
+        if self.pairs_list is None:
+            self.parse_file()
         return self.pairs_list
     
     def get_pdbid_list(self) -> list:
         '''
         获取受体列表中的PDBID列表
         '''
+        if self.pdbid_list is None:
+            self.parse_file()
         return self.pdbid_list
     
     def get_pdbfile_path_list(self, pdb_dir: str) -> list:
@@ -613,7 +631,7 @@ class MultiInputFile(BaseFile):
         pdb_dir : str
             PDB文件所在目录
         '''
-        return [os.path.join(pdb_dir, pdbid + '.pdb') for pdbid in self.pdbid_list]
+        return [os.path.join(pdb_dir, pdbid + '.pdb') for pdbid in self.get_pdbid_list()]
         
     def get_gridfile_path_list(self, grid_dir: str) -> list:
         '''
@@ -624,4 +642,4 @@ class MultiInputFile(BaseFile):
         grid_dir : str
             Grid文件所在目录
         '''
-        return [os.path.join(grid_dir, '%s_glide_grid_%s.zip' % (pdbid, ligid)) for pdbid, ligid in self.pairs_list]
+        return [os.path.join(grid_dir, '%s_glide_grid_%s.zip' % (pdbid, ligid)) for pdbid, ligid in self.get_pairs_list()]

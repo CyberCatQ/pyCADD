@@ -1,5 +1,6 @@
 import os
 import logging
+import shutil
 
 from pyCADD.Dock.common import launch, PDBFile, MaestroFile, GridFile, LigandFile, ReceptorFile, ComplexFile, DockResultFile
 
@@ -28,7 +29,7 @@ def keep_chain(pdbfile:PDBFile, chain_name:str) -> PDBFile:
     st_chain_only.write(singlechain_file)
     return PDBFile(singlechain_file)
 
-def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_water:bool=True, overwrite:bool=False) -> ComplexFile:
+def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_water:bool=True, save_dir:str=None, overwrite:bool=False) -> ComplexFile:
     '''
     调用prepwizard模块优化PDB结构
 
@@ -42,6 +43,8 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
         是否优化缺失的loop
     del_water : bool
         是否删除水分子
+    save_dir : str
+        保存优化后的文件的目录
     overwrite : bool
         是否覆盖已有文件
     
@@ -54,7 +57,8 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
     
     logger.debug('Prepare to minimize %s' % pdbfile.file_name)
     pdbid = pdbfile.pdbid if pdbfile.pdbid else 'unknown'
-    minimized_file = pdbid + '_minimized.mae'
+    save_dir = save_dir if save_dir else os.getcwd()
+    minimized_file = f'{pdbid}_minimized.mae'
 
     if not overwrite and os.path.exists(minimized_file):  # 如果已经进行过优化 为提高效率而跳过优化步骤
         logger.debug('File %s is existed.' % minimized_file)
@@ -76,10 +80,11 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
 
     # 判断Minimized任务是否完成(是否生成Minimized结束的结构文件)
     # 无法被优化的晶体结构
-    if not os.path.exists(minimized_file):  
+    try:  
+        shutil.move(minimized_file, save_dir)
+    except FileNotFoundError:
         raise RuntimeError('%s Crystal Minimization Process Failed.' % pdbfile.pdbid)
-    else:
-        logger.debug('PDB minimized file: %s Saved.' % minimized_file)
+    logger.debug('PDB minimized file: %s Saved.' % minimized_file)
     return ComplexFile(minimized_file)
 
 def grid_generate(complex_file:ComplexFile, ligname:str, gridbox_size:int=20, overwrite:bool=False) -> GridFile:

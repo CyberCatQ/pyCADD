@@ -5,6 +5,7 @@ from pyCADD.Dock.common import PDBFile, get_input_pdbid
 from pyCADD.Dock.core import keep_chain, minimize, grid_generate, dock, calc_mmgbsa, calc_admet, calc_volume
 from pyCADD.Dock.data import extra_docking_data, extra_admet_data, save_docking_data, save_admet_data
 from pyCADD.utils.tool import download_pdb
+
 logger = logging.getLogger('pyCADD.Dock.Docker')
 
 class Docker:

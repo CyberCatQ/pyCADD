@@ -16,7 +16,7 @@ def get_lib_dir():
     '''
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-def download_pdb(pdbid, download_dir:str=None) -> None:
+def download_pdb(pdbid, download_dir:str=None, overwrite:bool=False) -> None:
     '''
     从RCSB服务器下载PDB文件
 
@@ -26,22 +26,28 @@ def download_pdb(pdbid, download_dir:str=None) -> None:
         PDB ID
     download_dir : str
         下载目录
+    overwrite : bool
+        是否覆盖已存在的文件
 
     '''
     base_url = 'https://files.rcsb.org/download/'
     pdbfile = pdbid + '.pdb'
     download_dir = os.getcwd() if download_dir is None else download_dir
+    downloaded_file = os.path.join(download_dir, pdbfile)
+
+    if os.path.exists(downloaded_file) and not overwrite:
+        return
 
     logger.debug('Downloading %s ...' % pdbid)
     url = base_url + pdbid + '.pdb'
     response = requests.get(url)
     pdb_data = response.text
-    with open(download_dir + '/' + pdbid + '.pdb', 'w') as f:
+    with open(downloaded_file, 'w') as f:
         f.write(pdb_data)
     
     logger.debug('%s.pdb downloaded.' % pdbid)
 
-def download_pdb_list(pdblist:list, download_dir:str=None) -> None:
+def download_pdb_list(pdblist:list, download_dir:str=None, overwrite:bool=False) -> None:
     '''
     多线程下载PDB ID列表中的所有PDB文件
     Parameter
@@ -50,11 +56,13 @@ def download_pdb_list(pdblist:list, download_dir:str=None) -> None:
         PDB列表
     download_dir : str
         下载目录
+    overwrite : bool
+        是否覆盖已存在的文件
     '''
     download_dir = os.getcwd() if download_dir is None else download_dir
     threads = []
     for pdbid in pdblist:
-        t = Thread(target=download_pdb, args=(pdbid, download_dir))
+        t = Thread(target=download_pdb, args=(pdbid, download_dir, overwrite))
         threads.append(t)
     for t in threads:
         t.start()
