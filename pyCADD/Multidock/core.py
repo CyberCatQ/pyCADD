@@ -91,7 +91,7 @@ def map(receptor_list:list, ligand_list:list) -> tuple:
     tuple
         映射关系元组
     '''
-    tup = ()
+    tup = []
     for receptor, lig in receptor_list:
         ligand_list.append('%s-lig-%s' % (receptor, lig))
 
@@ -105,8 +105,7 @@ def map(receptor_list:list, ligand_list:list) -> tuple:
         progress.update(task, advance=1)
 
     for receptor, lig in receptor_list:
-        for ligand in ligand_list:
-            tup += ((receptor, lig, ligand),)
+        tup.extend([(receptor, lig, ligand) for ligand in ligand_list])
         _update()
     progress.stop()
     return tup

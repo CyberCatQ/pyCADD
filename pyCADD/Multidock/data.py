@@ -21,7 +21,7 @@ def read_reuslt(pdbid:str, result_file_path:str):
 
     # 暂时进入PDB文件夹查找结果文件
     os.chdir(pdb_dir)
-    data_dic = extra_data(result_file_path, True, lig_pos_dir)
+    data_dic = extra_data(result_file_path)
     os.chdir(cwd)
 
     return data_dic
