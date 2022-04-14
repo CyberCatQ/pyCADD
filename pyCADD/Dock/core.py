@@ -3,6 +3,7 @@ import logging
 import shutil
 
 from pyCADD.Dock.common import launch, PDBFile, MaestroFile, GridFile, LigandFile, ReceptorFile, ComplexFile, DockResultFile
+from pyCADD.Dock.config import GLIDE_FORCEFIELD as FORCEFIELD
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +60,8 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
     pdbid = pdbfile.pdbid if pdbfile.pdbid else 'unknown'
     save_dir = save_dir if save_dir else os.getcwd()
     minimized_file = f'{pdbid}_minimized.mae'
+    _cwd = os.getcwd()
+    os.chdir(save_dir)
 
     if not overwrite and os.path.exists(minimized_file):  # 如果已经进行过优化 为提高效率而跳过优化步骤
         logger.debug('File %s is existed.' % minimized_file)
@@ -77,17 +80,18 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
     prepwizard_command += ' %s' % minimized_file    # 将优化后的文件保存到minimized_file
     
     launch(prepwizard_command)   # 执行Minimize Job 阻塞至任务结束
+    os.chdir(_cwd)
 
     # 判断Minimized任务是否完成(是否生成Minimized结束的结构文件)
     # 无法被优化的晶体结构
-    try:  
-        shutil.move(minimized_file, save_dir)
+    try: 
+        output_file = ComplexFile(os.path.join(save_dir, minimized_file))
+        logger.debug('PDB minimized file: %s Saved.' % minimized_file)
+        return output_file
     except FileNotFoundError:
         raise RuntimeError('%s Crystal Minimization Process Failed.' % pdbfile.pdbid)
-    logger.debug('PDB minimized file: %s Saved.' % minimized_file)
-    return ComplexFile(minimized_file)
 
-def grid_generate(complex_file:ComplexFile, ligname:str, gridbox_size:int=20, overwrite:bool=False) -> GridFile:
+def grid_generate(complex_file:ComplexFile, ligname:str, gridbox_size:int=20, save_dir:str=None, overwrite:bool=False) -> GridFile:
     '''
     自动编写glide grid输入文件并启动Glide Grid生成任务
 
@@ -99,6 +103,8 @@ def grid_generate(complex_file:ComplexFile, ligname:str, gridbox_size:int=20, ov
         作为坐标参考的Ligand名称
     gridbox_size : int
         grid box大小 默认20Å
+    save_dir : str
+        保存Grid文件的目录
     overwrite : bool
         是否覆盖已有文件
 
@@ -114,6 +120,8 @@ def grid_generate(complex_file:ComplexFile, ligname:str, gridbox_size:int=20, ov
     grid_file = f'{pdbid}_glide-grid_{ligname}.zip'
     logger.debug(f'Prepare to generate grid file: {grid_file}')
 
+    _cwd = os.getcwd()
+    os.chdir(save_dir)
     # 如果已经生成了格点文件则跳过生成过程
     if os.path.exists(grid_file) and not overwrite: 
         logger.debug('File %s is existed.' % grid_file)
@@ -125,6 +133,7 @@ def grid_generate(complex_file:ComplexFile, ligname:str, gridbox_size:int=20, ov
 
     # 编写glide输入文件
     glide_grid_config = [
+        'FORCEFIELD %s\n' % FORCEFIELD,
         'GRIDFILE %s\n' % grid_file,
         'INNERBOX 10,10,10\n',
         'OUTERBOX %d,%d,%d \n' % (outsize, outsize, outsize),
@@ -136,9 +145,11 @@ def grid_generate(complex_file:ComplexFile, ligname:str, gridbox_size:int=20, ov
         f.writelines(glide_grid_config)
 
     launch(f'glide {input_file} -JOBNAME {job_name}')
-
     logger.debug('Grid File %s Generated.' % grid_file)
-    return GridFile(grid_file)
+    os.chdir(_cwd)
+    output_file = GridFile(os.path.join(save_dir, grid_file))
+    
+    return output_file
 
 def dock(lig_file:LigandFile, grid_file:GridFile, precision:str='SP', calc_rmsd:bool=False, overwrite:bool=False) -> DockResultFile:
     '''
@@ -179,6 +190,7 @@ def dock(lig_file:LigandFile, grid_file:GridFile, precision:str='SP', calc_rmsd:
     job_name = f'{pdbid}-{internal_ligand}-Glide-Dock-{docking_ligand}-{precision}'
     output_file = job_name + '_pv.maegz'
     glide_dock_config = [
+        'FORCEFIELD %s\n' % FORCEFIELD,
         'GRIDFILE %s\n' % grid_file.file_path,
         'LIGANDFILE %s\n' % lig_file.file_path,
         'PRECISION %s\n' % precision

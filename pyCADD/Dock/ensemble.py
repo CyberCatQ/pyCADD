@@ -85,11 +85,8 @@ def map(pairs_list:list, ligand_list:list) -> tuple:
     mapping_results = []
     logger.debug(f'Prepare to map {len(ligand_list)} ligands to {len(pairs_list)} receptors')
 
-    def _creat_mapping(pdbid, ligid, ligand_list):
-        return [(pdbid, ligid, ligand) for ligand in ligand_list]
-
     for pdbid, ligid in pairs_list:
-        mapping_results.extend(_creat_mapping(pdbid, ligid, ligand_list))
+        mapping_results.extend([(pdbid, ligid, ligand) for ligand in ligand_list])
 
     return mapping_results
 
@@ -131,7 +128,10 @@ def _multiprocssing_run(job_name:str, func, _iterable:Iterable, num_parallel:int
 
     pool = multiprocessing.Pool(num_parallel, maxtasksperchild=1)
     for item in _iterable:
-        pool.apply_async(func, args=(item, *args), callback=success_handler, error_callback=_error_handler)
+        if isinstance(item, Iterable):
+            pool.apply_async(func, args=(*item, *args), callback=success_handler, error_callback=_error_handler)
+        else:
+            pool.apply_async(func, args=(item, *args), callback=success_handler, error_callback=_error_handler)
     pool.close()
     pool.join()
 
@@ -169,3 +169,39 @@ def multi_minimize(input_file:MultiInputFile, num_parallel:int=NUM_PARALLEL, sid
     _multiprocssing_run('Minimizing Structures', minimize, pdbfile_list, num_parallel, side_chain, missing_loop, del_water, minimize_save_dir, overwrite)
     
     return [os.path.join(minimize_save_dir, f'{pdbid}_minimized.mae') for pdbid in pdbid_list]
+
+def multi_grid_generate(input_file:MultiInputFile, gridbox_size:int=20, num_parallel:int=NUM_PARALLEL, overwrite:bool=False) -> list:
+    '''
+    使用多进程调用Glide 运行多个受体结构的格点文件生成
+    
+    Parameter
+    ---------
+    input_file : MultiInputFile
+        输入文件
+    gridbox_size : int
+        格点大小
+    num_parallel : int
+        并行进程数
+    overwrite : bool
+        是否覆盖已存在的mae文件
+    
+    Returns
+    -------
+    list
+        生成的网格文件列表
+    '''
+    pairs_list = input_file.get_pairs_list()
+    logger.debug(f'Prepare to generate grids for {len(pairs_list)} structures')
+
+    minimized_file_save_dir = os.path.join(os.getcwd(), 'minimize')
+    grid_save_dir = os.path.join(os.getcwd(), 'grid')
+    makedirs_from_list([grid_save_dir])
+
+    try:
+        _pairs_list = [(ComplexFile(os.path.join(minimized_file_save_dir, f'{pdbid}_minimized.mae')), ligid) for pdbid, ligid in pairs_list]
+    except FileNotFoundError:
+        raise FileNotFoundError('No minimized file found. Please run minimize first.')
+
+    _multiprocssing_run('Generating Grids', grid_generate, _pairs_list, num_parallel, gridbox_size, grid_save_dir, overwrite)
+    
+    return input_file.get_gridfile_path_list(grid_save_dir)

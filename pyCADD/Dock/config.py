@@ -1,5 +1,6 @@
 from typing import Iterable
 
+GLIDE_FORCEFIELD = 'OPLS3e'
 
 class BaseConfig:
     '''
