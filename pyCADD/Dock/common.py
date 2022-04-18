@@ -171,7 +171,7 @@ class PDBFile(BaseFile):
             return lig_list[0]
         else:
             fmt = '{0:<10}{1:<10}{2:<10}{3:<10}{4:<10}'
-            logger.info('Crystal %s has multiple ligands' % self.pdbid)
+            logger.debug('Crystal %s has multiple ligands' % self.pdbid)
             print(fmt.format('Index', 'Name', 'Chain', 'Resid', 'Atom_num'))
             for index, lig in enumerate(lig_list):
                 print(fmt.format(index, *lig.values()))
@@ -205,7 +205,7 @@ class PDBFile(BaseFile):
 
         '''
         chain_name = chain_name if chain_name is not None else self.get_lig()['chain']
-        singlechain_file = '%s_chain_%s.mae' % (self.pdbid, chain_name)
+        singlechain_file = '%s-chain-%s.mae' % (self.pdbid, chain_name)
         st = MaestroFile.get_first_structure(self.file_path)  # 读取原始PDB结构
         st_chain_only = st.chain[chain_name].extractStructure()
         st_chain_only.write(singlechain_file)
@@ -215,10 +215,11 @@ class MaestroFile(BaseFile):
     '''
     Maestro文件类型
     '''
-    def __init__(self, path) -> None:
+    def __init__(self, path:str, ligand:str=None) -> None:
         super().__init__(path)
         _pdbid_from_file = self.file_prefix.split('_')[0]
         self.pdbid = _pdbid_from_file if check_pdb(_pdbid_from_file) else None
+        self.ligand = ligand
 
     @property
     def st_reader(self) -> StructureReader:
@@ -305,11 +306,11 @@ class ComplexFile(MaestroFile):
     Maestro单结构复合物文件类型
     仅包含一个Entry
     '''
-    def __init__(self, path) -> None:
-        super().__init__(path)
+    def __init__(self, path:str, ligand:str=None) -> None:
+        super().__init__(path, ligand)
         self.structure = self.structures[0]
 
-    def _get_mol_obj(self, ligname: str) -> struc._Molecule:
+    def _get_mol_obj(self, ligname:str) -> struc._Molecule:
         '''
         获取结构中的配体所在Molecule object
 
@@ -346,7 +347,7 @@ class ComplexFile(MaestroFile):
                 
         self.structure.deleteBond(bond_to_del.atom1, bond_to_del.atom2)
         
-    def get_lig_molnum(self, ligname:str) -> str:
+    def get_lig_molnum(self, ligname:str=None) -> str:
         '''
         以ligname为KEY 查找Maestro文件中的Molecule Number
         
@@ -360,6 +361,8 @@ class ComplexFile(MaestroFile):
         str
             Molecule Number
         '''
+        ligname = ligname if ligname is not None else self.ligand
+        assert ligname is not None, 'Ligand name is not specified.'
         mol = next(self._get_mol_obj(ligname))
 
         # 判断该molecule是否仅包括小分子本身(是否存在共价连接) 自动移除共价连接
@@ -371,7 +374,7 @@ class ComplexFile(MaestroFile):
 
         return mol.number
 
-    def split(self, ligname:str) -> tuple:
+    def split(self, ligname:str=None, protein_dir:str=None, ligand_dir:str=None, complex_dir:str=None) -> tuple:
         '''
         将Maestro文件分割为受体与配体
 
@@ -379,6 +382,12 @@ class ComplexFile(MaestroFile):
         ----------
         ligname : str
             配体小分子名称
+        protein_dir : str
+            受体文件保存路径
+        ligand_dir : str
+            配体文件保存路径
+        complex_dir : str
+            复合物文件保存路径
 
         Return
         ----------
@@ -387,6 +396,13 @@ class ComplexFile(MaestroFile):
         '''
         st = self.structure
         pdbid = self.pdbid
+        ligname = ligname if ligname is not None else self.ligand
+        assert ligname is not None, 'Ligand name is not specified.'
+        
+        protein_save_dir = protein_dir if protein_dir is not None else os.getcwd()
+        ligand_save_dir = ligand_dir if ligand_dir is not None else os.getcwd()
+        complex_save_dir = complex_dir if complex_dir is not None else os.getcwd()
+
         _residue_list = [res for res in self.structure.residue if res.pdbres.strip() == ligname]
         _res_info = ' '.join([res.chain + ':' + res.pdbres.strip() for res in _residue_list])
 
@@ -397,9 +413,9 @@ class ComplexFile(MaestroFile):
 
         complex_file = pvc.Complex(st, ligand_asl=_residue.getAsl(), ligand_properties=st.property.keys())
 
-        _lig_file = f'{pdbid}-lig-{ligname}.mae'
-        _recep_file = f'{pdbid}-pro-{ligname}.mae'
-        _complex_file = f'{pdbid}-com-{ligname}.mae'
+        _lig_file = os.path.join(ligand_save_dir, f'{pdbid}-lig-{ligname}.mae')
+        _recep_file = os.path.join(protein_save_dir, f'{pdbid}-pro-{ligname}.mae')
+        _complex_file = os.path.join(complex_save_dir, f'{pdbid}-com-{ligname}.mae')
 
         complex_file.writeLigand(_lig_file)
         complex_file.writeReceptor(_recep_file) 

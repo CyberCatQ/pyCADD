@@ -1,6 +1,5 @@
 import os
 import logging
-import shutil
 
 from pyCADD.Dock.common import launch, PDBFile, MaestroFile, GridFile, LigandFile, ReceptorFile, ComplexFile, DockResultFile
 from pyCADD.Dock.config import GLIDE_FORCEFIELD as FORCEFIELD
@@ -23,7 +22,7 @@ def keep_chain(pdbfile:PDBFile, chain_name:str) -> PDBFile:
     PDBFile
         保留单链结构的PDB文件
     '''
-    singlechain_file = '%s_chain_%s.mae' % (pdbfile.pdbid, chain_name)
+    singlechain_file = '%s-chain-%s.mae' % (pdbfile.pdbid, chain_name)
     logger.debug('Keep the single chain structure: %s' % singlechain_file)
     st = MaestroFile.get_first_structure(pdbfile.file_path)  # 读取原始PDB结构
     st_chain_only = st.chain[chain_name].extractStructure()
