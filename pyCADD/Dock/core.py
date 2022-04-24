@@ -27,7 +27,7 @@ def keep_chain(pdbfile:PDBFile, chain_name:str) -> PDBFile:
     st = MaestroFile.get_first_structure(pdbfile.file_path)  # 读取原始PDB结构
     st_chain_only = st.chain[chain_name].extractStructure()
     st_chain_only.write(singlechain_file)
-    return PDBFile(singlechain_file)
+    return MaestroFile(singlechain_file)
 
 def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_water:bool=True, save_dir:str=None, overwrite:bool=False) -> ComplexFile:
     '''
@@ -58,7 +58,7 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
     logger.debug('Prepare to minimize %s' % pdbfile.file_name)
     pdbid = pdbfile.pdbid if pdbfile.pdbid else 'unknown'
     save_dir = save_dir if save_dir else os.getcwd()
-    minimized_file = f'{pdbid}_minimized.mae'
+    minimized_file = os.path.join(save_dir, f'{pdbid}_minimized.mae')
     _cwd = os.getcwd()
     os.chdir(save_dir)
 
@@ -84,7 +84,7 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
     # 判断Minimized任务是否完成(是否生成Minimized结束的结构文件)
     # 无法被优化的晶体结构
     try: 
-        output_file = ComplexFile(os.path.join(save_dir, minimized_file))
+        output_file = ComplexFile(minimized_file)
         logger.debug('PDB minimized file: %s Saved.' % minimized_file)
         return output_file
     except FileNotFoundError:
@@ -116,7 +116,8 @@ def grid_generate(complex_file:ComplexFile, ligname:str, gridbox_size:int=20, sa
 
     lig_molnum = complex_file.get_lig_molnum(ligname)
     pdbid = complex_file.pdbid if complex_file.pdbid else 'unknown'
-    grid_file = f'{pdbid}_glide-grid_{ligname}.zip'
+    save_dir = save_dir if save_dir else os.getcwd()
+    grid_file = os.path.join(save_dir, f'{pdbid}_glide-grid_{ligname}.zip')
     logger.debug(f'Prepare to generate grid file: {grid_file}')
 
     _cwd = os.getcwd()
@@ -146,24 +147,25 @@ def grid_generate(complex_file:ComplexFile, ligname:str, gridbox_size:int=20, sa
     launch(f'glide {input_file} -JOBNAME {job_name}')
     logger.debug('Grid File %s Generated.' % grid_file)
     os.chdir(_cwd)
-    output_file = GridFile(os.path.join(save_dir, grid_file))
-    
-    return output_file
 
-def dock(lig_file:LigandFile, grid_file:GridFile, precision:str='SP', calc_rmsd:bool=False, overwrite:bool=False) -> DockResultFile:
+    return GridFile(grid_file)
+
+def dock(grid_file:GridFile, lig_file:LigandFile, precision:str='SP', calc_rmsd:bool=False, save_dir:str=None, overwrite:bool=False) -> DockResultFile:
     '''
     一对一/多对一 glide dock任务输入文件编写与运行
 
     Parameters
     ----------
-    lig_file : LigandFile
-        配体文件
     grid_file_path : GridFile
         格点文件
+    lig_file : LigandFile
+        配体文件
     precision : str
         对接精度(HTVS|SP|XP) 默认SP
     calc_rmsd : bool
         是否计算rmsd to input ligand geometries 默认False
+    save_dir : str
+        保存Dock结果文件的目录 保存于该目录的PDBID文件夹下
     overwrite : bool
         是否覆盖已有文件
 
@@ -177,12 +179,19 @@ def dock(lig_file:LigandFile, grid_file:GridFile, precision:str='SP', calc_rmsd:
     internal_ligand = grid_file.internal_ligand
     # 正在对接的配体名称
     docking_ligand = lig_file.file_prefix
-    dock_result_file = f'{pdbid}_{internal_ligand}_glide-dock_{docking_ligand}_{precision}.maegz'
+    save_dir = save_dir if save_dir else os.getcwd()
+    save_dir = os.path.join(save_dir, pdbid)
+    os.makedirs(save_dir, exist_ok=True)
+    dock_result_file = os.path.join(save_dir, f'{pdbid}_{internal_ligand}_glide-dock_{docking_ligand}_{precision}.maegz')
     
+    _cwd = os.getcwd()
+    os.chdir(save_dir)
+
     logger.debug(f'Prepare to dock {docking_ligand} on {pdbid}')
     # 如果已有对接成功文件 跳过对接步骤
     if os.path.exists(dock_result_file) and not overwrite:     
-        logger.debug('File %s is existed.' % dock_result_file)                           
+        logger.debug('File %s is existed.' % dock_result_file)
+        os.chdir(_cwd)                           
         return DockResultFile(dock_result_file)
 
     input_file = f'{pdbid}_{internal_ligand}_glide-dock_{docking_ligand}_{precision}.in'
@@ -213,6 +222,7 @@ def dock(lig_file:LigandFile, grid_file:GridFile, precision:str='SP', calc_rmsd:
 
     logger.debug(f'{pdbid}-{docking_ligand} Glide Docking Completed')
     logger.debug(f'Docking Result File: {dock_result_file} Saved.')
+    os.chdir(_cwd)
 
     return DockResultFile(dock_result_file)
 
