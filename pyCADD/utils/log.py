@@ -16,6 +16,7 @@ def get_logfile_name():
     '''
     # 默认储存log文件的目录PATH
     log_dir = os.getcwd() + '/logs/'
+    os.makedirs(log_dir, exist_ok=True)
     date = datetime.now()
     year = str(date.year)
     month = str(date.month)

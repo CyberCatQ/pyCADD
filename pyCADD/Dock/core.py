@@ -1,33 +1,11 @@
 import os
 import logging
+import shutil
 
 from pyCADD.Dock.common import launch, PDBFile, MaestroFile, GridFile, LigandFile, ReceptorFile, ComplexFile, DockResultFile
 from pyCADD.Dock.config import GLIDE_FORCEFIELD as FORCEFIELD
 
 logger = logging.getLogger(__name__)
-
-def keep_chain(pdbfile:PDBFile, chain_name:str) -> PDBFile:
-    '''
-    读取PDB晶体文件并将单一链的结构输出为pdb文件
-
-    Parameters
-    ----------
-    pdbfile : PDBFile
-        PDB晶体文件
-    chain_name : str
-        要保留的链名称
-
-    Return
-    ----------
-    PDBFile
-        保留单链结构的PDB文件
-    '''
-    singlechain_file = '%s-chain-%s.mae' % (pdbfile.pdbid, chain_name)
-    logger.debug('Keep the single chain structure: %s' % singlechain_file)
-    st = MaestroFile.get_first_structure(pdbfile.file_path)  # 读取原始PDB结构
-    st_chain_only = st.chain[chain_name].extractStructure()
-    st_chain_only.write(singlechain_file)
-    return MaestroFile(singlechain_file)
 
 def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_water:bool=True, save_dir:str=None, overwrite:bool=False) -> ComplexFile:
     '''
@@ -35,8 +13,8 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
 
     Parameters
     ----------
-    pdbfile : PDBFile
-        需要Minimize的PDB文件
+    pdbfile : PDBFile | MaestroFile
+        需要Minimize的PDB|Mae文件
     side_chain : bool
         是否优化侧链
     missing_loop : bool
@@ -57,14 +35,18 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
     
     logger.debug('Prepare to minimize %s' % pdbfile.file_name)
     pdbid = pdbfile.pdbid if pdbfile.pdbid else 'unknown'
+    ligand_id = pdbfile.ligid if pdbfile.ligid else None
+    ligand_resnum = pdbfile.lig_resnum if pdbfile.lig_resnum else None
+    
     save_dir = save_dir if save_dir else os.getcwd()
     minimized_file = os.path.join(save_dir, f'{pdbid}_minimized.mae')
+
     _cwd = os.getcwd()
     os.chdir(save_dir)
 
     if not overwrite and os.path.exists(minimized_file):  # 如果已经进行过优化 为提高效率而跳过优化步骤
         logger.debug('File %s is existed.' % minimized_file)
-        return ComplexFile(minimized_file)
+        return ComplexFile(minimized_file, ligand_id, ligand_resnum)
 
     _job_name = '%s-Minimize' % pdbfile.pdbid
     prepwizard_command = 'prepwizard -f 3 -r 0.3 -propka_pH 7.0 -disulfides -s -j %s' % _job_name
@@ -75,22 +57,25 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
     if del_water:
         prepwizard_command += ' -watdist 0.0'
 
+    # Prepwizard要求输出文件名必须为相对路径 只能先输出 后移动
+    _minimized_file = f'{pdbid}_minimized.mae'
+
     prepwizard_command += ' %s' % pdbfile.file_path # 将pdb文件传入prepwizard
-    prepwizard_command += ' %s' % minimized_file    # 将优化后的文件保存到minimized_file
+    prepwizard_command += ' %s' % _minimized_file    # 将优化后的文件保存到minimized_file
     
     launch(prepwizard_command)   # 执行Minimize Job 阻塞至任务结束
-    os.chdir(_cwd)
-
+    
     # 判断Minimized任务是否完成(是否生成Minimized结束的结构文件)
-    # 无法被优化的晶体结构
-    try: 
-        output_file = ComplexFile(minimized_file)
-        logger.debug('PDB minimized file: %s Saved.' % minimized_file)
-        return output_file
+    try:
+        shutil.move(_minimized_file, minimized_file)
     except FileNotFoundError:
         raise RuntimeError('%s Crystal Minimization Process Failed.' % pdbfile.pdbid)
+    else:
+        os.chdir(_cwd)
+        logger.debug('PDB minimized file: %s Saved.' % minimized_file)
+        return ComplexFile(minimized_file, ligand_id, ligand_resnum)
 
-def grid_generate(complex_file:ComplexFile, ligname:str, gridbox_size:int=20, save_dir:str=None, overwrite:bool=False) -> GridFile:
+def grid_generate(complex_file:ComplexFile, gridbox_size:int=20, save_dir:str=None, overwrite:bool=False) -> GridFile:
     '''
     自动编写glide grid输入文件并启动Glide Grid生成任务
 
@@ -113,8 +98,12 @@ def grid_generate(complex_file:ComplexFile, ligname:str, gridbox_size:int=20, sa
         生成的格点文件
 
     '''
+    ligname = complex_file.ligid
+    lig_resnum = int(complex_file.lig_resnum)
+    if ligname is None and lig_resnum is None:
+        ligname = input('Ligand name is not specified in grid file. Please input the ligand name: ')
 
-    lig_molnum = complex_file.get_lig_molnum(ligname)
+    lig_molnum = complex_file.get_lig_molnum(ligname, lig_resnum)
     pdbid = complex_file.pdbid if complex_file.pdbid else 'unknown'
     save_dir = save_dir if save_dir else os.getcwd()
     grid_file = os.path.join(save_dir, f'{pdbid}_glide-grid_{ligname}.zip')
@@ -125,7 +114,7 @@ def grid_generate(complex_file:ComplexFile, ligname:str, gridbox_size:int=20, sa
     # 如果已经生成了格点文件则跳过生成过程
     if os.path.exists(grid_file) and not overwrite: 
         logger.debug('File %s is existed.' % grid_file)
-        return GridFile(grid_file)
+        return GridFile(grid_file, ligname, lig_resnum)
 
     input_file = f'{pdbid}_glide-grid_{ligname}.in'
     job_name = f'{pdbid}-{ligname}-Grid-Generate'
@@ -148,7 +137,7 @@ def grid_generate(complex_file:ComplexFile, ligname:str, gridbox_size:int=20, sa
     logger.debug('Grid File %s Generated.' % grid_file)
     os.chdir(_cwd)
 
-    return GridFile(grid_file)
+    return GridFile(grid_file, ligname, lig_resnum)
 
 def dock(grid_file:GridFile, lig_file:LigandFile, precision:str='SP', calc_rmsd:bool=False, save_dir:str=None, overwrite:bool=False) -> DockResultFile:
     '''
@@ -177,6 +166,7 @@ def dock(grid_file:GridFile, lig_file:LigandFile, precision:str='SP', calc_rmsd:
     pdbid = grid_file.pdbid if grid_file.pdbid else 'unknown'
     # 共结晶配体名称
     internal_ligand = grid_file.internal_ligand
+    internal_ligand_resnum = grid_file.lig_resnum
     # 正在对接的配体名称
     docking_ligand = lig_file.file_prefix
     save_dir = save_dir if save_dir else os.getcwd()
@@ -192,7 +182,7 @@ def dock(grid_file:GridFile, lig_file:LigandFile, precision:str='SP', calc_rmsd:
     if os.path.exists(dock_result_file) and not overwrite:     
         logger.debug('File %s is existed.' % dock_result_file)
         os.chdir(_cwd)                           
-        return DockResultFile(dock_result_file)
+        return DockResultFile(dock_result_file, internal_ligand, internal_ligand_resnum, docking_ligand, precision)
 
     input_file = f'{pdbid}_{internal_ligand}_glide-dock_{docking_ligand}_{precision}.in'
     job_name = f'{pdbid}-{internal_ligand}-Glide-Dock-{docking_ligand}-{precision}'
@@ -217,14 +207,14 @@ def dock(grid_file:GridFile, lig_file:LigandFile, precision:str='SP', calc_rmsd:
     try:
         os.rename(output_file, dock_result_file)
     except Exception:
-        logger.debug(f'{pdbid}-{docking_ligand} Docking Failed')
-        return None
+        #logger.debug(f'{pdbid}-{docking_ligand} Docking Failed')
+        raise RuntimeError(f'{pdbid}-{docking_ligand} Docking Failed')
 
     logger.debug(f'{pdbid}-{docking_ligand} Glide Docking Completed')
     logger.debug(f'Docking Result File: {dock_result_file} Saved.')
     os.chdir(_cwd)
 
-    return DockResultFile(dock_result_file)
+    return DockResultFile(dock_result_file, internal_ligand, internal_ligand_resnum, docking_ligand, precision)
 
 def calc_mmgbsa(maestrofile:DockResultFile, overwrite:bool=False) -> ComplexFile:
     '''

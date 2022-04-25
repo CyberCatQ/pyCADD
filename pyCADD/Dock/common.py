@@ -96,16 +96,20 @@ class PDBFile(BaseFile):
     '''
     PDB文件类型
     '''
-    def __init__(self, path) -> None:
+    def __init__(self, path, ligand_id=None) -> None:
         '''
         Parameter
         ----------
         path : str
             PDB文件路径
+        ligand_id : str    
+            配体小分子名称
         '''
         super().__init__(path)
         self.pdbid = self.file_prefix
-        self.lig_name = None
+        self.ligid = ligand_id
+        self.lig_resnum = None
+        self.structure = next(StructureReader(self.file_path))
         
     def _catch_lig(self) -> list:
         '''
@@ -128,7 +132,15 @@ class PDBFile(BaseFile):
                 result_list.append(lig_dict)
         return result_list
 
-    def _input_from_list(self) -> dict:
+    def _get_lig_info(self, lig_res) -> dict:
+        return {
+            'id': lig_res.pdbres.strip(), 
+            'chain': lig_res.chain, 
+            'resid': lig_res.resnum, 
+            'atom_num': len(lig_res)
+            }
+
+    def _input_from_list(self, liglist:list) -> dict:
         '''
         获取索引的配体小分子信息(仅限于liglist内)
 
@@ -137,21 +149,24 @@ class PDBFile(BaseFile):
         dict
             配体小分子信息
         '''
-        liglist = self._catch_lig()
         while True:
             ligindex = int(input('Please specify ligand index:').strip())
             if ligindex < len(liglist):
-                return liglist[ligindex]
+                selected_lig = liglist[ligindex]
+                self.lig_resnum = selected_lig.resnum
+                return self._get_lig_info(selected_lig)
             else:
                 logger.warning('Wrong index, please try agagin.')
 
-    def get_lig(self, select_first:bool=False) -> dict:
+    def get_lig(self, ligand_id:str=None, select_first:bool=False) -> dict:
         '''
-        从PDB文件获取配体小分子信息:
+        从PDB文件获取指定配体小分子信息:
             Name, Chain, Resid, Atom_num
         
         Parameters
         ----------
+        ligand_id : str
+            配体小分子名称
         select_first : bool
             存在多个配体时 是否自动选择第一个(默认为False)
         
@@ -160,27 +175,30 @@ class PDBFile(BaseFile):
         dict
             配体小分子信息
         '''
-        lig_list = self._catch_lig()
-    
-        # 去除水分子
-        lig_list = [lig for lig in lig_list if lig['id'] != 'HOH']
+        
+        ligand_id = self.ligid if ligand_id is None else ligand_id
+        assert ligand_id is not None, 'Ligand ID is not specified.'
+        _all_match_lig = [res for res in self.structure.residue if res.pdbres.startswith(ligand_id)]
 
-        if len(lig_list) == 0:
-            return None
-        elif len(lig_list) == 1:
-            return lig_list[0]
+        if len(_all_match_lig) == 0:
+            raise ValueError('No ligand found in PDB file.')
+        elif len(_all_match_lig) == 1:
+                self.lig_resnum = _all_match_lig[0].resnum
+                return self._get_lig_info(_all_match_lig[0])
         else:
             fmt = '{0:<10}{1:<10}{2:<10}{3:<10}{4:<10}'
             logger.debug('Crystal %s has multiple ligands' % self.pdbid)
-            print(fmt.format('Index', 'Name', 'Chain', 'Resid', 'Atom_num'))
-            for index, lig in enumerate(lig_list):
-                print(fmt.format(index, *lig.values()))
+            print(fmt.format('Index', 'PDBID', 'Name', 'Chain', 'Resnum'))
+            for index, lig in enumerate(_all_match_lig):
+                print(fmt.format(index, self.pdbid, lig.pdbres, lig.chain, lig.resnum))
 
             if select_first:
-                logger.debug('Selected the first ligand: %s' % lig_list[0])
-                return lig_list[0]
-
-            return self._input_from_list()
+                first_lig = _all_match_lig[0]
+                self.lig_resnum = first_lig.resnum
+                logger.debug(f'Selected the first ligand: {first_lig.pdbres}:Chain {first_lig.chain}:{first_lig.resnum}' )
+                return self._get_lig_info(_all_match_lig[0])
+                
+            return self._input_from_list(_all_match_lig)
         
     def get_lig_name(self) -> str:
         '''
@@ -192,9 +210,9 @@ class PDBFile(BaseFile):
         str
             配体小分子名称
         '''
-        return self.get_lig()['id']
+        return self.ligid
     
-    def keep_chain(self, chain_name:str=None):
+    def keep_chain(self, chain_name:str=None, select_first_lig:bool=False) -> None:
         '''
         返回保留单链的结构
         
@@ -202,24 +220,28 @@ class PDBFile(BaseFile):
         ----------
         chain : str
             需要保留的链(默认为配体所在链)
+        select_first_lig : bool
+            存在多个配体时 是否自动选择第一个(默认为False, 仅chain_name为None时生效)
 
         '''
-        chain_name = chain_name if chain_name is not None else self.get_lig()['chain']
+        chain_name = chain_name if chain_name is not None else self.get_lig(select_first=select_first_lig)['chain']
         singlechain_file = '%s-chain-%s.mae' % (self.pdbid, chain_name)
         st = MaestroFile.get_first_structure(self.file_path)  # 读取原始PDB结构
         st_chain_only = st.chain[chain_name].extractStructure()
         st_chain_only.write(singlechain_file)
-        return MaestroFile(singlechain_file)
+        return MaestroFile(singlechain_file, self.ligid, self.lig_resnum)
 
 class MaestroFile(BaseFile):
     '''
     Maestro文件类型
     '''
-    def __init__(self, path:str, ligand:str=None) -> None:
+    def __init__(self, path:str, ligand:str=None, lig_resnum:int=None) -> None:
         super().__init__(path)
         _pdbid_from_file = self.file_prefix.split('_')[0]
+        _pdbid_from_file = _pdbid_from_file if check_pdb(_pdbid_from_file) else _pdbid_from_file.split('-')[0]
         self.pdbid = _pdbid_from_file if check_pdb(_pdbid_from_file) else None
-        self.ligand = ligand
+        self.ligid = ligand
+        self.lig_resnum = lig_resnum
 
     @property
     def st_reader(self) -> StructureReader:
@@ -306,11 +328,11 @@ class ComplexFile(MaestroFile):
     Maestro单结构复合物文件类型
     仅包含一个Entry
     '''
-    def __init__(self, path:str, ligand:str=None) -> None:
-        super().__init__(path, ligand)
+    def __init__(self, path:str, ligand:str=None, lig_resnum:int=None) -> None:
+        super().__init__(path, ligand, lig_resnum)
         self.structure = self.structures[0]
 
-    def _get_mol_obj(self, ligname:str) -> struc._Molecule:
+    def _get_mol_obj(self, ligname:str, lig_resnum:int=None) -> struc._Molecule:
         '''
         获取结构中的配体所在Molecule object
 
@@ -318,11 +340,20 @@ class ComplexFile(MaestroFile):
         ----------
         ligname : str
             配体名称
+        lig_resnum : int
+            配体编号
         '''
         for res in self.structure.residue:
-            if res.pdbres.strip() == '%s' % ligname:
+            if res.resnum == lig_resnum:
                 molnum = res.molecule_number
-                yield self.structure.molecule[molnum]
+                logger.debug('Exact match found: %s %d' % (res.pdbres, res.resnum))
+                return self.structure.molecule[molnum]
+            elif res.pdbres.strip() == ligname:
+                molnum = res.molecule_number
+                logger.debug('Approximate match found: %s %d' % (res.pdbres, res.resnum))
+                return self.structure.molecule[molnum]
+            
+        raise RuntimeError('No match found: %s' % (ligname))
 
     def _del_covalent_bond(self, ligname) -> None:
         '''
@@ -347,7 +378,7 @@ class ComplexFile(MaestroFile):
                 
         self.structure.deleteBond(bond_to_del.atom1, bond_to_del.atom2)
         
-    def get_lig_molnum(self, ligname:str=None) -> str:
+    def get_lig_molnum(self, ligname:str=None, lig_resnum:int=None) -> str:
         '''
         以ligname为KEY 查找Maestro文件中的Molecule Number
         
@@ -355,22 +386,28 @@ class ComplexFile(MaestroFile):
         ----------
         ligname : str
             配体小分子名称
+        lig_resnum : int
+            配体结构中的小分子编号
 
         Return
         ----------
         str
             Molecule Number
         '''
-        ligname = ligname if ligname is not None else self.ligand
+        ligname = ligname if ligname is not None else self.ligid
+        lig_resnum = lig_resnum if lig_resnum is not None else self.lig_resnum
+
+        print('ligname:',ligname, 'lig_resnum:',lig_resnum)
+
         assert ligname is not None, 'Ligand name is not specified.'
-        mol = next(self._get_mol_obj(ligname))
+        mol = self._get_mol_obj(ligname, lig_resnum)
 
         # 判断该molecule是否仅包括小分子本身(是否存在共价连接) 自动移除共价连接
         if len(mol.residue) != 1:  
             logger.info('%s in %s : A covalent bond may exist between the ligand and residue.' % (ligname, self.file_name))
             logger.info('An attempt will be made to remove the covalent bond automatically.')
             self._del_covalent_bond(ligname)
-            mol = next(self._get_mol_obj(ligname))
+            mol = self._get_mol_obj(ligname)
 
         return mol.number
 
@@ -396,7 +433,7 @@ class ComplexFile(MaestroFile):
         '''
         st = self.structure
         pdbid = self.pdbid
-        ligname = ligname if ligname is not None else self.ligand
+        ligname = ligname if ligname is not None else self.ligid
         assert ligname is not None, 'Ligand name is not specified.'
         
         protein_save_dir = protein_dir if protein_dir is not None else os.getcwd()
@@ -427,17 +464,18 @@ class ReceptorFile(MaestroFile):
     '''
     Maestro受体文件类型
     '''
-    def __init__(self, path) -> None:
-        super().__init__(path)
+    def __init__(self, path:str, ligand:str=None, lig_resnum:int=None) -> None:
+        super().__init__(path, ligand, lig_resnum)
         self.pdbid = self.pdbid if self.pdbid else self.file_name.split('-')[0]
 
 class LigandFile(MaestroFile):
     '''
     Maestro配体文件类型
     '''
-    def __init__(self, path) -> None:
-        super().__init__(path)
+    def __init__(self, path:str, ligand:str=None, lig_resnum:int=None) -> None:
+        super().__init__(path, ligand, lig_resnum)
         self.pdbid = self.pdbid if self.pdbid else self.file_name.split('-')[0]
+        self.ligand_name = ligand if ligand is not None else self.file_prefix
     
     def calc_admet(self, overwrite:bool=False):
         '''
@@ -467,11 +505,12 @@ class DockResultFile(MaestroFile):
         structure[0]: receptor
         structure[1]: ligand
     '''
-    def __init__(self, path) -> None:
-        super().__init__(path)
-        self.internal_ligand_name = self.file_prefix.split('_')[1]
-        self.docking_ligand_name = self.file_prefix.split('_')[3]
-        self.precision = self.file_prefix.split('_')[4]
+    def __init__(self, path:str, ligand:str=None, lig_resnum:int=None, docking_ligand:str=None, precision:str=None) -> None:
+        super().__init__(path, ligand, lig_resnum)
+        self.internal_ligand_name = ligand if ligand is not None else self.file_prefix.split('_')[1]
+        self.internal_ligand_resnum = lig_resnum
+        self.docking_ligand_name = docking_ligand if docking_ligand is not None else self.file_prefix.split('_')[3]
+        self.precision = precision if precision is not None else self.file_prefix.split('_')[4]
 
     @property
     def merged_file(self) -> ComplexFile:
@@ -497,6 +536,12 @@ class DockResultFile(MaestroFile):
         返回对接结果的配体结构
         '''
         return self.structures[1]
+    @property
+    def property(self) -> dict:
+        '''
+        返回对接结果的数据
+        '''
+        return self.extract_docking_data()
 
     def get_receptor_file(self) -> ReceptorFile:
         '''
@@ -560,8 +605,10 @@ class GridFile(BaseFile):
     '''
     网格文件类型(.zip)
     '''
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str, ligand:str=None, lig_resnum:int=None) -> None:
         super().__init__(file_path)
+        self.ligand = ligand
+        self.lig_resnum = lig_resnum
         _pdbid_from_file = self.file_prefix.split('_')[0]
         self.pdbid = _pdbid_from_file if check_pdb(_pdbid_from_file) else None
         # 共结晶配体名称
@@ -621,10 +668,11 @@ class MultiInputFile(BaseFile):
         
         self.pairs_list = [(pdbid, ligid) for pdbid, ligid in [line.split(',') for line in raw_list]]
         self.pdbid_list = [pdbid for pdbid, ligid in self.pairs_list]
+        self.ligand_list = [ligid for pdbid, ligid in self.pairs_list]
     
     def get_pairs_list(self) -> list:
         '''
-        获取受体列表
+        获取受体信息列表
         '''
         if self.pairs_list is None:
             self.parse_file()
@@ -632,15 +680,23 @@ class MultiInputFile(BaseFile):
     
     def get_pdbid_list(self) -> list:
         '''
-        获取受体列表中的PDBID列表
+        获取受体信息列表中的PDBID列表
         '''
         if self.pdbid_list is None:
             self.parse_file()
         return self.pdbid_list
-    
+
+    def get_ligand_list(self) -> list:
+        '''
+        获取受体信息列表中的配体列表
+        '''
+        if self.ligand_list is None:
+            self.parse_file()
+        return self.ligand_list
+
     def get_pdbfile_path_list(self, pdb_dir: str) -> list:
         '''
-        获取受体列表中的PDB文件路径列表
+        获取受体信息列表中的PDB文件路径列表
 
         Parameter
         ----------
@@ -651,7 +707,7 @@ class MultiInputFile(BaseFile):
         
     def get_gridfile_path_list(self, grid_dir: str) -> list:
         '''
-        获取受体列表中的Grid文件路径列表
+        获取受体信息列表中的Grid文件路径列表
 
         Parameter
         ----------

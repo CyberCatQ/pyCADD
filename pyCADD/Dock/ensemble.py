@@ -1,21 +1,12 @@
 import logging
 import os
-import multiprocessing
-from shutil import move
 
-# For Schrodinger 2021-2 or newer release
-import importlib
-from tkinter import N
-from typing import Iterable
-importlib.reload(multiprocessing)
-
-from pyCADD.utils.tool import download_pdb, download_pdb_list, makedirs_from_list, _get_progress, get_config
-from pyCADD.Dock.common import PDBFile, MaestroFile, GridFile, DockResultFile, ComplexFile, ReceptorFile, LigandFile, MultiInputFile
-from pyCADD.Dock.core import minimize, grid_generate, dock, calc_admet, calc_mmgbsa, calc_volume
+from pyCADD.utils.tool import download_pdb_list, makedirs_from_list, _get_progress, _multiprocssing_run, NUM_PARALLEL
+from pyCADD.Dock.common import PDBFile, DockResultFile, LigandFile, MultiInputFile
+from pyCADD.Dock.core import minimize, grid_generate, dock
 from pyCADD.Dock.data import extra_docking_data
 
 logger = logging.getLogger(__name__)
-NUM_PARALLEL = multiprocessing.cpu_count() // 4 * 3
 
 def split_ligand(ligand_file:LigandFile, save_dir:str=None, overwrite:bool=False) -> list:
     '''
@@ -33,7 +24,7 @@ def split_ligand(ligand_file:LigandFile, save_dir:str=None, overwrite:bool=False
     Returns
     -------
     list
-        拆分后的配体名称列表   
+        拆分后的配体文件路径列表   
             配体名称由 唯一索引index + ligand_name 组成 
     '''
 
@@ -45,7 +36,7 @@ def split_ligand(ligand_file:LigandFile, save_dir:str=None, overwrite:bool=False
     progress.start_task(taskID)
 
     label_list = []
-    ligand_list = []
+    ligand_path_list = []
     activity_label_name = [f'{_type}_user_{_label}' for _type in ('b', 's') for _label in ('Activity', 'activity')]
     for index, structure in enumerate(ligand_file.structures):
         st_name = f"{index}-{structure.property['s_m_title']}"
@@ -64,7 +55,7 @@ def split_ligand(ligand_file:LigandFile, save_dir:str=None, overwrite:bool=False
         if not os.path.exists(output_file) or overwrite:
             structure.write(output_file)
         
-        ligand_list.append(st_name)
+        ligand_path_list.append(output_file)
         progress.update(taskID, advance=1)
 
     with open(os.path.join(save_dir, 'label.csv'), 'w') as f:
@@ -72,82 +63,9 @@ def split_ligand(ligand_file:LigandFile, save_dir:str=None, overwrite:bool=False
     
     progress.stop()
 
-    return ligand_list
+    return ligand_path_list
     
-def creat_mapping(grid_file_list:list, ligand_file_list:list) -> tuple:
-    '''
-    将所有受体与全部配体小分子建立完全映射关系
-
-    Parameters
-    ----------
-    grid_file_list : list
-        受体格点文件列表
-    ligand_file_list : list
-        配体文件列表
-    '''
-    mapping_results = []
-    logger.debug(f'Prepare to map {len(ligand_file_list)} ligands to {len(grid_file_list)} receptors')
-
-    for grid_file in grid_file_list:
-        mapping_results.extend([(grid_file, ligand_file) for ligand_file in ligand_file_list])
-
-    return mapping_results
-
-def _multiprocssing_run(func, _iterable:Iterable, *args, job_name:str, num_parallel:int):
-    '''
-    多进程运行函数 并自动生成进度条
-
-    Parameters
-    ----------
-    func : function
-        运行函数
-    _iterable : Iterable
-        可迭代对象 即函数作用对象总集
-    *args
-        传入func函数的其他参数
-    job_name : str
-        进程名称
-    num_parallel : int
-        进程数量
-    
-    Returns
-    -------
-    List
-        所有成功完成任务的返回值
-    
-    '''
-    progress, taskID = _get_progress(job_name, 'bold cyan', len(_iterable))
-    returns = []
-    def success_handler(result):
-        '''
-        处理成功的任务
-        '''
-        returns.append(result)
-        progress.update(taskID, advance=1)
-
-    def _error_handler(error:Exception):
-        '''
-        异常处理函数
-        '''
-        logger.error(f'{error}')
-        progress.update(taskID, advance=1)
-
-    progress.start()
-    progress.start_task(taskID)
-
-    pool = multiprocessing.Pool(num_parallel, maxtasksperchild=1)
-    for item in _iterable:
-        if isinstance(item, Iterable):
-            pool.apply_async(func, args=(*item, *args), callback=success_handler, error_callback=_error_handler)
-        else:
-            pool.apply_async(func, args=(item, *args), callback=success_handler, error_callback=_error_handler)
-    pool.close()
-    pool.join()
-
-    progress.stop()
-    return returns
- 
-class Console:
+class _Console:
     '''
     Ensemble docking 控制台对象
     '''
@@ -160,11 +78,12 @@ class Console:
 
         self.pdbfile_list = None
         self.minimized_file_list = None
-        self.ligand_list = None
+        self.ligand_path_list = None
         self.mapping = None
         self.grid_file_list = None
         self.ligand_file_list = None
         self.dock_file_list = None
+        self.docking_failed_list = None
 
         self.pdb_save_dir = os.path.join(os.getcwd(), 'pdb')
         self.minimize_save_dir = os.path.join(os.getcwd(), 'minimize')
@@ -186,6 +105,48 @@ class Console:
             self.result_save_dir
             ])
     
+    def _get_failed_list(self, precision:str='SP'):
+        '''
+        获取此前对接任务失败的信息列表
+        '''
+        _failed_list_file_path = os.path.join(self.result_save_dir, f'docking_failed_{precision}.csv')
+
+        if os.path.exists(_failed_list_file_path):
+            with open(_failed_list_file_path, 'r') as f:
+                lines = f.read().splitlines()
+            _failed_list = [tuple(line.split(',')) for line in lines]
+            return [(pdbid, internal_lig, docking_lig) for pdbid, internal_lig, docking_lig in _failed_list]
+        else:
+            return None
+
+    @staticmethod
+    def _creat_mapping(grid_file_list:list, ligand_file_list:list, failed_list:list=None) -> tuple:
+        '''
+        将所有受体与全部配体小分子建立完全映射关系
+
+        Parameters
+        ----------
+        grid_file_list : list
+            受体格点文件列表
+        ligand_file_list : list
+            配体文件列表
+        failed_list : list
+            此前不能成功对接的映射关系列表 将不再重新对接
+        '''
+        mapping_results = []
+        failed_list = [] if failed_list is None else failed_list
+        logger.debug(f'Prepare to map {len(ligand_file_list)} ligands to {len(grid_file_list)} receptors')
+
+        for grid_file in grid_file_list:
+            for ligand_file in ligand_file_list:
+                if (grid_file.pdbid, grid_file.ligand, ligand_file.ligand_name) in failed_list:
+                    logger.debug(f'Skip mapping {grid_file.pdbid}-{grid_file.ligand} to {ligand_file.ligand_name}')
+                    continue
+                mapping_results.append((grid_file, ligand_file))
+            # mapping_results.extend([(grid_file, ligand_file) for ligand_file in ligand_file_list])
+
+        return mapping_results
+
     def download_all_pdb(self, overwrite:bool=False) -> None:
         '''
         下载列表中的所有PDB文件
@@ -205,7 +166,10 @@ class Console:
         将所有PDB文件转换为单链构象
         '''
         logger.debug(f'Prepare to keep single chain for {len(self.pdbid_list)} PDB files')
-        self.pdbfile_list = [PDBFile(pdbfile_path).keep_single_chain() for pdbfile_path in self.input_file.get_pdbfile_path_list(self.pdb_save_dir)]
+        _cwd = os.getcwd()
+        os.chdir(self.pdb_save_dir)
+        self.pdbfile_list = [PDBFile(os.path.join(self.pdb_save_dir, pdbid + '.pdb'), ligand_id).keep_chain(select_first_lig=True) for pdbid, ligand_id in self.pairs_list]
+        os.chdir(_cwd)
 
     def multi_minimize(self, keep_single_chain:bool=True, num_parallel:int=NUM_PARALLEL, side_chain:bool=True, missing_loop:bool=True, del_water:bool=True, overwrite:bool=False) -> list:
         '''
@@ -226,19 +190,14 @@ class Console:
             优化后的mae文件列表
         '''
         logger.debug(f'Prepare to optimize and minimize {len(self.pairs_list)} structures')
-        pdbid_list = self.pdbid_list
-        pairs_list = self.pairs_list
-        minimize_save_dir = self.minimize_save_dir
 
+        minimize_save_dir = self.minimize_save_dir
         self.download_all_pdb(overwrite)
-        pdbfile_list = self.pdbfile_list
         if keep_single_chain:
             self.keep_single_chain()
 
-        self.minimized_file_list = _multiprocssing_run(minimize, pdbfile_list, side_chain, missing_loop, del_water, minimize_save_dir, overwrite, job_name='Minimizing Structures', num_parallel=num_parallel)
-        # self.minimized_list = [os.path.join(minimize_save_dir, f'{pdbid}_minimized.mae') for pdbid in pdbid_list]
-        # 某一结构优化失败时将抛出FileNotFoundError
-        # self.minimized_file_list = [ComplexFile(os.path.join(minimize_save_dir, f'{pdbid}_minimized.mae'), ligand) for pdbid, ligand in pairs_list]
+        self.minimized_file_list = _multiprocssing_run(minimize, self.pdbfile_list, side_chain, missing_loop, del_water, minimize_save_dir, overwrite, job_name='Minimizing Structures', num_parallel=num_parallel)
+
         return self.minimized_file_list
 
     def multi_grid_generate(self, gridbox_size:int=20, num_parallel:int=NUM_PARALLEL, overwrite:bool=False) -> list:
@@ -269,7 +228,6 @@ class Console:
             raise FileNotFoundError('No minimized file found. Please run minimize first.')
 
         self.grid_file_list = _multiprocssing_run(grid_generate, _pairs_list, gridbox_size, grid_save_dir, overwrite, job_name='Generating Grids', num_parallel=num_parallel)
-        # self.grid_list = self.input_file.get_gridfile_path_list(grid_save_dir)
         
         return self.grid_file_list
 
@@ -289,14 +247,14 @@ class Console:
         for minimized_file in minimized_file_list:
             minimized_file.split(protein_dir=self.protein_save_dir, ligand_dir=self.ligand_save_dir, complex_dir=self.complex_save_dir)
     
-    def ligand_split(self, external_ligand_file:str, overwrite:bool=False) -> list:
+    def ligand_split(self, external_ligand_file:LigandFile, overwrite:bool=False) -> list:
         '''
         拆分外部ligand文件
         
         Parameter
         ---------
-        external_ligand_file : str
-            外部ligand文件路径
+        external_ligand_file : LigandFile
+            外部ligand文件
         
         Returns
         -------
@@ -305,20 +263,26 @@ class Console:
         '''
         logger.debug(f'Prepare to split {external_ligand_file}')
         ligand_save_dir = self.ligand_save_dir
-        self.ligand_list = split_ligand(external_ligand_file, ligand_save_dir, overwrite)
-        return self.ligand_list
+        self.ligand_path_list = split_ligand(external_ligand_file, ligand_save_dir, overwrite)
+        return self.ligand_path_list
         
-    def creat_mapping(self):
+    def creat_mapping(self, precision:str='SP'):
         '''
         建立映射
-        '''
-        if self.ligand_list is None:
-            raise RuntimeError('Please run ligand_split first.')
-        
-        self.grid_file_list = [GridFile(os.path.join(self.grid_save_dir, f'{pdbid}_glide-grid_{ligname}.zip') for pdbid, ligname in self.pairs_list)]
-        self.ligand_file_list = [LigandFile(os.path.join(self.ligand_save_dir, f'{ligand}.mae')) for ligand in self.ligand_list]
-        self.mapping = creat_mapping(self.grid_file_list, self.ligand_file_list)
 
+        Parameter
+        ---------
+        precision : str
+            计划对接精度
+        '''
+        if self.ligand_path_list is None:
+            raise RuntimeError('Please run ligand_split first.')
+        if self.grid_file_list is None:
+            raise RuntimeError('Please run grid_generate first.')
+
+        self.ligand_file_list = [LigandFile(ligand_file_path) for ligand_file_path in self.ligand_path_list]
+        self.mapping = self._creat_mapping(self.grid_file_list, self.ligand_file_list, self._get_failed_list(precision))
+        
     def multi_dock(self, precision:str='SP', calc_rmsd:bool=False, num_parallel:int=NUM_PARALLEL, overwrite:bool=False) -> list:
         '''
         使用多进程调用Glide 执行批量分子对接
@@ -346,13 +310,35 @@ class Console:
         
         self.dock_file_list = _multiprocssing_run(dock, self.mapping, precision, calc_rmsd, self.base_dock_save_dir, overwrite, job_name='Ensemble Docking', num_parallel=num_parallel)
         
+        # Failed check
+        total_result = [f'{mapping_item[0].pdbid},{mapping_item[0].internal_ligand},{mapping_item[1].ligand_name}' for mapping_item in self.mapping]
+        success_result = [f'{dock_result_item.pdbid},{dock_result_item.internal_ligand_name},{dock_result_item.docking_ligand_name}' for dock_result_item in self.dock_file_list]
+        self.docking_failed_list = list(set(total_result) - set(success_result))
+
+        if len(self.docking_failed_list) != 0:
+            with open(os.path.join(self.result_save_dir, f'docking_failed_{precision}.csv'), 'w') as f:
+                f.write('\n'.join(self.docking_failed_list))
+        
     def multi_extract_data(self, precision:str='SP', num_parallel:int=NUM_PARALLEL, overwrite:bool=False) -> list:
         '''
         多进程 提取对接结果数据
         '''
         if self.dock_file_list is None:
-            self.dock_file_list = [DockResultFile(os.path.join(self.base_dock_save_dir, pdbid, f'{pdbid}_{ligid}_glide-dock_{ligand}_{precision}.maegz')) for pdbid, ligid in self.pairs_list for ligand in self.ligand_list]
+
+            if self.ligand_path_list is None:
+                raise RuntimeError('Please run ligand_split first.')
+            ligand_name_list = [os.path.basename(ligand_path).split('.')[0] for ligand_path in self.ligand_path_list]
+
+            dockfile_path_list = []
+            for pdbid, ligid in self.pairs_list:
+                for ligand_name in ligand_name_list:
+                    if (pdbid, ligid, ligand_name) in self._get_failed_list(precision):
+                        continue
+                    dockfile_path_list.append(os.path.join(self.base_dock_save_dir, pdbid, f'{pdbid}_{ligid}_glide-dock_{ligand_name}_{precision}.maegz'))
+                    
+                #dockfile_path_list.extend([os.path.join(self.base_dock_save_dir, pdbid, f'{pdbid}_{ligid}_glide-dock_{ligand}_{precision}.maegz') for ligand in ligand_name_list])
+            self.dock_file_list = [DockResultFile(dockresult_file_path) for dockresult_file_path in dockfile_path_list]
         
-        total_data_list = _multiprocssing_run(extra_docking_data, self.dock_file_list, job_name='Extract Docking Data', num_parallel=NUM_PARALLEL)
+        total_data_list = _multiprocssing_run(extra_docking_data, self.dock_file_list, job_name='Extract Docking Data', num_parallel=num_parallel)
         
         return total_data_list

@@ -2,7 +2,8 @@ import logging
 import os
 
 from pyCADD.Dock.common import PDBFile, get_input_pdbid
-from pyCADD.Dock.core import keep_chain, minimize, grid_generate, dock, calc_mmgbsa, calc_admet, calc_volume
+from pyCADD.Dock.ensemble import _Console
+from pyCADD.Dock.core import minimize, grid_generate, dock, calc_mmgbsa, calc_admet, calc_volume
 from pyCADD.Dock.data import extra_docking_data, extra_admet_data, save_docking_data, save_admet_data
 from pyCADD.utils.tool import download_pdb
 
@@ -63,7 +64,7 @@ class Docker:
         '''
         _chain = self.lig_info['chain']
         logger.info(f'Prepare to keep crystal {self.pdbid} chain {_chain}')
-        self.pdb_file = keep_chain(self.pdb_file, _chain, *args, **kwargs)
+        self.pdb_file = self.pdb_file.keep_chain(_chain)
         logger.info(f'{self.pdbid} Keep chain done.')
 
     def minimize(self, side_chain:bool=True, missing_loop:bool=True, del_water:bool=True, *args, **kwargs) -> None:
@@ -233,4 +234,6 @@ class Docker:
         logger.info(f'{output} ADMET data saved.')
 
 
-
+class MultiDocker(_Console):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)

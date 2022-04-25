@@ -2,14 +2,75 @@ import os
 import time
 import logging
 import requests
+import multiprocessing
+
+# For Schrodinger 2021-2 or newer release
+import importlib
+importlib.reload(multiprocessing)
+from typing import Iterable
 
 from rich.progress import SpinnerColumn, TextColumn, BarColumn, Progress, TimeElapsedColumn, TimeRemainingColumn
 from rich.table import Column
 from configparser import ConfigParser
 from threading import Thread
 
+NUM_PARALLEL = multiprocessing.cpu_count() // 4 * 3
 logger = logging.getLogger(__name__)
 
+def _multiprocssing_run(func, _iterable:Iterable, *args, job_name:str, num_parallel:int):
+    '''
+    多进程运行函数 并自动生成进度条
+
+    Parameters
+    ----------
+    func : function
+        运行函数
+    _iterable : Iterable
+        可迭代对象 即函数作用对象总集
+    *args
+        传入func函数的其他参数
+    job_name : str
+        进程名称
+    num_parallel : int
+        进程数量
+    
+    Returns
+    -------
+    List
+        所有成功完成任务的返回值
+    
+    '''
+    progress, taskID = _get_progress(job_name, 'bold cyan', len(_iterable))
+    returns = []
+    def success_handler(result):
+        '''
+        处理成功的任务
+        '''
+        returns.append(result)
+        progress.update(taskID, advance=1)
+
+    def _error_handler(error:Exception):
+        '''
+        异常处理函数
+        '''
+        logger.debug(f'Warnning: {error}')
+        progress.update(taskID, advance=1)
+
+    progress.start()
+    progress.start_task(taskID)
+
+    pool = multiprocessing.Pool(num_parallel, maxtasksperchild=1)
+    for item in _iterable:
+        if isinstance(item, Iterable):
+            pool.apply_async(func, args=(*item, *args), callback=success_handler, error_callback=_error_handler)
+        else:
+            pool.apply_async(func, args=(item, *args), callback=success_handler, error_callback=_error_handler)
+    pool.close()
+    pool.join()
+
+    progress.stop()
+    return returns
+ 
 def get_lib_dir():
     '''
     获取pyCADD库所在的Absolute PATH
