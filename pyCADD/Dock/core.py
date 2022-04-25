@@ -108,6 +108,7 @@ def grid_generate(complex_file:ComplexFile, gridbox_size:int=20, save_dir:str=No
     save_dir = save_dir if save_dir else os.getcwd()
     grid_file = os.path.join(save_dir, f'{pdbid}_glide-grid_{ligname}.zip')
     logger.debug(f'Prepare to generate grid file: {grid_file}')
+    logger.debug('Grid center is set to ligand %s %s' % (ligname, lig_resnum))
 
     _cwd = os.getcwd()
     os.chdir(save_dir)

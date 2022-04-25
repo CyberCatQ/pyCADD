@@ -178,11 +178,12 @@ class PDBFile(BaseFile):
         
         ligand_id = self.ligid if ligand_id is None else ligand_id
         assert ligand_id is not None, 'Ligand ID is not specified.'
-        _all_match_lig = [res for res in self.structure.residue if res.pdbres.startswith(ligand_id)]
+        _all_match_lig = [res for res in self.structure.residue if res.pdbres.strip() == ligand_id]
 
         if len(_all_match_lig) == 0:
             raise ValueError('No ligand found in PDB file.')
         elif len(_all_match_lig) == 1:
+                self.ligid = _all_match_lig[0].pdbres.strip()
                 self.lig_resnum = _all_match_lig[0].resnum
                 return self._get_lig_info(_all_match_lig[0])
         else:
@@ -194,6 +195,7 @@ class PDBFile(BaseFile):
 
             if select_first:
                 first_lig = _all_match_lig[0]
+                self.ligid = first_lig.pdbres.strip()
                 self.lig_resnum = first_lig.resnum
                 logger.debug(f'Selected the first ligand: {first_lig.pdbres}:Chain {first_lig.chain}:{first_lig.resnum}' )
                 return self._get_lig_info(_all_match_lig[0])
@@ -396,9 +398,6 @@ class ComplexFile(MaestroFile):
         '''
         ligname = ligname if ligname is not None else self.ligid
         lig_resnum = lig_resnum if lig_resnum is not None else self.lig_resnum
-
-        print('ligname:',ligname, 'lig_resnum:',lig_resnum)
-
         assert ligname is not None, 'Ligand name is not specified.'
         mol = self._get_mol_obj(ligname, lig_resnum)
 
@@ -429,7 +428,7 @@ class ComplexFile(MaestroFile):
         Return
         ----------
         tuple
-            分割后的文件名(recepfile_PATH, ligfile_PATH)
+            分割后的文件(RecepFile, LigFile)
         '''
         st = self.structure
         pdbid = self.pdbid
@@ -458,7 +457,7 @@ class ComplexFile(MaestroFile):
         complex_file.writeReceptor(_recep_file) 
         st.write(_complex_file)
     
-        return ReceptorFile(_recep_file), LigandFile(_lig_file)
+        return ReceptorFile(_recep_file, self.ligid, self.lig_resnum), LigandFile(_lig_file, self.ligid, self.lig_resnum)
 
 class ReceptorFile(MaestroFile):
     '''

@@ -1,7 +1,7 @@
 import logging
 import os
 
-from pyCADD.Dock.common import PDBFile, get_input_pdbid
+from pyCADD.Dock.common import LigandFile, PDBFile, get_input_pdbid
 from pyCADD.Dock.ensemble import _Console
 from pyCADD.Dock.core import minimize, grid_generate, dock, calc_mmgbsa, calc_admet, calc_volume
 from pyCADD.Dock.data import extra_docking_data, extra_admet_data, save_docking_data, save_admet_data
@@ -16,13 +16,9 @@ class Docker:
     
     def __init__(self) -> None:
         self.pdbid = get_input_pdbid()
-        pdb_file_path = os.path.join(os.getcwd(), self.pdbid + '.pdb')
-        if not os.path.exists(pdb_file_path):
-            download_pdb(self.pdbid, os.getcwd())
-
-        self.pdb_file = PDBFile(pdb_file_path)
-        self.lig_info = self.pdb_file.get_lig()
-        self.lig_name = self.lig_info['id']
+        self.pdb_file_path = os.path.join(os.getcwd(), self.pdbid + '.pdb')
+        self._pdb_file = None
+        self._lig_info = None
 
         self.precision = None                         # 默认对接精度SP
         self.calc_rmsd = False                        # 默认不计算RMSD
@@ -36,6 +32,42 @@ class Docker:
         self.admet_file = None                        # ADMET计算结果文件名
         self.data_dic = None                          # 一般计算结果字典
         self.admet_dic = None                         # ADMET计算结果字典
+
+    def download_pdb(self) -> None:
+        '''
+        下载PDB文件
+        '''
+        logger.info(f'Prepare to download pdb: {self.pdbid}')
+        if os.path.exists(self.pdb_file_path):
+            logger.info(f'{self.pdbid} PDB file exists.')
+            self._pdb_file = PDBFile(self.pdb_file_path)
+            return self._pdb_file
+
+        download_pdb(self.pdbid, os.getcwd())
+        self._pdb_file = PDBFile(self.pdb_file_path)
+        logger.info(f'{self.pdbid} Download pdb done.')
+        return self._pdb_file
+
+    def _get_lig_info(self) -> None:
+        '''
+        获取配体信息
+        '''
+        ligand_id = input('Enter ligand ID: ')
+        self._lig_info = self.pdb_file.get_lig(ligand_id)
+        logger.info(f'Current Ligand: {self.pdb_file.ligid} {self.pdb_file.lig_resnum}')
+        return self._lig_info
+
+    @property
+    def pdb_file(self):
+        return self._pdb_file if self._pdb_file is not None else self.download_pdb()
+
+    @property
+    def lig_info(self):
+        return self._lig_info if self._lig_info is not None else self._get_lig_info()
+
+    @property
+    def lig_name(self):
+        return self.lig_info['id']
 
     def set_precision(self, precision: str) -> None:
         '''
@@ -64,7 +96,7 @@ class Docker:
         '''
         _chain = self.lig_info['chain']
         logger.info(f'Prepare to keep crystal {self.pdbid} chain {_chain}')
-        self.pdb_file = self.pdb_file.keep_chain(_chain)
+        self._pdb_file = self.pdb_file.keep_chain(_chain)
         logger.info(f'{self.pdbid} Keep chain done.')
 
     def minimize(self, side_chain:bool=True, missing_loop:bool=True, del_water:bool=True, *args, **kwargs) -> None:
@@ -100,7 +132,9 @@ class Docker:
             格点参数, 默认None
         '''
         logger.info(f'Prepare to generate grid: {self.pdbid}')
-        self.grid_file = grid_generate(self.minimized_file, self.lig_name, *args, **kwargs)
+        self.minimized_file.ligid = self.lig_name
+        self.minimized_file.lig_resnum = self.lig_info['resid']
+        self.grid_file = grid_generate(self.minimized_file, *args, **kwargs)
         logger.info(f'{self.pdbid} Grid generated.')
     
     def split_complex(self) -> None:
@@ -111,20 +145,24 @@ class Docker:
         self.recep_file, self.lig_file = self.minimized_file.split(self.lig_name)
         logger.info(f'{self.pdbid} Split complex done.')
     
-    def dock(self, *args, **kwargs) -> None:
+    def dock(self, docking_ligand:LigandFile=None, *args, **kwargs) -> None:
         '''
         对接
 
         Parameters
         ----------
+        docking_ligand : str, optional
+            对接配体, 默认None将执行共结晶配体的回顾性对接
         *args : list, optional
             对接参数, 默认None
         **kwargs : dict, optional
             对接参数, 默认None
         '''
+        docking_ligand = docking_ligand if docking_ligand is not None else self.lig_file
         logger.info(f'Prepare to dock: {self.pdbid}')
-        self.dock_file = dock(self.lig_file, self.grid_file, self.precision, self.calc_rmsd, *args, **kwargs)
-        logger.info(f'{self.pdbid} {self.precision} Docking done.')
+        logger.info(f'Docking ligand: {docking_ligand.ligand_name}')
+        self.dock_file = dock(self.grid_file, self.lig_file, self.precision, self.calc_rmsd, *args, **kwargs)
+        logger.info(f'{self.pdbid}-{docking_ligand.ligand_name}-{self.precision} Docking done.')
     
     def calc_mmgbsa(self, *args, **kwargs) -> None:
         '''
