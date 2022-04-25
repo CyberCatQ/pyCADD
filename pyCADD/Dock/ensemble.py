@@ -108,6 +108,7 @@ class _Console:
     def _get_failed_list(self, precision:str='SP'):
         '''
         获取此前对接任务失败的信息列表
+        对接失败的任务不应该再次对接 且无结果文件可提取数据
         '''
         _failed_list_file_path = os.path.join(self.result_save_dir, f'docking_failed_{precision}.csv')
 
@@ -330,9 +331,13 @@ class _Console:
             ligand_name_list = [os.path.basename(ligand_path).split('.')[0] for ligand_path in self.ligand_path_list]
 
             dockfile_path_list = []
+            _failed_list = self._get_failed_list(precision)
+
             for pdbid, ligid in self.pairs_list:
                 for ligand_name in ligand_name_list:
-                    if (pdbid, ligid, ligand_name) in self._get_failed_list(precision):
+                    # 跳过失败的对接
+                    if (pdbid, ligid, ligand_name) in _failed_list:
+                        logger.debug(f'Skip extracting data from {pdbid},{ligid},{ligand_name}')
                         continue
                     dockfile_path_list.append(os.path.join(self.base_dock_save_dir, pdbid, f'{pdbid}_{ligid}_glide-dock_{ligand_name}_{precision}.maegz'))
                     
