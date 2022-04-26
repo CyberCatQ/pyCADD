@@ -2,7 +2,7 @@ import os
 import logging
 import shutil
 
-from pyCADD.Dock.common import launch, PDBFile, MaestroFile, GridFile, LigandFile, ReceptorFile, ComplexFile, DockResultFile
+from pyCADD.Dock.common import launch, PDBFile, GridFile, LigandFile, ReceptorFile, ComplexFile, DockResultFile
 from pyCADD.Dock.config import GLIDE_FORCEFIELD as FORCEFIELD
 
 logger = logging.getLogger(__name__)
