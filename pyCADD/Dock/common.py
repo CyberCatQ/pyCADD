@@ -457,7 +457,7 @@ class ComplexFile(MaestroFile):
         complex_file.writeReceptor(_recep_file) 
         st.write(_complex_file)
     
-        return ReceptorFile(_recep_file, self.ligid, self.lig_resnum), LigandFile(_lig_file, self.ligid, self.lig_resnum)
+        return ReceptorFile(_recep_file, self.ligid, self.lig_resnum), LigandFile(_lig_file, f'{pdbid}-lig-{ligname}', self.lig_resnum)
 
 class ReceptorFile(MaestroFile):
     '''

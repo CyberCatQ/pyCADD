@@ -79,10 +79,12 @@ class _Console:
         self.pdbfile_list = None
         self.minimized_file_list = None
         self.ligand_path_list = None
+        self.minimized_split_list = None
         self.mapping = None
         self.grid_file_list = None
         self.ligand_file_list = None
         self.dock_file_list = None
+        self.redock_file_list = None
         self.docking_failed_list = None
 
         self.pdb_save_dir = os.path.join(os.getcwd(), 'pdb')
@@ -93,7 +95,8 @@ class _Console:
         self.protein_save_dir = os.path.join(os.getcwd(), 'protein')
         self.base_dock_save_dir = os.path.join(os.getcwd(), 'dockfiles')
         self.result_save_dir = os.path.join(os.getcwd(), 'result')
-        
+        self.parallel = NUM_PARALLEL
+
         makedirs_from_list([
             self.pdb_save_dir, 
             self.minimize_save_dir, 
@@ -148,6 +151,22 @@ class _Console:
 
         return mapping_results
 
+    def set_parallel_num(self, parallel:int):
+        '''
+        设置并行数量
+
+        Parameters
+        ----------
+        parallel : int
+            并行数量
+        '''
+        if parallel < 1:
+            raise ValueError('parallel must be greater than 0')
+        elif parallel > os.cpu_count():
+            raise ValueError('parallel must be less than or equal to the number of cpu cores')
+        else:
+            self.parallel = parallel
+
     def download_all_pdb(self, overwrite:bool=False) -> None:
         '''
         下载列表中的所有PDB文件
@@ -172,7 +191,7 @@ class _Console:
         self.pdbfile_list = [PDBFile(os.path.join(self.pdb_save_dir, pdbid + '.pdb'), ligand_id).keep_chain(select_first_lig=True) for pdbid, ligand_id in self.pairs_list]
         os.chdir(_cwd)
 
-    def multi_minimize(self, keep_single_chain:bool=True, num_parallel:int=NUM_PARALLEL, side_chain:bool=True, missing_loop:bool=True, del_water:bool=True, overwrite:bool=False) -> list:
+    def multi_minimize(self, keep_single_chain:bool=True, num_parallel:int=None, side_chain:bool=True, missing_loop:bool=True, del_water:bool=True, overwrite:bool=False) -> list:
         '''
         使用多进程调用prepwizard 运行多个受体结构的优化
         
@@ -193,6 +212,7 @@ class _Console:
         logger.debug(f'Prepare to optimize and minimize {len(self.pairs_list)} structures')
 
         minimize_save_dir = self.minimize_save_dir
+        num_parallel = self.parallel if num_parallel is None else num_parallel
         self.download_all_pdb(overwrite)
         if keep_single_chain:
             self.keep_single_chain()
@@ -201,7 +221,7 @@ class _Console:
 
         return self.minimized_file_list
 
-    def multi_grid_generate(self, gridbox_size:int=20, num_parallel:int=NUM_PARALLEL, overwrite:bool=False) -> list:
+    def multi_grid_generate(self, gridbox_size:int=20, num_parallel:int=None, overwrite:bool=False) -> list:
         '''
         使用多进程调用Glide 运行多个受体结构的格点文件生成
         
@@ -224,6 +244,7 @@ class _Console:
 
         _pairs_list = self.minimized_file_list
         grid_save_dir = self.grid_save_dir
+        num_parallel = self.parallel if num_parallel is None else num_parallel
 
         if _pairs_list is None:
             raise FileNotFoundError('No minimized file found. Please run minimize first.')
@@ -232,9 +253,14 @@ class _Console:
         
         return self.grid_file_list
 
-    def minimized_split(self) -> None:
+    def minimized_split(self) -> list:
         '''
         将优化的结构拆分为ligand和protein 保存至相应位置
+
+        Return
+        ------
+        List
+            拆分后的结构pairs列表List[(grid_file, ligand_file)]
         '''
         minimized_file_list = self.minimized_file_list
         if minimized_file_list is None:
@@ -244,9 +270,15 @@ class _Console:
         logger.debug(f'Protein file will be saved in {self.protein_save_dir}')
         logger.debug(f'Ligand file will be saved in {self.ligand_save_dir}')
         logger.debug(f'Complex file will be saved in {self.complex_save_dir}')
+
+        split_result_list = []
         # split不进行多进程化
         for minimized_file in minimized_file_list:
-            minimized_file.split(protein_dir=self.protein_save_dir, ligand_dir=self.ligand_save_dir, complex_dir=self.complex_save_dir)
+            grid_file, ligand_file = minimized_file.split(protein_dir=self.protein_save_dir, ligand_dir=self.ligand_save_dir, complex_dir=self.complex_save_dir)
+            split_result_list.append((grid_file, ligand_file))
+        
+        self.minimized_split_list = split_result_list
+        return split_result_list
     
     def ligand_split(self, external_ligand_file:LigandFile, overwrite:bool=False) -> list:
         '''
@@ -265,31 +297,75 @@ class _Console:
         logger.debug(f'Prepare to split {external_ligand_file}')
         ligand_save_dir = self.ligand_save_dir
         self.ligand_path_list = split_ligand(external_ligand_file, ligand_save_dir, overwrite)
-        return self.ligand_path_list
+        self.ligand_file_list = [LigandFile(ligand_path) for ligand_path in self.ligand_path_list]
+        return self.ligand_file_list
         
     def creat_mapping(self, precision:str='SP'):
         '''
-        建立映射
+        在对接位点与外源配体间建立完全映射
 
         Parameter
         ---------
         precision : str
             计划对接精度
         '''
-        if self.ligand_path_list is None:
-            raise RuntimeError('Please run ligand_split first.')
+
         if self.grid_file_list is None:
             raise RuntimeError('Please run grid_generate first.')
-
-        self.ligand_file_list = [LigandFile(ligand_file_path) for ligand_file_path in self.ligand_path_list]
-        self.mapping = self._creat_mapping(self.grid_file_list, self.ligand_file_list, self._get_failed_list(precision))
+        # 没有外源配体时
+        if self.ligand_file_list is None:
+            raise RuntimeError('Please run ligand_split first.')
         
-    def multi_dock(self, precision:str='SP', calc_rmsd:bool=False, num_parallel:int=NUM_PARALLEL, overwrite:bool=False) -> list:
+        self.mapping = self._creat_mapping(self.grid_file_list, self.ligand_file_list, self._get_failed_list(precision))
+    
+    def multi_dock(self, mapping:list=None, precision:str='SP', calc_rmsd:bool=False, num_parallel:int=None, overwrite:bool=False, export_failed:bool=True) -> list:
         '''
         使用多进程调用Glide 执行批量分子对接
 
         Parameter
         ---------
+        mapping : List[tuple(GridFile, LigandFile)]
+            grid_file, ligand_file 映射
+        precision : str
+            分子对接精度
+        calc_rmsd : bool
+            是否计算rmsd
+        num_parallel : int
+            并行进程数
+        overwrite : bool
+            是否覆盖已存在的mae文件
+        export_failed : bool
+            是否导出对接失败的清单至results/docking_failed_PRECISION.csv
+        '''
+        num_parallel = self.parallel if num_parallel is None else num_parallel
+        logger.debug(f'Grid files in {self.grid_save_dir} will be used.')
+        logger.debug(f'Ligand files in {self.ligand_save_dir} will be used.')
+        logger.debug(f'Number of all jobs: {len(self.grid_file_list) * len(self.ligand_file_list)}')
+        logger.debug(f'Docking precision: {precision}')
+        logger.debug(f'Calculate rmsd: {calc_rmsd}')
+        logger.debug(f'Number of parallel jobs: {num_parallel}')
+
+        mapping = mapping if mapping is not None else self.mapping
+        if mapping is None:
+            raise RuntimeError('Please run creat_mapping first.')
+        
+        self.dock_file_list = _multiprocssing_run(dock, mapping, precision, calc_rmsd, self.base_dock_save_dir, overwrite, job_name='Ensemble Docking', num_parallel=num_parallel)
+        
+        # Failed check
+        total_result = [f'{mapping_item[0].pdbid},{mapping_item[0].internal_ligand},{mapping_item[1].ligand_name}' for mapping_item in self.mapping]
+        success_result = [f'{dock_result_item.pdbid},{dock_result_item.internal_ligand_name},{dock_result_item.docking_ligand_name}' for dock_result_item in self.dock_file_list]
+        self.docking_failed_list = list(set(total_result) - set(success_result))
+
+        if len(self.docking_failed_list) != 0 and export_failed:
+            with open(os.path.join(self.result_save_dir, f'docking_failed_{precision}.csv'), 'w') as f:
+                f.write('\n'.join(self.docking_failed_list))
+        
+    def multi_redock(self, precision:str='SP', calc_rmsd:bool=True, num_parallel:int=None, overwrite:bool=False) -> list:
+        '''
+        使用多进程调用Glide 执行批量回顾性对接
+        
+        Parameters
+        ----------
         precision : str
             分子对接精度
         calc_rmsd : bool
@@ -299,36 +375,63 @@ class _Console:
         overwrite : bool
             是否覆盖已存在的mae文件
         '''
-        logger.debug(f'Grid files in {self.grid_save_dir} will be used.')
-        logger.debug(f'Ligand files in {self.ligand_save_dir} will be used.')
-        logger.debug(f'Number of all jobs: {len(self.grid_file_list) * len(self.ligand_file_list)}')
+        num_parallel = self.parallel if num_parallel is None else num_parallel
+        logger.debug(f'Prepare to run redock.')
+        logger.debug(f'Number of all jobs: {len(self.minimized_split_list)}')
         logger.debug(f'Docking precision: {precision}')
         logger.debug(f'Calculate rmsd: {calc_rmsd}')
         logger.debug(f'Number of parallel jobs: {num_parallel}')
 
-        if self.mapping is None:
-            raise RuntimeError('Please run creat_mapping first.')
+        redock_ligand_files = [split_files[1] for split_files in self.minimized_split_list]
+        redock_mapping = self._creat_mapping(self.grid_file_list, redock_ligand_files)
+        self.redock_file_list = _multiprocssing_run(dock, redock_mapping, precision, calc_rmsd, self.base_dock_save_dir, overwrite, job_name='Redocking', num_parallel=num_parallel)
         
-        self.dock_file_list = _multiprocssing_run(dock, self.mapping, precision, calc_rmsd, self.base_dock_save_dir, overwrite, job_name='Ensemble Docking', num_parallel=num_parallel)
-        
-        # Failed check
-        total_result = [f'{mapping_item[0].pdbid},{mapping_item[0].internal_ligand},{mapping_item[1].ligand_name}' for mapping_item in self.mapping]
-        success_result = [f'{dock_result_item.pdbid},{dock_result_item.internal_ligand_name},{dock_result_item.docking_ligand_name}' for dock_result_item in self.dock_file_list]
-        self.docking_failed_list = list(set(total_result) - set(success_result))
-
-        if len(self.docking_failed_list) != 0:
-            with open(os.path.join(self.result_save_dir, f'docking_failed_{precision}.csv'), 'w') as f:
-                f.write('\n'.join(self.docking_failed_list))
-        
-    def multi_extract_data(self, precision:str='SP', num_parallel:int=NUM_PARALLEL, overwrite:bool=False) -> list:
+    def multi_extract_data(self, precision:str='SP', num_parallel:int=None, overwrite:bool=False, redock_data:str='append') -> list:
         '''
         多进程 提取对接结果数据
-        '''
-        if self.dock_file_list is None:
 
-            if self.ligand_path_list is None:
-                raise RuntimeError('Please run ligand_split first.')
-            ligand_name_list = [os.path.basename(ligand_path).split('.')[0] for ligand_path in self.ligand_path_list]
+        Parameters
+        ----------
+        precision : str
+            分子对接精度
+        num_parallel : int
+            并行进程数
+        overwrite : bool
+            是否覆盖已存在的mae文件
+        redock_data : str | False
+            回顾性对接数据提取需求 默认为append
+                append : 将回顾性对接数据合并到外源配体对接数据中
+                only : 只提取回顾性对接数据
+                False : 不提取回顾性对接数据 仅提取外源配体对接数据
+
+        '''
+        num_parallel = self.parallel if num_parallel is None else num_parallel
+        redock_data_list = []
+        external_data_list = []
+
+        # 此method逻辑复杂 可能难以理解 但自由度应该较好
+
+        if self.redock_file_list is not None and redock_data is not False:
+            redock_data_list = _multiprocssing_run(extra_docking_data, self.redock_file_list, job_name='Extract Redocking Data', num_parallel=num_parallel)
+        
+        # 请求only redock数据 但没有执行过redock时 将返回空列表
+        if redock_data == 'only':
+            return redock_data_list
+        
+        # 非only情况下 一定需要有效的外源配体数据来源
+        # 没有执行分子对接 直接提取数据的情况
+        if self.dock_file_list is None:
+            # 没有外源配体的情况
+            if self.ligand_file_list is None:
+                # 指明需要redock数据
+                if redock_data is not False:
+                    return redock_data_list
+                # 不需要redock数据 没有任何数据来源时 抛出异常
+                else:
+                    raise RuntimeError('Please run ligand_split first.')
+            
+            # 存在外源配体的情况
+            ligand_name_list = [ligfile.ligand_name for ligfile in self.ligand_file_list]
 
             dockfile_path_list = []
             _failed_list = self._get_failed_list(precision)
@@ -340,10 +443,14 @@ class _Console:
                         logger.debug(f'Skip extracting data from {pdbid},{ligid},{ligand_name}')
                         continue
                     dockfile_path_list.append(os.path.join(self.base_dock_save_dir, pdbid, f'{pdbid}_{ligid}_glide-dock_{ligand_name}_{precision}.maegz'))
-                    
-                #dockfile_path_list.extend([os.path.join(self.base_dock_save_dir, pdbid, f'{pdbid}_{ligid}_glide-dock_{ligand}_{precision}.maegz') for ligand in ligand_name_list])
             self.dock_file_list = [DockResultFile(dockresult_file_path) for dockresult_file_path in dockfile_path_list]
         
-        total_data_list = _multiprocssing_run(extra_docking_data, self.dock_file_list, job_name='Extract Docking Data', num_parallel=num_parallel)
-        
-        return total_data_list
+        # 已执行对接或未执行对接都从构造的dock_file_list中提取数据
+        external_data_list = _multiprocssing_run(extra_docking_data, self.dock_file_list, job_name='Extract Docking Data', num_parallel=num_parallel)
+
+        if redock_data is False:
+            return external_data_list
+        elif redock_data == 'append':
+            return redock_data_list + external_data_list
+        else:
+            raise ValueError(f'Unsupported redock data request(append/only/False): {redock_data}')
