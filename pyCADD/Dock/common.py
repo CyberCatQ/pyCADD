@@ -187,19 +187,18 @@ class PDBFile(BaseFile):
                 self.lig_resnum = _all_match_lig[0].resnum
                 return self._get_lig_info(_all_match_lig[0])
         else:
-            fmt = '{0:<10}{1:<10}{2:<10}{3:<10}{4:<10}'
-            logger.debug('Crystal %s has multiple ligands' % self.pdbid)
-            print(fmt.format('Index', 'PDBID', 'Name', 'Chain', 'Resnum'))
-            for index, lig in enumerate(_all_match_lig):
-                print(fmt.format(index, self.pdbid, lig.pdbres, lig.chain, lig.resnum))
-
             if select_first:
                 first_lig = _all_match_lig[0]
                 self.ligid = first_lig.pdbres.strip()
                 self.lig_resnum = first_lig.resnum
                 logger.debug(f'Selected the first ligand: {first_lig.pdbres}:Chain {first_lig.chain}:{first_lig.resnum}' )
                 return self._get_lig_info(_all_match_lig[0])
-                
+
+            fmt = '{0:<10}{1:<10}{2:<10}{3:<10}{4:<10}'
+            logger.debug('Crystal %s has multiple ligands' % self.pdbid)
+            print(fmt.format('Index', 'PDBID', 'Name', 'Chain', 'Resnum'))
+            for index, lig in enumerate(_all_match_lig):
+                print(fmt.format(index, self.pdbid, lig.pdbres, lig.chain, lig.resnum))
             return self._input_from_list(_all_match_lig)
         
     def get_lig_name(self) -> str:

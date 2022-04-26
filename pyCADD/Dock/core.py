@@ -194,7 +194,7 @@ def dock(grid_file:GridFile, lig_file:LigandFile, precision:str='SP', calc_rmsd:
         'LIGANDFILE %s\n' % lig_file.file_path,
         'PRECISION %s\n' % precision
     ]
-    if calc_rmsd is True:
+    if calc_rmsd:
         glide_dock_config.append('CALC_INPUT_RMS True\n')
     if precision == 'XP':
         glide_dock_config.append('WRITE_XP_DESC False\n')

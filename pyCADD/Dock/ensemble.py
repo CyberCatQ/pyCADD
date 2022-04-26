@@ -108,12 +108,15 @@ class _Console:
             self.result_save_dir
             ])
     
-    def _get_failed_list(self, precision:str='SP'):
+    def _get_failed_list(self, precision:str='SP', redock:bool=False):
         '''
         获取此前对接任务失败的信息列表
         对接失败的任务不应该再次对接 且无结果文件可提取数据
         '''
+
         _failed_list_file_path = os.path.join(self.result_save_dir, f'docking_failed_{precision}.csv')
+        if redock:
+            _failed_list_file_path = os.path.join(self.result_save_dir, f'redock_failed_{precision}.csv')
 
         if os.path.exists(_failed_list_file_path):
             with open(_failed_list_file_path, 'r') as f:
@@ -360,7 +363,7 @@ class _Console:
             with open(os.path.join(self.result_save_dir, f'docking_failed_{precision}.csv'), 'w') as f:
                 f.write('\n'.join(self.docking_failed_list))
         
-    def multi_redock(self, precision:str='SP', calc_rmsd:bool=True, num_parallel:int=None, overwrite:bool=False) -> list:
+    def multi_redock(self, precision:str='SP', calc_rmsd:bool=True, num_parallel:int=None, overwrite:bool=False, export_failed:bool=True) -> list:
         '''
         使用多进程调用Glide 执行批量回顾性对接
         
@@ -374,6 +377,8 @@ class _Console:
             并行进程数
         overwrite : bool
             是否覆盖已存在的mae文件
+        export_failed : bool
+            是否导出对接失败的清单至results/redock_failed_PRECISION.csv
         '''
         num_parallel = self.parallel if num_parallel is None else num_parallel
         logger.debug(f'Prepare to run redock.')
@@ -383,9 +388,16 @@ class _Console:
         logger.debug(f'Number of parallel jobs: {num_parallel}')
 
         redock_ligand_files = [split_files[1] for split_files in self.minimized_split_list]
-        redock_mapping = self._creat_mapping(self.grid_file_list, redock_ligand_files)
-        self.redock_file_list = _multiprocssing_run(dock, redock_mapping, precision, calc_rmsd, self.base_dock_save_dir, overwrite, job_name='Redocking', num_parallel=num_parallel)
+        redock_mapping = self._creat_mapping(self.grid_file_list, redock_ligand_files, self._get_failed_list(precision, True))
+        self.redock_file_list = _multiprocssing_run(dock, redock_mapping, precision, calc_rmsd, self.base_dock_save_dir, overwrite, job_name='Ensemble Redocking', num_parallel=num_parallel)
         
+        total_result = total_result = [f'{mapping_item[0].pdbid},{mapping_item[0].internal_ligand},{mapping_item[1].ligand_name}' for mapping_item in redock_mapping]
+        success_result = [f'{dock_result_item.pdbid},{dock_result_item.internal_ligand_name},{dock_result_item.docking_ligand_name}' for dock_result_item in self.redock_file_list]
+        redock_failed_list = list(set(total_result) - set(success_result))
+        if len(redock_failed_list) != 0 and export_failed:
+            with open(os.path.join(self.result_save_dir, f'redock_failed_{precision}.csv'), 'w') as f:
+                f.write('\n'.join(redock_failed_list))
+    
     def multi_extract_data(self, precision:str='SP', num_parallel:int=None, overwrite:bool=False, redock_data:str='append') -> list:
         '''
         多进程 提取对接结果数据
