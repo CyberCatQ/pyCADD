@@ -1,6 +1,8 @@
 import csv
 import logging
 import re
+import os
+import pandas as pd
 from typing import List
 
 from pyCADD.Dock.common import DockResultFile, LigandFile
@@ -120,6 +122,78 @@ def save_docking_data(dock_result_file:DockResultFile, configs:DataConfig=None):
     logger.debug('%s-%s Data Saved.' % (pdbid, ligand_name))
     return output_file
 
+def save_redocking_data(data_list:list, precision:str='SP', configs:DataConfig=None, save_dir:str=None) -> None:
+    '''
+    储存回顾性Ensemble Docking对接数据
+
+    Parameter
+    ----------
+    data_list : list
+        回顾性Ensemble Docking对接数据
+    precision : str
+        对接精度
+    configs : DataConfig
+        数据提取项配置
+    save_dir : str
+        储存目录
+    '''
+    save_dir = os.getcwd() if save_dir is None else save_dir
+    property_config = DefaultDataConfig(precision) if configs is None else configs
+    fields = property_config.properties
+    reference_results_file_path = os.path.join(save_dir, 'ENSEMBLE_DOCKING_RESULTS_REF.csv')
+
+    redock_df = pd.DataFrame(data_list)
+    # redock的内源配体默认为阳性
+    redock_df['activity'] = 1
+    redock_df.to_csv(reference_results_file_path, index=False)
+    # Docking Score矩阵生成
+    ligand_df_group = redock_df.groupby('Ligand')
+    total_redock_data = []
+    total_rmsd_data = []
+
+    for ligand_name, ligand_df in ligand_df_group:
+        total_redock_data.append({'Ligand': ligand_name, **ligand_df[['PDB', 'Docking_Score']].set_index('PDB').loc[:,'Docking_Score'].to_dict()})
+        total_rmsd_data.append({'Ligand': ligand_name, **ligand_df[['PDB', 'rmsd']].set_index('PDB').loc[:,'rmsd'].to_dict()})
+
+    docking_score_matrix_df = pd.DataFrame(total_redock_data)
+    rmsd_matrix_df = pd.DataFrame(total_rmsd_data)
+    docking_score_matrix_df.to_csv(os.path.join(save_dir, 'reference_matrix.csv'), index=False)
+    rmsd_matrix_df.to_csv(os.path.join(save_dir, 'reference_rmsd_matrix.csv'), index=False)
+    
+def save_ensemble_docking_data(data_list:list, precision:str='SP', configs:DataConfig=None, save_dir:str=None) ->None:
+    '''
+    分类储存Ensemble Docking对接数据
+
+    Parameter
+    ----------
+    data_list : list
+        Ensemble Docking对接数据列表
+    precision : str
+        对接精度
+    configs : DataConfig
+        数据提取项配置
+    '''
+    save_dir = os.getcwd() if save_dir is None else save_dir
+    property_config = DefaultDataConfig(precision) if configs is None else configs
+    fields = property_config.properties
+    final_results_file_path = os.path.join(save_dir, 'ENSEMBLE_DOCKING_RESULTS.csv')
+    total_df = pd.DataFrame(data_list)
+    total_df.to_csv(final_results_file_path, index=False)
+
+    # 分类储存
+    total_df_group = total_df.groupby('PDB')
+    for pdbid, pdb_df in total_df_group:
+        pdb_df = pd.DataFrame(pdb_df, columns=fields)
+        pdb_df.to_csv(os.path.join(save_dir, f'{pdbid}_ENSEMBLE_DOCKING_RESULTS.csv'), index=False)
+    
+    # Docking Score矩阵生成
+    ligand_df_group = total_df.groupby('Ligand')
+    total_ligand_data = []
+    for ligand_name, ligand_df in ligand_df_group:
+        total_ligand_data.append({'Ligand': ligand_name, **ligand_df[['PDB', 'Docking_Score']].set_index('PDB').loc[:,'Docking_Score'].to_dict()})
+    matrix_df = pd.DataFrame(total_ligand_data)
+    matrix_df.to_csv(os.path.join(save_dir, 'matrix.csv'), index=False)
+        
 def extra_admet_data(admet_file:LigandFile) -> List[dict]:
 
     '''
