@@ -41,13 +41,13 @@ def get_input_pdbid() -> str:
         return pdbid
     else:
         while True:
-            logger.info('To get PDB ID automatically, please change the name of crystal folder to PDBID.')
+            logger.info('To get PDB ID automatically, please change current folder to PDBID.')
             pdbid = input('Input PDB ID:').strip().upper()
             logger.info('PDB ID: %s' % pdbid)
             if check_pdb(pdbid):
                 return pdbid
             else:
-                logger.warning('请输入正确的PDB ID!')
+                logger.warning('Please enter correct PDB ID!')
 
 def launch(cmd:str, timeout:int=None):
     '''
@@ -69,7 +69,7 @@ def launch(cmd:str, timeout:int=None):
     logger.debug('Job Status: %s' % job.Status)
     job.wait()  # 阻塞进程 等待Job结束
 
-    # 如果任务失败
+    # 如果任务失败 直接返回而不抛出异常 只输出错误信息 以防止多进程中的一个进程被意外kill
     if not job.StructureOutputFile:
         logger.debug('Job %s Failed' % job.Name)
         return

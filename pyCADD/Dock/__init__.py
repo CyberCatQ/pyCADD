@@ -15,7 +15,7 @@ class Docker:
     '''
     
     def __init__(self, pdbid:str=None) -> None:
-        self._pdb_file = pdbid
+        self._pdbid = pdbid
         self._pdb_file = None
         self._lig_info = None
 
@@ -61,6 +61,7 @@ class Docker:
         '''
         获取配体信息
         '''
+        pdbid = self.pdbid
         ligand_id = input('Enter ligand ID: ')
         self._lig_info = self.pdb_file.get_lig(ligand_id)
         logger.info(f'Current Ligand: {self.pdb_file.ligid} {self.pdb_file.lig_resnum}')
