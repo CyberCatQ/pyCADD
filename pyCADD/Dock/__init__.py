@@ -1,7 +1,7 @@
 import logging
 import os
 
-from pyCADD.Dock.common import LigandFile, PDBFile, get_input_pdbid
+from pyCADD.Dock.common import LigandFile, MultiInputFile, PDBFile, get_input_pdbid
 from pyCADD.Dock.ensemble import _Console
 from pyCADD.Dock.core import minimize, grid_generate, dock, calc_mmgbsa, calc_admet, calc_volume
 from pyCADD.Dock.data import extra_docking_data, extra_admet_data, save_docking_data, save_admet_data
@@ -14,9 +14,8 @@ class Docker:
     Ligand Docking 控制台对象
     '''
     
-    def __init__(self) -> None:
-        self.pdbid = get_input_pdbid()
-        self.pdb_file_path = os.path.join(os.getcwd(), self.pdbid + '.pdb')
+    def __init__(self, pdbid:str=None) -> None:
+        self._pdb_file = pdbid
         self._pdb_file = None
         self._lig_info = None
 
@@ -32,6 +31,16 @@ class Docker:
         self.admet_file = None                        # ADMET计算结果文件名
         self.data_dic = None                          # 一般计算结果字典
         self.admet_dic = None                         # ADMET计算结果字典
+
+    @property
+    def pdbid(self):
+        if self._pdbid is None:
+            self._pdbid = get_input_pdbid()
+        return self._pdbid
+    
+    @property
+    def pdb_file_path(self):
+        return os.path.join(os.getcwd(), self.pdbid + '.pdb')
 
     def download_pdb(self) -> None:
         '''
@@ -194,19 +203,22 @@ class Docker:
         self.sitemap_file = calc_volume(self.recep_file, self.lig_file, *args, **kwargs)
         logger.info(f'{self.pdbid} Volume calculated.')
     
-    def calc_admet(self, *args, **kwargs) -> None:
+    def calc_admet(self, ligand_file:LigandFile=None, *args, **kwargs) -> None:
         '''
         计算ADMET
 
         Parameters
         ----------
+        ligand_file : LigandFile
+            计算ADMET预测结果的配体文件 默认为当前共结晶配体
         *args : list, optional
             计算ADMET参数, 默认None
         **kwargs : dict, optional
             计算ADMET参数, 默认None
         '''
+        ligand_file = ligand_file if ligand_file is not None else self.lig_file
         logger.info(f'Prepare to calculate ADMET: {self.lig_file.file_name}')
-        self.admet_file = calc_admet(self.lig_file, *args, **kwargs)
+        self.admet_file = calc_admet(ligand_file, *args, **kwargs)
         logger.info(f'{self.lig_file.file_name} ADMET calculated.')
 
     def extra_docking_data(self, *args, **kwargs) -> None:
@@ -273,5 +285,5 @@ class Docker:
 
 
 class MultiDocker(_Console):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, input_file:MultiInputFile, *args, **kwargs):
+        super().__init__(input_file, *args, **kwargs)

@@ -12,7 +12,7 @@ setup(
     version=__version__,
     author='Yuhang Wu',
     author_email='yuhangxmu@stu.xmu.edu.cn',
-    description='A Python Package for Computer-aid drug design',
+    description='A Python Package for Computer-aid Drug Design',
     url='https://github.com/CyberCatQ/pyCADD',
     include_package_data=True,
     packages=find_packages(),
@@ -23,7 +23,12 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     entry_points={
-        'console_scripts': ['pyCADD = pyCADD.__main__:main', 'pycadd = pyCADD.__main__:main', 'pycadd-gauss = pyCADD.Gauss.__main__:main']
+        'console_scripts': [
+            'pyCADD = pyCADD.__main__:main', 
+            'pycadd = pyCADD.__main__:main', 
+            'pycadd-dock = pyCADD.Dock.cli:cli_main',
+            'pycadd-gauss = pyCADD.Gauss.__main__:main'
+            ]
     }
 
 )

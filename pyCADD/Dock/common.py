@@ -302,7 +302,7 @@ class MaestroFile(BaseFile):
         pdbid = self.pdbid
         minimized_file = pdbid + '_minimized.mae'
         if not overwrite and os.path.exists(minimized_file):  # 如果已经进行过优化 为提高效率而跳过优化步骤
-            logger.info('File %s is existed.' % minimized_file)
+            logger.debug('File %s is existed.' % minimized_file)
             return ComplexFile(minimized_file)
 
         _job_name = '%s-Minimize' % pdbid
@@ -402,8 +402,8 @@ class ComplexFile(MaestroFile):
 
         # 判断该molecule是否仅包括小分子本身(是否存在共价连接) 自动移除共价连接
         if len(mol.residue) != 1:  
-            logger.info('%s in %s : A covalent bond may exist between the ligand and residue.' % (ligname, self.file_name))
-            logger.info('An attempt will be made to remove the covalent bond automatically.')
+            logger.debug('%s in %s : A covalent bond may exist between the ligand and residue.' % (ligname, self.file_name))
+            logger.debug('An attempt will be made to remove the covalent bond automatically.')
             self._del_covalent_bond(ligname)
             mol = self._get_mol_obj(ligname)
 
@@ -483,7 +483,7 @@ class LigandFile(MaestroFile):
         admet_result_file = prefix + '.mae'
 
         if os.path.exists(admet_result_file) and not overwrite:
-            logger.info('File %s is existed.' % admet_result_file)
+            logger.debug('File %s is existed.' % admet_result_file)
             return LigandFile(admet_result_file)
 
         launch(f'qikprop -outname {prefix} {self.file_path}')
@@ -586,7 +586,7 @@ class DockResultFile(MaestroFile):
 
         # 已计算则跳过计算过程
         if os.path.exists(mmgbsa_result_file) and not overwrite:
-            logger.info('File %s is existed.' % mmgbsa_result_file)
+            logger.debug('File %s is existed.' % mmgbsa_result_file)
             return ComplexFile(mmgbsa_result_file)
 
         launch(f'prime_mmgbsa -j {job_name} {self.file_path}')
@@ -594,7 +594,7 @@ class DockResultFile(MaestroFile):
         try:
             os.rename(f'{job_name}-out.maegz', mmgbsa_result_file)
         except Exception:
-            logger.info(f'{prefix} Prime MM-GB/SA Calculating Failed')
+            logger.debug(f'{prefix} Prime MM-GB/SA Calculating Failed')
             return None
 
         return ComplexFile(mmgbsa_result_file)
