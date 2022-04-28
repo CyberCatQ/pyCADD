@@ -1,7 +1,7 @@
 import logging
 import os
 
-from pyCADD.ui import UI
+from pyCADD.utils.ui import UI
 from pyCADD.utils.check import check_file
 
 try:

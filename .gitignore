@@ -10,3 +10,4 @@ bin/
 doc/
 pyCADD/VSW/*.txt
 pyCADD/VSW/*.csv
+docs/

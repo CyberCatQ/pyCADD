@@ -1,5 +1,5 @@
 from pyCADD.utils.check import check_file
-from pyCADD.ui import UI
+from pyCADD.utils.ui import UI
 from pyCADD.Gauss.base import Gauss
 import os
 import logging
