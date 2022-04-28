@@ -99,7 +99,7 @@ def grid_generate(complex_file:ComplexFile, gridbox_size:int=20, save_dir:str=No
 
     '''
     ligname = complex_file.ligid
-    lig_resnum = int(complex_file.lig_resnum)
+    lig_resnum = int(complex_file.lig_resnum) if complex_file.lig_resnum else None
     if ligname is None and lig_resnum is None:
         ligname = input('Ligand name is not specified in grid file. Please input the ligand name: ')
 
