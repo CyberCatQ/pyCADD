@@ -124,7 +124,7 @@ class _Console:
             _failed_list = [tuple(line.split(',')) for line in lines]
             return [(pdbid, internal_lig, docking_lig) for pdbid, internal_lig, docking_lig in _failed_list]
         else:
-            return None
+            return []
 
     @staticmethod
     def _creat_mapping(grid_file_list:list, ligand_file_list:list, failed_list:list=None) -> tuple:
@@ -351,9 +351,13 @@ class _Console:
         mapping = mapping if mapping is not None else self.mapping
         if mapping is None:
             raise RuntimeError('Please run creat_mapping first.')
-        
-        self.dock_file_list = _multiprocssing_run(dock, mapping, precision, calc_rmsd, self.base_dock_save_dir, overwrite, job_name='Ensemble Docking', num_parallel=num_parallel)
-        
+
+        try:
+            self.dock_file_list = _multiprocssing_run(dock, mapping, precision, calc_rmsd, self.base_dock_save_dir, overwrite, job_name='Ensemble Docking', num_parallel=num_parallel)
+        except KeyboardInterrupt as e:
+            logger.warning('Docking interrupted.')
+            pass
+
         # Failed check
         total_result = [f'{mapping_item[0].pdbid},{mapping_item[0].internal_ligand},{mapping_item[1].ligand_name}' for mapping_item in self.mapping]
         success_result = [f'{dock_result_item.pdbid},{dock_result_item.internal_ligand_name},{dock_result_item.docking_ligand_name}' for dock_result_item in self.dock_file_list]
@@ -455,7 +459,7 @@ class _Console:
                         logger.debug(f'Skip extracting data from {pdbid},{ligid},{ligand_name}')
                         continue
                     dockfile_path_list.append(os.path.join(self.base_dock_save_dir, pdbid, f'{pdbid}_{ligid}_glide-dock_{ligand_name}_{precision}.maegz'))
-            self.dock_file_list = [DockResultFile(dockresult_file_path) for dockresult_file_path in dockfile_path_list]
+            self.dock_file_list = [DockResultFile(dockresult_file_path) for dockresult_file_path in dockfile_path_list if os.path.exists(dockresult_file_path)]
         
         # 已执行对接或未执行对接都从构造的dock_file_list中提取数据
         external_data_list = _multiprocssing_run(extra_docking_data, self.dock_file_list, job_name='Extract Docking Data', num_parallel=num_parallel)

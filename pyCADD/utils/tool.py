@@ -13,6 +13,7 @@ from rich.progress import SpinnerColumn, TextColumn, BarColumn, Progress, TimeEl
 from rich.table import Column
 from configparser import ConfigParser
 from threading import Thread
+from concurrent.futures import ProcessPoolExecutor, Future
 
 NUM_PARALLEL = multiprocessing.cpu_count() // 4 * 3
 logger = logging.getLogger(__name__)
@@ -42,31 +43,45 @@ def _multiprocssing_run(func, _iterable:Iterable, *args, job_name:str, num_paral
     '''
     progress, taskID = _get_progress(job_name, 'bold cyan', len(_iterable))
     returns = []
-    def success_handler(result):
+    def success_handler(future:Future):
         '''
-        处理成功的任务
+        处理完成的任务(成功/失败)
         '''
-        returns.append(result)
+        if future.exception() is not None:
+            logger.debug(f'Warnning: {future.exception()}')
+        else:
+            returns.append(future.result())
         progress.update(taskID, advance=1)
-
+    '''
     def _error_handler(error:Exception):
-        '''
+        
         异常处理函数
-        '''
+        
         logger.debug(f'Warnning: {error}')
         progress.update(taskID, advance=1)
-
+    '''
     progress.start()
     progress.start_task(taskID)
 
-    pool = multiprocessing.Pool(num_parallel, maxtasksperchild=1)
-    for item in _iterable:
-        if isinstance(item, Iterable):
-            pool.apply_async(func, args=(*item, *args), callback=success_handler, error_callback=_error_handler)
-        else:
-            pool.apply_async(func, args=(item, *args), callback=success_handler, error_callback=_error_handler)
-    pool.close()
-    pool.join()
+    with ProcessPoolExecutor(max_workers=num_parallel) as pool:
+        for item in _iterable:
+            if isinstance(item, Iterable):
+                future = pool.submit(func, *item, *args)
+                future.add_done_callback(success_handler)
+            else:
+                future = pool.submit(func, item, *args)
+                future.add_done_callback(success_handler)
+
+    # 当ligands数量较多时 父进程将卡死于pool.join()
+    # bug原因未知
+    # pool = multiprocessing.Pool(num_parallel, maxtasksperchild=1)
+    # for item in _iterable:
+    #    if isinstance(item, Iterable):
+    #        pool.apply_async(func, args=(*item, *args), callback=success_handler, error_callback=_error_handler)
+    #    else:
+    #        pool.apply_async(func, args=(item, *args), callback=success_handler, error_callback=_error_handler)
+    # pool.close()
+    # pool.join()
 
     progress.stop()
     return returns
