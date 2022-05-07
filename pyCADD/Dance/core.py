@@ -542,9 +542,10 @@ def CV_model_evaluation(models:dict, X:DataFrame, y:Series, n_repeats=30, n_spli
         _mean = np.mean(_current_result)
         logger.info('%s CV %s mean score: %s' % (model_name, score_name, _mean))
 
+    scp_performance = get_SCP_report(splits, X, y)
+    final_results['SCP'] = scp_performance
     
     if plot:
-        scp_performance = get_SCP_report(splits, X, y)
         plt.figure(figsize=(20, 20))
         result_df = pd.DataFrame(final_results)
         plt.axhline(np.max(scp_performance), color='r', linestyle='--', lw=2)
