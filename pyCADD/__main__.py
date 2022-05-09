@@ -4,17 +4,16 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from pyCADD.ui import UI
+from pyCADD.utils.ui import UI
 enter_text = '[bold]Enter the Code of Options'
 
 def main():
     ui = UI()
     options = [
-        '1. Simple Mode',
-        '2. Multiple Mode',
-        '3. VSW',
-        '4. Gaussian Calculation',
-        '5. Dance (Data Analyzer)',
+        '1. Dock Mode',
+        '2. VSW',
+        '3. Gaussian Calculation',
+        '4. Dance (Data Analyzer)',
         '0. Exit'
     ]
     ui.create_panel(options)
@@ -34,15 +33,12 @@ def main():
         os.system('run python3 -m pyCADD.Dock')
 
     elif flag == '2':
-        os.system('run python3 -m pyCADD.Multidock')
-
-    elif flag == '3':
         os.system('run python3 -m pyCADD.VSW')
     
-    elif flag == '4':
+    elif flag == '3':
         os.system('python -m pyCADD.Gauss')
         
-    elif flag == '5':
+    elif flag == '4':
         os.system('python -m pyCADD.Dance')
 
 if __name__ == '__main__':

@@ -1,98 +1,165 @@
 import os
-import logging
 import time
+import logging
+import requests
+import multiprocessing
 
-from cloghandler import ConcurrentRotatingFileHandler
-from rich.logging import RichHandler
+# For Schrodinger 2021-2 or newer release
+import importlib
+importlib.reload(multiprocessing)
+from typing import Iterable
+
 from rich.progress import SpinnerColumn, TextColumn, BarColumn, Progress, TimeElapsedColumn, TimeRemainingColumn
 from rich.table import Column
 from configparser import ConfigParser
+from threading import Thread
+from concurrent.futures import ProcessPoolExecutor, Future
 
+NUM_PARALLEL = multiprocessing.cpu_count() // 4 * 3
+logger = logging.getLogger(__name__)
 
-def mkdirs(path_list: list):
+def _multiprocssing_run(func, _iterable:Iterable, *args, job_name:str, num_parallel:int):
     '''
-    获取包含多个PATH的列表 尝试创建列表中的所有目录
+    多进程运行函数 并自动生成进度条
+
+    Parameters
+    ----------
+    func : function
+        运行函数
+    _iterable : Iterable
+        可迭代对象 即函数作用对象总集
+    *args
+        传入func函数的其他参数
+    job_name : str
+        进程名称
+    num_parallel : int
+        进程数量
+    
+    Returns
+    -------
+    List
+        所有成功完成任务的返回值
+    
+    '''
+    progress, taskID = _get_progress(job_name, 'bold cyan', len(_iterable))
+    returns = []
+    def success_handler(future:Future):
+        '''
+        处理完成的任务(成功/失败)
+        '''
+        if future.exception() is not None:
+            logger.debug(f'Warnning: {future.exception()}')
+        else:
+            returns.append(future.result())
+        progress.update(taskID, advance=1)
+    '''
+    def _error_handler(error:Exception):
+        
+        异常处理函数
+        
+        logger.debug(f'Warnning: {error}')
+        progress.update(taskID, advance=1)
+    '''
+    progress.start()
+    progress.start_task(taskID)
+
+    with ProcessPoolExecutor(max_workers=num_parallel) as pool:
+        for item in _iterable:
+            if isinstance(item, Iterable):
+                future = pool.submit(func, *item, *args)
+                future.add_done_callback(success_handler)
+            else:
+                future = pool.submit(func, item, *args)
+                future.add_done_callback(success_handler)
+
+    # 当ligands数量较多时 父进程将卡死于pool.join()
+    # bug原因未知
+    # pool = multiprocessing.Pool(num_parallel, maxtasksperchild=1)
+    # for item in _iterable:
+    #    if isinstance(item, Iterable):
+    #        pool.apply_async(func, args=(*item, *args), callback=success_handler, error_callback=_error_handler)
+    #    else:
+    #        pool.apply_async(func, args=(item, *args), callback=success_handler, error_callback=_error_handler)
+    # pool.close()
+    # pool.join()
+
+    progress.stop()
+    return returns
+ 
+def get_lib_dir():
+    '''
+    获取pyCADD库所在的Absolute PATH
+    '''
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+def download_pdb(pdbid, download_dir:str=None, overwrite:bool=False) -> None:
+    '''
+    从RCSB服务器下载PDB文件
+
+    Parameter
+    ----------
+    pdbid : str
+        PDB ID
+    download_dir : str
+        下载目录
+    overwrite : bool
+        是否覆盖已存在的文件
+
+    '''
+    base_url = 'https://files.rcsb.org/download/'
+    pdbfile = pdbid + '.pdb'
+    download_dir = os.getcwd() if download_dir is None else download_dir
+    downloaded_file = os.path.join(download_dir, pdbfile)
+
+    if os.path.exists(downloaded_file) and not overwrite:
+        return
+
+    logger.debug('Downloading %s ...' % pdbid)
+    url = base_url + pdbid + '.pdb'
+    response = requests.get(url)
+    pdb_data = response.text
+    with open(downloaded_file, 'w') as f:
+        f.write(pdb_data)
+    
+    logger.debug('%s.pdb downloaded.' % pdbid)
+
+def download_pdb_list(pdblist:list, download_dir:str=None, overwrite:bool=False) -> None:
+    '''
+    多线程下载PDB ID列表中的所有PDB文件
+    Parameter
+    ----------
+    pdblist : list
+        PDB列表
+    download_dir : str
+        下载目录
+    overwrite : bool
+        是否覆盖已存在的文件
+    '''
+    download_dir = os.getcwd() if download_dir is None else download_dir
+    threads = []
+    for pdbid in pdblist:
+        t = Thread(target=download_pdb, args=(pdbid, download_dir, overwrite))
+        threads.append(t)
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+def makedirs_from_list(path_list: list) -> None:
+    '''
+    输入包含多个PATH的列表 尝试创建列表中的所有目录
 
     Parameter
     ----------
     path_list : list
         要创建的PATH列表
     '''
-    logger = logging.getLogger('pyCADD.utils.tool')
     for path in path_list:
-        try:
-            os.mkdir(path)
-            logger.info('Created directory %s' % path)
-        except FileExistsError:
-            continue
-
-
-def generate_logfile_name():
-    '''
-    依据当前日期生成log文件的文件名
-    如已有重复文件则添加递增后缀
-
-    Return
-    ---------
-    str
-        log文件名
-    '''
-    # 默认储存log文件的目录PATH
-    log_dir = os.getcwd() + '/logs/'
-    mkdirs([log_dir])
-
-    from datetime import datetime
-    # 获取今日日期
-    date = datetime.now()
-    year = str(date.year)
-    month = str(date.month)
-    day = str(date.day)
-    now = year + month.rjust(2, '0') + day.rjust(2, '0')
-
-    i = 1
-    while True:
-        logfile = log_dir + now + '_' + str(i) + '.log'
-        if os.path.exists(logfile):
-            i += 1
-        else:
-            return logfile
-
-
-def _init_log(logname):
-    '''
-    初始化配置log
-    '''
-    logger = logging.getLogger(logname)
-    logger.setLevel(level=logging.DEBUG)
-    file_fmt = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    console_fmt = logging.Formatter('%(message)s')
-
-    logfile = generate_logfile_name()
-    filehandler = ConcurrentRotatingFileHandler(logfile, 'a')
-    filehandler.setLevel(logging.DEBUG)
-    filehandler.setFormatter(file_fmt)
-    # consolehandler = logging.StreamHandler()
-    consolehandler = RichHandler()
-    consolehandler.setLevel(logging.INFO)
-    consolehandler.setFormatter(console_fmt)
-
-    logger.addHandler(filehandler)
-    logger.addHandler(consolehandler)
-    logger.logfilename = logfile
-
-    return logger
-
-def init_log(logname):
-    '''
-    getLogger
-    '''
-    return logging.getLogger(logname)
-
+        os.makedirs(path, exist_ok=True)
 
 def _get_progress(name: str, description: str, total: int, start:bool=False):
     '''
-    创建进度条
+    创建Rich进度条
 
     Parameters
     ----------
@@ -124,7 +191,7 @@ def _get_progress(name: str, description: str, total: int, start:bool=False):
 
     return progress, task
 
-
+# 废弃
 def check_file_update_progress(file_path: str, progress:Progress, task_ID: str, time_sleep: int = 3):
     '''
     定时检查文件是否存在 已存在则更新进度条
@@ -159,26 +226,20 @@ class Myconfig(ConfigParser):
     def optionxform(self, optionstr):
         return optionstr
 
-
-def tail_progress(file:str, callback, wait=0.1):
+def get_config(config_file: str) -> Myconfig:
     '''
-    追踪文件末尾行内容
+    读取配置文件
 
-    Parameters
+    Parameter
     ----------
-    file : str
-        追踪的文件
-    callback : func
-        回调函数 函数返回True时结束追踪
-    wait : int | float
-        追踪间隔时长(s)
-    '''
+    config_file : str
+        配置文件路径
 
-    with open(file) as f:
-        f.seek(0, os.SEEK_END)
-        while True:
-            line = f.readline()
-            if line:
-                if callback(line):
-                    break
-            time.sleep(wait)
+    Return
+    ----------
+    Myconfig
+        配置文件对象
+    '''
+    config = Myconfig()
+    config.read(config_file)
+    return config

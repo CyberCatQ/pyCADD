@@ -9,6 +9,7 @@ from rich.panel import Panel
 from rich.table import Column, Table
 from rich.text import Text
 from rich.prompt import Confirm, Prompt
+from pyCADD.utils.tool import NUM_PARALLEL
 
 date = datetime.now()
 year = str(date.year)
@@ -19,10 +20,9 @@ now = "%s-%s-%s" % (year, month, day)
 __version__= "Undefined"
 __update_date__ = "Undefined"
 
-for line in open(os.path.dirname(os.path.abspath(__file__)) + '/__init__.py'):
-    if line.startswith('__version__') or line.startswith("__update_date__"):
-        exec(line.strip())
-    
+from pyCADD import __version__, __update_date__
+
+
 class UI:
     '''
     pyCADD程序用户交互界面(user interface)
@@ -36,6 +36,7 @@ class UI:
         self.additional_info = ''
         self.schrodinger = Text(os.environ['SCHRODINGER'], style='u i')
         self.gauss_dir = Text(os.path.dirname(os.popen('which g16').read()), style='u i')
+        self.cpu_count = NUM_PARALLEL
 
         self._additional_info_dict = {}
         self._info_index = 0
@@ -99,8 +100,8 @@ class UI:
             ' ' * (9-len(platform.system())),
             'Current date: ', 
             (now, 'bold blue'),
-            '\nNumber of parallel threads: ', 
-            (str(os.cpu_count()), 'bold blue'), 
+            '\nParallel threads: ', 
+            (f'{self.cpu_count}/{os.cpu_count()}', 'bold blue'), 
             ' Python Version: ',(platform.python_version(), 'bold blue'),
             '\nSchrodinger: ', self.schrodinger,
             '\nGaussian: ', self.gauss_dir

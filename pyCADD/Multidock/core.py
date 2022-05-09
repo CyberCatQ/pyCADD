@@ -12,6 +12,7 @@ from concurrent.futures import ProcessPoolExecutor
 logger = logging.getLogger('pyCADD.Multidock.core')
 CPU_NUM = os.cpu_count() - 12
 
+
 def read_receptors(list_file_path:str) -> list:
     '''
     处理受体列表文件

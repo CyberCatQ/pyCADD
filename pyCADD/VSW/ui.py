@@ -1,6 +1,6 @@
 import logging
 
-from pyCADD.ui import UI
+from pyCADD.utils.ui import UI
 
 try:
     from pyCADD.VSW import register
