@@ -33,6 +33,7 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
 
     '''
     
+
     logger.debug('Prepare to minimize %s' % pdbfile.file_name)
     pdbid = pdbfile.pdbid if pdbfile.pdbid else 'unknown'
     ligand_id = pdbfile.ligid if pdbfile.ligid else None

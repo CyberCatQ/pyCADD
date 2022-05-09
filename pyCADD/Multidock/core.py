@@ -92,7 +92,7 @@ def map(receptor_list:list, ligand_list:list) -> tuple:
     tuple
         映射关系元组
     '''
-    tup = ()
+    tup = []
     for receptor, lig in receptor_list:
         ligand_list.append('%s-lig-%s' % (receptor, lig))
 
@@ -106,8 +106,7 @@ def map(receptor_list:list, ligand_list:list) -> tuple:
         progress.update(task, advance=1)
 
     for receptor, lig in receptor_list:
-        for ligand in ligand_list:
-            tup += ((receptor, lig, ligand),)
+        tup.extend([(receptor, lig, ligand) for ligand in ligand_list])
         _update()
     progress.stop()
     return tup
@@ -127,6 +126,9 @@ def multi_minimize(pdblist:list):
     progress.start()
     def _update(*arg):
         progress.update(task, advance=1)
+    def _error_update(error):
+        logger.error(error)
+        progress.update(task, advance=1)
 
     cwd = get_project_dir()
     logger.debug('Current working directory: %s' % cwd)
@@ -138,12 +140,12 @@ def multi_minimize(pdblist:list):
 
     # 暂时进入minimize文件存放目录 以优化晶体并保存结构文件于此处
     os.chdir(minimize_dir)
-    # 最大进程数为CPU核心数量 1:1
+    # 最大进程数 CPU_NUM
     pool = multiprocessing.Pool(CPU_NUM, maxtasksperchild=1)
     # 进度条
     progress.start_task(task)
     for pdbfile in pdbfiles:
-        pool.apply_async(minimize, (pdbfile,), error_callback=error_handler, callback=_update)
+        pool.apply_async(minimize, (pdbfile,), error_callback=_error_update, callback=_update)
 
     pool.close()
     pool.join()
@@ -174,6 +176,9 @@ def multi_grid_generate(receptor_list:list):
     progress.start_task(task)
     def _update(*arg):
         progress.update(task, advance=1)
+    def _error_update(error):
+        logger.error(error)
+        progress.update(task, advance=1)
 
     # 暂时进入grid文件存放目录 计算格点文件并保存结构于此处
     os.chdir(grid_dir)
@@ -182,7 +187,7 @@ def multi_grid_generate(receptor_list:list):
     for pdbid, lig in receptor_list:
         st_file_path = minimize_dir + '%s_minimized.mae' % pdbid
         # 默认格点大小20A
-        pool.apply_async(grid_generate, (pdbid, lig, st_file_path, 20), error_callback=error_handler, callback=_update)
+        pool.apply_async(grid_generate, (pdbid, lig, st_file_path, 20), error_callback=_error_update, callback=_update)
     
     pool.close()
     pool.join()
@@ -205,6 +210,9 @@ def multi_split(receptor_list:list):
     progress.start()
     progress.start_task(task)
     def _update(*arg):
+        progress.update(task, advance=1)
+    def _error_update(error):
+        logger.error(error)
         progress.update(task, advance=1)
 
     minimize_dir = cwd + '/minimize/'
@@ -235,7 +243,7 @@ def multi_split(receptor_list:list):
 
     for pdbid, lig in receptor_list:
         complex_file_path = minimize_dir + '%s_minimized.mae' % pdbid
-        pool.apply_async(split_com, (complex_file_path, lig), callback=_move, error_callback=error_handler)
+        pool.apply_async(split_com, (complex_file_path, lig), callback=_move, error_callback=_error_update)
     
     pool.close()
     pool.join()
@@ -273,7 +281,7 @@ def self_dock(receptor_list:list, precision:str='SP', calc_rmsd:bool=True):
     progress.start_task(task)
     def _update(*arg):
         progress.update(task, advance=1)
-    def _error_handler(error):
+    def _error_update(error):
         _update()
         logger.error(error)
 
@@ -287,7 +295,7 @@ def self_dock(receptor_list:list, precision:str='SP', calc_rmsd:bool=True):
     for pdbid, lig in receptor_list:
         lig_file_path = ligand_dir + '%s-lig-%s.mae' % (pdbid, lig)
         grid_file_path = grid_dir + '%s_glide_grid_%s.zip' % (pdbid, lig)
-        pool.apply_async(dock_in_pdbdir, (pdbid, lig_file_path, grid_file_path, precision, calc_rmsd), error_callback=_error_handler, callback=_update)
+        pool.apply_async(dock_in_pdbdir, (pdbid, lig_file_path, grid_file_path, precision, calc_rmsd), error_callback=_error_update, callback=_update)
     
     pool.close()
     pool.join()
@@ -391,20 +399,16 @@ def multi_cal_mmgbsa(mapping, precision:str='SP'):
     progress.start_task(task)
     def _update(*arg):
         progress.update(task, advance=1)
+    def _error_update(error):
+        logger.error(error)
+        progress.update(task, advance=1)
 
     pool = multiprocessing.Pool(CPU_NUM, maxtasksperchild=1)
     for pdbid, self_lig, ex_lig in mapping:
         dock_file_path = '%s_%s_glide_dock_%s_%s.maegz' % (pdbid, self_lig, ex_lig, precision)
-        pool.apply_async(cal_mmgbsa_in_pdbdir, (pdbid, dock_file_path), error_callback=error_handler, callback=_update)
+        pool.apply_async(cal_mmgbsa_in_pdbdir, (pdbid, dock_file_path), error_callback=_error_update, callback=_update)
 
     pool.close()
     pool.join()
     progress.stop()
-
-def error_handler(error):
-    '''
-    Error 信息显示
-    '''
-    logger.error(error)
-    raise RuntimeError
 

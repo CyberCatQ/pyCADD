@@ -265,6 +265,8 @@ class Query:
         GOL: GLYCEROL
         NI:  NICKEL (II) ION
         YT3: YTTRIUM (III) ION
+        PGE: TRIETHYLENE GLYCOL
+        PEG: DI(HYDROXYETHYL)ETHER
         '''
 
         agonist_match = re.compile('agonist', re.IGNORECASE)

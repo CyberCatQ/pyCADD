@@ -450,9 +450,11 @@ def get_SCP_report(splits, X, y):
         
     _mean = np.mean(scp_performance)
     _max = np.max(scp_performance)
+    _min = np.min(scp_performance)
     _std = np.std(scp_performance)
     logger.info('SCP score: %.4f' % (_mean))
     logger.info('SCP Max score: %.4f' % (_max))
+    logger.info('SCP Min score: %.4f' % (_min))
     logger.info('SCP std: %.4f' % (_std))
 
     return scp_performance
@@ -540,15 +542,17 @@ def CV_model_evaluation(models:dict, X:DataFrame, y:Series, n_repeats=30, n_spli
         _mean = np.mean(_current_result)
         logger.info('%s CV %s mean score: %s' % (model_name, score_name, _mean))
 
+    scp_performance = get_SCP_report(splits, X, y)
+    final_results['SCP'] = scp_performance
     
     if plot:
-        scp_performance = get_SCP_report(splits, X, y)
         plt.figure(figsize=(20, 20))
         result_df = pd.DataFrame(final_results)
         plt.axhline(np.max(scp_performance), color='r', linestyle='--', lw=2)
         plt.axhline(np.mean(scp_performance), color='y', linestyle='--', lw=2)
+        plt.axhline(np.min(scp_performance), color='b', linestyle='--', lw=2)
         plt.axhline(0.5, color='g', linestyle='--', lw=2)
-        plt.legend(['Max SCP', 'Mean SCP', 'Random'], loc='lower right')
+        plt.legend(['Max SCP', 'Mean SCP', 'Worst SCP', 'Random'], loc='lower right')
         sns.violinplot(data=result_df, palette='Set2', inner='point', split=True)
         plt.show()
 

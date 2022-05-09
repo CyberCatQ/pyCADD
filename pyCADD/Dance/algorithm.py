@@ -21,7 +21,7 @@ class Consensus:
         self.y = y
         self.result = None
         self.lower_is_better = lower_is_better
-    
+
     def fit(self):
         '''
         共识算法计算
@@ -64,7 +64,10 @@ class Average(Consensus):
     def __init__(self, X=None, y=None, lower_is_better=False):
         super().__init__(X, y, lower_is_better)
         self.result = None
-        
+    
+    def get_params(self):
+        return {'method': 'Arithmetic mean'}
+
     def fit(self, X:DataFrame=None, y:Series=None):
         '''
         计算算数平均
@@ -82,6 +85,9 @@ class Geo_Average(Consensus):
     def __init__(self, X=None, y=None, lower_is_better=False):
         super().__init__(X, y, lower_is_better)
         self.result = None
+
+    def get_params(self):
+        return {'method': 'Geometric mean'}
         
     def fit(self, X:DataFrame=None, y:Series=None):
         '''
@@ -100,7 +106,10 @@ class Minimum(Consensus):
     def __init__(self, X=None, y=None, lower_is_better=False):
         super().__init__(X, y, lower_is_better)
         self.result = None
-        
+
+    def get_params(self):
+        return {'method': 'Minimum'}
+
     def fit(self, X:DataFrame=None, y:Series=None):
         '''
         计算几何平均
@@ -118,7 +127,10 @@ class Maximum(Consensus):
     def __init__(self, X=None, y=None, lower_is_better=False):
         super().__init__(X, y, lower_is_better)
         self.result = None
-        
+
+    def get_params(self):
+        return {'method': 'Maximum'}
+
     def fit(self, X:DataFrame=None, y:Series=None):
         '''
         计算几何平均
