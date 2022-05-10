@@ -6,6 +6,7 @@ import numpy as np
 import logging
 import json
 
+from torch.nn import Module
 from pandas import DataFrame, Series
 from sklearn.metrics import roc_auc_score, roc_curve, f1_score, precision_score, recall_score, accuracy_score
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
@@ -482,7 +483,9 @@ def cross_validation(model, splits, X, y, score):
         n x m 次模型交叉验证AUC值
     '''
     validation_results = []
-
+    if isinstance(model, Module):
+        # 深度神经网络通常不使用交叉验证
+        return np.nan
     for train_index, test_index in splits:
         X_train, X_test = X.iloc[train_index], X.iloc[test_index]
         y_train, y_test = y.iloc[train_index], y.iloc[test_index]

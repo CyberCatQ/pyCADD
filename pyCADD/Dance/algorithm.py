@@ -1,7 +1,10 @@
 # 数据融合规则算法
-import pandas as pd
 import numpy as np
+import pandas as pd
+import torch
 from pandas import DataFrame, Series
+from torch import nn
+
 
 # 包装为类
 class Consensus:
@@ -140,6 +143,49 @@ class Maximum(Consensus):
         self.result = self.X.max(axis=1)
         if self.lower_is_better:
             self.result = -1 * self.result
+
+class MyMLP(nn.Module):
+
+    def __init__(self, input_dim, hidden_dim, output_dim, dropout1=0.2, dropout2=0.5, lr=0.01, weight_decay=1e-4, batch_size=128, epochs=500):
+        super(MyMLP, self).__init__()
+        self.input_dim = input_dim
+        self.hidden_dim = hidden_dim
+        self.output_dim = output_dim
+        self.dropout1 = dropout1
+        self.dropout2 = dropout2
+        self.lr = lr
+        self.weight_decay = weight_decay
+        self.epochs = epochs
+        self.batch_size = batch_size
+
+        self.model = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim[0]),
+            nn.BatchNorm1d(hidden_dim[0]),
+            nn.ReLU(),
+            nn.Dropout(dropout1),
+            nn.Linear(hidden_dim[0], hidden_dim[1]),
+            nn.BatchNorm1d(hidden_dim[1]),
+            nn.ReLU(),
+            nn.Dropout(dropout2),
+            nn.Linear(hidden_dim[1], output_dim)
+        )
+        
+    def forward(self, x):
+        return self.model(x)
+    
+    def get_params(self):
+        return {
+            'batch_size' : self.batch_size,
+            'epochs' : self.epochs,
+            'device': torch.device('cuda:0' if torch.cuda.is_available() else 'cpu'),
+            'input_dim': self.input_dim,
+            'output_dim' : self.output_dim,
+            'hidden_dim' : self.hidden_dim,
+            'lr' : self.lr,
+            'weight_decay' : self.weight_decay,
+            'dropout1' : self.dropout1,
+            'dropout2' : self.dropout2,
+        }
 
 # 函数
 def average(data: DataFrame, method: str = 'ave'):
