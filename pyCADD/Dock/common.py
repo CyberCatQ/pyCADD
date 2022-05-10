@@ -153,6 +153,7 @@ class PDBFile(BaseFile):
             ligindex = int(input('Please specify ligand index:').strip())
             if ligindex < len(liglist):
                 selected_lig = liglist[ligindex]
+                self.ligid = selected_lig.pdbres.strip()
                 self.lig_resnum = selected_lig.resnum
                 return self._get_lig_info(selected_lig)
             else:

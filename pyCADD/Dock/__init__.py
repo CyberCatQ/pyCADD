@@ -54,7 +54,7 @@ class Docker:
 
         download_pdb(self.pdbid, os.getcwd())
         self._pdb_file = PDBFile(self.pdb_file_path)
-        logger.info(f'{self.pdbid} Download pdb done.')
+        logger.info(f'Download {self.pdbid} pdb done.')
         return self._pdb_file
 
     def _get_lig_info(self) -> None:

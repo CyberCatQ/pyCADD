@@ -49,6 +49,8 @@ class UI_dock(UI):
         elif flag == '4' or flag == '5':
             precision = 'SP' if flag == '4' else 'XP'
             flag_calc_mmgbsa = self.get_confirm('Calculate MM-GBSA?')
+            if keep_chain:
+                docker.keep_chain()
             docker.minimize()
             docker.grid_generate()
             docker.set_precision(precision)
