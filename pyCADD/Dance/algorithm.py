@@ -146,7 +146,7 @@ class Maximum(Consensus):
 
 class MyMLP(nn.Module):
 
-    def __init__(self, input_dim, hidden_dim, output_dim, dropout1=0.2, dropout2=0.5, lr=0.01, weight_decay=1e-4, batch_size=128, epochs=500):
+    def __init__(self, input_dim, hidden_dim, output_dim, dropout1=0.2, dropout2=0.5, lr=0.01, weight_decay=1e-4, batch_size=128, epochs=500, device='cpu'):
         super(MyMLP, self).__init__()
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
@@ -157,18 +157,21 @@ class MyMLP(nn.Module):
         self.weight_decay = weight_decay
         self.epochs = epochs
         self.batch_size = batch_size
+        self.device = device
+        self.layer_num = len(hidden_dim)
 
         self.model = nn.Sequential(
             nn.Linear(input_dim, hidden_dim[0]),
             nn.BatchNorm1d(hidden_dim[0]),
             nn.ReLU(),
-            nn.Dropout(dropout1),
+            #nn.Dropout(dropout1),
             nn.Linear(hidden_dim[0], hidden_dim[1]),
             nn.BatchNorm1d(hidden_dim[1]),
             nn.ReLU(),
-            nn.Dropout(dropout2),
+            #nn.Dropout(dropout2),
             nn.Linear(hidden_dim[1], output_dim)
         )
+        self.model = self.model.to(device)
         
     def forward(self, x):
         return self.model(x)
@@ -183,9 +186,36 @@ class MyMLP(nn.Module):
             'hidden_dim' : self.hidden_dim,
             'lr' : self.lr,
             'weight_decay' : self.weight_decay,
-            'dropout1' : self.dropout1,
-            'dropout2' : self.dropout2,
+            #'dropout1' : self.dropout1,
+            #'dropout2' : self.dropout2,
         }
+    
+    def initialize(self, method='normal'):
+        if method == 'xavier_uniform':
+            init_func = nn.init.xavier_uniform_
+        elif method == 'xavier_normal':
+            init_func = nn.init.xavier_normal_
+        elif method == 'normal':
+            init_func = nn.init.normal_
+        elif method == 'kaiming_uniform':
+            init_func = nn.init.kaiming_uniform_
+        elif method == 'kaiming_normal':
+            init_func = nn.init.kaiming_normal_
+        else:
+            raise ValueError('Unknown initialization method')
+        for layer in self.model:
+            if isinstance(layer, nn.Linear):
+                init_func(layer.weight)
+        
+    def predict(self, X):
+        self.eval()
+        X = torch.tensor(X.values, dtype=torch.float)
+        return self.forward(X.to(self.device)).cpu().detach().argmax(dim=1).numpy()
+    
+    def predict_proba(self, X):
+        self.eval()
+        X = torch.tensor(X.values, dtype=torch.float)
+        return self.forward(X.to(self.device)).cpu().detach().softmax(dim=1).numpy()
 
 # 函数
 def average(data: DataFrame, method: str = 'ave'):
@@ -336,82 +366,4 @@ def relative(data: DataFrame):
         
     return pd.DataFrame(_processed).T
 '''
-# Machine Learning
 
-def gbt_classifier(**params):
-    '''
-    梯度提升树
-    Parameters
-    ----------
-    params : dict
-        超参数
-    '''
-    try:
-        from xgboost import XGBClassifier
-    except ImportError:
-        raise RuntimeError('XGBoost is not installed.')
-    
-    return XGBClassifier(**params)
-
-def logistic_regression(**params):
-    '''
-    逻辑回归
-    Parameters
-    ----------
-    params : dict
-        超参数
-    '''
-    try:
-        from sklearn.linear_model import LogisticRegression
-    except ImportError:
-        raise RuntimeError('Sklearn is not installed.')
-    
-    return LogisticRegression(**params)
-
-def dummy_classifier(**params):
-    '''
-    简单规则预测分类器
-
-    Parameters
-    ----------
-    params : dict
-        超参数
-    '''
-    try:
-        from sklearn.dummy import DummyClassifier
-    except ImportError:
-        raise RuntimeError('Sklearn is not installed.')
-    
-    return DummyClassifier(**params)
-
-def randomforest_classifier(**params):
-    '''
-    随机森林分类器
-
-    Parameters
-    ----------
-    params : dict
-        超参数
-    '''
-    try:
-        from sklearn.ensemble import RandomForestClassifier
-    except ImportError:
-        raise RuntimeError('Sklearn is not installed.')
-    
-    return RandomForestClassifier(**params)
-
-def naive_bayes_classifier(**params):
-    '''
-    朴素贝叶斯分类器
-
-    Parameters
-    ----------
-    params : dict
-        超参数
-    '''
-    try:
-        from sklearn.naive_bayes import GaussianNB
-    except ImportError:
-        raise RuntimeError('Sklearn is not installed.')
-    
-    return GaussianNB(**params)
