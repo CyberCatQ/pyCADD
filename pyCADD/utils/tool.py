@@ -48,7 +48,7 @@ def _multiprocssing_run(func, _iterable:Iterable, *args, job_name:str, num_paral
         处理完成的任务(成功/失败)
         '''
         if future.exception() is not None:
-            logger.debug(f'Warnning: {future.exception()}')
+            logger.debug(f'Multiprocessing Warnning: {future.exception()}')
         else:
             returns.append(future.result())
         progress.update(taskID, advance=1)

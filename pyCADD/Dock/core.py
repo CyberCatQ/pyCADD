@@ -35,12 +35,12 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
     
 
     logger.debug('Prepare to minimize %s' % pdbfile.file_name)
-    pdbid = pdbfile.pdbid if pdbfile.pdbid else 'unknown'
+    # pdbid = pdbfile.pdbid if pdbfile.pdbid else 'unknown'
     ligand_id = pdbfile.ligid if pdbfile.ligid else None
     ligand_resnum = pdbfile.lig_resnum if pdbfile.lig_resnum else None
     
     save_dir = save_dir if save_dir else os.getcwd()
-    minimized_file = os.path.join(save_dir, f'{pdbid}_minimized.mae')
+    minimized_file = os.path.join(save_dir, f'{pdbfile.file_prefix}_minimized.mae')
 
     _cwd = os.getcwd()
     os.chdir(save_dir)
@@ -49,7 +49,7 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
         logger.debug('File %s is existed.' % minimized_file)
         return ComplexFile(minimized_file, ligand_id, ligand_resnum)
 
-    _job_name = '%s-Minimize' % pdbfile.pdbid
+    _job_name = '%s-Minimize' % pdbfile.file_prefix
     prepwizard_command = 'prepwizard -f 3 -r 0.3 -propka_pH 7.0 -disulfides -s -j %s' % _job_name
     if side_chain:
         prepwizard_command += ' -fillsidechains'
@@ -59,7 +59,7 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
         prepwizard_command += ' -watdist 0.0'
 
     # Prepwizard要求输出文件名必须为相对路径 只能先输出 后移动
-    _minimized_file = f'{pdbid}_minimized.mae'
+    _minimized_file = f'{pdbfile.file_prefix}_minimized.mae'
 
     prepwizard_command += ' %s' % pdbfile.file_path # 将pdb文件传入prepwizard
     prepwizard_command += ' %s' % _minimized_file    # 将优化后的文件保存到minimized_file
@@ -70,7 +70,7 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
     try:
         shutil.move(_minimized_file, minimized_file)
     except FileNotFoundError:
-        raise RuntimeError('%s Crystal Minimization Process Failed.' % pdbfile.pdbid)
+        raise RuntimeError('%s Crystal Minimization Process Failed.' % pdbfile.file_prefix)
     else:
         os.chdir(_cwd)
         logger.debug('PDB minimized file: %s Saved.' % minimized_file)

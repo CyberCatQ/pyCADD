@@ -1,6 +1,9 @@
 import os
 import click
 from pyCADD.Dock.common import DockResultFile, GridFile, MaestroFile, PDBFile, LigandFile, ComplexFile, MultiInputFile
+from pyCADD.Dock.data import generate_report
+import warnings
+warnings.filterwarnings("ignore")
 
 @click.group()
 def cli_main():
@@ -120,3 +123,34 @@ def ensemble_dock(input_file_path, library_file_path, parallel, precision, redoc
     console.multi_dock(precision=precision, overwrite=overwrite)
     dock_data_list = console.multi_extract_data(redock_data=False)
     save_ensemble_docking_data(dock_data_list, save_dir=console.result_save_dir)
+
+@cli_main.command(short_help='Quick Report for ligand(s).')
+@click.argument('input_file_path', type=str)
+@click.argument('ligand_file_path', type=str)
+@click.option('--parallel', '-n', default=os.cpu_count(), type=int, help='Number of parallel processes.')
+@click.option('--precision', '-p', default='SP', required=False, type=click.Choice(['SP', 'XP']), help='Docking Precision (SP/XP), default SP.')
+@click.option('--overwrite', '-O', is_flag=True, help='Overwrite the file.')
+def quick_report(input_file_path, ligand_file_path, parallel, precision, overwrite):
+    '''
+    Quick report for ligand(s). \n
+    input_file_path : Specify input file path for quick report.
+    ligand_file_path : Specify ligand file path for quick report.
+    '''
+    from pyCADD.Dock import MultiDocker
+    from pyCADD.Dock.data import save_ensemble_docking_data, save_redocking_data
+    input_file = MultiInputFile(input_file_path)
+    ligand_file = LigandFile(ligand_file_path)
+    console = MultiDocker(input_file)
+    console.ligand_split(ligand_file, overwrite=overwrite)
+    console.set_parallel_num(parallel)
+    console.multi_minimize(overwrite=overwrite)
+    console.multi_grid_generate(overwrite=overwrite)
+    console.multi_redock(precision=precision, overwrite=overwrite, self_only=True)
+    redock_data_list = console.multi_extract_data(redock_data='only')
+    # save_redocking_data(redock_data_list, save_dir=console.result_save_dir)
+
+    console.creat_mapping()
+    console.multi_dock(precision=precision, overwrite=overwrite)
+    dock_data_list = console.multi_extract_data(redock_data=False)
+    save_ensemble_docking_data(dock_data_list, save_dir=console.result_save_dir)
+    generate_report(redock_data_list, dock_data_list, console.ligand_save_dir, console.result_save_dir)

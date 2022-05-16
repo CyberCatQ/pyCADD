@@ -4,6 +4,10 @@ import re
 import os
 import pandas as pd
 from typing import List
+import xlsxwriter
+from io import BytesIO
+from rdkit.Chem import rdDepictor, PandasTools, MolToSmiles, Draw
+rdDepictor.SetPreferCoordGen(True)
 
 from pyCADD.Dock.common import DockResultFile, LigandFile
 from pyCADD.Dock.config import DefaultDataConfig, DataConfig
@@ -139,7 +143,7 @@ def save_redocking_data(data_list:list, precision:str='SP', configs:DataConfig=N
     '''
     save_dir = os.getcwd() if save_dir is None else save_dir
     property_config = DefaultDataConfig(precision) if configs is None else configs
-    fields = property_config.properties
+    # fields = property_config.properties
     reference_results_file_path = os.path.join(save_dir, 'ENSEMBLE_DOCKING_RESULTS_REF.csv')
 
     redock_df = pd.DataFrame(data_list)
@@ -242,3 +246,131 @@ def save_admet_data(admet_file:LigandFile):
     _save_data(output_file, data_list, admet_property)
     logger.debug(f'ADMET data {output_file} saved.')
     return output_file
+
+# Quick Report Functions
+def _get_smiles(st_path):
+    '''
+    获取SMILES
+    '''
+    from schrodinger.structure import StructureReader
+    from schrodinger import adapter
+
+    if not os.path.exists(st_path):
+        logger.warning(f'{st_path} not exists.')
+        return None
+    _st = StructureReader.read(st_path)
+    _mol = adapter.to_rdkit(_st)
+    _smiles = MolToSmiles(_mol)
+    return _smiles
+
+def _generate_img(dataframe, ligand_save_dir:str):
+    '''
+    为参考数据生成结构图
+
+    Parameter
+    ----------
+    dataframe : pd.DataFrame
+        参考数据
+    ligand_save_dir : str
+        参考结构结构保存路径
+    '''
+    
+    _smiles_list = []
+    for ligand_name in dataframe['Ligand']:
+        st_path = os.path.join(ligand_save_dir, f'{ligand_name}.mae')
+        _smiles = _get_smiles(st_path)
+        _smiles_list.append({'Ligand': ligand_name, 'SMILES': _smiles})
+    smiles_df = pd.DataFrame(_smiles_list)
+    PandasTools.AddMoleculeColumnToFrame(smiles_df, 'SMILES', 'Structure')
+    smiles_df.drop('SMILES', axis=1, inplace=True)
+    dataframe = dataframe.merge(smiles_df, on='Ligand', how='left')
+    dataframe = dataframe[['PDB', 'Ligand', 'Structure', 'Docking_Score', 'rmsd']]
+    return dataframe
+
+def _write_xlsx(df, file_path):
+    '''
+    将含有结构图的dataframe写入文件
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        含有结构图的dataframe
+    file_path : str
+        要写入的文件路径
+    '''
+    output_workbook = xlsxwriter.Workbook(file_path)
+    output_worksheet = output_workbook.add_worksheet()
+    output_worksheet.set_column('A:B', 12)
+    output_worksheet.set_column('C:C', 20.63)
+    cols = df.columns.tolist()
+    cols.remove('PDB')
+    cols.remove('Ligand')
+    cols.remove('Structure')
+
+    output_worksheet.write(0, 0, 'PDB')
+    output_worksheet.write(0, 1, 'Reference_Ligand')
+    output_worksheet.write(0, 2, 'Structure')
+    output_worksheet.write_row(0, 3, cols)
+
+    for i, (index, row) in enumerate(df.iterrows()):
+        output_worksheet.set_row(i+1, height=112.5)
+        imgdata = BytesIO()
+        try:
+            output_worksheet.write(i+1, 0, row['PDB'])
+            output_worksheet.write(i+1, 1, row['Ligand'])
+            img = Draw.MolToImage(row['Structure'], size=(150, 150))
+            img.save(imgdata, format='PNG')
+            output_worksheet.insert_image(i+1, 2, "f", {'image_data': imgdata})
+        except Exception as e:
+            pass
+        
+        for col in cols:
+            try:
+                output_worksheet.write(i+1, cols.index(col)+3, row[col])
+            except Exception:
+                pass
+    output_workbook.close()
+
+def generate_report(refefence_datalist:list, dock_datalist:list, ligand_save_dir:str, report_save_dir:str):
+    '''
+    为每个Ligand生成对接报告
+
+    Parameters
+    ----------
+    refefence_datalist : list[dict]
+        参考数据列表
+    dock_datalist : list[dict]
+        对接数据列表
+    ligand_save_dir : str
+        Ligand文件保存目录(用于读取结构)
+    report_save_dir : str
+        报告xlsx保存目录
+    '''
+    _redock_data = []
+    redock_df = pd.DataFrame(refefence_datalist)
+    ligand_df_group = redock_df.groupby('PDB')
+    for _pdb, pdb_df in ligand_df_group:
+        for index, row in pdb_df.iterrows():
+            if row['Ligand'].startswith(row['PDB']):
+                _redock_data.append(row[['PDB','Ligand','Docking_Score', 'rmsd']].to_dict())
+    redock_df = pd.DataFrame(_redock_data)
+    redock_df = _generate_img(redock_df, ligand_save_dir)
+
+    dock_data = []
+    dock_df = pd.DataFrame(dock_datalist)
+    ligand_df_group = dock_df.groupby('Ligand')
+
+    if len(ligand_df_group) == 0:
+        logger.warning('No docking data found.')
+        return
+    elif len(ligand_df_group) > 10:
+        logger.warning('Too many docking data found.')
+        if not input('Continue?[y/n]').lower() == 'y':
+            return
+
+    for _ligand, ligand_df in ligand_df_group:
+        ligand_df = ligand_df[['PDB', 'Docking_Score']]
+        ligand_df[_ligand] = ligand_df['Docking_Score']
+        ligand_df = ligand_df.drop(columns=['Docking_Score'])
+        _report_df = redock_df.merge(ligand_df, how='left', on='PDB')
+        _write_xlsx(_report_df, os.path.join(report_save_dir, f'{_ligand}_report.xlsx'))

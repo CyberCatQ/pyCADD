@@ -2,7 +2,7 @@ import logging
 import os
 
 from pyCADD.utils.tool import download_pdb_list, makedirs_from_list, _get_progress, _multiprocssing_run, NUM_PARALLEL
-from pyCADD.Dock.common import PDBFile, DockResultFile, LigandFile, MultiInputFile
+from pyCADD.Dock.common import GridFile, PDBFile, DockResultFile, LigandFile, MultiInputFile
 from pyCADD.Dock.core import minimize, grid_generate, dock
 from pyCADD.Dock.data import extra_docking_data
 
@@ -139,6 +139,10 @@ class _Console:
             配体文件列表
         failed_list : list
             此前不能成功对接的映射关系列表 将不再重新对接
+
+        Returns
+        -------
+        list[tuple[GridFile, LigandFile]]
         '''
         mapping_results = []
         failed_list = [] if failed_list is None else failed_list
@@ -277,8 +281,8 @@ class _Console:
         split_result_list = []
         # split不进行多进程化
         for minimized_file in minimized_file_list:
-            grid_file, ligand_file = minimized_file.split(protein_dir=self.protein_save_dir, ligand_dir=self.ligand_save_dir, complex_dir=self.complex_save_dir)
-            split_result_list.append((grid_file, ligand_file))
+            receptor_file, ligand_file = minimized_file.split(protein_dir=self.protein_save_dir, ligand_dir=self.ligand_save_dir, complex_dir=self.complex_save_dir)
+            split_result_list.append((receptor_file, ligand_file))
         
         self.minimized_split_list = split_result_list
         return split_result_list
@@ -367,7 +371,7 @@ class _Console:
             with open(os.path.join(self.result_save_dir, f'docking_failed_{precision}.csv'), 'w') as f:
                 f.write('\n'.join(self.docking_failed_list))
         
-    def multi_redock(self, precision:str='SP', calc_rmsd:bool=True, num_parallel:int=None, overwrite:bool=False, export_failed:bool=True) -> list:
+    def multi_redock(self, precision:str='SP', calc_rmsd:bool=True, num_parallel:int=None, overwrite:bool=False, export_failed:bool=True, self_only:bool=False) -> list:
         '''
         使用多进程调用Glide 执行批量回顾性对接
         
@@ -383,18 +387,26 @@ class _Console:
             是否覆盖已存在的mae文件
         export_failed : bool
             是否导出对接失败的清单至results/redock_failed_PRECISION.csv
+        self_only : bool
+            是否只执行自身构象与自身共结晶配体的对接(不执行交叉对接)
         '''
         num_parallel = self.parallel if num_parallel is None else num_parallel
+        minimized_split_list = self.minimized_split_list if self.minimized_split_list is not None else self.minimized_split()
         logger.debug(f'Prepare to run redock.')
-        logger.debug(f'Number of all jobs: {len(self.minimized_split_list)}')
+        logger.debug(f'Number of all jobs: {len(minimized_split_list)}')
         logger.debug(f'Docking precision: {precision}')
         logger.debug(f'Calculate rmsd: {calc_rmsd}')
         logger.debug(f'Number of parallel jobs: {num_parallel}')
 
-        redock_ligand_files = [split_files[1] for split_files in self.minimized_split_list]
-        redock_mapping = self._creat_mapping(self.grid_file_list, redock_ligand_files, self._get_failed_list(precision, True))
-        self.redock_file_list = _multiprocssing_run(dock, redock_mapping, precision, calc_rmsd, self.base_dock_save_dir, overwrite, job_name='Ensemble Redocking', num_parallel=num_parallel)
+        _failed_list = self._get_failed_list(precision, True)
         
+        redock_ligand_files = [split_files[1] for split_files in minimized_split_list]
+        redock_mapping = self._creat_mapping(self.grid_file_list, redock_ligand_files, _failed_list)
+        if self_only:
+            redock_mapping = [mapping_item for mapping_item in redock_mapping if f'{mapping_item[0].pdbid}-lig-{mapping_item[0].ligand}' == mapping_item[1].ligand_name]
+
+        self.redock_file_list = _multiprocssing_run(dock, redock_mapping, precision, calc_rmsd, self.base_dock_save_dir, overwrite, job_name='Ensemble Redocking', num_parallel=num_parallel)
+
         total_result = total_result = [f'{mapping_item[0].pdbid},{mapping_item[0].internal_ligand},{mapping_item[1].ligand_name}' for mapping_item in redock_mapping]
         success_result = [f'{dock_result_item.pdbid},{dock_result_item.internal_ligand_name},{dock_result_item.docking_ligand_name}' for dock_result_item in self.redock_file_list]
         redock_failed_list = list(set(total_result) - set(success_result))
@@ -402,7 +414,7 @@ class _Console:
             with open(os.path.join(self.result_save_dir, f'redock_failed_{precision}.csv'), 'w') as f:
                 f.write('\n'.join(redock_failed_list))
     
-    def multi_extract_data(self, precision:str='SP', num_parallel:int=None, overwrite:bool=False, redock_data:str='append') -> list:
+    def multi_extract_data(self, precision:str='SP', num_parallel:int=None, overwrite:bool=False, redock_data:str='False') -> list:
         '''
         多进程 提取对接结果数据
 
@@ -419,6 +431,11 @@ class _Console:
                 append : 将回顾性对接数据合并到外源配体对接数据中
                 only : 只提取回顾性对接数据
                 False : 不提取回顾性对接数据 仅提取外源配体对接数据
+            
+        Returns
+        -------
+        list[dict]
+            由全部对接数据字典组成的列表
 
         '''
         num_parallel = self.parallel if num_parallel is None else num_parallel
