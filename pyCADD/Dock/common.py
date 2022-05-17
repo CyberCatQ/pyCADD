@@ -618,7 +618,7 @@ class MultiInputFile(BaseFile):
     '''
     pyCADD受体列表输入文件
     '''
-    def __init__(self, path) -> None:
+    def __init__(self, path, parse_:bool=True) -> None:
         '''
         Parameter
         ----------
@@ -626,9 +626,51 @@ class MultiInputFile(BaseFile):
             受体列表输入文件路径
         '''
         super().__init__(path)
+        self.config = None
         self.pairs_list = None
         self.pdbid_list = None
-        self.parse_file()
+        self.mappings = None
+        if parse_:
+            self.parse_file()
+
+    @staticmethod
+    def read_from_config(config_file:str) -> 'MultiInputFile':
+        '''
+        从配置文件读取输入信息
+
+        Parameters
+        ----------
+        config_file : str
+            配置文件路径
+        '''
+        from pyCADD.utils.tool import Myconfig
+
+        config = Myconfig()
+        config.read(config_file)
+
+        receptors = [receptor for receptor in config.sections()]
+        pdb_list = []
+        pairs_list = []
+        mappings = []
+        for _list in [config.options(receptor) for receptor in receptors]:
+            pdb_list.extend(_list)
+
+        for receptor in receptors:
+            for _item in config.items(receptor):
+                pairs_list.append(_item)
+                current_dict = {}
+                current_dict['receptor'] = receptor
+                current_dict['pdb'] = _item[0]
+                current_dict['ligand'] = _item[1]
+                mappings.append(current_dict)
+
+        _input_file = MultiInputFile(config_file, parse_=False)
+        _input_file.config = config
+        _input_file.pairs_list = pairs_list
+        _input_file.pdbid_list = pdb_list
+        _input_file.ligand_list = [ligid for pdbid, ligid in pairs_list]
+        _input_file.mappings = mappings
+        return _input_file
 
     def read(self, file_path:str) -> None:
         '''

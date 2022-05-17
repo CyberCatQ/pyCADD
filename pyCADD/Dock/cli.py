@@ -138,7 +138,7 @@ def quick_report(input_file_path, ligand_file_path, parallel, precision, overwri
     '''
     from pyCADD.Dock import MultiDocker
     from pyCADD.Dock.data import save_ensemble_docking_data, save_redocking_data
-    input_file = MultiInputFile(input_file_path)
+    input_file = MultiInputFile.read_from_config(input_file_path)
     ligand_file = LigandFile(ligand_file_path)
     console = MultiDocker(input_file)
     console.ligand_split(ligand_file, overwrite=overwrite)
@@ -153,4 +153,4 @@ def quick_report(input_file_path, ligand_file_path, parallel, precision, overwri
     console.multi_dock(precision=precision, overwrite=overwrite)
     dock_data_list = console.multi_extract_data(redock_data=False)
     save_ensemble_docking_data(dock_data_list, save_dir=console.result_save_dir)
-    generate_report(redock_data_list, dock_data_list, console.ligand_save_dir, console.result_save_dir)
+    generate_report(input_file.mappings, redock_data_list, dock_data_list, console.ligand_save_dir, console.result_save_dir)

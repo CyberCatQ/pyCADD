@@ -286,7 +286,7 @@ def _generate_img(dataframe, ligand_col:str, ligand_save_dir:str):
     PandasTools.AddMoleculeColumnToFrame(smiles_df, 'SMILES', 'Structure')
     smiles_df.drop('SMILES', axis=1, inplace=True)
     dataframe = dataframe.merge(smiles_df, on=ligand_col, how='left')
-    dataframe = dataframe[['PDB', ligand_col, 'Structure', 'Docking_Score', 'rmsd']]
+    dataframe = dataframe[['Receptor', 'PDB', ligand_col, 'Structure', 'Docking_Score', 'rmsd']]
     return dataframe
 
 def _write_xlsx(df, file_path, info_dict:dict=None):
@@ -306,7 +306,7 @@ def _write_xlsx(df, file_path, info_dict:dict=None):
     output_worksheet = output_workbook.add_worksheet()
     
     base_fmt_dict = {'font_name': u'等线', 'font_color': 'black', 'align': 'center', 'valign': 'vcenter'}
-    title_fmt = output_workbook.add_format({**base_fmt_dict, 'bold': True, 'font_size': 14, 'bottom':1.5})
+    title_fmt = output_workbook.add_format({**base_fmt_dict, 'bold': True, 'font_size': 14, 'bottom':1})
     subtitle_fmt = output_workbook.add_format({**base_fmt_dict, 'bold': True, 'font_size': 12, 'top': 1, 'bottom': 1})
     center_fmt = output_workbook.add_format({**base_fmt_dict, 'num_format': '0.0000', 'font_size': 12})
     column_fmt = output_workbook.add_format({**base_fmt_dict, 'font_size': 12})
@@ -346,7 +346,7 @@ def _write_xlsx(df, file_path, info_dict:dict=None):
     
     cols = df.columns.tolist()
     output_worksheet.write(3, 0, 'Protein', subtitle_fmt)
-    output_worksheet.write_row(3, 1, data=cols, cell_format=subtitle_fmt)
+    output_worksheet.write_row(3, 1, data=cols[1:], cell_format=subtitle_fmt)
     # cols.remove('PDB')
     # cols.remove('Ligand')
     # cols.remove('Structure')
@@ -361,6 +361,7 @@ def _write_xlsx(df, file_path, info_dict:dict=None):
         output_worksheet.set_row(i+4, 114, center_fmt)
         imgdata = BytesIO()
 
+        output_worksheet.write(i+4, 0, row['Receptor'])
         output_worksheet.write(i+4, 1, row['PDB'])
         output_worksheet.write(i+4, 2, row['Reference_Ligand'])
         try:
@@ -376,8 +377,12 @@ def _write_xlsx(df, file_path, info_dict:dict=None):
         #         output_worksheet.write(i+4, cols.index(col)+4, row[col], center_fmt)
         #     except Exception:
         #         pass
-        output_worksheet.write(i+4, 4, row['Docking_Score'], center_fmt)
-        output_worksheet.write(i+4, 5, row['rmsd'], center_fmt)
+        try:
+            output_worksheet.write(i+4, 4, row['Docking_Score'], center_fmt)
+            output_worksheet.write(i+4, 5, row['rmsd'], center_fmt)
+        except Exception:
+            pass
+    
         try:
             if row[cols[-1]] <= row['Docking_Score']:
                 output_worksheet.write(i+4, 6, row[cols[-1]], highlight_fmt)
@@ -405,12 +410,14 @@ def _get_ligand_info_dict(ligand_file_path):
 
     return info_dict
 
-def generate_report(refefence_datalist:list, dock_datalist:list, ligand_save_dir:str, report_save_dir:str):
+def generate_report(mappings:list, refefence_datalist:list, dock_datalist:list, ligand_save_dir:str, report_save_dir:str):
     '''
     为每个Ligand生成对接报告
 
     Parameters
     ----------
+    mappings : list
+        原始输入文件的映射关系
     refefence_datalist : list[dict]
         参考数据列表
     dock_datalist : list[dict]
@@ -420,19 +427,29 @@ def generate_report(refefence_datalist:list, dock_datalist:list, ligand_save_dir
     report_save_dir : str
         报告xlsx保存目录
     '''
+    # 创建总报告模板
+    template_df = pd.DataFrame(mappings)
+    template_df.columns = ['Receptor', 'PDB', 'Ligand']
+    template_df = template_df.drop_duplicates()
+    template_df['Reference_Ligand'] = template_df['PDB'] + '-lig-' + template_df['Ligand']
+    template_df = template_df[['Receptor', 'PDB', 'Reference_Ligand']]
+
+    # 处理参考数据
     _redock_data = []
-    redock_df = pd.DataFrame(refefence_datalist)
-    ligand_df_group = redock_df.groupby('PDB')
-    for _pdb, pdb_df in ligand_df_group:
+    _redock_df = pd.DataFrame(refefence_datalist)
+    redock_df_group = _redock_df.groupby('PDB')
+    for _pdb, pdb_df in redock_df_group:
         for index, row in pdb_df.iterrows():
             if row['Ligand'].startswith(row['PDB']):
                 _redock_data.append(row[['PDB', 'Ligand', 'Docking_Score', 'rmsd']].to_dict())
     redock_df = pd.DataFrame(_redock_data)
     redock_df['Reference_Ligand'] = redock_df['Ligand']
     redock_df = redock_df[['PDB', 'Reference_Ligand', 'Docking_Score', 'rmsd']]
-    redock_df = _generate_img(redock_df, 'Reference_Ligand', ligand_save_dir)
+    
+    final_df = pd.merge(template_df, redock_df, on=['PDB', 'Reference_Ligand'], how='left')
+    final_df = _generate_img(final_df, 'Reference_Ligand', ligand_save_dir)
 
-    dock_data = []
+    # 处理对接数据
     dock_df = pd.DataFrame(dock_datalist)
     ligand_df_group = dock_df.groupby('Ligand')
 
@@ -451,7 +468,7 @@ def generate_report(refefence_datalist:list, dock_datalist:list, ligand_save_dir
         ligand_df = ligand_df[['Reference_Ligand', 'Docking_Score']]
         ligand_df[_ligand] = ligand_df['Docking_Score']
         ligand_df = ligand_df.drop(columns=['Docking_Score'])
-        _report_df = redock_df.merge(ligand_df, how='left', on='Reference_Ligand')
+        _report_df = final_df.merge(ligand_df, how='left', on='Reference_Ligand')
 
         info_dict['higher_count'] = _report_df[_report_df[_ligand] <= _report_df['Docking_Score']].shape[0]
         info_dict['lower_count'] = _report_df[_report_df[_ligand] > _report_df['Docking_Score']].shape[0]
