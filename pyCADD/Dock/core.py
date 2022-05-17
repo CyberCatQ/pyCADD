@@ -136,10 +136,13 @@ def grid_generate(complex_file:ComplexFile, gridbox_size:int=20, save_dir:str=No
         f.writelines(glide_grid_config)
 
     launch(f'glide {input_file} -JOBNAME {job_name}')
-    logger.debug('Grid File %s Generated.' % grid_file)
-    os.chdir(_cwd)
+    if not os.path.exists(grid_file):
+        raise RuntimeError(f'{grid_file} Generation Failed.')
+    else:
+        logger.debug('Grid File %s Generated.' % grid_file)
+        os.chdir(_cwd)
 
-    return GridFile(grid_file, ligname, lig_resnum)
+        return GridFile(grid_file, ligname, lig_resnum)
 
 def dock(grid_file:GridFile, lig_file:LigandFile, precision:str='SP', calc_rmsd:bool=False, save_dir:str=None, overwrite:bool=False) -> DockResultFile:
     '''

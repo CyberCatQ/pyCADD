@@ -379,6 +379,8 @@ class ComplexFile(MaestroFile):
             raise RuntimeError('Can not delete covalent bonds automatically.')
                 
         self.structure.deleteBond(bond_to_del.atom1, bond_to_del.atom2)
+        # 共价键删除后 需要将结构覆写回文件
+        self.structure.write(self.file_path)
         
     def get_lig_molnum(self, ligname:str=None, lig_resnum:int=None) -> str:
         '''
