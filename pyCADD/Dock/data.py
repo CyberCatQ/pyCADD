@@ -327,7 +327,7 @@ class Reporter:
         output_worksheet.set_column('C:C', width=16, cell_format=column_fmt)
         output_worksheet.set_column('D:D', width=20.91, cell_format=column_fmt)
         output_worksheet.set_column('E:E', width=14, cell_format=column_fmt)
-        output_worksheet.set_column('F:F', width=10, cell_format=column_fmt)
+        output_worksheet.set_column('F:F', width=10.63, cell_format=column_fmt)
         output_worksheet.set_column('G:G', width=14, cell_format=column_fmt)
 
     def _set_row_fmt(self, output_worksheet):
