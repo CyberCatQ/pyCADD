@@ -1,7 +1,7 @@
 import os
 import click
 from pyCADD.Dock.common import DockResultFile, GridFile, MaestroFile, PDBFile, LigandFile, ComplexFile, MultiInputFile
-from pyCADD.Dock.data import generate_report
+from pyCADD.Dock.data import Reporter
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -147,10 +147,8 @@ def quick_report(input_file_path, ligand_file_path, parallel, precision, overwri
     console.multi_grid_generate(overwrite=overwrite)
     console.multi_redock(precision=precision, overwrite=overwrite, self_only=True)
     redock_data_list = console.multi_extract_data(redock_data='only')
-    # save_redocking_data(redock_data_list, save_dir=console.result_save_dir)
-
     console.creat_mapping()
     console.multi_dock(precision=precision, overwrite=overwrite)
     dock_data_list = console.multi_extract_data(redock_data=False)
     save_ensemble_docking_data(dock_data_list, save_dir=console.result_save_dir)
-    generate_report(input_file.mappings, redock_data_list, dock_data_list, console.ligand_save_dir, console.result_save_dir)
+    Reporter(input_file).generate_report(redock_data_list, dock_data_list, console.ligand_save_dir, console.result_save_dir)
