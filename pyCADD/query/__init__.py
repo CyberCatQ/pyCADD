@@ -20,6 +20,7 @@ class QueryClient:
         self.mutation_pdb = None
         self.pairs_clean = None
         self.output_data = None
+        self.apo = None
 
         self.uniprot_save_dir = './query_data/uniprot'
         self.pdb_save_dir = './query_data/pdb'
@@ -29,6 +30,12 @@ class QueryClient:
             self.pdb_save_dir
         ])
 
+    def get_apo(self):
+        return self.apo
+    
+    def get_mutations(self):
+        return self.mutation_pdb
+    
     def _query_uniprot(self):
         save_path = os.path.join(self.uniprot_save_dir, self.uniprot_id + '.txt')
         query_uniprot(self.uniprot_id, save_path)
@@ -78,13 +85,14 @@ class QueryClient:
         self.pdb_data = parse_data
         pd.DataFrame(parse_data).to_csv(os.path.join(self.pdb_save_dir, self.uniprot_id + '.csv'), index=False)
         
-    def clean_pdb_data(self, del_mutations:bool=True, del_ignore_lig:bool=True):
+    def clean_pdb_data(self, del_mutations:bool=True, del_ignore_lig:bool=True, cutoff:float=None):
         '''
         清洗 pdb 数据:
             * 去除Apo晶体   
             * 去除配体未结合于目标链的晶体
             * 去除非WideType晶体(optional)
             * 去除非配体的小分子(e.g. DMS, optional)
+            * 去除分辨率高于Cutoff的晶体(optional)
         
         Parameters
         ----------
@@ -93,7 +101,7 @@ class QueryClient:
         del_ignore_lig : bool
             是否去除非配体的小分子
         '''
-        apo = []
+        self.apo = []
         total_result = {}
         
         if self.data_dict is None:
@@ -103,9 +111,13 @@ class QueryClient:
         for pdb in data_dict['data']['entries']:
             target_ligs = []
             if not pdb['nonpolymer_entities']:
-                apo.append(pdb['rcsb_id'])
+                self.apo.append(pdb['rcsb_id'])
                 continue
-            
+            if cutoff is not None:
+                resolution = pdb['pdbx_vrpt_summary']['PDB_resolution']
+                if resolution is None or float(resolution) > cutoff:
+                    continue
+                
             # 目标蛋白所在链
             for poly_entity in pdb['polymer_entities']:
                 _uniprot_id = poly_entity['rcsb_polymer_entity_container_identifiers']['uniprot_ids']
