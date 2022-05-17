@@ -27,7 +27,8 @@ setup(
             'pyCADD = pyCADD.__main__:main', 
             'pycadd = pyCADD.__main__:main', 
             'pycadd-dock = pyCADD.Dock.cli:cli_main',
-            'pycadd-gauss = pyCADD.Gauss.__main__:main'
+            'pycadd-gauss = pyCADD.Gauss.__main__:main',
+            'pycadd-query = pyCADD.query.cli:main'
             ]
     }
 
