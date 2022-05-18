@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import pickle
+from copy import deepcopy
 from time import sleep
 
 import hiddenlayer as hl
@@ -1035,7 +1036,7 @@ class _Evaluator:
 
                 if test_loss < min_loss and epoch >= min_epochs:
                     min_loss = test_loss
-                    best_checkpoint = {'model': model.state_dict(), 'optimizer': optimizer.state_dict(),'epoch': epoch + 1, 'test_loss': test_loss}
+                    best_checkpoint = {'model': deepcopy(model.state_dict()), 'optimizer': deepcopy(optimizer.state_dict()),'epoch': epoch + 1, 'test_loss': test_loss}
             
             history.log(
                     epoch + 1, 
