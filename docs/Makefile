@@ -1,16 +1,20 @@
-DEBUG=JEKYLL_GITHUB_TOKEN=blank PAGES_API_URL=http://0.0.0.0
+# Minimal makefile for Sphinx documentation
+#
 
-default:
-	@gem install jekyll bundler && bundle install
+# You can set these variables from the command line, and also
+# from the environment for the first two.
+SPHINXOPTS    ?=
+SPHINXBUILD   ?= sphinx-build
+SOURCEDIR     = .
+BUILDDIR      = _build
 
-update:
-	@bundle update
+# Put it first so that "make" without argument is like "make help".
+help:
+	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-clean:
-	@bundle exec jekyll clean
+.PHONY: help Makefile
 
-build: clean
-	@${DEBUG} bundle exec jekyll build --profile --config _config.yml,.debug.yml
-
-server: clean
-	@${DEBUG} bundle exec jekyll server --livereload --config _config.yml,.debug.yml
+# Catch-all target: route all unknown targets to Sphinx using the new
+# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
+%: Makefile
+	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
