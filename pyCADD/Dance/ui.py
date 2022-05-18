@@ -3,7 +3,6 @@ import os
 
 from pyCADD.Dance.base import Dancer
 from pyCADD.utils.ui import UI
-from pyCADD.utils.check import check_file
 
 logger = logging.getLogger('pyCADD.Dance')
 enter_text = '[bold]Enter the Code of Options'
@@ -93,7 +92,7 @@ class UI_Dance(UI):
         '''
         if flag == '1':
             default_matrix_file = os.path.abspath('results/matrix.csv')
-            if check_file(default_matrix_file):
+            if os.path.exist(default_matrix_file):
                 if self.get_confirm('Dectected results file: %s \nUse it?' % default_matrix_file):
                     file_path = default_matrix_file
                 else:
@@ -101,7 +100,7 @@ class UI_Dance(UI):
             else:
                 file_path = input('Enter the matrix file path: ').strip()
 
-            if not check_file(file_path):
+            if not os.path.exist(file_path):
                 self.create_panel()
                 logger.error('File %s not found.' % file_path)
                 return
@@ -185,7 +184,7 @@ class UI_Dance(UI):
             logger.info('Calculating single-conformation performance')
             ''' 
             default_reference = os.path.abspath('results/reference.csv')
-            if check_file(default_reference):
+            if os.path.exist(default_reference):
                 if self.get_confirm('Detected reference file: %s \nUse it?' % default_reference):
                     reference_file = default_reference
                 else:

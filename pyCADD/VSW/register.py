@@ -19,7 +19,7 @@ def reg_gene(gene:str, family:str='GENE', path:str=''):
     '''
     注册基因并添加到配置文件中
 
-    Parameter
+    Parameters
     ----------
     gene : str
         注册基因名
@@ -47,7 +47,7 @@ def reg_database(database:str, label:str='DATABASE', path:str=''):
     '''
     注册基因并添加到配置文件中
 
-    Parameter
+    Parameters
     ----------
     database : str
         注册数据库名称
@@ -65,7 +65,7 @@ def del_gene(gene:str, family:str='GENE'):
     '''
     从注册配置文件中删除指定基因
 
-    Parameter
+    Parameters
     ----------
     gene : str
         注册基因名
@@ -83,7 +83,7 @@ def del_database(database:str, label:str='DATABASE'):
     '''
     从注册配置文件中删除指定数据库
 
-    Parameter
+    Parameters
     ----------
     database : str
         注册数据库名

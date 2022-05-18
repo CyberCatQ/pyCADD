@@ -96,7 +96,7 @@ def download_pdb(pdbid, download_dir:str=None, overwrite:bool=False) -> None:
     '''
     从RCSB服务器下载PDB文件
 
-    Parameter
+    Parameters
     ----------
     pdbid : str
         PDB ID
@@ -126,7 +126,7 @@ def download_pdb(pdbid, download_dir:str=None, overwrite:bool=False) -> None:
 def download_pdb_list(pdblist:list, download_dir:str=None, overwrite:bool=False) -> None:
     '''
     多线程下载PDB ID列表中的所有PDB文件
-    Parameter
+    Parameters
     ----------
     pdblist : list
         PDB列表
@@ -149,7 +149,7 @@ def makedirs_from_list(path_list: list) -> None:
     '''
     输入包含多个PATH的列表 尝试创建列表中的所有目录
 
-    Parameter
+    Parameters
     ----------
     path_list : list
         要创建的PATH列表
@@ -230,7 +230,7 @@ def get_config(config_file: str) -> Myconfig:
     '''
     读取配置文件
 
-    Parameter
+    Parameters
     ----------
     config_file : str
         配置文件路径

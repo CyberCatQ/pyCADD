@@ -17,7 +17,7 @@ def _save_data(output_file:str, data:list, fields:list):
     '''
     储存数据为csv
 
-    Parameter
+    Parameters
     ----------
     output_file : str
         输出文件路径
@@ -106,7 +106,7 @@ def save_docking_data(dock_result_file:DockResultFile, configs:DataConfig=None):
     '''
     储存一般数据为csv
 
-    Parameter
+    Parameters
     ----------
     data_dic : dict
         数据内容 {property : data}
@@ -130,7 +130,7 @@ def save_redocking_data(data_list:list, precision:str='SP', configs:DataConfig=N
     '''
     储存回顾性Ensemble Docking对接数据
 
-    Parameter
+    Parameters
     ----------
     data_list : list
         回顾性Ensemble Docking对接数据
@@ -168,7 +168,7 @@ def save_ensemble_docking_data(data_list:list, precision:str='SP', configs:DataC
     '''
     分类储存Ensemble Docking对接数据
 
-    Parameter
+    Parameters
     ----------
     data_list : list
         Ensemble Docking对接数据列表
@@ -203,7 +203,7 @@ def extra_admet_data(admet_file:LigandFile) -> List[dict]:
     '''
     提取ADMET数据
 
-    Parameter
+    Parameters
     ----------
     admet_file : LigandFile
         要提取的ADMET计算结果文件
@@ -286,7 +286,7 @@ class Reporter:
         '''
         为参考数据生成结构图
 
-        Parameter
+        Parameters
         ----------
         dataframe : pd.DataFrame
             参考数据

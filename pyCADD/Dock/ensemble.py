@@ -202,7 +202,7 @@ class _Console:
         '''
         使用多进程调用prepwizard 运行多个受体结构的优化
         
-        Parameter
+        Parameters
         ---------
         keep_single_chain : bool
             是否保留单链
@@ -232,7 +232,7 @@ class _Console:
         '''
         使用多进程调用Glide 运行多个受体结构的格点文件生成
         
-        Parameter
+        Parameters
         ---------
         gridbox_size : int
             格点大小
@@ -291,7 +291,7 @@ class _Console:
         '''
         拆分外部ligand文件
         
-        Parameter
+        Parameters
         ---------
         external_ligand_file : LigandFile
             外部ligand文件
@@ -311,7 +311,7 @@ class _Console:
         '''
         在对接位点与外源配体间建立完全映射
 
-        Parameter
+        Parameters
         ---------
         precision : str
             计划对接精度
@@ -329,7 +329,7 @@ class _Console:
         '''
         使用多进程调用Glide 执行批量分子对接
 
-        Parameter
+        Parameters
         ---------
         mapping : List[tuple(GridFile, LigandFile)]
             grid_file, ligand_file 映射

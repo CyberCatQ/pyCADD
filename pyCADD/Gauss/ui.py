@@ -1,4 +1,3 @@
-from pyCADD.utils.check import check_file
 from pyCADD.utils.ui import UI
 from pyCADD.Gauss.base import Gauss
 import os
@@ -91,7 +90,7 @@ class UI_Gauss(UI):
 
         origin_st = self.get_input(
             'Need an original structure for calculation.\nEnter the file path of molecule structure')
-        if check_file(origin_st):
+        if os.path.exists(origin_st):
             self.origin_st = origin_st
         else:
             raise FileNotFoundError('File %s not found.' % origin_st)

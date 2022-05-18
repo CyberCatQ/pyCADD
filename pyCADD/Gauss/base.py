@@ -125,10 +125,10 @@ class Gauss:
         ---------
         job_name : str
             任务名
-                opt 结构优化
-                energy 单点能量计算
-                absorb 激发态激发能(吸收)
-                emission 激发态发射能
+                * opt 结构优化
+                * energy 单点能量计算
+                * absorb 激发态激发能(吸收)
+                * emission 激发态发射能
         loose : bool
             是否提高优化任务中的收敛限 更快收敛
         

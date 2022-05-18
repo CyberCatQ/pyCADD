@@ -126,7 +126,7 @@ class PDBFile(BaseFile):
     '''
     def __init__(self, path, ligand_id=None) -> None:
         '''
-        Parameter
+        Parameters
         ----------
         path : str
             PDB文件路径
@@ -286,7 +286,7 @@ class MaestroFile(BaseFile):
         '''
         获取Maestro文件中的第一个结构
 
-        Parameter
+        Parameters
         ----------
         file_path : str
             Maestro文件路径
@@ -298,7 +298,7 @@ class MaestroFile(BaseFile):
         '''
         转换结构格式
 
-        Parameter
+        Parameters
         ----------
         file_path : str
             需要转换的文件路径
@@ -366,7 +366,7 @@ class ComplexFile(MaestroFile):
         '''
         获取结构中的配体所在Molecule object
 
-        Parameter
+        Parameters
         ----------
         ligname : str
             配体名称
@@ -389,7 +389,7 @@ class ComplexFile(MaestroFile):
         '''
         删除共价键
 
-        Parameter
+        Parameters
         ----------
         ligname : str
             配体名称
@@ -414,7 +414,7 @@ class ComplexFile(MaestroFile):
         '''
         以ligname为KEY 查找Maestro文件中的Molecule Number
         
-        Parameter
+        Parameters
         ----------
         ligname : str
             配体小分子名称
@@ -444,7 +444,7 @@ class ComplexFile(MaestroFile):
         '''
         将Maestro文件分割为受体与配体
 
-        Parameter
+        Parameters
         ----------
         ligname : str
             配体小分子名称
@@ -531,8 +531,8 @@ class DockResultFile(MaestroFile):
     '''
     Maestro对接结果文件类型
     仅含有2个Entry
-        structure[0]: receptor
-        structure[1]: ligand
+        * structure[0]: receptor
+        * structure[1]: ligand
     '''
     def __init__(self, path:str, ligand:str=None, lig_resnum:int=None, docking_ligand:str=None, precision:str=None) -> None:
         super().__init__(path, ligand, lig_resnum)
@@ -650,7 +650,7 @@ class MultiInputFile(BaseFile):
     '''
     def __init__(self, path, parse_:bool=True) -> None:
         '''
-        Parameter
+        Parameters
         ----------
         path : str
             受体列表输入文件路径
@@ -706,7 +706,7 @@ class MultiInputFile(BaseFile):
         '''
         读取输入文件
 
-        Parameter
+        Parameters
         ----------
         file_path : str
             输入文件路径
@@ -728,7 +728,7 @@ class MultiInputFile(BaseFile):
                 1DKF,BMS
                 5K13,6Q7
 
-        Parameter
+        Parameters
         ----------
         file_path : str
             受体列表文件路径
@@ -769,7 +769,7 @@ class MultiInputFile(BaseFile):
         '''
         获取受体信息列表中的PDB文件路径列表
 
-        Parameter
+        Parameters
         ----------
         pdb_dir : str
             PDB文件所在目录
@@ -780,7 +780,7 @@ class MultiInputFile(BaseFile):
         '''
         获取受体信息列表中的Grid文件路径列表
 
-        Parameter
+        Parameters
         ----------
         grid_dir : str
             Grid文件所在目录

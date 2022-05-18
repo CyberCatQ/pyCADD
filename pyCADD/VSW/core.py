@@ -1,6 +1,5 @@
 from pyCADD.Dock.core import launch
-from pyCADD.utils.check import check_file
-from pyCADD.utils.getinfo import get_config, get_gridfile_path_list, get_project_dir
+from pyCADD.utils.tool import get_config
 
 import os
 import logging
@@ -11,7 +10,7 @@ def read_gene_config(gene_config_path):
     '''
     从文件中读取可供筛选的受体基因
 
-    Parameter
+    Parameters
     ----------
     gene_config_path : str
         受体信息配置文件路径
@@ -28,7 +27,7 @@ def read_database_config(database_config_path):
     '''
     从文件中读取化合物库路径信息
 
-    Parameter
+    Parameters
     ----------
     database_config_path : str
         化合物库路径信息文件路径
@@ -45,7 +44,7 @@ def gen_input_file(recep_list:list, lig_file:str, jobname:str=''):
     '''
     生成vsw输入文件
 
-    Parameter
+    Parameters
     ---------
     recep_list : list
         将要作为受体进行VSW的所有受体(PDBID, 配体ID)组成的列表
@@ -57,10 +56,10 @@ def gen_input_file(recep_list:list, lig_file:str, jobname:str=''):
     str
         生成的inp输入文件名
     '''
-    cwd = get_project_dir()
+    cwd = os.getcwd()
     vsw_dir = cwd + '/vsw/'
     
-    grid_path_list = get_gridfile_path_list(recep_list)                         # 生成Grid文件名列表
+    grid_path_list = [f'{pdb}_glide-grid_{lig}.zip' for pdb, lig in recep_list] # 生成Grid文件名列表
     os.chdir(vsw_dir)
     grid_num = len(grid_path_list)                                              # 即将为输入文件写入的Pipeline数量 即PDB总数
 

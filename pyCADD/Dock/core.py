@@ -296,7 +296,7 @@ def calc_admet(lig_file:LigandFile, overwrite:bool=False) -> LigandFile:
     '''
     计算化合物/配体的ADMET特征描述符
 
-    Parameter  
+    Parameters  
     ----------
     lig_file : MaestroFile
         化合物/配体文件

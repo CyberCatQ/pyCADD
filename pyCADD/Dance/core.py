@@ -34,7 +34,7 @@ def read_matrix(file_path: str):
     '''
     读取数据矩阵
 
-    Parameter
+    Parameters
     ----------
     file_path : str
         数据矩阵文件路径
@@ -50,7 +50,7 @@ def read_matrix(file_path: str):
 def read_docking_data(raw_data: DataFrame, label_col: str):
     
     提取对接分数部分
-    Parameter
+    Parameters
     ---------
     raw_data : DataFrame
         原始数据对象
@@ -123,7 +123,8 @@ def split_data(data: DataFrame, label_col:str=None, preprocess:bool=True, positi
 def merge(data_list: list):
     '''
     合并Series
-    Parameter
+    
+    Parameters
     ----------
     data_list : list
         包含需要合并的Series的列表

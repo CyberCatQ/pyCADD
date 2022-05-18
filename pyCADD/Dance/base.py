@@ -37,7 +37,7 @@ class Dancer:
         '''
         读取对接结果数据
 
-        Parameter
+        Parameters
         ---------
         file_path : str
             数据文件路径(matrix文件)
@@ -53,12 +53,13 @@ class Dancer:
     def mean(self, method: str = 'ave', ignore_nan: bool = True):
         '''
         计算对接分数均值项
-        Parameter
+
+        Parameters
         ---------
         method : str
             均值计算方法
-                ave: 算术平均值
-                geo: 几何平均值
+                * ave: 算术平均值
+                * geo: 几何平均值
         ignore_nan : bool
             是否忽略NaN值(默认True)
         '''
@@ -72,7 +73,8 @@ class Dancer:
     def min(self, ignore_nan: bool = True):
         '''
         计算最小值项
-        Parameter
+
+        Parameters
         ---------
         ignore_nan : bool
             是否忽略NaN值(默认True)
@@ -86,7 +88,8 @@ class Dancer:
     def max(self, ignore_nan: bool = True):
         '''
         计算最大值项
-        Parameter
+
+        Parameters
         ---------
         ignore_nan : bool
             是否忽略NaN值(默认True)
@@ -100,7 +103,8 @@ class Dancer:
     def z_score(self, ratio: tuple = (0.7, 0.3)):
         '''
         计算z_score
-        Parameter 
+
+        Parameters 
         ---------
         ratio : tuple
             组合Z值中 receptor平均Z值 与 ligand平均Z值的比例
@@ -133,7 +137,8 @@ class Dancer:
     def merge(self, data_list):
         '''
         合并指定的数据
-        Parameter
+
+        Parameters
         ---------
         data_list : list
             需要合并的数据组成的列表
@@ -147,6 +152,7 @@ class Dancer:
     def auc(self, save: bool = False, lower_is_better: bool = True):
         '''
         生成ROC曲线并计算AUC
+
         Parameters
         ----------
         pos_label : str | int | list
@@ -293,7 +299,8 @@ class Dancer_ML(Dancer):
     def set_params(self, params:dict=None):
         '''
         设定超参数
-        Parameter
+
+        Parameters
         ---------
         params : dict 
             超参数字典
@@ -315,7 +322,8 @@ class Dancer_ML(Dancer):
             超参数取值范围字典
         method : str
             调优方法
-                grid, random
+                * grid
+                * random
         '''
         logger.debug('Current Model: %s' % self.method)
         logger.debug('Params Grid:\n%s' % param_grid)
@@ -336,9 +344,9 @@ class Dancer_ML(Dancer):
     def add_consensus_scoring(self):
         '''
         结果中加入共识评分方法:
-            平均值
-            几何平均值
-            最小值
+            * 平均值
+            * 几何平均值
+            * 最小值
         '''
         self.eva_models['cs_mean'] = algorithm.Average(lower_is_better=True)
         self.eva_models['cs_geo'] = algorithm.Geo_Average(lower_is_better=True)

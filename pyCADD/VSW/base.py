@@ -3,11 +3,10 @@ import os
 import time
 from threading import Thread
 
+from pyCADD.Dock import MultiDocker
 from pyCADD.Dock.core import launch
-from pyCADD.Multidock.base import Multidock
-from pyCADD.utils.check import check_file
-from pyCADD.utils.tool import _get_progress, check_file_update_progress, mkdirs
-from pyCADD.utils.getinfo import get_project_dir
+from pyCADD.utils.tool import _get_progress, check_file_update_progress, makedirs_from_list
+
 from pyCADD.VSW import core
 from rich.prompt import Prompt
 
@@ -17,7 +16,7 @@ internal_vsw_dir = os.path.dirname(os.path.abspath(__file__)) + '/'
 gene_config_path = internal_vsw_dir + 'genelist.ini'
 database_config_path = internal_vsw_dir + 'database.ini'
 
-class VSW(Multidock):
+class VSW(MultiDocker):
         
     '''
     Python Script for Virtual Screening Workflow.
@@ -27,8 +26,8 @@ class VSW(Multidock):
         self.pdblist = []               # 由基因索取到的PDB ID列表 由元组(PDBID, Ligand)组成
         self.gene_config = {}           # 受体配置信息
         self.database_config = {}       # 化合物库配置信息
-        self.project_dir = get_project_dir()
-        mkdirs(self.required_dir)
+        self.project_dir = os.getcwd()
+        makedirs_from_list(self.required_dir)
         self.read_gene()
         self.read_databse()
 
@@ -39,15 +38,14 @@ class VSW(Multidock):
     @property
     def required_dir(self):
         return [
-            self.complex_dir, 
-            self.dockfiles_dir, 
-            self.grid_dir, 
-            self.ligands_dir, 
-            self.minimize_dir, 
-            self.pdb_dir, 
-            self.protein_dir, 
-            self.log_dir, 
-            self.result_dir,
+            self.complex_save_dir, 
+            self.base_dock_save_dir, 
+            self.grid_save_dir, 
+            self.ligand_save_dir, 
+            self.minimize_save_dir,
+            self.pdb_save_dir, 
+            self.protein_save_dir, 
+            self.result_save_dir,
             self.vsw_dir
             ]
 
@@ -101,9 +99,9 @@ class VSW(Multidock):
 
         # 默认储存在当前工作目录
         pdblist_file = internal_vsw_dir + self.gene + '.txt'
-        if not check_file(pdblist_file):
+        if not os.path.exists(pdblist_file):
             pdblist_file = input('Enter the path of %s PDB list: ' % self.gene).strip()
-            if not check_file(pdblist_file):
+            if not os.path.exists(pdblist_file):
                 raise FileNotFoundError('%s not found.' % pdblist_file)
 
         self.read_receptor(pdblist_file)

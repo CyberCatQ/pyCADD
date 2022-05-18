@@ -6,8 +6,6 @@ import signal
 import subprocess
 import sys
 
-from pyCADD.utils.check import check_file
-from pyCADD.utils.tool import tail_progress
 from rich.prompt import Confirm
 
 logger = logging.getLogger(__name__)
@@ -52,7 +50,7 @@ def generate_opt(original_st: str, charge: int, multiplicity: int, dft: str = 'B
     opt_file = molname + '_opt%s.gjf' % td_suffix
     chk_file = molname + '_opt%s.chk' % td_suffix
 
-    if check_file(opt_file):
+    if os.path.exists(opt_file):
         if not Confirm.ask('%s is existed. Overwrite?' % opt_file, default=True):
             return opt_file, chk_file
 
@@ -145,7 +143,7 @@ def generate_energy(original_st: str, charge: int, multiplicity: int, dft: str =
 
     energy_file = molname + '_energy%s.gjf' % td_suffix
     chk_file = molname + '_energy%s.chk' % td_suffix
-    if check_file(energy_file):
+    if os.path.exists(energy_file):
         if not Confirm.ask('%s is existed. Overwrite?' % energy_file, default=True):
             return energy_file, chk_file
 
@@ -280,18 +278,6 @@ def _check_gauss_finished(line: str):
     else:
         return False
 
-
-def tail_gauss_job(output_file: str):
-    '''
-    追踪高斯计算任务进度
-    Parameter
-    ---------
-    output_file : str
-        高斯计算任务输出文件路径
-    '''
-    tail_progress(output_file, _check_gauss_finished)
-
-
 def _get_system_info(gauss_path: str):
     '''
     读取当前高斯计算资源文件设定
@@ -307,7 +293,7 @@ def _get_system_info(gauss_path: str):
     '''
 
     default_route = os.path.dirname(gauss_path) + '/Default.Route'
-    if not check_file(default_route):
+    if not os.path.exists(default_route):
         with open(default_route, 'w') as f:
             f.write('-P- 8\n')
             f.write('-M- 4GB')
