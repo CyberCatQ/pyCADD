@@ -2,9 +2,10 @@ import re
 import os
 import logging
 
+import pandas as pd
 from typing import List
 from schrodinger import structure as struc
-from schrodinger.structure import StructureReader, Structure
+from schrodinger.structure import StructureReader, StructureWriter, Structure
 from schrodinger.job import jobcontrol as jc
 from schrodinger.application.glide import poseviewconvert as pvc
 
@@ -75,6 +76,33 @@ def launch(cmd:str, timeout:int=None):
         return
     else:
         logger.debug('File %s saved.' % job.StructureOutputFile)
+
+def get_predict_structure(predict_file, output_file:str=None):
+    '''
+    调用Schrodinger API提取 合并指定预测结构
+
+    Parameters 
+    ----------
+    predict_file : str
+        预测结构文件(csv)路径
+    output_file : str
+        输出结构文件(pdb|mae|maegz)路径
+    '''
+
+    output_file = f'{prefix}.mae' if output_file is None else output_file
+
+    prefix = os.path.basename(predict_file).split('.')[0]
+    predict_ligand_df = pd.read_csv(predict_file)
+    ligand_sts = []
+    
+    for ligand in predict_ligand_df['Ligand']:
+        ligand_file = ligand + '.mae'
+        ligand_file_path = os.path.join('ligands', ligand_file)
+        st = StructureReader.read(ligand_file_path)
+        ligand_sts.append(st)
+
+    with StructureWriter(output_file) as writer:
+        writer.extend(ligand_sts)
 
 class BaseFile:
     '''
