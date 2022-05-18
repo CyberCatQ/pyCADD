@@ -111,7 +111,7 @@ pyCADD
 * 要使用Schrodinger内部脚本创建虚拟环境, 请参阅 [如何建立Schrodinger Python Virtual Env](https://content.schrodinger.com/Docs/r2022-1/python_api/intro.html#general-python-information)
 * 在Schrodinger内部环境中安装额外的python packages, 请使用`run python3 -m pip install <package>`命令或参阅[Schrodinger Python API 文档](https://www.schrodinger.com/pythonapi/)
 
-更多帮助信息, 请参阅API文档。
+更多帮助信息, 请参阅[API文档](https://cybercatq.github.io/pyCADD)。
 
 ## Quick Start
 
@@ -167,7 +167,7 @@ pyCADD
 来直接载入初始结构文件
 
 * * *
-`pyCADD` 完全基于开发者自身实际需求开发, 更多其他功能及模块的使用教程尚未撰写, 请参阅[API文档](https://pycadd.readthedocs.io/zh/latest/)。  
+`pyCADD` 完全基于开发者自身实际需求开发, 更多其他功能及模块的使用教程尚未撰写, 请参阅[API文档](https://cybercatq.github.io/pyCADD)。  
 如果您有任何问题或建议, 请在[项目主页](https://github.com/CyberCatQ/pyCADD)提交Issue。  
 
 此脚本仅限于学习和批评使用, 请勿用作其他用途。  
