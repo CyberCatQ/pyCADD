@@ -107,7 +107,7 @@ pyCADD
 ### **注意**  
 
 * 由于Schrodinger Suite使用了闭源环境提供Python API调用, 使用 `Dock` 模块相关功能(包括CLI命令)脚本时, 应该保证您正处于由 Schrodinger 建立的虚拟环境中，并在该环境中安装包括 `pyCADD` 在内所有需要的[Python Modules](#python-modules)
-* 要使用Schrodinger内部脚本创建虚拟环境, 请参阅 [如何建立Schrodinger Python Virtual Env](https://content.schrodinger.com/Docs/r2022-1/python_api/intro.html#general-python-information))
+* 要使用Schrodinger内部脚本创建虚拟环境, 请参阅 [如何建立Schrodinger Python Virtual Env](https://content.schrodinger.com/Docs/r2022-1/python_api/intro.html#general-python-information)
 * 在Schrodinger内部环境中安装额外的python packages, 请使用`run python3 -m pip install <package>`命令或参阅[Schrodinger Python API 文档](https://www.schrodinger.com/pythonapi/)
 
 更多帮助信息, 请参阅API文档。
@@ -166,7 +166,7 @@ pyCADD
 来直接载入初始结构文件
 
 * * *
-`pyCADD` 完全基于开发者自身实际需求开发, 更多其他功能及模块的使用教程尚未撰写。
+`pyCADD` 完全基于开发者自身实际需求开发, 更多其他功能及模块的使用教程尚未撰写。  
 如果您有任何问题或建议, 请在[项目主页](https://github.com/CyberCatQ/pyCADD)提交Issue。  
 
 此脚本仅限于学习和批评使用, 请勿用作其他用途。  
