@@ -1,1 +1,14 @@
-theme: jekyll-theme-cayman
+title: pyCADD
+lang: zh_CN
+description: A python library for computer-aid drug design.
+
+remote_theme: rundocs/jekyll-rtd-theme
+
+readme_index:
+  with_frontmatter: true
+
+exclude:
+  - Makefile
+  - CNAME
+  - Gemfile
+  - Gemfile.lock
