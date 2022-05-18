@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.VSW package &mdash; pyCADD 1.5.1 文档</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/translations.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> pyCADD
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="在文档中搜索" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">pyCADD.VSW package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-pyCADD.VSW.base">pyCADD.VSW.base module</a></li>
+<li><a class="reference internal" href="#module-pyCADD.VSW.core">pyCADD.VSW.core module</a></li>
+<li><a class="reference internal" href="#module-pyCADD.VSW.register">pyCADD.VSW.register module</a></li>
+<li><a class="reference internal" href="#module-pyCADD.VSW.ui">pyCADD.VSW.ui module</a></li>
+<li><a class="reference internal" href="#module-pyCADD.VSW">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyCADD</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>pyCADD.VSW package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/source/pyCADD.VSW.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pycadd-vsw-package">
+<h1>pyCADD.VSW package<a class="headerlink" href="#pycadd-vsw-package" title="永久链接至标题"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="永久链接至标题"></a></h2>
+</section>
+<section id="module-pyCADD.VSW.base">
+<span id="pycadd-vsw-base-module"></span><h2>pyCADD.VSW.base module<a class="headerlink" href="#module-pyCADD.VSW.base" title="永久链接至标题"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.VSW.base.VSW">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.VSW.base.</span></span><span class="sig-name descname"><span class="pre">VSW</span></span><a class="headerlink" href="#pyCADD.VSW.base.VSW" title="永久链接至目标"></a></dt>
+<dd><p>基类：<a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.MultiDocker" title="pyCADD.Dock.MultiDocker"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyCADD.Dock.MultiDocker</span></code></a></p>
+<p>Python Script for Virtual Screening Workflow.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.VSW.base.VSW.database_list">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">database_list</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#pyCADD.VSW.base.VSW.database_list" title="永久链接至目标"></a></dt>
+<dd><p>化合物库成员列表</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.VSW.base.VSW.genelist">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">genelist</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#pyCADD.VSW.base.VSW.genelist" title="永久链接至目标"></a></dt>
+<dd><p>基因成员列表</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.VSW.base.VSW.generate_input_file">
+<span class="sig-name descname"><span class="pre">generate_input_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.VSW.base.VSW.generate_input_file" title="永久链接至目标"></a></dt>
+<dd><p>生成VSW输入文件</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.VSW.base.VSW.get_gene">
+<span class="sig-name descname"><span class="pre">get_gene</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pyCADD.VSW.base.VSW.get_gene" title="永久链接至目标"></a></dt>
+<dd><p>打印当前基因信息并获取用户指定的VSW基因</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.VSW.base.VSW.get_receptor_list">
+<span class="sig-name descname"><span class="pre">get_receptor_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.VSW.base.VSW.get_receptor_list" title="永久链接至目标"></a></dt>
+<dd><p>读取基因对应的PDB列表文件</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.VSW.base.VSW.read_databse">
+<span class="sig-name descname"><span class="pre">read_databse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pyCADD.VSW.base.VSW.read_databse" title="永久链接至目标"></a></dt>
+<dd><p>读取化合物库信息</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.VSW.base.VSW.read_gene">
+<span class="sig-name descname"><span class="pre">read_gene</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pyCADD.VSW.base.VSW.read_gene" title="永久链接至目标"></a></dt>
+<dd><p>读取受体信息</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.VSW.base.VSW.required_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">required_dir</span></span><a class="headerlink" href="#pyCADD.VSW.base.VSW.required_dir" title="永久链接至目标"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.VSW.base.VSW.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.VSW.base.VSW.run" title="永久链接至目标"></a></dt>
+<dd><p>启动VSW</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.VSW.base.VSW.select_database">
+<span class="sig-name descname"><span class="pre">select_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.VSW.base.VSW.select_database" title="永久链接至目标"></a></dt>
+<dd><p>打印当前化合物库信息并获取用户指定的化合物库名称</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.VSW.base.VSW.vsw_dir">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vsw_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pyCADD.VSW.base.VSW.vsw_dir" title="永久链接至目标"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.VSW.core">
+<span id="pycadd-vsw-core-module"></span><h2>pyCADD.VSW.core module<a class="headerlink" href="#module-pyCADD.VSW.core" title="永久链接至标题"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.VSW.core.gen_input_file">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.VSW.core.</span></span><span class="sig-name descname"><span class="pre">gen_input_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">recep_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lig_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jobname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.VSW.core.gen_input_file" title="永久链接至目标"></a></dt>
+<dd><p>生成vsw输入文件</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>recep_list</strong> (<em>list</em>) – 将要作为受体进行VSW的所有受体(PDBID, 配体ID)组成的列表</p></li>
+<li><p><strong>lig_file</strong> (<em>str</em>) – 用于VSW的化合物库文件PATH</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>生成的inp输入文件名</p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.VSW.core.read_database_config">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.VSW.core.</span></span><span class="sig-name descname"><span class="pre">read_database_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">database_config_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.VSW.core.read_database_config" title="永久链接至目标"></a></dt>
+<dd><p>从文件中读取化合物库路径信息</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>database_config_path</strong> (<em>str</em>) – 化合物库路径信息文件路径</p>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>化合物库路径配置信息</p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.VSW.core.read_gene_config">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.VSW.core.</span></span><span class="sig-name descname"><span class="pre">read_gene_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gene_config_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.VSW.core.read_gene_config" title="永久链接至目标"></a></dt>
+<dd><p>从文件中读取可供筛选的受体基因</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>gene_config_path</strong> (<em>str</em>) – 受体信息配置文件路径</p>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>受体配置信息</p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.VSW.register">
+<span id="pycadd-vsw-register-module"></span><h2>pyCADD.VSW.register module<a class="headerlink" href="#module-pyCADD.VSW.register" title="永久链接至标题"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.VSW.register.del_database">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.VSW.register.</span></span><span class="sig-name descname"><span class="pre">del_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">database</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'DATABASE'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.VSW.register.del_database" title="永久链接至目标"></a></dt>
+<dd><p>从注册配置文件中删除指定数据库</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>database</strong> (<em>str</em>) – 注册数据库名</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – 数据库分类标签</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.VSW.register.del_gene">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.VSW.register.</span></span><span class="sig-name descname"><span class="pre">del_gene</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gene</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">family</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'GENE'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.VSW.register.del_gene" title="永久链接至目标"></a></dt>
+<dd><p>从注册配置文件中删除指定基因</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gene</strong> (<em>str</em>) – 注册基因名</p></li>
+<li><p><strong>family</strong> (<em>str</em>) – 基因家族标签名(可选)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.VSW.register.reg_database">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.VSW.register.</span></span><span class="sig-name descname"><span class="pre">reg_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">database</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'DATABASE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.VSW.register.reg_database" title="永久链接至目标"></a></dt>
+<dd><p>注册基因并添加到配置文件中</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>database</strong> (<em>str</em>) – 注册数据库名称</p></li>
+<li><p><strong>family</strong> (<em>str</em>) – 数据库标签</p></li>
+<li><p><strong>path</strong> (<em>str</em>) – 注册数据库路径</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.VSW.register.reg_gene">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.VSW.register.</span></span><span class="sig-name descname"><span class="pre">reg_gene</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gene</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">family</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'GENE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.VSW.register.reg_gene" title="永久链接至目标"></a></dt>
+<dd><p>注册基因并添加到配置文件中</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gene</strong> (<em>str</em>) – 注册基因名</p></li>
+<li><p><strong>family</strong> (<em>str</em>) – 基因家族标签名(可选)</p></li>
+<li><p><strong>path</strong> (<em>str</em>) – 基因PDBID 列表文件路径</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.VSW.ui">
+<span id="pycadd-vsw-ui-module"></span><h2>pyCADD.VSW.ui module<a class="headerlink" href="#module-pyCADD.VSW.ui" title="永久链接至标题"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.VSW.ui.UI_VSW">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.VSW.ui.</span></span><span class="sig-name descname"><span class="pre">UI_VSW</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">menu_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'VSW'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.VSW.ui.UI_VSW" title="永久链接至目标"></a></dt>
+<dd><p>基类：<a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.ui.UI" title="pyCADD.utils.ui.UI"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyCADD.utils.ui.UI</span></code></a></p>
+<p>虚拟筛选UI</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.VSW.ui.UI_VSW.get_database">
+<span class="sig-name descname"><span class="pre">get_database</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.VSW.ui.UI_VSW.get_database" title="永久链接至目标"></a></dt>
+<dd><p>打印当前化合物库信息并获取用户指定的化合物库名称</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.VSW.ui.UI_VSW.get_gene">
+<span class="sig-name descname"><span class="pre">get_gene</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.VSW.ui.UI_VSW.get_gene" title="永久链接至目标"></a></dt>
+<dd><p>打印当前基因信息并获取用户指定的VSW基因</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.VSW.ui.UI_VSW.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flag</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.VSW.ui.UI_VSW.run" title="永久链接至目标"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.VSW">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyCADD.VSW" title="永久链接至标题"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2022, Yuhang.W.</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用了 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a>开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

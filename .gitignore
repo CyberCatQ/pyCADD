@@ -7,8 +7,6 @@ dist/
 pyCADD.egg-info/
 libpynalysis/
 bin/
-doc/
 pyCADD/VSW/*.txt
 pyCADD/VSW/*.csv
-docs/
 *_deprecated.*

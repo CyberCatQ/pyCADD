@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Dock package &mdash; pyCADD 1.5.1 文档</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/translations.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> pyCADD
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="在文档中搜索" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">pyCADD.Dock package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-pyCADD.Dock.cli">pyCADD.Dock.cli module</a></li>
+<li><a class="reference internal" href="#module-pyCADD.Dock.common">pyCADD.Dock.common module</a></li>
+<li><a class="reference internal" href="#module-pyCADD.Dock.config">pyCADD.Dock.config module</a></li>
+<li><a class="reference internal" href="#module-pyCADD.Dock.core">pyCADD.Dock.core module</a></li>
+<li><a class="reference internal" href="#module-pyCADD.Dock.data">pyCADD.Dock.data module</a></li>
+<li><a class="reference internal" href="#module-pyCADD.Dock.ensemble">pyCADD.Dock.ensemble module</a></li>
+<li><a class="reference internal" href="#module-pyCADD.Dock.ui">pyCADD.Dock.ui module</a></li>
+<li><a class="reference internal" href="#module-pyCADD.Dock">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyCADD</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>pyCADD.Dock package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/source/pyCADD.Dock.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pycadd-dock-package">
+<h1>pyCADD.Dock package<a class="headerlink" href="#pycadd-dock-package" title="永久链接至标题"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="永久链接至标题"></a></h2>
+</section>
+<section id="module-pyCADD.Dock.cli">
+<span id="pycadd-dock-cli-module"></span><h2>pyCADD.Dock.cli module<a class="headerlink" href="#module-pyCADD.Dock.cli" title="永久链接至标题"></a></h2>
+</section>
+<section id="module-pyCADD.Dock.common">
+<span id="pycadd-dock-common-module"></span><h2>pyCADD.Dock.common module<a class="headerlink" href="#module-pyCADD.Dock.common" title="永久链接至标题"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.BaseFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.common.</span></span><span class="sig-name descname"><span class="pre">BaseFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.common.BaseFile" title="永久链接至目标"></a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>基本文件类型</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.ComplexFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.common.</span></span><span class="sig-name descname"><span class="pre">ComplexFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lig_resnum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.common.ComplexFile" title="永久链接至目标"></a></dt>
+<dd><p>基类：<a class="reference internal" href="#pyCADD.Dock.common.MaestroFile" title="pyCADD.Dock.common.MaestroFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyCADD.Dock.common.MaestroFile</span></code></a></p>
+<p>Maestro单结构复合物文件类型
+仅包含一个Entry</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.ComplexFile.get_lig_molnum">
+<span class="sig-name descname"><span class="pre">get_lig_molnum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ligname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lig_resnum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pyCADD.Dock.common.ComplexFile.get_lig_molnum" title="永久链接至目标"></a></dt>
+<dd><p>以ligname为KEY 查找Maestro文件中的Molecule Number</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ligname</strong> (<em>str</em>) – 配体小分子名称</p></li>
+<li><p><strong>lig_resnum</strong> (<em>int</em>) – 配体结构中的小分子编号</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>Molecule Number</p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.ComplexFile.split">
+<span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ligname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protein_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">complex_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#pyCADD.Dock.common.ComplexFile.split" title="永久链接至目标"></a></dt>
+<dd><p>将Maestro文件分割为受体与配体</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ligname</strong> (<em>str</em>) – 配体小分子名称</p></li>
+<li><p><strong>protein_dir</strong> (<em>str</em>) – 受体文件保存路径</p></li>
+<li><p><strong>ligand_dir</strong> (<em>str</em>) – 配体文件保存路径</p></li>
+<li><p><strong>complex_dir</strong> (<em>str</em>) – 复合物文件保存路径</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>分割后的文件(RecepFile, LigFile)</p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.DockResultFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.common.</span></span><span class="sig-name descname"><span class="pre">DockResultFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lig_resnum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">docking_ligand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.common.DockResultFile" title="永久链接至目标"></a></dt>
+<dd><p>基类：<a class="reference internal" href="#pyCADD.Dock.common.MaestroFile" title="pyCADD.Dock.common.MaestroFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyCADD.Dock.common.MaestroFile</span></code></a></p>
+<p>Maestro对接结果文件类型
+仅含有2个Entry</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>structure[0]: receptor</p></li>
+<li><p>structure[1]: ligand</p></li>
+</ul>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.DockResultFile.calc_mmgbsa">
+<span class="sig-name descname"><span class="pre">calc_mmgbsa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dock.common.ComplexFile" title="pyCADD.Dock.common.ComplexFile"><span class="pre">pyCADD.Dock.common.ComplexFile</span></a></span></span><a class="headerlink" href="#pyCADD.Dock.common.DockResultFile.calc_mmgbsa" title="永久链接至目标"></a></dt>
+<dd><p>计算MM-GBSA结合能</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.DockResultFile.docking_ligand_st">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">docking_ligand_st</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">schrodinger.structure._structure.Structure</span></em><a class="headerlink" href="#pyCADD.Dock.common.DockResultFile.docking_ligand_st" title="永久链接至目标"></a></dt>
+<dd><p>返回对接结果的配体结构</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.DockResultFile.docking_receptor_st">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">docking_receptor_st</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">schrodinger.structure._structure.Structure</span></em><a class="headerlink" href="#pyCADD.Dock.common.DockResultFile.docking_receptor_st" title="永久链接至目标"></a></dt>
+<dd><p>返回对接结果的受体结构</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.DockResultFile.extract_docking_data">
+<span class="sig-name descname"><span class="pre">extract_docking_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pyCADD.Dock.common.DockResultFile.extract_docking_data" title="永久链接至目标"></a></dt>
+<dd><p>提取对接数据</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.DockResultFile.get_ligand_file">
+<span class="sig-name descname"><span class="pre">get_ligand_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dock.common.LigandFile" title="pyCADD.Dock.common.LigandFile"><span class="pre">pyCADD.Dock.common.LigandFile</span></a></span></span><a class="headerlink" href="#pyCADD.Dock.common.DockResultFile.get_ligand_file" title="永久链接至目标"></a></dt>
+<dd><p>获取对接结果中的配体姿势文件</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.DockResultFile.get_merged_file">
+<span class="sig-name descname"><span class="pre">get_merged_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dock.common.ComplexFile" title="pyCADD.Dock.common.ComplexFile"><span class="pre">pyCADD.Dock.common.ComplexFile</span></a></span></span><a class="headerlink" href="#pyCADD.Dock.common.DockResultFile.get_merged_file" title="永久链接至目标"></a></dt>
+<dd><p>获取对接结果的合并文件</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.DockResultFile.get_receptor_file">
+<span class="sig-name descname"><span class="pre">get_receptor_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dock.common.ReceptorFile" title="pyCADD.Dock.common.ReceptorFile"><span class="pre">pyCADD.Dock.common.ReceptorFile</span></a></span></span><a class="headerlink" href="#pyCADD.Dock.common.DockResultFile.get_receptor_file" title="永久链接至目标"></a></dt>
+<dd><p>获取对接结果中的受体文件</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.DockResultFile.merged_file">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">merged_file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pyCADD.Dock.common.ComplexFile" title="pyCADD.Dock.common.ComplexFile"><span class="pre">pyCADD.Dock.common.ComplexFile</span></a></em><a class="headerlink" href="#pyCADD.Dock.common.DockResultFile.merged_file" title="永久链接至目标"></a></dt>
+<dd><p>合并对接结果的受体与配体为一个复合物文件</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.DockResultFile.property">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">property</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#pyCADD.Dock.common.DockResultFile.property" title="永久链接至目标"></a></dt>
+<dd><p>返回对接结果的数据</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.GridFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.common.</span></span><span class="sig-name descname"><span class="pre">GridFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lig_resnum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.common.GridFile" title="永久链接至目标"></a></dt>
+<dd><p>基类：<a class="reference internal" href="#pyCADD.Dock.common.BaseFile" title="pyCADD.Dock.common.BaseFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyCADD.Dock.common.BaseFile</span></code></a></p>
+<p>网格文件类型(.zip)</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.LigandFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.common.</span></span><span class="sig-name descname"><span class="pre">LigandFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lig_resnum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.common.LigandFile" title="永久链接至目标"></a></dt>
+<dd><p>基类：<a class="reference internal" href="#pyCADD.Dock.common.MaestroFile" title="pyCADD.Dock.common.MaestroFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyCADD.Dock.common.MaestroFile</span></code></a></p>
+<p>Maestro配体文件类型</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.LigandFile.calc_admet">
+<span class="sig-name descname"><span class="pre">calc_admet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.common.LigandFile.calc_admet" title="永久链接至目标"></a></dt>
+<dd><p>计算化合物/配体的ADMET特征描述符</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.MaestroFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.common.</span></span><span class="sig-name descname"><span class="pre">MaestroFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lig_resnum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.common.MaestroFile" title="永久链接至目标"></a></dt>
+<dd><p>基类：<a class="reference internal" href="#pyCADD.Dock.common.BaseFile" title="pyCADD.Dock.common.BaseFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyCADD.Dock.common.BaseFile</span></code></a></p>
+<p>Maestro文件类型</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.MaestroFile.convert_format">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">convert_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pyCADD.Dock.common.MaestroFile.convert_format" title="永久链接至目标"></a></dt>
+<dd><p>转换结构格式</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_path</strong> (<em>str</em>) – 需要转换的文件路径</p></li>
+<li><p><strong>to_format</strong> (<em>str</em>) – 转换后的格式</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>转换后的文件路径</p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.MaestroFile.get_first_structure">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_first_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">schrodinger.structure._structure.Structure</span></span></span><a class="headerlink" href="#pyCADD.Dock.common.MaestroFile.get_first_structure" title="永久链接至目标"></a></dt>
+<dd><p>获取Maestro文件中的第一个结构</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>str</em>) – Maestro文件路径</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.MaestroFile.minimize">
+<span class="sig-name descname"><span class="pre">minimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">side_chain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_loop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">del_water</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.common.MaestroFile.minimize" title="永久链接至目标"></a></dt>
+<dd><p>优化结构并执行能量最小化</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.MaestroFile.st_reader">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">st_reader</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">schrodinger.structure._io.StructureReader</span></em><a class="headerlink" href="#pyCADD.Dock.common.MaestroFile.st_reader" title="永久链接至目标"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.MaestroFile.structures">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">structures</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">schrodinger.structure._structure.Structure</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pyCADD.Dock.common.MaestroFile.structures" title="永久链接至目标"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.MultiInputFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.common.</span></span><span class="sig-name descname"><span class="pre">MultiInputFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.common.MultiInputFile" title="永久链接至目标"></a></dt>
+<dd><p>基类：<a class="reference internal" href="#pyCADD.Dock.common.BaseFile" title="pyCADD.Dock.common.BaseFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyCADD.Dock.common.BaseFile</span></code></a></p>
+<p>pyCADD受体列表输入文件</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.MultiInputFile.get_gridfile_path_list">
+<span class="sig-name descname"><span class="pre">get_gridfile_path_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#pyCADD.Dock.common.MultiInputFile.get_gridfile_path_list" title="永久链接至目标"></a></dt>
+<dd><p>获取受体信息列表中的Grid文件路径列表</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>grid_dir</strong> (<em>str</em>) – Grid文件所在目录</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.MultiInputFile.get_ligand_list">
+<span class="sig-name descname"><span class="pre">get_ligand_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#pyCADD.Dock.common.MultiInputFile.get_ligand_list" title="永久链接至目标"></a></dt>
+<dd><p>获取受体信息列表中的配体列表</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.MultiInputFile.get_pairs_list">
+<span class="sig-name descname"><span class="pre">get_pairs_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#pyCADD.Dock.common.MultiInputFile.get_pairs_list" title="永久链接至目标"></a></dt>
+<dd><p>获取受体信息列表</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.MultiInputFile.get_pdbfile_path_list">
+<span class="sig-name descname"><span class="pre">get_pdbfile_path_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdb_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#pyCADD.Dock.common.MultiInputFile.get_pdbfile_path_list" title="永久链接至目标"></a></dt>
+<dd><p>获取受体信息列表中的PDB文件路径列表</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>pdb_dir</strong> (<em>str</em>) – PDB文件所在目录</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.MultiInputFile.get_pdbid_list">
+<span class="sig-name descname"><span class="pre">get_pdbid_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#pyCADD.Dock.common.MultiInputFile.get_pdbid_list" title="永久链接至目标"></a></dt>
+<dd><p>获取受体信息列表中的PDBID列表</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.MultiInputFile.parse_file">
+<span class="sig-name descname"><span class="pre">parse_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.common.MultiInputFile.parse_file" title="永久链接至目标"></a></dt>
+<dd><p>解析受体输入文件
+文件中含有多行的 逗号分隔的PDBID与配体ID</p>
+<blockquote>
+<div><dl class="simple">
+<dt>example:</dt><dd><p>3A9E,REA
+3KMZ,EQO
+3KMR,EQN
+4DQM,LUF
+1DKF,BMS
+5K13,6Q7</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>str</em>) – 受体列表文件路径</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.MultiInputFile.read">
+<span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.common.MultiInputFile.read" title="永久链接至目标"></a></dt>
+<dd><p>读取输入文件</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>str</em>) – 输入文件路径</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.MultiInputFile.read_from_config">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dock.common.MultiInputFile" title="pyCADD.Dock.common.MultiInputFile"><span class="pre">pyCADD.Dock.common.MultiInputFile</span></a></span></span><a class="headerlink" href="#pyCADD.Dock.common.MultiInputFile.read_from_config" title="永久链接至目标"></a></dt>
+<dd><p>从配置文件读取输入信息</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>config_file</strong> (<em>str</em>) – 配置文件路径</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.common.</span></span><span class="sig-name descname"><span class="pre">PDBFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.common.PDBFile" title="永久链接至目标"></a></dt>
+<dd><p>基类：<a class="reference internal" href="#pyCADD.Dock.common.BaseFile" title="pyCADD.Dock.common.BaseFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyCADD.Dock.common.BaseFile</span></code></a></p>
+<p>PDB文件类型</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBFile.get_lig">
+<span class="sig-name descname"><span class="pre">get_lig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ligand_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">select_first</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pyCADD.Dock.common.PDBFile.get_lig" title="永久链接至目标"></a></dt>
+<dd><dl class="simple">
+<dt>从PDB文件获取指定配体小分子信息:</dt><dd><p>Name, Chain, Resid, Atom_num</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ligand_id</strong> (<em>str</em>) – 配体小分子名称</p></li>
+<li><p><strong>select_first</strong> (<em>bool</em>) – 存在多个配体时 是否自动选择第一个(默认为False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>配体小分子信息</p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBFile.get_lig_name">
+<span class="sig-name descname"><span class="pre">get_lig_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pyCADD.Dock.common.PDBFile.get_lig_name" title="永久链接至目标"></a></dt>
+<dd><p>从PDB文件获取配体小分子名称
+按行分割并返回列表</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回</dt>
+<dd class="field-odd"><p>配体小分子名称</p>
+</dd>
+<dt class="field-even">返回类型</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBFile.keep_chain">
+<span class="sig-name descname"><span class="pre">keep_chain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chain_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">select_first_lig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.common.PDBFile.keep_chain" title="永久链接至目标"></a></dt>
+<dd><p>返回保留单链的结构</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>chain</strong> (<em>str</em>) – 需要保留的链(默认为配体所在链)</p></li>
+<li><p><strong>select_first_lig</strong> (<em>bool</em>) – 存在多个配体时 是否自动选择第一个(默认为False, 仅chain_name为None时生效)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.ReceptorFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.common.</span></span><span class="sig-name descname"><span class="pre">ReceptorFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lig_resnum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.common.ReceptorFile" title="永久链接至目标"></a></dt>
+<dd><p>基类：<a class="reference internal" href="#pyCADD.Dock.common.MaestroFile" title="pyCADD.Dock.common.MaestroFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyCADD.Dock.common.MaestroFile</span></code></a></p>
+<p>Maestro受体文件类型</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.check_pdb">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.common.</span></span><span class="sig-name descname"><span class="pre">check_pdb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.common.check_pdb" title="永久链接至目标"></a></dt>
+<dd><p>检查PDB ID合法性</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回</dt>
+<dd class="field-odd"><p>合法返回True 否则返回False</p>
+</dd>
+<dt class="field-even">返回类型</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.get_input_pdbid">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.common.</span></span><span class="sig-name descname"><span class="pre">get_input_pdbid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#pyCADD.Dock.common.get_input_pdbid" title="永久链接至目标"></a></dt>
+<dd><p>获取用户输入的PDBID并检查合法性</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回</dt>
+<dd class="field-odd"><p>PDB ID字符串</p>
+</dd>
+<dt class="field-even">返回类型</dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.get_predict_structure">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.common.</span></span><span class="sig-name descname"><span class="pre">get_predict_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predict_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.common.get_predict_structure" title="永久链接至目标"></a></dt>
+<dd><p>调用Schrodinger API提取 合并指定预测结构</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>predict_file</strong> (<em>str</em>) – 预测结构文件(csv)路径</p></li>
+<li><p><strong>output_file</strong> (<em>str</em>) – 输出结构文件(pdb|mae|maegz)路径</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.launch">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.common.</span></span><span class="sig-name descname"><span class="pre">launch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.common.launch" title="永久链接至目标"></a></dt>
+<dd><p>使用jobcontrol启动一项job并等待结束</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cmd</strong> (<em>str</em>) – 等待执行的命令字符串</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>) – 超时时限(秒)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.Dock.config">
+<span id="pycadd-dock-config-module"></span><h2>pyCADD.Dock.config module<a class="headerlink" href="#module-pyCADD.Dock.config" title="永久链接至标题"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.config.BaseConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.config.</span></span><span class="sig-name descname"><span class="pre">BaseConfig</span></span><a class="headerlink" href="#pyCADD.Dock.config.BaseConfig" title="永久链接至目标"></a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>配置项基类</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.config.DataConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.config.</span></span><span class="sig-name descname"><span class="pre">DataConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">precision</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.config.DataConfig" title="永久链接至目标"></a></dt>
+<dd><p>基类：<a class="reference internal" href="#pyCADD.Dock.config.DefaultDataConfig" title="pyCADD.Dock.config.DefaultDataConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyCADD.Dock.config.DefaultDataConfig</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.config.DefaultDataConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.config.</span></span><span class="sig-name descname"><span class="pre">DefaultDataConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'SP'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.config.DefaultDataConfig" title="永久链接至目标"></a></dt>
+<dd><p>基类：<a class="reference internal" href="#pyCADD.Dock.config.BaseConfig" title="pyCADD.Dock.config.BaseConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyCADD.Dock.config.BaseConfig</span></code></a></p>
+<p>提取数据配置项</p>
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.Dock.core">
+<span id="pycadd-dock-core-module"></span><h2>pyCADD.Dock.core module<a class="headerlink" href="#module-pyCADD.Dock.core" title="永久链接至标题"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.core.calc_admet">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.core.</span></span><span class="sig-name descname"><span class="pre">calc_admet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lig_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dock.common.LigandFile" title="pyCADD.Dock.common.LigandFile"><span class="pre">pyCADD.Dock.common.LigandFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dock.common.LigandFile" title="pyCADD.Dock.common.LigandFile"><span class="pre">pyCADD.Dock.common.LigandFile</span></a></span></span><a class="headerlink" href="#pyCADD.Dock.core.calc_admet" title="永久链接至目标"></a></dt>
+<dd><p>计算化合物/配体的ADMET特征描述符</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>lig_file</strong> (<a class="reference internal" href="#pyCADD.Dock.common.MaestroFile" title="pyCADD.Dock.common.MaestroFile"><em>MaestroFile</em></a>) – 化合物/配体文件</p>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>ADMET 计算结果文件</p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pyCADD.Dock.common.MaestroFile" title="pyCADD.Dock.common.MaestroFile">MaestroFile</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.core.calc_mmgbsa">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.core.</span></span><span class="sig-name descname"><span class="pre">calc_mmgbsa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">maestrofile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dock.common.DockResultFile" title="pyCADD.Dock.common.DockResultFile"><span class="pre">pyCADD.Dock.common.DockResultFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dock.common.ComplexFile" title="pyCADD.Dock.common.ComplexFile"><span class="pre">pyCADD.Dock.common.ComplexFile</span></a></span></span><a class="headerlink" href="#pyCADD.Dock.core.calc_mmgbsa" title="永久链接至目标"></a></dt>
+<dd><p>计算MM-GBSA结合能</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>complex_file</strong> (<a class="reference internal" href="#pyCADD.Dock.common.MaestroFile" title="pyCADD.Dock.common.MaestroFile"><em>MaestroFile</em></a>) – 需要计算MMGBSA的复合物文件</p>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>计算MM-GB/SA完成的复合物文件</p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p>Maestro</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.core.calc_volume">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.core.</span></span><span class="sig-name descname"><span class="pre">calc_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">recep_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dock.common.ReceptorFile" title="pyCADD.Dock.common.ReceptorFile"><span class="pre">pyCADD.Dock.common.ReceptorFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lig_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dock.common.LigandFile" title="pyCADD.Dock.common.LigandFile"><span class="pre">pyCADD.Dock.common.LigandFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dock.common.ComplexFile" title="pyCADD.Dock.common.ComplexFile"><span class="pre">pyCADD.Dock.common.ComplexFile</span></a></span></span><a class="headerlink" href="#pyCADD.Dock.core.calc_volume" title="永久链接至目标"></a></dt>
+<dd><p>Sitemap计算结合口袋体积</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>recep_file</strong> (<a class="reference internal" href="#pyCADD.Dock.common.MaestroFile" title="pyCADD.Dock.common.MaestroFile"><em>MaestroFile</em></a>) – 进行口袋体积分析的受体文件</p></li>
+<li><p><strong>lig_file</strong> (<a class="reference internal" href="#pyCADD.Dock.common.MaestroFile" title="pyCADD.Dock.common.MaestroFile"><em>MaestroFile</em></a>) – 定义口袋位置的配体文件</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>sitemap计算完成的文件</p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pyCADD.Dock.common.MaestroFile" title="pyCADD.Dock.common.MaestroFile">MaestroFile</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.core.dock">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.core.</span></span><span class="sig-name descname"><span class="pre">dock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dock.common.GridFile" title="pyCADD.Dock.common.GridFile"><span class="pre">pyCADD.Dock.common.GridFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lig_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dock.common.LigandFile" title="pyCADD.Dock.common.LigandFile"><span class="pre">pyCADD.Dock.common.LigandFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'SP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_rmsd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dock.common.DockResultFile" title="pyCADD.Dock.common.DockResultFile"><span class="pre">pyCADD.Dock.common.DockResultFile</span></a></span></span><a class="headerlink" href="#pyCADD.Dock.core.dock" title="永久链接至目标"></a></dt>
+<dd><p>一对一/多对一 glide dock任务输入文件编写与运行</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>grid_file_path</strong> (<a class="reference internal" href="#pyCADD.Dock.common.GridFile" title="pyCADD.Dock.common.GridFile"><em>GridFile</em></a>) – 格点文件</p></li>
+<li><p><strong>lig_file</strong> (<a class="reference internal" href="#pyCADD.Dock.common.LigandFile" title="pyCADD.Dock.common.LigandFile"><em>LigandFile</em></a>) – 配体文件</p></li>
+<li><p><strong>precision</strong> (<em>str</em>) – 对接精度(HTVS|SP|XP) 默认SP</p></li>
+<li><p><strong>calc_rmsd</strong> (<em>bool</em>) – 是否计算rmsd to input ligand geometries 默认False</p></li>
+<li><p><strong>save_dir</strong> (<em>str</em>) – 保存Dock结果文件的目录 保存于该目录的PDBID文件夹下</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em>) – 是否覆盖已有文件</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>对接结果文件</p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pyCADD.Dock.common.DockResultFile" title="pyCADD.Dock.common.DockResultFile">DockResultFile</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.core.grid_generate">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.core.</span></span><span class="sig-name descname"><span class="pre">grid_generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">complex_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dock.common.ComplexFile" title="pyCADD.Dock.common.ComplexFile"><span class="pre">pyCADD.Dock.common.ComplexFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">gridbox_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dock.common.GridFile" title="pyCADD.Dock.common.GridFile"><span class="pre">pyCADD.Dock.common.GridFile</span></a></span></span><a class="headerlink" href="#pyCADD.Dock.core.grid_generate" title="永久链接至目标"></a></dt>
+<dd><p>自动编写glide grid输入文件并启动Glide Grid生成任务</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>maestrofile</strong> (<a class="reference internal" href="#pyCADD.Dock.common.MaestroFile" title="pyCADD.Dock.common.MaestroFile"><em>MaestroFile</em></a>) – 需要生成Grid的Maestro文件</p></li>
+<li><p><strong>lig_name</strong> (<em>str</em>) – 作为坐标参考的Ligand名称</p></li>
+<li><p><strong>gridbox_size</strong> (<em>int</em>) – grid box大小 默认20Å</p></li>
+<li><p><strong>save_dir</strong> (<em>str</em>) – 保存Grid文件的目录</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em>) – 是否覆盖已有文件</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>生成的格点文件</p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pyCADD.Dock.common.GridFile" title="pyCADD.Dock.common.GridFile">GridFile</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.core.minimize">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.core.</span></span><span class="sig-name descname"><span class="pre">minimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdbfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dock.common.PDBFile" title="pyCADD.Dock.common.PDBFile"><span class="pre">pyCADD.Dock.common.PDBFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">side_chain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_loop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">del_water</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dock.common.ComplexFile" title="pyCADD.Dock.common.ComplexFile"><span class="pre">pyCADD.Dock.common.ComplexFile</span></a></span></span><a class="headerlink" href="#pyCADD.Dock.core.minimize" title="永久链接至目标"></a></dt>
+<dd><p>调用prepwizard模块优化PDB结构</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pdbfile</strong> (<a class="reference internal" href="#pyCADD.Dock.common.PDBFile" title="pyCADD.Dock.common.PDBFile"><em>PDBFile</em></a><em> | </em><a class="reference internal" href="#pyCADD.Dock.common.MaestroFile" title="pyCADD.Dock.common.MaestroFile"><em>MaestroFile</em></a>) – 需要Minimize的PDB|Mae文件</p></li>
+<li><p><strong>side_chain</strong> (<em>bool</em>) – 是否优化侧链</p></li>
+<li><p><strong>missing_loop</strong> (<em>bool</em>) – 是否优化缺失的loop</p></li>
+<li><p><strong>del_water</strong> (<em>bool</em>) – 是否删除水分子</p></li>
+<li><p><strong>save_dir</strong> (<em>str</em>) – 保存优化后的文件的目录</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em>) – 是否覆盖已有文件</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>完成优化后的Maestro文件</p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pyCADD.Dock.common.ComplexFile" title="pyCADD.Dock.common.ComplexFile">ComplexFile</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.Dock.data">
+<span id="pycadd-dock-data-module"></span><h2>pyCADD.Dock.data module<a class="headerlink" href="#module-pyCADD.Dock.data" title="永久链接至标题"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.data.Reporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.data.</span></span><span class="sig-name descname"><span class="pre">Reporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dock.common.MultiInputFile" title="pyCADD.Dock.common.MultiInputFile"><span class="pre">pyCADD.Dock.common.MultiInputFile</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.data.Reporter" title="永久链接至目标"></a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Quick Report 数据报告器</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.data.Reporter.generate_report">
+<span class="sig-name descname"><span class="pre">generate_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">refefence_datalist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dock_datalist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand_save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'./ligands/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'./result/'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.data.Reporter.generate_report" title="永久链接至目标"></a></dt>
+<dd><p>为每个Ligand生成对接报告</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mappings</strong> (<em>list</em>) – 原始输入文件的映射关系</p></li>
+<li><p><strong>refefence_datalist</strong> (<em>list</em><em>[</em><em>dict</em><em>]</em>) – 参考数据列表</p></li>
+<li><p><strong>dock_datalist</strong> (<em>list</em><em>[</em><em>dict</em><em>]</em>) – 对接数据列表</p></li>
+<li><p><strong>ligand_save_dir</strong> (<em>str</em>) – Ligand文件保存目录(用于读取结构)</p></li>
+<li><p><strong>report_save_dir</strong> (<em>str</em>) – 报告xlsx保存目录</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.data.extra_admet_data">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.data.</span></span><span class="sig-name descname"><span class="pre">extra_admet_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">admet_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dock.common.LigandFile" title="pyCADD.Dock.common.LigandFile"><span class="pre">pyCADD.Dock.common.LigandFile</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pyCADD.Dock.data.extra_admet_data" title="永久链接至目标"></a></dt>
+<dd><p>提取ADMET数据</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>admet_file</strong> (<a class="reference internal" href="#pyCADD.Dock.common.LigandFile" title="pyCADD.Dock.common.LigandFile"><em>LigandFile</em></a>) – 要提取的ADMET计算结果文件</p>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>数据Properties : Values</p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p>List[dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.data.extra_docking_data">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.data.</span></span><span class="sig-name descname"><span class="pre">extra_docking_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dock_result_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dock.common.DockResultFile" title="pyCADD.Dock.common.DockResultFile"><span class="pre">pyCADD.Dock.common.DockResultFile</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#pyCADD.Dock.data.extra_docking_data" title="永久链接至目标"></a></dt>
+<dd><p>从对接或计算完成的Maestro文件中提取一般数据或配体文件</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>dock_result_file</strong> (<a class="reference internal" href="#pyCADD.Dock.common.DockResultFile" title="pyCADD.Dock.common.DockResultFile"><em>DockResultFile</em></a>) – 对接完成的文件</p>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>数据Properties : Values</p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.data.save_admet_data">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.data.</span></span><span class="sig-name descname"><span class="pre">save_admet_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">admet_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dock.common.LigandFile" title="pyCADD.Dock.common.LigandFile"><span class="pre">pyCADD.Dock.common.LigandFile</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.data.save_admet_data" title="永久链接至目标"></a></dt>
+<dd><p>保存ADMET数据文件</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>admet_file</strong> (<a class="reference internal" href="#pyCADD.Dock.common.LigandFile" title="pyCADD.Dock.common.LigandFile"><em>LigandFile</em></a>) – 要保存的ADMET计算结果文件</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.data.save_docking_data">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.data.</span></span><span class="sig-name descname"><span class="pre">save_docking_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dock_result_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dock.common.DockResultFile" title="pyCADD.Dock.common.DockResultFile"><span class="pre">pyCADD.Dock.common.DockResultFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pyCADD.Dock.config.DataConfig" title="pyCADD.Dock.config.DataConfig"><span class="pre">pyCADD.Dock.config.DataConfig</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.data.save_docking_data" title="永久链接至目标"></a></dt>
+<dd><p>储存一般数据为csv</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_dic</strong> (<em>dict</em>) – 数据内容 {property : data}</p></li>
+<li><p><strong>configs</strong> (<a class="reference internal" href="#pyCADD.Dock.config.DataConfig" title="pyCADD.Dock.config.DataConfig"><em>DataConfig</em></a>) – 数据提取项配置</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.data.save_ensemble_docking_data">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.data.</span></span><span class="sig-name descname"><span class="pre">save_ensemble_docking_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'SP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pyCADD.Dock.config.DataConfig" title="pyCADD.Dock.config.DataConfig"><span class="pre">pyCADD.Dock.config.DataConfig</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.data.save_ensemble_docking_data" title="永久链接至目标"></a></dt>
+<dd><p>分类储存Ensemble Docking对接数据</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_list</strong> (<em>list</em>) – Ensemble Docking对接数据列表</p></li>
+<li><p><strong>precision</strong> (<em>str</em>) – 对接精度</p></li>
+<li><p><strong>configs</strong> (<a class="reference internal" href="#pyCADD.Dock.config.DataConfig" title="pyCADD.Dock.config.DataConfig"><em>DataConfig</em></a>) – 数据提取项配置</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.data.save_redocking_data">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.data.</span></span><span class="sig-name descname"><span class="pre">save_redocking_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'SP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pyCADD.Dock.config.DataConfig" title="pyCADD.Dock.config.DataConfig"><span class="pre">pyCADD.Dock.config.DataConfig</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.data.save_redocking_data" title="永久链接至目标"></a></dt>
+<dd><p>储存回顾性Ensemble Docking对接数据</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_list</strong> (<em>list</em>) – 回顾性Ensemble Docking对接数据</p></li>
+<li><p><strong>precision</strong> (<em>str</em>) – 对接精度</p></li>
+<li><p><strong>configs</strong> (<a class="reference internal" href="#pyCADD.Dock.config.DataConfig" title="pyCADD.Dock.config.DataConfig"><em>DataConfig</em></a>) – 数据提取项配置</p></li>
+<li><p><strong>save_dir</strong> (<em>str</em>) – 储存目录</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.Dock.ensemble">
+<span id="pycadd-dock-ensemble-module"></span><h2>pyCADD.Dock.ensemble module<a class="headerlink" href="#module-pyCADD.Dock.ensemble" title="永久链接至标题"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.ensemble.split_ligand">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.ensemble.</span></span><span class="sig-name descname"><span class="pre">split_ligand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ligand_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dock.common.LigandFile" title="pyCADD.Dock.common.LigandFile"><span class="pre">pyCADD.Dock.common.LigandFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#pyCADD.Dock.ensemble.split_ligand" title="永久链接至目标"></a></dt>
+<dd><p>将单个maestro文件中包含的所有小分子拆分为多个独立mae文件</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ligand_file</strong> (<a class="reference internal" href="#pyCADD.Dock.common.LigandFile" title="pyCADD.Dock.common.LigandFile"><em>LigandFile</em></a>) – 单个maestro文件</p></li>
+<li><p><strong>save_dir</strong> (<em>str</em>) – 拆分后的mae文件保存的目录</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em>) – 是否覆盖已存在的mae文件</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>拆分后的配体文件路径列表</dt><dd><p>配体名称由 唯一索引index + ligand_name 组成</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.Dock.ui">
+<span id="pycadd-dock-ui-module"></span><h2>pyCADD.Dock.ui module<a class="headerlink" href="#module-pyCADD.Dock.ui" title="永久链接至标题"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.ui.UI_dock">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.ui.</span></span><span class="sig-name descname"><span class="pre">UI_dock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">menu_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Dock</span> <span class="pre">Mode'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.ui.UI_dock" title="永久链接至目标"></a></dt>
+<dd><p>基类：<a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.ui.UI" title="pyCADD.utils.ui.UI"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyCADD.utils.ui.UI</span></code></a></p>
+<p>单晶体对接UI</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.ui.UI_dock.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.ui.UI_dock.run" title="永久链接至目标"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.Dock">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyCADD.Dock" title="永久链接至标题"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.</span></span><span class="sig-name descname"><span class="pre">Docker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdbid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.Docker" title="永久链接至目标"></a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Ligand Docking 控制台对象</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.calc_admet">
+<span class="sig-name descname"><span class="pre">calc_admet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ligand_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pyCADD.Dock.common.LigandFile" title="pyCADD.Dock.common.LigandFile"><span class="pre">pyCADD.Dock.common.LigandFile</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.Docker.calc_admet" title="永久链接至目标"></a></dt>
+<dd><p>计算ADMET</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ligand_file</strong> (<a class="reference internal" href="#pyCADD.Dock.common.LigandFile" title="pyCADD.Dock.common.LigandFile"><em>LigandFile</em></a>) – 计算ADMET预测结果的配体文件 默认为当前共结晶配体</p></li>
+<li><p><strong>*args</strong> (<em>list</em><em>, </em><em>optional</em>) – 计算ADMET参数, 默认None</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – 计算ADMET参数, 默认None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.calc_mmgbsa">
+<span class="sig-name descname"><span class="pre">calc_mmgbsa</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.Docker.calc_mmgbsa" title="永久链接至目标"></a></dt>
+<dd><p>计算结合能</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> (<em>list</em><em>, </em><em>optional</em>) – 计算结合能参数, 默认None</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – 计算结合能参数, 默认None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.calc_volume">
+<span class="sig-name descname"><span class="pre">calc_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.Docker.calc_volume" title="永久链接至目标"></a></dt>
+<dd><p>计算结合口袋体积</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> (<em>list</em><em>, </em><em>optional</em>) – 计算结合口袋体积参数, 默认None</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – 计算结合口袋体积参数, 默认None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.dock">
+<span class="sig-name descname"><span class="pre">dock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">docking_ligand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pyCADD.Dock.common.LigandFile" title="pyCADD.Dock.common.LigandFile"><span class="pre">pyCADD.Dock.common.LigandFile</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.Docker.dock" title="永久链接至目标"></a></dt>
+<dd><p>对接</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>docking_ligand</strong> (<em>str</em><em>, </em><em>optional</em>) – 对接配体, 默认None将执行共结晶配体的回顾性对接</p></li>
+<li><p><strong>*args</strong> (<em>list</em><em>, </em><em>optional</em>) – 对接参数, 默认None</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – 对接参数, 默认None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.download_pdb">
+<span class="sig-name descname"><span class="pre">download_pdb</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.Docker.download_pdb" title="永久链接至目标"></a></dt>
+<dd><p>下载PDB文件</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.extra_admet_data">
+<span class="sig-name descname"><span class="pre">extra_admet_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.Docker.extra_admet_data" title="永久链接至目标"></a></dt>
+<dd><p>提取ADMET数据</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> (<em>list</em><em>, </em><em>optional</em>) – 提取ADMET数据参数, 默认None</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – 提取ADMET数据参数, 默认None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.extra_docking_data">
+<span class="sig-name descname"><span class="pre">extra_docking_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.Docker.extra_docking_data" title="永久链接至目标"></a></dt>
+<dd><p>提取对接数据</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> (<em>list</em><em>, </em><em>optional</em>) – 提取对接数据参数, 默认None</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – 提取对接数据参数, 默认None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.grid_generate">
+<span class="sig-name descname"><span class="pre">grid_generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.Docker.grid_generate" title="永久链接至目标"></a></dt>
+<dd><p>生成格点</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> (<em>list</em><em>, </em><em>optional</em>) – 格点参数, 默认None</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – 格点参数, 默认None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.keep_chain">
+<span class="sig-name descname"><span class="pre">keep_chain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.Docker.keep_chain" title="永久链接至目标"></a></dt>
+<dd><p>删改PDB晶体结构 仅保留配体所在链</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> (<em>list</em><em>, </em><em>optional</em>) – 链名, 默认None</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – 链名, 默认None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.lig_info">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lig_info</span></span><a class="headerlink" href="#pyCADD.Dock.Docker.lig_info" title="永久链接至目标"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.lig_name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lig_name</span></span><a class="headerlink" href="#pyCADD.Dock.Docker.lig_name" title="永久链接至目标"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.minimize">
+<span class="sig-name descname"><span class="pre">minimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">side_chain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_loop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">del_water</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.Docker.minimize" title="永久链接至目标"></a></dt>
+<dd><p>优化晶体并执行能量最小化</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>side_chain</strong> (<em>bool</em><em>, </em><em>optional</em>) – 是否优化侧链, 默认True</p></li>
+<li><p><strong>missing_loop</strong> (<em>bool</em><em>, </em><em>optional</em>) – 是否优化缺失的loop, 默认True</p></li>
+<li><p><strong>del_water</strong> (<em>bool</em><em>, </em><em>optional</em>) – 是否删除水分子, 默认True</p></li>
+<li><p><strong>*args</strong> (<em>list</em><em>, </em><em>optional</em>) – 优化参数, 默认None</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – 优化参数, 默认None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.pdb_file">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pdb_file</span></span><a class="headerlink" href="#pyCADD.Dock.Docker.pdb_file" title="永久链接至目标"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.pdb_file_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pdb_file_path</span></span><a class="headerlink" href="#pyCADD.Dock.Docker.pdb_file_path" title="永久链接至目标"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.pdbid">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pdbid</span></span><a class="headerlink" href="#pyCADD.Dock.Docker.pdbid" title="永久链接至目标"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.save_admet_data">
+<span class="sig-name descname"><span class="pre">save_admet_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.Docker.save_admet_data" title="永久链接至目标"></a></dt>
+<dd><p>保存ADMET数据</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> (<em>list</em><em>, </em><em>optional</em>) – 保存ADMET数据参数, 默认None</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – 保存ADMET数据参数, 默认None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.save_docking_data">
+<span class="sig-name descname"><span class="pre">save_docking_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.Docker.save_docking_data" title="永久链接至目标"></a></dt>
+<dd><p>保存对接数据</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> (<em>list</em><em>, </em><em>optional</em>) – 保存对接数据参数, 默认None</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em><em>, </em><em>optional</em>) – 保存对接数据参数, 默认None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.set_calc_rmsd">
+<span class="sig-name descname"><span class="pre">set_calc_rmsd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calc_rmsd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.Docker.set_calc_rmsd" title="永久链接至目标"></a></dt>
+<dd><p>设置是否计算RMSD</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.set_precision">
+<span class="sig-name descname"><span class="pre">set_precision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.Docker.set_precision" title="永久链接至目标"></a></dt>
+<dd><p>设置对接精度</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.Docker.split_complex">
+<span class="sig-name descname"><span class="pre">split_complex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Dock.Docker.split_complex" title="永久链接至目标"></a></dt>
+<dd><p>拆分复合物结构</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.MultiDocker">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.</span></span><span class="sig-name descname"><span class="pre">MultiDocker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dock.common.MultiInputFile" title="pyCADD.Dock.common.MultiInputFile"><span class="pre">pyCADD.Dock.common.MultiInputFile</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyCADD.Dock.MultiDocker" title="永久链接至目标"></a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">pyCADD.Dock.ensemble._Console</span></code></p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2022, Yuhang.W.</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用了 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a>开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

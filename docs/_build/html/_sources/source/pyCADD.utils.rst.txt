@@ -1,0 +1,45 @@
+pyCADD.utils package
+====================
+
+Submodules
+----------
+
+pyCADD.utils.cheminformatics module
+-----------------------------------
+
+.. automodule:: pyCADD.utils.cheminformatics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyCADD.utils.log module
+-----------------------
+
+.. automodule:: pyCADD.utils.log
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyCADD.utils.tool module
+------------------------
+
+.. automodule:: pyCADD.utils.tool
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyCADD.utils.ui module
+----------------------
+
+.. automodule:: pyCADD.utils.ui
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: pyCADD.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
