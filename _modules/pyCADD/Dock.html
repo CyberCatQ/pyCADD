@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Dock &mdash; pyCADD 1.5.2 文档</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/translations.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> pyCADD
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="在文档中搜索" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/modules.html">pyCADD</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyCADD</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">模块代码</a> &raquo;</li>
+      <li>pyCADD.Dock</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>pyCADD.Dock 源代码</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">pyCADD.Dock.common</span> <span class="kn">import</span> <span class="n">LigandFile</span><span class="p">,</span> <span class="n">MultiInputFile</span><span class="p">,</span> <span class="n">PDBFile</span><span class="p">,</span> <span class="n">get_input_pdbid</span>
+<span class="kn">from</span> <span class="nn">pyCADD.Dock.ensemble</span> <span class="kn">import</span> <span class="n">_Console</span>
+<span class="kn">from</span> <span class="nn">pyCADD.Dock.core</span> <span class="kn">import</span> <span class="n">minimize</span><span class="p">,</span> <span class="n">grid_generate</span><span class="p">,</span> <span class="n">dock</span><span class="p">,</span> <span class="n">calc_mmgbsa</span><span class="p">,</span> <span class="n">calc_admet</span><span class="p">,</span> <span class="n">calc_volume</span>
+<span class="kn">from</span> <span class="nn">pyCADD.Dock.data</span> <span class="kn">import</span> <span class="n">extra_docking_data</span><span class="p">,</span> <span class="n">extra_admet_data</span><span class="p">,</span> <span class="n">save_docking_data</span><span class="p">,</span> <span class="n">save_admet_data</span>
+<span class="kn">from</span> <span class="nn">pyCADD.utils.tool</span> <span class="kn">import</span> <span class="n">download_pdb</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pyCADD.Dock.Docker&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Docker"><a class="viewcode-back" href="../../source/pyCADD.Dock.html#pyCADD.Dock.Docker">[文档]</a><span class="k">class</span> <span class="nc">Docker</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Ligand Docking 控制台对象</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdbid</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pdbid</span> <span class="o">=</span> <span class="n">pdbid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pdb_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lig_info</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">precision</span> <span class="o">=</span> <span class="kc">None</span>                         <span class="c1"># 默认对接精度SP</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calc_rmsd</span> <span class="o">=</span> <span class="kc">False</span>                        <span class="c1"># 默认不计算RMSD</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimized_file</span> <span class="o">=</span> <span class="kc">None</span>                    <span class="c1"># Minimized化完成的文件名</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_file</span> <span class="o">=</span> <span class="kc">None</span>                         <span class="c1"># 格点文件名</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lig_file</span> <span class="o">=</span> <span class="kc">None</span>                          <span class="c1"># 内源配体文件名</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recep_file</span> <span class="o">=</span> <span class="kc">None</span>                        <span class="c1"># 受体文件名</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dock_file</span> <span class="o">=</span> <span class="kc">None</span>                         <span class="c1"># 对接结果文件名</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmgbsa_file</span> <span class="o">=</span> <span class="kc">None</span>                       <span class="c1"># 结合能计算结果文件名</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sitemap_file</span> <span class="o">=</span> <span class="kc">None</span>                      <span class="c1"># 结合口袋体积计算结果文件名</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">admet_file</span> <span class="o">=</span> <span class="kc">None</span>                        <span class="c1"># ADMET计算结果文件名</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_dic</span> <span class="o">=</span> <span class="kc">None</span>                          <span class="c1"># 一般计算结果字典</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">admet_dic</span> <span class="o">=</span> <span class="kc">None</span>                         <span class="c1"># ADMET计算结果字典</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pdbid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pdbid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pdbid</span> <span class="o">=</span> <span class="n">get_input_pdbid</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pdbid</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pdb_file_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span> <span class="o">+</span> <span class="s1">&#39;.pdb&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Docker.download_pdb"><a class="viewcode-back" href="../../source/pyCADD.Dock.html#pyCADD.Dock.Docker.download_pdb">[文档]</a>    <span class="k">def</span> <span class="nf">download_pdb</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        下载PDB文件</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Prepare to download pdb: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdb_file_path</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="si">}</span><span class="s1"> PDB file exists.&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pdb_file</span> <span class="o">=</span> <span class="n">PDBFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdb_file_path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pdb_file</span>
+
+        <span class="n">download_pdb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pdb_file</span> <span class="o">=</span> <span class="n">PDBFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdb_file_path</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Download </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="si">}</span><span class="s1"> pdb done.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pdb_file</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_lig_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        获取配体信息</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">pdbid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span>
+        <span class="n">ligand_id</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Enter ligand ID: &#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lig_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdb_file</span><span class="o">.</span><span class="n">get_lig</span><span class="p">(</span><span class="n">ligand_id</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Current Ligand: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdb_file</span><span class="o">.</span><span class="n">ligid</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdb_file</span><span class="o">.</span><span class="n">lig_resnum</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lig_info</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pdb_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pdb_file</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pdb_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">download_pdb</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lig_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lig_info</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lig_info</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_lig_info</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lig_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lig_info</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Docker.set_precision"><a class="viewcode-back" href="../../source/pyCADD.Dock.html#pyCADD.Dock.Docker.set_precision">[文档]</a>    <span class="k">def</span> <span class="nf">set_precision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precision</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        设置对接精度</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Set precision: </span><span class="si">{</span><span class="n">precision</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">precision</span> <span class="o">=</span> <span class="n">precision</span></div>
+    
+<div class="viewcode-block" id="Docker.set_calc_rmsd"><a class="viewcode-back" href="../../source/pyCADD.Dock.html#pyCADD.Dock.Docker.set_calc_rmsd">[文档]</a>    <span class="k">def</span> <span class="nf">set_calc_rmsd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">calc_rmsd</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        设置是否计算RMSD</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Set calc_rmsd: </span><span class="si">{</span><span class="n">calc_rmsd</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calc_rmsd</span> <span class="o">=</span> <span class="n">calc_rmsd</span></div>
+
+<div class="viewcode-block" id="Docker.keep_chain"><a class="viewcode-back" href="../../source/pyCADD.Dock.html#pyCADD.Dock.Docker.keep_chain">[文档]</a>    <span class="k">def</span> <span class="nf">keep_chain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        删改PDB晶体结构 仅保留配体所在链</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *args : list, optional</span>
+<span class="sd">            链名, 默认None</span>
+<span class="sd">        **kwargs : dict, optional</span>
+<span class="sd">            链名, 默认None</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">_chain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lig_info</span><span class="p">[</span><span class="s1">&#39;chain&#39;</span><span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Prepare to keep crystal </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="si">}</span><span class="s1"> chain </span><span class="si">{</span><span class="n">_chain</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pdb_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdb_file</span><span class="o">.</span><span class="n">keep_chain</span><span class="p">(</span><span class="n">_chain</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="si">}</span><span class="s1"> Keep chain done.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Docker.minimize"><a class="viewcode-back" href="../../source/pyCADD.Dock.html#pyCADD.Dock.Docker.minimize">[文档]</a>    <span class="k">def</span> <span class="nf">minimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">side_chain</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">missing_loop</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">del_water</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        优化晶体并执行能量最小化</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        side_chain : bool, optional</span>
+<span class="sd">            是否优化侧链, 默认True</span>
+<span class="sd">        missing_loop : bool, optional</span>
+<span class="sd">            是否优化缺失的loop, 默认True</span>
+<span class="sd">        del_water : bool, optional</span>
+<span class="sd">            是否删除水分子, 默认True</span>
+<span class="sd">        *args : list, optional</span>
+<span class="sd">            优化参数, 默认None</span>
+<span class="sd">        **kwargs : dict, optional</span>
+<span class="sd">            优化参数, 默认None</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Prepare to optimize structure: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimized_file</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdb_file</span><span class="p">,</span> <span class="n">side_chain</span><span class="o">=</span><span class="n">side_chain</span><span class="p">,</span> <span class="n">missing_loop</span><span class="o">=</span><span class="n">missing_loop</span><span class="p">,</span> <span class="n">del_water</span><span class="o">=</span><span class="n">del_water</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="si">}</span><span class="s1"> Minimized structure done.&#39;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Docker.grid_generate"><a class="viewcode-back" href="../../source/pyCADD.Dock.html#pyCADD.Dock.Docker.grid_generate">[文档]</a>    <span class="k">def</span> <span class="nf">grid_generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        生成格点</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *args : list, optional</span>
+<span class="sd">            格点参数, 默认None</span>
+<span class="sd">        **kwargs : dict, optional</span>
+<span class="sd">            格点参数, 默认None</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Prepare to generate grid: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimized_file</span><span class="o">.</span><span class="n">ligid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lig_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minimized_file</span><span class="o">.</span><span class="n">lig_resnum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lig_info</span><span class="p">[</span><span class="s1">&#39;resid&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_file</span> <span class="o">=</span> <span class="n">grid_generate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minimized_file</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="si">}</span><span class="s1"> Grid generated.&#39;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Docker.split_complex"><a class="viewcode-back" href="../../source/pyCADD.Dock.html#pyCADD.Dock.Docker.split_complex">[文档]</a>    <span class="k">def</span> <span class="nf">split_complex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        拆分复合物结构</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Prepare to split complex: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recep_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lig_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimized_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lig_name</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="si">}</span><span class="s1"> Split complex done.&#39;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Docker.dock"><a class="viewcode-back" href="../../source/pyCADD.Dock.html#pyCADD.Dock.Docker.dock">[文档]</a>    <span class="k">def</span> <span class="nf">dock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docking_ligand</span><span class="p">:</span><span class="n">LigandFile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        对接</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        docking_ligand : str, optional</span>
+<span class="sd">            对接配体, 默认None将执行共结晶配体的回顾性对接</span>
+<span class="sd">        *args : list, optional</span>
+<span class="sd">            对接参数, 默认None</span>
+<span class="sd">        **kwargs : dict, optional</span>
+<span class="sd">            对接参数, 默认None</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">docking_ligand</span> <span class="o">=</span> <span class="n">docking_ligand</span> <span class="k">if</span> <span class="n">docking_ligand</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">lig_file</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Prepare to dock: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Docking ligand: </span><span class="si">{</span><span class="n">docking_ligand</span><span class="o">.</span><span class="n">ligand_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dock_file</span> <span class="o">=</span> <span class="n">dock</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lig_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">precision</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_rmsd</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">docking_ligand</span><span class="o">.</span><span class="n">ligand_name</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">precision</span><span class="si">}</span><span class="s1"> Docking done.&#39;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Docker.calc_mmgbsa"><a class="viewcode-back" href="../../source/pyCADD.Dock.html#pyCADD.Dock.Docker.calc_mmgbsa">[文档]</a>    <span class="k">def</span> <span class="nf">calc_mmgbsa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        计算结合能</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *args : list, optional</span>
+<span class="sd">            计算结合能参数, 默认None</span>
+<span class="sd">        **kwargs : dict, optional</span>
+<span class="sd">            计算结合能参数, 默认None</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Prepare to calculate MMGBSA: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mmgbsa_file</span> <span class="o">=</span> <span class="n">calc_mmgbsa</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dock_file</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="si">}</span><span class="s1"> MMGBSA calculated.&#39;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Docker.calc_volume"><a class="viewcode-back" href="../../source/pyCADD.Dock.html#pyCADD.Dock.Docker.calc_volume">[文档]</a>    <span class="k">def</span> <span class="nf">calc_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        计算结合口袋体积</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *args : list, optional</span>
+<span class="sd">            计算结合口袋体积参数, 默认None</span>
+<span class="sd">        **kwargs : dict, optional</span>
+<span class="sd">            计算结合口袋体积参数, 默认None</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Prepare to calculate volume: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sitemap_file</span> <span class="o">=</span> <span class="n">calc_volume</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">recep_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lig_file</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="si">}</span><span class="s1"> Volume calculated.&#39;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Docker.calc_admet"><a class="viewcode-back" href="../../source/pyCADD.Dock.html#pyCADD.Dock.Docker.calc_admet">[文档]</a>    <span class="k">def</span> <span class="nf">calc_admet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ligand_file</span><span class="p">:</span><span class="n">LigandFile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        计算ADMET</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ligand_file : LigandFile</span>
+<span class="sd">            计算ADMET预测结果的配体文件 默认为当前共结晶配体</span>
+<span class="sd">        *args : list, optional</span>
+<span class="sd">            计算ADMET参数, 默认None</span>
+<span class="sd">        **kwargs : dict, optional</span>
+<span class="sd">            计算ADMET参数, 默认None</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">ligand_file</span> <span class="o">=</span> <span class="n">ligand_file</span> <span class="k">if</span> <span class="n">ligand_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">lig_file</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Prepare to calculate ADMET: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">lig_file</span><span class="o">.</span><span class="n">file_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">admet_file</span> <span class="o">=</span> <span class="n">calc_admet</span><span class="p">(</span><span class="n">ligand_file</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">lig_file</span><span class="o">.</span><span class="n">file_name</span><span class="si">}</span><span class="s1"> ADMET calculated.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Docker.extra_docking_data"><a class="viewcode-back" href="../../source/pyCADD.Dock.html#pyCADD.Dock.Docker.extra_docking_data">[文档]</a>    <span class="k">def</span> <span class="nf">extra_docking_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        提取对接数据</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *args : list, optional</span>
+<span class="sd">            提取对接数据参数, 默认None</span>
+<span class="sd">        **kwargs : dict, optional</span>
+<span class="sd">            提取对接数据参数, 默认None</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Prepare to extract docking data: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dock_file</span><span class="o">.</span><span class="n">file_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">docking_data</span> <span class="o">=</span> <span class="n">extra_docking_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dock_file</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dock_file</span><span class="o">.</span><span class="n">file_name</span><span class="si">}</span><span class="s1"> Docking data extracted.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">docking_data</span></div>
+    
+<div class="viewcode-block" id="Docker.extra_admet_data"><a class="viewcode-back" href="../../source/pyCADD.Dock.html#pyCADD.Dock.Docker.extra_admet_data">[文档]</a>    <span class="k">def</span> <span class="nf">extra_admet_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        提取ADMET数据</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *args : list, optional</span>
+<span class="sd">            提取ADMET数据参数, 默认None</span>
+<span class="sd">        **kwargs : dict, optional</span>
+<span class="sd">            提取ADMET数据参数, 默认None</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Prepare to extract ADMET data: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">admet_file</span><span class="o">.</span><span class="n">file_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">admet_data</span> <span class="o">=</span> <span class="n">extra_admet_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">admet_file</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">admet_file</span><span class="o">.</span><span class="n">file_name</span><span class="si">}</span><span class="s1"> ADMET data extracted.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">admet_data</span></div>
+
+<div class="viewcode-block" id="Docker.save_docking_data"><a class="viewcode-back" href="../../source/pyCADD.Dock.html#pyCADD.Dock.Docker.save_docking_data">[文档]</a>    <span class="k">def</span> <span class="nf">save_docking_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        保存对接数据</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *args : list, optional</span>
+<span class="sd">            保存对接数据参数, 默认None</span>
+<span class="sd">        **kwargs : dict, optional</span>
+<span class="sd">            保存对接数据参数, 默认None</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Prepare to save docking data: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dock_file</span><span class="o">.</span><span class="n">file_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">save_docking_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dock_file</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output</span><span class="si">}</span><span class="s1"> Docking data saved.&#39;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Docker.save_admet_data"><a class="viewcode-back" href="../../source/pyCADD.Dock.html#pyCADD.Dock.Docker.save_admet_data">[文档]</a>    <span class="k">def</span> <span class="nf">save_admet_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        保存ADMET数据</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *args : list, optional</span>
+<span class="sd">            保存ADMET数据参数, 默认None</span>
+<span class="sd">        **kwargs : dict, optional</span>
+<span class="sd">            保存ADMET数据参数, 默认None</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Prepare to save ADMET data: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">admet_file</span><span class="o">.</span><span class="n">file_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">save_admet_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">admet_file</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">output</span><span class="si">}</span><span class="s1"> ADMET data saved.&#39;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="MultiDocker"><a class="viewcode-back" href="../../source/pyCADD.Dock.html#pyCADD.Dock.MultiDocker">[文档]</a><span class="k">class</span> <span class="nc">MultiDocker</span><span class="p">(</span><span class="n">_Console</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span><span class="n">MultiInputFile</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2022, Yuhang.W.</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用了 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a>开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

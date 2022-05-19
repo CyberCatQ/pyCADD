@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Dance.ui &mdash; pyCADD 1.5.2 文档</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/translations.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> pyCADD
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="在文档中搜索" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">pyCADD</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyCADD</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">模块代码</a> &raquo;</li>
+          <li><a href="../Dance.html">pyCADD.Dance</a> &raquo;</li>
+      <li>pyCADD.Dance.ui</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>pyCADD.Dance.ui 源代码</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">pyCADD.Dance.base</span> <span class="kn">import</span> <span class="n">Dancer</span>
+<span class="kn">from</span> <span class="nn">pyCADD.utils.ui</span> <span class="kn">import</span> <span class="n">UI</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pyCADD.Dance&#39;</span><span class="p">)</span>
+<span class="n">enter_text</span> <span class="o">=</span> <span class="s1">&#39;[bold]Enter the Code of Options&#39;</span>
+
+<div class="viewcode-block" id="UI_Dance"><a class="viewcode-back" href="../../../source/pyCADD.Dance.html#pyCADD.Dance.ui.UI_Dance">[文档]</a><span class="k">class</span> <span class="nc">UI_Dance</span><span class="p">(</span><span class="n">UI</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    数据处理程序UI</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">menu_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Data Analyzer&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">menu_name</span><span class="o">=</span><span class="n">menu_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">merged</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dancer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_label</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main_options</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;1. Read docking data matrix&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;2. Calculate&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;3. Draw Plots&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;0. Exit&#39;</span>
+        <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">calc_options</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;1. Calculate the arithmetic mean&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;2. Calculate the geometric mean&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;3. Calculate the minimum value&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;4. Calculate the maximum value&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;5. Calculate Z-score&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;6. Calculate single-conformation performance&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;0. Back&#39;</span>
+        <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">draw_options</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;1. Draw ROC curve and calculate the AUC&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;2. Draw Scatter&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;3. Draw Correlation Heatmap&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;0. Back&#39;</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_print_current_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear_info</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">(</span><span class="n">additional_info</span><span class="o">=</span><span class="s1">&#39;Current datasets: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">dancer</span><span class="o">.</span><span class="n">current_data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_merge_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        合并已计算数据集</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Current data: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">dancer</span><span class="o">.</span><span class="n">current_data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_confirm</span><span class="p">(</span><span class="s1">&#39;Merge all current data?&#39;</span><span class="p">):</span>
+            <span class="n">_need_merge</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span>
+                <span class="s1">&#39;Enter the datasets need to be merge(separated by commas): &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_need_merge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dancer</span><span class="o">.</span><span class="n">current_data</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Merging datasets: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">_need_merge</span><span class="p">)</span>
+
+        <span class="n">data_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">dancer</span><span class="o">.</span><span class="n">current_data_dic</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                     <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">_need_merge</span><span class="p">]</span>
+        <span class="n">data_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dancer</span><span class="o">.</span><span class="n">activity_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dancer</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">data_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">merged</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">(</span><span class="n">additional_info</span><span class="o">=</span><span class="s1">&#39;Merged datasets: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                          <span class="n">_need_merge</span><span class="p">,</span> <span class="n">show_panel</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_label_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        获取标签相关基本信息</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Label column: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">dancer</span><span class="o">.</span><span class="n">label_col</span><span class="p">)</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dancer</span><span class="o">.</span><span class="n">activity_data</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Labels in column: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">labels</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span>
+            <span class="s1">&#39;Enter the positive labels(separated by commas): &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+
+        <span class="c1"># 简易校验</span>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">()</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> is not in the label column.&#39;</span> <span class="o">%</span> <span class="n">label</span><span class="p">)</span>
+                <span class="k">return</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Positive labels: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_label</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="UI_Dance.run"><a class="viewcode-back" href="../../../source/pyCADD.Dance.html#pyCADD.Dance.ui.UI_Dance.run">[文档]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        主菜单</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span><span class="p">:</span>
+            <span class="n">default_matrix_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s1">&#39;results/matrix.csv&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exist</span><span class="p">(</span><span class="n">default_matrix_file</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_confirm</span><span class="p">(</span><span class="s1">&#39;Dectected results file: </span><span class="si">%s</span><span class="s1"> </span><span class="se">\n</span><span class="s1">Use it?&#39;</span> <span class="o">%</span> <span class="n">default_matrix_file</span><span class="p">):</span>
+                    <span class="n">file_path</span> <span class="o">=</span> <span class="n">default_matrix_file</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">file_path</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Enter the matrix file path&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">file_path</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Enter the matrix file path: &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exist</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">()</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;File </span><span class="si">%s</span><span class="s1"> not found.&#39;</span> <span class="o">%</span> <span class="n">file_path</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">dancer</span> <span class="o">=</span> <span class="n">Dancer</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">(</span>
+                <span class="n">additional_info</span><span class="o">=</span><span class="s1">&#39;Read the matrix file: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">file_path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dancer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">()</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;No matrix dataset read.&#39;</span><span class="p">)</span>
+                <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="s1">&#39;2&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_options</span><span class="p">)</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_input</span><span class="p">(</span><span class="n">enter_text</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span>
+                    <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calc_options</span><span class="p">))],</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="s1">&#39;0&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main_options</span><span class="p">)</span>
+                    <span class="k">return</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">draw_options</span><span class="p">)</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_input</span><span class="p">(</span><span class="n">enter_text</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span>
+                    <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">draw_options</span><span class="p">))],</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="s1">&#39;0&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main_options</span><span class="p">)</span>
+                    <span class="k">return</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UI_Dance.calculate"><a class="viewcode-back" href="../../../source/pyCADD.Dance.html#pyCADD.Dance.ui.UI_Dance.calculate">[文档]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        计算菜单</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Calculating the arithmetic mean of matrix&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dancer</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;ave&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Arithmetic mean calculate done.&#39;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_current_data</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="s1">&#39;2&#39;</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Calculating the geometric mean of matrix&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dancer</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;geo&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Geometric mean calculate done.&#39;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_current_data</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Extracting the minimum value&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dancer</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Minimum value Extracted.&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_current_data</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="s1">&#39;4&#39;</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Extracting the maximum value&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dancer</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Maximum value Extracted.&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_current_data</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="s1">&#39;5&#39;</span><span class="p">:</span>
+            <span class="n">receptor_ratio</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_input</span><span class="p">(</span>
+                <span class="s1">&#39;Enter the ratio of receptor z_score&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;7&#39;</span><span class="p">))</span>
+            <span class="n">ligand_ratio</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_input</span><span class="p">(</span>
+                <span class="s1">&#39;Enter the ratio of ligand z_score&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;3&#39;</span><span class="p">))</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="n">receptor_ratio</span> <span class="o">+</span> <span class="n">ligand_ratio</span>
+
+            <span class="n">receptor_ratio</span> <span class="o">/=</span> <span class="n">total</span>
+            <span class="n">ligand_ratio</span> <span class="o">/=</span> <span class="n">total</span>
+            <span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">receptor_ratio</span><span class="p">,</span> <span class="n">ligand_ratio</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dancer</span><span class="o">.</span><span class="n">z_score</span><span class="p">(</span><span class="n">ratio</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_current_data</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Calculating Z-score with </span><span class="si">%s</span><span class="s1"> : </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ratio</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Z-score calculate done.&#39;</span><span class="p">)</span>
+        
+        <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="s1">&#39;6&#39;</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Calculating single-conformation performance&#39;</span><span class="p">)</span>
+            <span class="sd">&#39;&#39;&#39; </span>
+<span class="sd">            default_reference = os.path.abspath(&#39;results/reference.csv&#39;)</span>
+<span class="sd">            if os.path.exist(default_reference):</span>
+<span class="sd">                if self.get_confirm(&#39;Detected reference file: %s \nUse it?&#39; % default_reference):</span>
+<span class="sd">                    reference_file = default_reference</span>
+<span class="sd">                else:</span>
+<span class="sd">                    reference_file = self.get_input(&#39;Enter the referenced data file path&#39;)</span>
+<span class="sd">            else:</span>
+<span class="sd">                reference_file = self.get_input(&#39;Enter the referenced data file path&#39;)</span>
+<span class="sd">            &#39;&#39;&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dancer</span><span class="o">.</span><span class="n">scp</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_print_current_data</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;SCP calculate done.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UI_Dance.plot"><a class="viewcode-back" href="../../../source/pyCADD.Dance.html#pyCADD.Dance.ui.UI_Dance.plot">[文档]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        绘图菜单</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_label</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_label_info</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_merge_data</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">merged</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">()</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;No merged dataset.&#39;</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="n">ascending</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_confirm</span><span class="p">(</span>
+                <span class="s1">&#39;Ascending sort(for negative number)?&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Sort by ascending order: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ascending</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">dancer</span><span class="o">.</span><span class="n">auc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">ascending</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;ROC curve image file </span><span class="si">%s</span><span class="s1">-ROC.jpg saved.&#39;</span> <span class="o">%</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()))</span>
+
+        <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="s1">&#39;2&#39;</span><span class="p">:</span>
+
+            <span class="n">score_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_input</span><span class="p">(</span>
+                <span class="s1">&#39;Enter the name of score&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;Docking_Score&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Score Name: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">score_name</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">dancer</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span><span class="p">,</span> <span class="n">score_name</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Scatter plot </span><span class="si">%s</span><span class="s1">-Scatter.jpg saved.&#39;</span> <span class="o">%</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()))</span>
+
+        <span class="k">elif</span> <span class="n">flag</span> <span class="o">==</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+
+            <span class="n">method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_input</span><span class="p">(</span><span class="s1">&#39;Enter the method of correlation&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span>
+                                    <span class="s1">&#39;pearson&#39;</span><span class="p">,</span> <span class="s1">&#39;kendall&#39;</span><span class="p">,</span> <span class="s1">&#39;spearman&#39;</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;pearson&#39;</span><span class="p">,</span> <span class="n">show_choices</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Correlation method: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">method</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dancer</span><span class="o">.</span><span class="n">correlate</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Heatmap </span><span class="si">%s</span><span class="s1">-Correlation.jpg saved.&#39;</span> <span class="o">%</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()))</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2022, Yuhang.W.</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用了 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a>开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
