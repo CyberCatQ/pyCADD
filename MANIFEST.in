@@ -1,4 +1,0 @@
-include pyCADD/VSW/*.ini
-include pyCADD/scripts/*
-include pyCADD/README.md
-include pyCADD/LICENSE
