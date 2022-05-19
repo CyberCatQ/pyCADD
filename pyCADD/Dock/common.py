@@ -89,9 +89,8 @@ def get_predict_structure(predict_file, output_file:str=None):
         输出结构文件(pdb|mae|maegz)路径
     '''
 
-    output_file = f'{prefix}.mae' if output_file is None else output_file
-
     prefix = os.path.basename(predict_file).split('.')[0]
+    output_file = f'{prefix}.mae' if output_file is None else output_file
     predict_ligand_df = pd.read_csv(predict_file)
     ligand_sts = []
     

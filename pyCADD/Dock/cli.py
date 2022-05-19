@@ -152,3 +152,10 @@ def quick_report(input_file_path, ligand_file_path, parallel, precision, overwri
     dock_data_list = console.multi_extract_data(redock_data=False)
     save_ensemble_docking_data(dock_data_list, save_dir=console.result_save_dir)
     Reporter(input_file).generate_report(redock_data_list, dock_data_list, console.ligand_save_dir, console.result_save_dir)
+
+@cli_main.command(short_help='Get ligand file from prediction result.')
+@click.argument('predict_file', type=str)
+@click.option('--output_file', '-o', type=str, default=None, help='Specify output file path.')
+def extract_struc(predict_file, output_file):
+    from pyCADD.Dock.common import get_predict_structure
+    get_predict_structure(predict_file, output_file)
