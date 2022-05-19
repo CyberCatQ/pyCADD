@@ -224,7 +224,7 @@ class MyMLP(nn.Module):
         '''
         self.eval()
         X = torch.tensor(X.values, dtype=torch.float)
-        with torch.no_grad:
+        with torch.no_grad():
             X = X.to(self.device)
             y = self.forward(X)
             y = y.cpu().argmax(dim=1).numpy()
@@ -246,7 +246,7 @@ class MyMLP(nn.Module):
         '''
         self.eval()
         X = torch.tensor(X.values, dtype=torch.float)
-        with torch.no_grad:
+        with torch.no_grad():
             X = X.to(self.device)
             y = self.forward(X)
             y = y.cpu().softmax(dim=1).numpy()
