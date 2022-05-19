@@ -30,6 +30,7 @@ from xgboost import XGBClassifier
 
 logger = logging.getLogger(__name__)
 
+
 def read_matrix(file_path: str):
     '''
     读取数据矩阵
@@ -45,6 +46,7 @@ def read_matrix(file_path: str):
     '''
     raw_data = pd.read_csv(file_path, index_col=0)
     return raw_data
+
 
 '''
 def read_docking_data(raw_data: DataFrame, label_col: str):
@@ -66,9 +68,11 @@ def read_docking_data(raw_data: DataFrame, label_col: str):
     return raw_data.drop(label_col, axis=1)
 '''
 
-def _standrad_label(data: DataFrame, label_col: str, positive: ...='origin'):
+
+def _standrad_label(data: DataFrame, label_col: str, positive: ... = 'origin'):
     '''
     标准化标签为二进制
+
     Parameters
     ----------
     data : DataFrame
@@ -77,14 +81,14 @@ def _standrad_label(data: DataFrame, label_col: str, positive: ...='origin'):
         标签列名
     positive : str | int | list
         正样本标签
-    
+
     Return
     ----------
     DataFrame
         标准化后的数据
     '''
     if isinstance(positive, str) or isinstance(positive, int):
-        positive = [positive] 
+        positive = [positive]
 
     # 标准化阳性标签为1
     for _label in positive:
@@ -94,10 +98,11 @@ def _standrad_label(data: DataFrame, label_col: str, positive: ...='origin'):
 
     return data
 
-def split_data(data: DataFrame, label_col:str=None, preprocess:bool=True, positive:str='origin'):
+
+def split_data(data: DataFrame, label_col: str = None, preprocess: bool = True, positive: str = 'origin'):
     '''
     拆分数据与标签
-    
+
     Parameters
     ----------
     data : DataFrame
@@ -120,16 +125,18 @@ def split_data(data: DataFrame, label_col:str=None, preprocess:bool=True, positi
         data = _standrad_label(data, label_col, positive)
     return data.drop(label_col, axis=1), data[label_col]
 
+
 def merge(data_list: list):
     '''
     合并Series
-    
+
     Parameters
     ----------
     data_list : list
         包含需要合并的Series的列表
     '''
     return pd.concat(data_list, axis=1)
+
 
 def _format_data(data: DataFrame, label_col: str, pos_label, score_name: str = 'Docking_Score'):
     '''
@@ -150,7 +157,7 @@ def _format_data(data: DataFrame, label_col: str, pos_label, score_name: str = '
     return total_data
 
 
-def get_roc(X: DataFrame, y_ture: Series , save: bool = False, lower_is_better: bool = True):
+def get_roc(X: DataFrame, y_ture: Series, save: bool = False, lower_is_better: bool = True):
     '''
     ROC曲线下面积
     依据label列作为标签
@@ -217,7 +224,7 @@ def get_scatter(data: DataFrame, label_col: str, pos_label, score_name: str = 'D
         数据值名称
     save : bool
         是否保存散点图文件
-    
+
     Return
     ----------
     str
@@ -231,13 +238,13 @@ def get_scatter(data: DataFrame, label_col: str, pos_label, score_name: str = 'D
 
     plt.figure(figsize=(10, 10), dpi=300.0)
     sns.scatterplot(data=processed_data, x='PDB',
-                    y=score_name, hue='activity',hue_order=['Negative', 'Positive'], alpha=0.75, s=50)
+                    y=score_name, hue='activity', hue_order=['Negative', 'Positive'], alpha=0.75, s=50)
     plt.xlabel('PDB Crystals')
     plt.ylabel(score_name)
     plt.legend(loc='upper right')
 
     cwd_name = os.path.basename(os.getcwd())
-    plt.title('%s %s Scatter' %(cwd_name ,score_name))
+    plt.title('%s %s Scatter' % (cwd_name, score_name))
 
     if save:
         plt.savefig('%s-Scatter.jpg' % cwd_name)
@@ -245,7 +252,8 @@ def get_scatter(data: DataFrame, label_col: str, pos_label, score_name: str = 'D
 
     plt.show()
 
-def correlate(data: DataFrame, method:str='pearson'):
+
+def correlate(data: DataFrame, method: str = 'pearson'):
     '''
     计算相关系数矩阵
 
@@ -258,7 +266,7 @@ def correlate(data: DataFrame, method:str='pearson'):
             kendall是定类变量的统计
             pearson是对定距变量的统计
             spearman是对定序变量的统计
-    
+
     Return
     ----------
     DataFrame
@@ -266,10 +274,11 @@ def correlate(data: DataFrame, method:str='pearson'):
     '''
     return data.corr(method=method)
 
-def heatmap(data:DataFrame, vmin:float=None, vmax:float=None, save:bool=True):
+
+def heatmap(data: DataFrame, vmin: float = None, vmax: float = None, save: bool = True):
     '''
     绘制热力图
-    
+
     Parameters
     ----------
     data : DataFrame
@@ -280,14 +289,15 @@ def heatmap(data:DataFrame, vmin:float=None, vmax:float=None, save:bool=True):
         数据值上限
     save : bool
         是否保存热力图文件
-    
+
     Return
     ----------
     str
         生成的散点图文件路径(save == True时)
     '''
-    plt.figure(figsize=(10, 10),dpi=300.0)
-    sns.heatmap(data=data, square=True, cmap='RdBu_r', annot=True, fmt='.2f', linewidths=0.1, vmin=vmin, vmax=vmax)
+    plt.figure(figsize=(10, 10), dpi=300.0)
+    sns.heatmap(data=data, square=True, cmap='RdBu_r', annot=True,
+                fmt='.2f', linewidths=0.1, vmin=vmin, vmax=vmax)
     plt.xlabel('PDB Crystals')
     plt.ylabel('PDB Crystals')
     cwd_name = os.path.basename(os.getcwd())
@@ -299,7 +309,8 @@ def heatmap(data:DataFrame, vmin:float=None, vmax:float=None, save:bool=True):
 
     plt.show()
 
-def hyperparam_tuning(model, param_gird:dict, X:DataFrame, y:Series, scoring:str='roc_auc', cv:int=5, n_jobs:int=-1, method:str='grid', save:bool=True, model_name:str=None):
+
+def hyperparam_tuning(model, param_gird: dict, X: DataFrame, y: Series, scoring: str = 'roc_auc', cv: int = 5, n_jobs: int = -1, method: str = 'grid', save: bool = True, model_name: str = None):
     '''
     超参数调优
 
@@ -308,7 +319,7 @@ def hyperparam_tuning(model, param_gird:dict, X:DataFrame, y:Series, scoring:str
     model : object
         需要调优的模型
     param_grid : dict
-        
+
     X : DataFrame
         训练集
     y : Series
@@ -321,25 +332,27 @@ def hyperparam_tuning(model, param_gird:dict, X:DataFrame, y:Series, scoring:str
         训练进程数
     method : str
         调优方法
-            grid: 网格搜索
-            random: 随机搜索
+        * grid: 网格搜索
+        * random: 随机搜索
     save : bool
         是否保存调优结果
     model_name : str
         模型名称
-    
+
     Return
     ----------
     dict
         调优后的模型参数
     '''
     if method == 'grid':
-        cv_search = GridSearchCV(estimator=model, param_grid=param_gird, scoring=scoring, cv=cv, n_jobs=n_jobs)
+        cv_search = GridSearchCV(
+            estimator=model, param_grid=param_gird, scoring=scoring, cv=cv, n_jobs=n_jobs)
     elif method == 'random':
-        cv_search = RandomizedSearchCV(estimator=model, param_distributions=param_gird, scoring=scoring, cv=cv, n_jobs=n_jobs)
+        cv_search = RandomizedSearchCV(
+            estimator=model, param_distributions=param_gird, scoring=scoring, cv=cv, n_jobs=n_jobs)
     else:
         raise ValueError('Invalid method: %s' % method)
-    
+
     cv_search.fit(X, y)
     best_params = cv_search.best_params_
     best_score = cv_search.best_score_
@@ -347,13 +360,15 @@ def hyperparam_tuning(model, param_gird:dict, X:DataFrame, y:Series, scoring:str
     logger.info('Best CV score: %s' % best_score)
 
     if save:
-        params_file = 'best_params_%s.json' % (model_name if model_name else model.__class__.__name__ )
+        params_file = 'best_params_%s.json' % (
+            model_name if model_name else model.__class__.__name__)
         with open(params_file, 'w') as f:
             json.dump(best_params, f)
         logger.info('Params file %s saved.' % params_file)
     return best_params
 
-def get_splits(X:DataFrame, y:Series, n_repeats:int=30, n_splits:int=4, random_state:int=42):
+
+def get_splits(X: DataFrame, y: Series, n_repeats: int = 30, n_splits: int = 4, random_state: int = 42):
     '''
     为交叉验证创建训练集和测试集索引
 
@@ -375,10 +390,12 @@ def get_splits(X:DataFrame, y:Series, n_repeats:int=30, n_splits:int=4, random_s
     list
         索引列表(训练集, 测试集)
     '''
-    cv = RepeatedStratifiedKFold(n_repeats=n_repeats, n_splits=n_splits, random_state=random_state)
+    cv = RepeatedStratifiedKFold(
+        n_repeats=n_repeats, n_splits=n_splits, random_state=random_state)
     return [*cv.split(X, y)]
 
-def get_score(model, X_train:DataFrame, X_test:DataFrame, y_train:Series, y_test:Series, score):
+
+def get_score(model, X_train: DataFrame, X_test: DataFrame, y_train: Series, y_test: Series, score):
     '''
     模型评估
 
@@ -396,7 +413,7 @@ def get_score(model, X_train:DataFrame, X_test:DataFrame, y_train:Series, y_test
         测试集标签
     score : callable
         评估方法
-    
+
     Return
     ----------
     tuple(float, float)
@@ -404,13 +421,14 @@ def get_score(model, X_train:DataFrame, X_test:DataFrame, y_train:Series, y_test
     '''
 
     model.fit(X_train, y_train)
-    y_train_predicted = model.predict_proba(X_train)[:,1]
-    y_test_predicted = model.predict_proba(X_test)[:,1]
+    y_train_predicted = model.predict_proba(X_train)[:, 1]
+    y_test_predicted = model.predict_proba(X_test)[:, 1]
     train_score = score(y_train, y_train_predicted)
     test_score = score(y_test, y_test_predicted)
     return train_score, test_score
 
-def get_best_SCP(X:DataFrame, y_true:Series, lower_is_better:bool=True):
+
+def get_best_SCP(X: DataFrame, y_true: Series, lower_is_better: bool = True):
     '''
     获取单构象最佳Performance及其ROC-AUC值
 
@@ -436,8 +454,9 @@ def get_best_SCP(X:DataFrame, y_true:Series, lower_is_better:bool=True):
         else:
             scp = X[comformation]
         results_dict[comformation] = roc_auc_score(y_true, scp)
-    
+
     return max(results_dict.items(), key=lambda x: x[1])
+
 
 def get_SCP_report(splits, X, y):
     '''
@@ -465,7 +484,7 @@ def get_SCP_report(splits, X, y):
         y_train, y_test = y.iloc[train_index], y.iloc[test_index]
         best_scp_score = get_best_SCP(X_test, y_test)[1]
         scp_performance.append(best_scp_score)
-        
+
     _mean = np.mean(scp_performance)
     _max = np.max(scp_performance)
     _min = np.min(scp_performance)
@@ -476,6 +495,7 @@ def get_SCP_report(splits, X, y):
     logger.info('SCP std: %.4f' % (_std))
 
     return scp_performance
+
 
 def cross_validation(model, splits, X, y, score):
     '''
@@ -493,7 +513,7 @@ def cross_validation(model, splits, X, y, score):
         标签
     score : callable
         评估方法
-    
+
     Return
     ----------
     list
@@ -506,10 +526,14 @@ def cross_validation(model, splits, X, y, score):
         for train_index, val_index in splits:
             X_train, X_val = X.iloc[train_index], X.iloc[val_index]
             y_train, y_val = y.iloc[train_index], y.iloc[val_index]
-            train_dataset = TensorDataset(torch.tensor(X_train.values, dtype=torch.float), torch.tensor(y_train.values, dtype=torch.long))
-            val_dataset = TensorDataset(torch.tensor(X_val.values, dtype=torch.float), torch.tensor(y_val.values, dtype=torch.long))
-            train_dataloader = DataLoader(train_dataset, batch_size=128, sampler=WeightedRandomSampler(_Evaluator.get_weights(y_train), len(y_train)))
-            val_dataloader = DataLoader(val_dataset, batch_size=128, sampler=WeightedRandomSampler(_Evaluator.get_weights(y_val), len(y_val)))
+            train_dataset = TensorDataset(torch.tensor(
+                X_train.values, dtype=torch.float), torch.tensor(y_train.values, dtype=torch.long))
+            val_dataset = TensorDataset(torch.tensor(
+                X_val.values, dtype=torch.float), torch.tensor(y_val.values, dtype=torch.long))
+            train_dataloader = DataLoader(train_dataset, batch_size=128, sampler=WeightedRandomSampler(
+                _Evaluator.get_weights(y_train), len(y_train)))
+            val_dataloader = DataLoader(val_dataset, batch_size=128, sampler=WeightedRandomSampler(
+                _Evaluator.get_weights(y_val), len(y_val)))
             # 新的MLP实例
             params = {
                 'input_dim': X_train.shape[1],
@@ -517,33 +541,38 @@ def cross_validation(model, splits, X, y, score):
                 'hidden_dim': [32, 16],
                 'dropout1': 0.2,
                 'dropout2': 0.5,
-                'lr' : 0.01,
-                'weight_decay' : 1e-4,
-                'batch_size' : 128,
-                'epochs' : 100,
-                'device' : torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+                'lr': 0.01,
+                'weight_decay': 1e-4,
+                'batch_size': 128,
+                'epochs': 100,
+                'device': torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
             }
             _model = _Evaluator._get_mlp_classifier(params)
             _model.initialize()
-            optimizer = torch.optim.Adam(_model.parameters(), lr=params['lr'], weight_decay=params['weight_decay'])
+            optimizer = torch.optim.Adam(
+                _model.parameters(), lr=params['lr'], weight_decay=params['weight_decay'])
             loss_fn = nn.CrossEntropyLoss()
-            _Evaluator.train_model(_model, optimizer, loss_fn, train_dataloader, val_dataloader, 100)
+            _Evaluator.train_model(
+                _model, optimizer, loss_fn, train_dataloader, val_dataloader, 100)
 
             with torch.no_grad():
                 _model = _model.to('cpu')
-                y_val_pred_proba = _model(torch.tensor(X_val.values, dtype=torch.float)).softmax(dim=1).numpy()[:, 1]
+                y_val_pred_proba = _model(torch.tensor(
+                    X_val.values, dtype=torch.float)).softmax(dim=1).numpy()[:, 1]
             test_auc = roc_auc_score(y_val.values, y_val_pred_proba)
             validation_results.append(test_auc)
     else:
         for train_index, test_index in splits:
             X_train, X_test = X.iloc[train_index], X.iloc[test_index]
             y_train, y_test = y.iloc[train_index], y.iloc[test_index]
-            train_score, test_score = get_score(model, X_train, X_test, y_train, y_test, score)
+            train_score, test_score = get_score(
+                model, X_train, X_test, y_train, y_test, score)
             validation_results.append(test_score)
-    
+
     return validation_results
 
-def CV_model_evaluation(models:dict, X:DataFrame, y:Series, n_repeats=30, n_splits=4, random_state=42, plot:bool=False, score_name:str='AUC'):
+
+def CV_model_evaluation(models: dict, X: DataFrame, y: Series, n_repeats=30, n_splits=4, random_state=42, plot: bool = False, score_name: str = 'AUC'):
     '''
     (30)x(4)模型评估
 
@@ -563,7 +592,7 @@ def CV_model_evaluation(models:dict, X:DataFrame, y:Series, n_repeats=30, n_spli
         随机种子
     plot : bool
         是否绘制ROC图
-    
+
     Return
     ----------
     dict
@@ -583,7 +612,8 @@ def CV_model_evaluation(models:dict, X:DataFrame, y:Series, n_repeats=30, n_spli
     elif score_name == 'Recall':
         score = recall_score
     else:
-        raise ValueError('score_name must be one of AUC, F1, Accuracy, Precision, Recall')
+        raise ValueError(
+            'score_name must be one of AUC, F1, Accuracy, Precision, Recall')
 
     for model_name, model in models.items():
 
@@ -592,11 +622,12 @@ def CV_model_evaluation(models:dict, X:DataFrame, y:Series, n_repeats=30, n_spli
         final_results[model_name] = _current_result
 
         _mean = np.mean(_current_result)
-        logger.info('%s CV %s mean score: %s' % (model_name, score_name, _mean))
+        logger.info('%s CV %s mean score: %s' %
+                    (model_name, score_name, _mean))
 
     scp_performance = get_SCP_report(splits, X, y)
     final_results['SCP'] = scp_performance
-    
+
     if plot:
         plt.figure(figsize=(20, 20))
         result_df = pd.DataFrame(final_results)
@@ -604,15 +635,18 @@ def CV_model_evaluation(models:dict, X:DataFrame, y:Series, n_repeats=30, n_spli
         plt.axhline(np.mean(scp_performance), color='y', linestyle='--', lw=2)
         plt.axhline(np.min(scp_performance), color='b', linestyle='--', lw=2)
         plt.axhline(0.5, color='g', linestyle='--', lw=2)
-        plt.legend(['Max SCP', 'Mean SCP', 'Worst SCP', 'Random'], loc='lower right')
-        sns.violinplot(data=result_df, palette='Set2', inner='point', split=True)
+        plt.legend(['Max SCP', 'Mean SCP', 'Worst SCP',
+                   'Random'], loc='lower right')
+        sns.violinplot(data=result_df, palette='Set2',
+                       inner='point', split=True)
         plt.show()
 
     return final_results
 
+
 class _Evaluator:
 
-    def __init__(self, train_data:DataFrame, test_data:DataFrame):
+    def __init__(self, train_data: DataFrame, test_data: DataFrame):
         '''
         Parameters
         ----------
@@ -635,47 +669,49 @@ class _Evaluator:
 
         self.classifiers = {}
         self.gbt_estimator_hyperparameters = {
-        'gpu_id' : [0],
-        'tree_method' : ['gpu_hist'],
-        'n_estimators' : [200, 250, 300],
-        'max_depth'     : [3, 5, 10, 20],
-        'gamma'        : [0.01, 0.1, 0.5, 1],
-        'learning_rate': [0.01, 0.05, 0.1],
-        'subsample'    : [0.3, 0.5, 0.6],
-        'alpha'        : [0.01, 0.1, 0.5, 1],
-        'colsample_bytree': [0.3, 0.5, 1],
-        'objective'    : ['binary:logistic'],
-        'eval_metric': ['auc'],
-        'use_label_encoder': [False]
+            'gpu_id': [0],
+            'tree_method': ['gpu_hist'],
+            'n_estimators': [200, 250, 300],
+            'max_depth': [3, 5, 10, 20],
+            'gamma': [0.01, 0.1, 0.5, 1],
+            'learning_rate': [0.01, 0.05, 0.1],
+            'subsample': [0.3, 0.5, 0.6],
+            'alpha': [0.01, 0.1, 0.5, 1],
+            'colsample_bytree': [0.3, 0.5, 1],
+            'objective': ['binary:logistic'],
+            'eval_metric': ['auc'],
+            'use_label_encoder': [False]
         }
-        
+
         self.lr_estimator_hyperparameters = {
-        'C' : [0.01, 0.1, 1],
-        'penalty': ['l1', 'l2']
-        }   
+            'C': [0.01, 0.1, 1],
+            'penalty': ['l1', 'l2']
+        }
 
         self.rf_estimator_hyperparameters = {
-        'n_estimators' : [200, 250, 300],
-        'max_depth'     : [3, 5, 10, 20],
-        'max_features'  : ['auto', 'sqrt', 'log2'],
-        'min_samples_split' : [2, 5, 10],
-        'min_samples_leaf' : [1, 2, 5],
+            'n_estimators': [200, 250, 300],
+            'max_depth': [3, 5, 10, 20],
+            'max_features': ['auto', 'sqrt', 'log2'],
+            'min_samples_split': [2, 5, 10],
+            'min_samples_leaf': [1, 2, 5],
         }
 
     @staticmethod
-    def _preprocess_data(data:DataFrame, test_size=0.25, random_state=42) -> None:
+    def _preprocess_data(data: DataFrame, test_size=0.25, random_state=42) -> None:
         '''
         划分数据集为特征和标签 并以0填充缺失值
         '''
         X, y = data.drop(['activity'], axis=1), data['activity']
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=test_size, random_state=random_state)
         train_set = pd.concat([X_train, y_train], axis=1)
         test_set = pd.concat([X_test, y_test], axis=1)
         return train_set, test_set
 
     @classmethod
-    def from_data(cls, data:DataFrame, test_size=0.25, random_state=42) -> '_Evaluator':
-        train_set, test_set = cls._preprocess_data(data, test_size, random_state)
+    def from_data(cls, data: DataFrame, test_size=0.25, random_state=42) -> '_Evaluator':
+        train_set, test_set = cls._preprocess_data(
+            data, test_size, random_state)
         return cls(train_set, test_set)
 
     @property
@@ -684,28 +720,28 @@ class _Evaluator:
         通识算法分类器
         '''
         return {
-        'cs_mean': Average(lower_is_better=True),
-        'cs_GeometricMean': Geo_Average(lower_is_better=True),
-        'cs_Min': Minimum(lower_is_better=True)
+            'cs_mean': Average(lower_is_better=True),
+            'cs_GeometricMean': Geo_Average(lower_is_better=True),
+            'cs_Min': Minimum(lower_is_better=True)
         }
-    
+
     @property
     def mlp_parameters(self):
         '''
         多层感知机参数 所有参数均在此调节
         '''
         return {
-            'batch_size' : 128,
-            'epochs' : 1000,
+            'batch_size': 128,
+            'epochs': 1000,
             'device': torch.device('cuda:0' if torch.cuda.is_available() else 'cpu'),
             'input_dim': self.X_train.shape[1],
-            'output_dim' : len(set(self.y_train)),
-            'hidden_dim' : (32, 16),
-            'lr' : 0.01,
-            'weight_decay' : 1e-4,
-            'dropout1' : 0.2,
-            'dropout2' : 0.5,
-            'min_loss' : 0.1,
+            'output_dim': len(set(self.y_train)),
+            'hidden_dim': (32, 16),
+            'lr': 0.01,
+            'weight_decay': 1e-4,
+            'dropout1': 0.2,
+            'dropout2': 0.5,
+            'min_loss': 0.1,
             'min_epochs': 100
         }
 
@@ -727,40 +763,46 @@ class _Evaluator:
         训练集
         '''
         return TensorDataset(torch.tensor(self.X_train.values, dtype=torch.float), torch.tensor(self.y_train.values, dtype=torch.long))
-    
+
     @property
-    def train_dataloader(self, weighted:bool=True):
+    def train_dataloader(self, weighted: bool = True):
         '''
         训练集数据加载器 按照权重采样
         '''
         weights = self.get_weights(self.y_train)
-        sampler = WeightedRandomSampler(weights, len(weights)) if weighted else None
+        sampler = WeightedRandomSampler(
+            weights, len(weights)) if weighted else None
         batch_size = self.mlp_parameters['batch_size']
         return DataLoader(self.train_dataset, batch_size=batch_size, sampler=sampler)
-    
+
     @property
     def test_dataset(self):
         '''
         测试集
         '''
         return TensorDataset(torch.tensor(self.X_test.values, dtype=torch.float), torch.tensor(self.y_test.values, dtype=torch.long))
-    
+
     @property
-    def test_dataloader(self, weighted:bool=True):
+    def test_dataloader(self, weighted: bool = True):
         '''
         测试集数据加载器 按照权重采样
         '''
         weights = self.get_weights(self.y_test)
-        sampler = WeightedRandomSampler(weights, len(weights)) if weighted else None
+        sampler = WeightedRandomSampler(
+            weights, len(weights)) if weighted else None
         batch_size = self.mlp_parameters['batch_size']
         return DataLoader(self.test_dataset, batch_size=batch_size, sampler=sampler)
-    
+
     @staticmethod
-    def _get_mlp_classifier(mlp_parameters:dict=None):
+    def _get_mlp_classifier(mlp_parameters: dict = None):
         '''
         多层感知机MLP分类器 参数于mlp_parameters调节
-
-        mlp_parameters = {
+        
+        Parameters
+        ----------
+        mlp_parameters : dict
+            多层感知机参数 
+            {
             'input_dim': int,
             'output_dim': int,
             'hidden_dim': tuple[int, int],
@@ -786,7 +828,7 @@ class _Evaluator:
         device = parameters['device']
 
         return MyMLP(input_dim, hidden_dim, output_dim, dropout1, dropout2, lr, weight_decay, batch_size, epochs, device=device)
-    
+
     def get_mlp_classifier(self):
         '''
         多层感知机MLP分类器 参数于mlp_parameters调节
@@ -806,7 +848,7 @@ class _Evaluator:
             lr : LogisticRegression
             rf : RandomForestClassifier
             gbt : XGBClassifier
-        
+
         estimator : sklearn.base.BaseEstimator
             分类器实例
         hyperparameters : dict
@@ -848,13 +890,16 @@ class _Evaluator:
         # 否则进行超参搜索
         else:
             print(f'{classifier_name} parameters are not found, start searching...')
-            parameters = hyperparam_tuning(estimator, hyperparameters, self.X_train, self.y_train, save=True, model_name=clf_name, method=method)
+            parameters = hyperparam_tuning(
+                estimator, hyperparameters, self.X_train, self.y_train, save=True, model_name=clf_name, method=method)
         return parameters
 
     def add_classifier(self, classifier_name, parameters=None, classifier_=None) -> None:
         '''
         添加分类器到分类器列表
 
+        Parameters
+        ----------
         classifier_name : str
             预设分类器名称
             lr : LogisticRegression
@@ -874,10 +919,12 @@ class _Evaluator:
             classifier = RandomForestClassifier()
             clf_name = 'RandomForestClassifier'
         elif classifier_name == 'gbt':
-            classifier = XGBClassifier(eval_metric='auc', use_label_encoder=False)
+            classifier = XGBClassifier(
+                eval_metric='auc', use_label_encoder=False)
             clf_name = 'XGBClassifier'
         elif classifier_name == 'dummy':
-            classifier = DummyClassifier(strategy='stratified', random_state=42)
+            classifier = DummyClassifier(
+                strategy='stratified', random_state=42)
             clf_name = 'DummyClassifier'
         elif classifier_name == 'nbc':
             classifier = GaussianNB()
@@ -901,7 +948,7 @@ class _Evaluator:
             except AttributeError:
                 pass
         self.classifiers[clf_name] = classifier
-    
+
     def cross_validation(self, plot=True, **kwargs):
         '''
         将分类器列表中的分类器执行30x4交叉验证
@@ -913,11 +960,12 @@ class _Evaluator:
         kwargs : dict
             其他传递给CV_model_evaluation的参数
         '''
-        results = CV_model_evaluation(self.classifiers, self.X_train, self.y_train, plot=plot, **kwargs)
+        results = CV_model_evaluation(
+            self.classifiers, self.X_train, self.y_train, plot=plot, **kwargs)
         report_results = {}
         for clf_name, clf in self.classifiers.items():
             report_results[clf_name] = np.mean(results[clf_name])
-        
+
         report_results['Best_SCP'] = np.max(results['SCP'])
         report_results['Mean_SCP'] = np.mean(results['SCP'])
         report_results['Worst_SCP'] = np.min(results['SCP'])
@@ -980,12 +1028,13 @@ class _Evaluator:
             }
         '''
         if device is None:
-            device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+            device = torch.device(
+                'cuda:0' if torch.cuda.is_available() else 'cpu')
         history = hl.History()
         best_checkpoint = None
         model.to(device)
         for epoch in range(epochs):
-            
+
             train_loss = []
             train_acc = []
             train_auc = []
@@ -1005,14 +1054,16 @@ class _Evaluator:
                 train_pred = train_outputs.argmax(dim=1)
                 train_proba = train_outputs.softmax(dim=1)[:, 1]
 
-                train_acc.append(accuracy_score(train_label_batch.numpy(), train_pred.numpy()))
-                train_auc.append(roc_auc_score(train_label_batch.numpy(), train_proba.numpy()))
+                train_acc.append(accuracy_score(
+                    train_label_batch.numpy(), train_pred.numpy()))
+                train_auc.append(roc_auc_score(
+                    train_label_batch.numpy(), train_proba.numpy()))
 
             train_loss = np.mean(train_loss)
             train_acc = np.mean(train_acc)
             train_auc = np.mean(train_auc)
 
-            model.eval()  
+            model.eval()
             with torch.no_grad():
                 test_acc = []
                 test_auc = []
@@ -1023,12 +1074,15 @@ class _Evaluator:
                     test_outputs = model(test_data_batch_gpu)
                     test_outputs = test_outputs.detach().cpu()
 
-                    batch_test_loss = loss_function(test_outputs, test_label_batch)
+                    batch_test_loss = loss_function(
+                        test_outputs, test_label_batch)
                     test_pred = test_outputs.argmax(dim=1)
-                    test_proba = test_outputs.softmax(dim=1)[:,1]
+                    test_proba = test_outputs.softmax(dim=1)[:, 1]
 
-                    test_acc.append(accuracy_score(test_label_batch.numpy(), test_pred.numpy()))
-                    test_auc.append(roc_auc_score(test_label_batch.numpy(), test_proba.numpy()))
+                    test_acc.append(accuracy_score(
+                        test_label_batch.numpy(), test_pred.numpy()))
+                    test_auc.append(roc_auc_score(
+                        test_label_batch.numpy(), test_proba.numpy()))
                     test_loss.append(batch_test_loss.item())
 
                 test_acc = np.mean(test_acc)
@@ -1037,27 +1091,31 @@ class _Evaluator:
 
                 if test_loss < min_loss and epoch >= min_epochs:
                     min_loss = test_loss
-                    best_checkpoint = {'model': deepcopy(model.state_dict()), 'optimizer': deepcopy(optimizer.state_dict()),'epoch': epoch + 1, 'test_loss': test_loss}
-            
+                    best_checkpoint = {'model': deepcopy(model.state_dict()), 'optimizer': deepcopy(
+                        optimizer.state_dict()), 'epoch': epoch + 1, 'test_loss': test_loss}
+
             history.log(
-                    epoch + 1, 
-                    train_loss=loss.item(),
-                    test_loss=test_loss.item(), 
-                    train_acc=train_acc, 
-                    train_auc=train_auc, 
-                    test_acc=test_acc, 
-                    test_auc=test_auc
-                    )
-                    
+                epoch + 1,
+                train_loss=loss.item(),
+                test_loss=test_loss.item(),
+                train_acc=train_acc,
+                train_auc=train_auc,
+                test_acc=test_acc,
+                test_auc=test_auc
+            )
+
             if plot:
                 canvas = hl.Canvas()
                 with canvas:
-                    canvas.draw_plot([history['train_loss'], history['test_loss']], ylabel='Loss')
-                    canvas.draw_plot([history['train_acc'], history['test_acc']], ylabel='Accuracy')
-                    canvas.draw_plot([history['train_auc'], history['test_auc']], ylabel='AUC')
+                    canvas.draw_plot(
+                        [history['train_loss'], history['test_loss']], ylabel='Loss')
+                    canvas.draw_plot(
+                        [history['train_acc'], history['test_acc']], ylabel='Accuracy')
+                    canvas.draw_plot(
+                        [history['train_auc'], history['test_auc']], ylabel='AUC')
             else:
                 print(f'Epoch {epoch + 1}/{epochs} | Train Loss: {train_loss:.4f} | Test Loss: {test_loss:.4f} | Train Acc: {train_acc:.4f} | Test Acc: {test_acc:.4f} | Train AUC: {train_auc:.4f} | Test AUC: {test_auc:.4f}')
-        
+
         return history, best_checkpoint
 
     def mlp_train(self, plot=True):
@@ -1071,7 +1129,7 @@ class _Evaluator:
         ----------
         plot : bool
             是否在训练过程中绘制状态(Loss/Acc/Auc)曲线
-        
+
         Return
         ------
         tuple(nn.Module, nn.Module)
@@ -1095,18 +1153,22 @@ class _Evaluator:
 
         loss_function = nn.CrossEntropyLoss()
         # NOTE: 务必在初始化模型完成后再定义优化器
-        optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+        optimizer = torch.optim.Adam(
+            model.parameters(), lr=lr, weight_decay=weight_decay)
 
         with torch.no_grad():
-            current_auc = roc_auc_score(y_train, np.argmax(model(torch.tensor(X_train.values, dtype=torch.float).to(device)).detach().cpu().numpy(), axis=1))
+            current_auc = roc_auc_score(y_train, np.argmax(model(torch.tensor(
+                X_train.values, dtype=torch.float).to(device)).detach().cpu().numpy(), axis=1))
         print('Current AUC:', current_auc)
         print('Start Training...')
         sleep(1)
-        
-        history, best_checkpoint = self.train_model(model, optimizer, loss_function, train_dataloader, test_dataloader, epochs, device, min_epochs, min_loss, plot)
+
+        history, best_checkpoint = self.train_model(
+            model, optimizer, loss_function, train_dataloader, test_dataloader, epochs, device, min_epochs, min_loss, plot)
         self.history = history
         self.best_checkpoint = best_checkpoint
-        self.final_checkpoint = {'model': model.state_dict(), 'optimizer': optimizer.state_dict(), 'epoch': epochs}
+        self.final_checkpoint = {'model': model.state_dict(
+        ), 'optimizer': optimizer.state_dict(), 'epoch': epochs}
 
         self.best_model = self.get_mlp_classifier()
         self.best_model.load_state_dict(best_checkpoint['model'])
@@ -1123,8 +1185,9 @@ class _Evaluator:
         print(formatter.format('Classifier', 'Parameters', 'Values'))
         print('-'*100)
         for clf_name, clf in self.classifiers.items():
-            parameters = [(k,v) for k, v in clf.get_params().items()]
-            print(formatter.format(clf_name, str(parameters[0][0]), str(parameters[0][1])))
+            parameters = [(k, v) for k, v in clf.get_params().items()]
+            print(formatter.format(clf_name, str(
+                parameters[0][0]), str(parameters[0][1])))
             for k, v in parameters[1:]:
                 print(formatter.format('', str(k), str(v)))
             print('-'*100)
@@ -1147,9 +1210,12 @@ class _Evaluator:
         history = self.history
         canvas = hl.Canvas()
         with canvas:
-            canvas.draw_plot([history['train_loss'], history['test_loss']], ylabel='Loss')
-            canvas.draw_plot([history['train_acc'], history['test_acc']], ylabel='Accuracy')
-            canvas.draw_plot([history['train_auc'], history['test_auc']], ylabel='AUC')
+            canvas.draw_plot(
+                [history['train_loss'], history['test_loss']], ylabel='Loss')
+            canvas.draw_plot(
+                [history['train_acc'], history['test_acc']], ylabel='Accuracy')
+            canvas.draw_plot(
+                [history['train_auc'], history['test_auc']], ylabel='AUC')
 
     @staticmethod
     def evaluate(y_test, y_pred, y_proba, print_=True):
@@ -1181,7 +1247,7 @@ class _Evaluator:
             print('Recall:', recall)
             print('F1 score:', f1)
             print('ROC AUC:', auc)
-        
+
         return {
             'accuracy': acc,
             'precision': precision,
@@ -1190,7 +1256,7 @@ class _Evaluator:
             'auc': auc,
             'roc': [fpr, tpr]
         }
-    
+
     def report(self, plot=True):
         '''
         打印所有模型的评估结果
@@ -1209,7 +1275,8 @@ class _Evaluator:
             y_pred = clf.predict(self.X_test)
             y_proba = clf.predict_proba(self.X_test)[:, 1]
             if not isinstance(clf, Consensus):
-                _test_results = self.evaluate(self.y_test, y_pred, y_proba, print_=True)
+                _test_results = self.evaluate(
+                    self.y_test, y_pred, y_proba, print_=True)
             else:
                 _test_results['auc'] = roc_auc_score(self.y_test, y_proba)
                 _test_results['roc'] = roc_curve(self.y_test, y_proba)
@@ -1225,10 +1292,12 @@ class _Evaluator:
             plt.xlabel('False Positive Rate')
             plt.ylabel('True Positive Rate')
             for clf_name, roc_curve_ in roc_curves_.items():
-                plt.plot(roc_curve_[0], roc_curve_[1], label=f'{clf_name} (AUC={auc_[clf_name]:.3f})')
-            plt.plot([0, 1], [0, 1], linestyle='--', color='r', label='Random Guess (AUC=0.5)')
+                plt.plot(roc_curve_[0], roc_curve_[
+                         1], label=f'{clf_name} (AUC={auc_[clf_name]:.3f})')
+            plt.plot([0, 1], [0, 1], linestyle='--',
+                     color='r', label='Random Guess (AUC=0.5)')
             plt.legend(loc='lower right')
-            
+
     def _save_model(self, model_state_dict, save_path):
         '''
         保存模型状态参数
@@ -1242,9 +1311,9 @@ class _Evaluator:
         '''
         model_state_dict.update(
             {
-                'structure': 
+                'structure':
                 {
-                    'input_dim':self.mlp_parameters['input_dim'],
+                    'input_dim': self.mlp_parameters['input_dim'],
                     'hidden_dim': self.mlp_parameters['hidden_dim'],
                     'output_dim': self.mlp_parameters['output_dim'],
                     'dropout1': self.mlp_parameters['dropout1'],
@@ -1263,8 +1332,10 @@ class _Evaluator:
         dir_path : str
             保存目录路径
         '''
-        self._save_model(self.best_checkpoint, os.path.join(dir_path, 'best_model.pth'))
-        self._save_model(self.final_checkpoint, os.path.join(dir_path, 'final_model.pth'))
+        self._save_model(self.best_checkpoint,
+                         os.path.join(dir_path, 'best_model.pth'))
+        self._save_model(self.final_checkpoint,
+                         os.path.join(dir_path, 'final_model.pth'))
         with open(os.path.join(dir_path, 'history.pkl'), 'wb') as f:
             pickle.dump(self.history, f)
 
@@ -1276,7 +1347,7 @@ class _Evaluator:
         ----------
         path : str
             模型参数文件路径
-        
+
         Returns
         -------
         tuple[nn.Module, torch.optim.Optimizer]
@@ -1289,7 +1360,7 @@ class _Evaluator:
         base_optimizer.load_state_dict(checkpoint['optimizer'])
 
         return base_model, base_optimizer
-    
+
     def load_history(self, path):
         '''
         加载训练记录数据 赋值于evaluator实例history属性
@@ -1333,7 +1404,7 @@ class _Evaluator:
         self.save_model()
         print('Training finished. Use draw_after_training() to draw the results.')
         print('='*100)
-        
+
         print('='*100)
         print('Start Cross-Validation...')
         sleep(1)

@@ -23,7 +23,7 @@ class Dancer:
         self.current_data = []                          # 计算完成的数据
         self.current_data_dic = {}                      # 计算完成的数据字典{name: data}
         self.label_col = label_col                      # 标签列名
-        self.label = None                               # 标签列(y)         
+        self.label = None                               # 标签列(y)
         if not file_path:
             raise ValueError('Require matrix file path.')
         self.file_path = file_path                      # 矩阵文件路径
@@ -46,7 +46,7 @@ class Dancer:
         self.raw_data = core.read_matrix(file_path)
         if not self.label_col:
             self.label_col = Prompt.ask('Enter the column name of label', choices=list(
-            self.raw_data.columns), default=self.raw_data.columns[-1])
+                self.raw_data.columns), default=self.raw_data.columns[-1])
         self.docking_data, self.label = core.split_data(
             self.raw_data, self.label_col)
 
@@ -63,7 +63,8 @@ class Dancer:
         ignore_nan : bool
             是否忽略NaN值(默认True)
         '''
-        _data_to_mean = self.docking_data.replace(0, np.nan) if ignore_nan else self.docking_data
+        _data_to_mean = self.docking_data.replace(
+            0, np.nan) if ignore_nan else self.docking_data
         self.mean_data = algorithm.average(_data_to_mean, method)
         self.current_data.append(self.mean_data.name)
         self.current_data_dic[self.mean_data.name] = self.mean_data
@@ -79,7 +80,8 @@ class Dancer:
         ignore_nan : bool
             是否忽略NaN值(默认True)
         '''
-        _data_to_min = self.docking_data.replace(0, np.nan) if ignore_nan else self.docking_data
+        _data_to_min = self.docking_data.replace(
+            0, np.nan) if ignore_nan else self.docking_data
         self.min_data = algorithm.minimum(_data_to_min)
         self.current_data.append(self.min_data.name)
         self.current_data_dic[self.min_data.name] = self.min_data
@@ -94,7 +96,8 @@ class Dancer:
         ignore_nan : bool
             是否忽略NaN值(默认True)
         '''
-        _data_to_max = self.docking_data.replace(0, np.nan) if ignore_nan else self.docking_data
+        _data_to_max = self.docking_data.replace(
+            0, np.nan) if ignore_nan else self.docking_data
         self.max_data = algorithm.maximum(_data_to_max)
         self.current_data.append(self.max_data.name)
         self.current_data_dic[self.max_data.name] = self.max_data
@@ -122,17 +125,20 @@ class Dancer:
         self.current_data_dic[self.z_score_combined.name] = self.z_score_combined
         '''
         logger.debug('Z-score dataset has been appended to current data.')
-    
+
     def best_scp(self):
         '''
         原始最佳单晶体对接得分(best single-conformation performance) AUC数据
         全数据集验证
         '''
-        
-        self.best_SCP, self.best_SCP_score = core.get_best_SCP(self.docking_data, self.label)
+
+        self.best_SCP, self.best_SCP_score = core.get_best_SCP(
+            self.docking_data, self.label)
         self.current_data.append('Best_SCP-%s' % self.best_SCP)
-        self.current_data_dic['Best_SCP-%s' % self.best_SCP] = self.docking_data[self.best_SCP]
-        logger.debug('Best SCP-%s data has been appended to current data.' % self.best_SCP)
+        self.current_data_dic['Best_SCP-%s' %
+                              self.best_SCP] = self.docking_data[self.best_SCP]
+        logger.debug(
+            'Best SCP-%s data has been appended to current data.' % self.best_SCP)
 
     def merge(self, data_list):
         '''
@@ -200,10 +206,11 @@ class Dancer:
         '''
         logger.debug('correlation method: %s' % method)
         self.corr_data = core.correlate(self.docking_data)
-        #self.corr_data.to_csv('results/correlation.csv')
+        # self.corr_data.to_csv('results/correlation.csv')
         heatmap_file = core.heatmap(self.corr_data, 0, 1, save)
         if save:
             logger.debug('%s saved.' % heatmap_file)
+
 
 class Dancer_ML(Dancer):
     '''
@@ -224,7 +231,7 @@ class Dancer_ML(Dancer):
 
         self.eva_models = {}
         self.evaluation_results = {}
-    
+
     @property
     def X(self):
         return self.docking_data
@@ -233,17 +240,19 @@ class Dancer_ML(Dancer):
     def y(self):
         return self.activity_data
 
-    def _train_test_split(self, test_size:float=0.2):
+    def _train_test_split(self, test_size: float = 0.2):
         '''
         训练集 测试集拆分
         '''
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.docking_data, self.activity_data, test_size=test_size, random_state=self.RANDOM_STATE, stratify=self.activity_data)
-    
-    def get_splits(self, repeats:int=30, cv:int=4):
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+            self.docking_data, self.activity_data, test_size=test_size, random_state=self.RANDOM_STATE, stratify=self.activity_data)
+
+    def get_splits(self, repeats: int = 30, cv: int = 4):
         '''
         得到多重交叉验证的训练集和测试集的索引
         '''
-        self.splits = core.get_splits(self.docking_data, self.activity_data, repeats, cv, self.RANDOM_STATE)
+        self.splits = core.get_splits(
+            self.docking_data, self.activity_data, repeats, cv, self.RANDOM_STATE)
 
     def set_method(self, method: str):
         '''
@@ -255,7 +264,7 @@ class Dancer_ML(Dancer):
 
         if method not in self.support_methods:
             raise ValueError('Method %s is not supported.' % method)
-        
+
         if method == 'GBT':
             self.method = 'ml_XGBClassifier'
             self.params_file = 'best_params_XGBClassifier.json'
@@ -276,7 +285,7 @@ class Dancer_ML(Dancer):
             self.method = 'ml_GaussianNB'
             self.params_file = 'best_params_GaussianNB.json'
             self.model = algorithm.naive_bayes_classifier()
-        
+
         self.eva_models[self.method] = self.model
         logger.debug('Method %s has been set.' % self.method)
 
@@ -290,13 +299,14 @@ class Dancer_ML(Dancer):
                 self.set_params(self.params)
                 return True
             else:
-                logger.info('Params file %s has been ignored.' % self.params_file)
+                logger.info('Params file %s has been ignored.' %
+                            self.params_file)
                 return False
         else:
             logger.info('Params file %s does not exists.' % self.params_file)
             return False
 
-    def set_params(self, params:dict=None):
+    def set_params(self, params: dict = None):
         '''
         设定超参数
 
@@ -311,8 +321,8 @@ class Dancer_ML(Dancer):
             params = self.params
         self.model.set_params(**params)
         logger.info('Params have been set:\n %s' % self.model.get_params())
-    
-    def hyperparam_tuning(self, param_grid:dict, method:str='grid', *args, **kwargs):
+
+    def hyperparam_tuning(self, param_grid: dict, method: str = 'grid', *args, **kwargs):
         '''
         超参数调优
 
@@ -327,7 +337,8 @@ class Dancer_ML(Dancer):
         '''
         logger.debug('Current Model: %s' % self.method)
         logger.debug('Params Grid:\n%s' % param_grid)
-        self.params = core.hyperparam_tuning(self.model, param_grid, self.X_train, self.y_train, method=method, save=True,**kwargs)
+        self.params = core.hyperparam_tuning(
+            self.model, param_grid, self.X_train, self.y_train, method=method, save=True, **kwargs)
         logger.debug('Best Params:\n%s' % self.params)
         self.set_params(self.params)
 
@@ -340,7 +351,7 @@ class Dancer_ML(Dancer):
 
         self.model.fit(self.X_train, self.y_train)
         logger.info('Model %s has been trained.' % self.method)
-    
+
     def add_consensus_scoring(self):
         '''
         结果中加入共识评分方法:
@@ -365,9 +376,10 @@ class Dancer_ML(Dancer):
         if not self.eva_models:
             logger.error('No model has been set.')
             return
-        self.evaluation_results = core.CV_model_evaluation(self.eva_models, self.X, self.y, random_state=self.RANDOM_STATE)
-    
-    def roc_auc(self, save:bool=False):
+        self.evaluation_results = core.CV_model_evaluation(
+            self.eva_models, self.X, self.y, random_state=self.RANDOM_STATE)
+
+    def roc_auc(self, save: bool = False):
         '''
         ROC曲线
         '''
@@ -380,7 +392,7 @@ class Dancer_ML(Dancer):
             if model_name.startswith('cs_'):
                 model_predicts.append(model(X.replace(0, np.nan)))
             elif model_name.startswith('ml_'):
-                model_predicts.append(Series(model.predict_proba(X)[:, 1] * -1, name=model_name, index=X.index))
+                model_predicts.append(Series(model.predict_proba(
+                    X)[:, 1] * -1, name=model_name, index=X.index))
 
         core.get_roc(self.merge(model_predicts), y, save=save)
-

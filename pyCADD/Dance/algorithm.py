@@ -11,7 +11,8 @@ class Consensus:
     '''
     共识算法基类
     '''
-    def __init__(self, X:DataFrame=None, y:Series=None, lower_is_better=False):
+
+    def __init__(self, X: DataFrame = None, y: Series = None, lower_is_better=False):
         '''
         Parameters
         ----------
@@ -30,13 +31,13 @@ class Consensus:
         共识算法计算
         '''
         raise NotImplementedError
-    
-    def predict(self, X:DataFrame=None, y:Series=None):
+
+    def predict(self, X: DataFrame = None, y: Series = None):
         if X is not None:
             self.fit(X, y)
         return self.result if self.result is not None else None
 
-    def predict_proba(self, X:DataFrame=None, y:Series=None):
+    def predict_proba(self, X: DataFrame = None, y: Series = None):
         '''
         按照计算结果进行预测
         '''
@@ -60,18 +61,20 @@ class Consensus:
             raise ValueError('labels is None')
         return method(self.y, self.result) if self.result is not None else None
 
+
 class Average(Consensus):
     '''
     算数平均值模型
     '''
+
     def __init__(self, X=None, y=None, lower_is_better=False):
         super().__init__(X, y, lower_is_better)
         self.result = None
-    
+
     def get_params(self):
         return {'method': 'Arithmetic mean'}
 
-    def fit(self, X:DataFrame=None, y:Series=None):
+    def fit(self, X: DataFrame = None, y: Series = None):
         '''
         计算算数平均
         '''
@@ -81,31 +84,36 @@ class Average(Consensus):
         if self.lower_is_better:
             self.result = -1 * self.result
 
+
 class Geo_Average(Consensus):
     '''
     几何平均值模型
     '''
+
     def __init__(self, X=None, y=None, lower_is_better=False):
         super().__init__(X, y, lower_is_better)
         self.result = None
 
     def get_params(self):
         return {'method': 'Geometric mean'}
-        
-    def fit(self, X:DataFrame=None, y:Series=None):
+
+    def fit(self, X: DataFrame = None, y: Series = None):
         '''
         计算几何平均
         '''
         self.X = X.replace(0, np.nan) if X is not None else self.X
         self.y = y if y is not None else self.y
-        self.result = Series(-1 * pow(self.X.prod(axis=1).abs(), 1/self.X.notna().sum(axis=1)), name='GEO')
+        self.result = Series(-1 * pow(self.X.prod(axis=1).abs(),
+                             1/self.X.notna().sum(axis=1)), name='GEO')
         if self.lower_is_better:
             self.result = -1 * self.result
+
 
 class Minimum(Consensus):
     '''
     最小值模型
     '''
+
     def __init__(self, X=None, y=None, lower_is_better=False):
         super().__init__(X, y, lower_is_better)
         self.result = None
@@ -113,7 +121,7 @@ class Minimum(Consensus):
     def get_params(self):
         return {'method': 'Minimum'}
 
-    def fit(self, X:DataFrame=None, y:Series=None):
+    def fit(self, X: DataFrame = None, y: Series = None):
         '''
         计算几何平均
         '''
@@ -123,10 +131,12 @@ class Minimum(Consensus):
         if self.lower_is_better:
             self.result = -1 * self.result
 
+
 class Maximum(Consensus):
     '''
     最大值模型
     '''
+
     def __init__(self, X=None, y=None, lower_is_better=False):
         super().__init__(X, y, lower_is_better)
         self.result = None
@@ -134,7 +144,7 @@ class Maximum(Consensus):
     def get_params(self):
         return {'method': 'Maximum'}
 
-    def fit(self, X:DataFrame=None, y:Series=None):
+    def fit(self, X: DataFrame = None, y: Series = None):
         '''
         计算几何平均
         '''
@@ -144,52 +154,43 @@ class Maximum(Consensus):
         if self.lower_is_better:
             self.result = -1 * self.result
 
+
 class MyMLP(nn.Module):
 
-    def __init__(self, input_dim, hidden_dim, output_dim, dropout1=0.2, dropout2=0.5, lr=0.01, weight_decay=1e-4, batch_size=128, epochs=500, device='cpu'):
+    def __init__(self, input_dim, hidden_dim, output_dim, device=None):
         super(MyMLP, self).__init__()
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
-        self.dropout1 = dropout1
-        self.dropout2 = dropout2
-        self.lr = lr
-        self.weight_decay = weight_decay
-        self.epochs = epochs
-        self.batch_size = batch_size
-        self.device = device
+        self.device = device if device is not None else torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.layer_num = len(hidden_dim)
 
         self.model = nn.Sequential(
             nn.Linear(input_dim, hidden_dim[0]),
             nn.BatchNorm1d(hidden_dim[0]),
             nn.ReLU(),
-            #nn.Dropout(dropout1),
+            # nn.Dropout(dropout1),
             nn.Linear(hidden_dim[0], hidden_dim[1]),
             nn.BatchNorm1d(hidden_dim[1]),
             nn.ReLU(),
-            #nn.Dropout(dropout2),
+            # nn.Dropout(dropout2),
             nn.Linear(hidden_dim[1], output_dim)
         )
         self.model = self.model.to(device)
-        
+
     def forward(self, x):
         return self.model(x)
-    
+
     def get_params(self):
         return {
-            'batch_size' : self.batch_size,
-            'epochs' : self.epochs,
-            'device': torch.device('cuda:0' if torch.cuda.is_available() else 'cpu'),
+            'device': self.device,
             'input_dim': self.input_dim,
-            'output_dim' : self.output_dim,
-            'hidden_dim' : self.hidden_dim,
-            'lr' : self.lr,
-            'weight_decay' : self.weight_decay,
-            #'dropout1' : self.dropout1,
-            #'dropout2' : self.dropout2,
+            'output_dim': self.output_dim,
+            'hidden_dim': self.hidden_dim,
+            # 'dropout1' : self.dropout1,
+            # 'dropout2' : self.dropout2,
         }
-    
+
     def initialize(self, method='normal'):
         if method == 'xavier_uniform':
             init_func = nn.init.xavier_uniform_
@@ -206,18 +207,54 @@ class MyMLP(nn.Module):
         for layer in self.model:
             if isinstance(layer, nn.Linear):
                 init_func(layer.weight)
-        
+
     def predict(self, X):
+        '''
+        推断
+
+        Parameters
+        ----------
+        X : DataFrame
+            输入数据
+
+        Returns
+        -------
+        numpy.array
+            推断结果
+        '''
         self.eval()
         X = torch.tensor(X.values, dtype=torch.float)
-        return self.forward(X.to(self.device)).cpu().detach().argmax(dim=1).numpy()
-    
+        with torch.no_grad:
+            X = X.to(self.device)
+            y = self.forward(X)
+            y = y.cpu().argmax(dim=1).numpy()
+        return y
+
     def predict_proba(self, X):
+        '''
+        推断概率
+
+        Parameters
+        ----------
+        X : DataFrame
+            输入数据
+
+        Returns
+        -------
+        numpy.array
+            各分类推断概率
+        '''
         self.eval()
         X = torch.tensor(X.values, dtype=torch.float)
-        return self.forward(X.to(self.device)).cpu().detach().softmax(dim=1).numpy()
+        with torch.no_grad:
+            X = X.to(self.device)
+            y = self.forward(X)
+            y = y.cpu().softmax(dim=1).numpy()
+        return y
 
 # 函数
+
+
 def average(data: DataFrame, method: str = 'ave'):
     '''
     平均值算法 : 计算并生成DataFrame对接数据的平均值列  
@@ -244,6 +281,7 @@ def average(data: DataFrame, method: str = 'ave'):
     else:
         raise RuntimeError('Invalid average value method.')
 
+
 def geo_average(data: DataFrame):
     '''
     几何平均 : 计算DataFrame数据的几何平均值
@@ -258,6 +296,7 @@ def geo_average(data: DataFrame):
         几何平均结果数据列
     '''
     return Series(- pow(data.prod(axis=1).abs(), 1/data.notna().sum(axis=1)), name='GEO')
+
 
 def minimum(data: DataFrame):
     '''
@@ -340,30 +379,4 @@ def z_score(data: DataFrame, ratio: tuple = (0.7, 0.3)):
         receptor_ratio * z_score_receptor + ligand_ratio * z_score_ligand.fillna(0), name='Z_score_combined')
 
     return z_score_receptor, z_score_ligand, z_score_combined
-
-'''
-def relative(data: DataFrame):
-    
-    相对分数 : 与(单个)参考值的相对比值
-    Parameters
-    ----------
-    data : DataFrame
-        待计算数据
-
-    Return
-    ----------
-    DataFrame
-        相对分数结果数据
-    
-    _processed = []
-    for column in data.columns:
-        try:
-            #ref_value = float(reference_data.loc['Reference', column])
-            result = data[column] #/ ref_value
-            _processed.append(result)
-        except KeyError:
-            _processed.append(data[column])
-        
-    return pd.DataFrame(_processed).T
-'''
 
