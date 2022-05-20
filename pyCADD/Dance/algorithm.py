@@ -157,7 +157,7 @@ class Maximum(Consensus):
 
 class MyMLP(nn.Module):
 
-    def __init__(self, input_dim, hidden_dim, output_dim, device=None):
+    def __init__(self, input_dim, hidden_dim, output_dim, device=None, **kwargs):
         super(MyMLP, self).__init__()
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
