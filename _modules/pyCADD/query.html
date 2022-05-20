@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD.query &mdash; pyCADD 1.5.2 文档</title>
+  <title>pyCADD.query &mdash; pyCADD  文档</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -35,7 +35,15 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">README</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../README.html">pyCADD</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Dock module input file format</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../source/modules.html">pyCADD</a></li>
 </ul>
@@ -68,6 +76,7 @@
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
 
 <span class="kn">from</span> <span class="nn">pyCADD.query.core</span> <span class="kn">import</span> <span class="n">parse_uniport</span><span class="p">,</span> <span class="n">query_pdb</span><span class="p">,</span> <span class="n">query_uniprot</span>
 <span class="kn">from</span> <span class="nn">pyCADD.utils.tool</span> <span class="kn">import</span> <span class="n">makedirs_from_list</span>
@@ -236,24 +245,35 @@
                 <span class="n">_format</span> <span class="o">=</span> <span class="s1">&#39;csv&#39;</span>
             <span class="k">elif</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.in&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.ini&#39;</span><span class="p">):</span>
                 <span class="n">_format</span> <span class="o">=</span> <span class="s1">&#39;ini&#39;</span>
+            <span class="k">elif</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.yml&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.yaml&#39;</span><span class="p">):</span>
+                <span class="n">_format</span> <span class="o">=</span> <span class="s1">&#39;yaml&#39;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unsupported format: </span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">_format</span> <span class="o">==</span> <span class="s1">&#39;csv&#39;</span><span class="p">:</span>
-                <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span>
+        <span class="k">if</span> <span class="n">_format</span> <span class="o">==</span> <span class="s1">&#39;yaml&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_data</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">output_data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">uniprot_id</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_data</span><span class="p">},</span> <span class="n">f</span><span class="p">)</span>
+            <span class="k">return</span>
 
-            <span class="k">elif</span> <span class="n">_format</span> <span class="o">==</span> <span class="s1">&#39;ini&#39;</span> <span class="ow">or</span> <span class="n">_format</span> <span class="o">==</span> <span class="s1">&#39;in&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">_format</span> <span class="o">==</span> <span class="s1">&#39;csv&#39;</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">pdb</span><span class="p">,</span> <span class="n">ligs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ligs</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdb</span><span class="si">}</span><span class="s1"> has multiple ligands: </span><span class="si">{</span><span class="n">ligs</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">lig</span> <span class="ow">in</span> <span class="n">ligs</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">):</span>
+                            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdb</span><span class="si">}</span><span class="s1">,</span><span class="si">{</span><span class="n">lig</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">_format</span> <span class="o">==</span> <span class="s1">&#39;ini&#39;</span> <span class="ow">or</span> <span class="n">_format</span> <span class="o">==</span> <span class="s1">&#39;in&#39;</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uniprot_id</span><span class="si">}</span><span class="s1">]</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;:&#39;</span>
-
-            <span class="k">for</span> <span class="n">pdb</span><span class="p">,</span> <span class="n">ligs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ligs</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdb</span><span class="si">}</span><span class="s1"> has multiple ligands: </span><span class="si">{</span><span class="n">ligs</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">lig</span> <span class="ow">in</span> <span class="n">ligs</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">):</span>
-                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdb</span><span class="si">}{</span><span class="n">sep</span><span class="si">}{</span><span class="n">lig</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdb</span><span class="si">}{</span><span class="n">sep</span><span class="si">}{</span><span class="n">ligs</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
+                <span class="k">for</span> <span class="n">pdb</span><span class="p">,</span> <span class="n">ligs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdb</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">ligs</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
+            
 </pre></div>
 
            </div>

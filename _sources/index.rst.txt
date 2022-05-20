@@ -11,7 +11,13 @@ pyCADD Documentation
    :caption: README
 
    README.md
-   
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Dock module input file format 
+
+   source/input_file_fmt.md
+
 .. toctree::
    :maxdepth: 2
    :caption: API Reference
