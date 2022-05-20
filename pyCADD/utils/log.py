@@ -2,7 +2,7 @@ import logging
 import os
 from datetime import datetime
 
-from cloghandler import ConcurrentRotatingFileHandler
+from concurrent_log_handler import ConcurrentRotatingFileHandler
 from rich.logging import RichHandler
 
 def get_logfile_name():
