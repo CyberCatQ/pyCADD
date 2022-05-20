@@ -819,15 +819,9 @@ class _Evaluator:
         input_dim = parameters['input_dim']
         output_dim = parameters['output_dim']
         hidden_dim = parameters['hidden_dim']
-        dropout1 = parameters['dropout1']
-        dropout2 = parameters['dropout2']
-        lr = parameters['lr']
-        weight_decay = parameters['weight_decay']
-        batch_size = parameters['batch_size']
-        epochs = parameters['epochs']
         device = parameters['device']
 
-        return MyMLP(input_dim, hidden_dim, output_dim, dropout1, dropout2, lr, weight_decay, batch_size, epochs, device=device)
+        return MyMLP(input_dim, hidden_dim, output_dim, device=device)
 
     def get_mlp_classifier(self):
         '''
@@ -964,7 +958,7 @@ class _Evaluator:
             self.classifiers, self.X_train, self.y_train, plot=plot, **kwargs)
         report_results = {}
         for clf_name, clf in self.classifiers.items():
-            report_results[clf_name] = np.mean(results[clf_name])
+            report_results[clf_name] = results[clf_name]
 
         report_results['Best_SCP'] = np.max(results['SCP'])
         report_results['Mean_SCP'] = np.mean(results['SCP'])
@@ -1201,7 +1195,7 @@ class _Evaluator:
         print(formatter.format('Classifier', 'AUC'))
         print(formatter.format('-'*25, '-'*30))
         for k, v in self.cv_results.items():
-            print(formatter.format(k, v))
+            print(formatter.format(k, str(np.mean(v))))
 
     def draw_after_training(self):
         '''
@@ -1315,9 +1309,7 @@ class _Evaluator:
                 {
                     'input_dim': self.mlp_parameters['input_dim'],
                     'hidden_dim': self.mlp_parameters['hidden_dim'],
-                    'output_dim': self.mlp_parameters['output_dim'],
-                    'dropout1': self.mlp_parameters['dropout1'],
-                    'dropout2': self.mlp_parameters['dropout2'],
+                    'output_dim': self.mlp_parameters['output_dim']
                 }
             }
         )
