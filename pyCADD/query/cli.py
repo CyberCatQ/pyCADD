@@ -5,7 +5,7 @@ import click
 @click.option('--not_del_mutations', '-m', is_flag=True, help='DONT Delete mutated(not wide type) crystal.')
 @click.option('--not_del_ignore', '-e', is_flag=True, help='DONT Delete small molecule which is not ligand (e.g. solvent molecules).')
 @click.option('--cutoff', '-c', type=float, default=None, help='Cutoff of resolution.')
-@click.option('--output_format', '-o', type=click.Choice(['csv', 'in', 'ini']), default='in', help='Output format.')
+@click.option('--output_format', '-o', type=click.Choice(['csv', 'in', 'ini', 'yml', 'yaml']), default='yml', help='Output format.')
 def main(uniprot_id, not_del_mutations, not_del_ignore, cutoff, output_format):
     '''
     Get PDB crystals info with uniprot_id.

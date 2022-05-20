@@ -1,6 +1,7 @@
 import logging
 import os
 import pandas as pd
+import yaml
 
 from pyCADD.query.core import parse_uniport, query_pdb, query_uniprot
 from pyCADD.utils.tool import makedirs_from_list
@@ -169,21 +170,32 @@ class QueryClient:
                 _format = 'csv'
             elif path.endswith('.in') or path.endswith('.ini'):
                 _format = 'ini'
+            elif path.endswith('.yml') or path.endswith('.yaml'):
+                _format = 'yaml'
             else:
                 raise ValueError(f'Unsupported format: {path.split(".")[-1]}')
 
-        with open(path, 'w') as f:
-            if _format == 'csv':
-                sep = ','
+        if _format == 'yaml':
+            self.output_data = {k: v.split(',') for k, v in self.output_data.items()}
+            for k, v in self.output_data.items():
+                if len(v) == 1:
+                    self.output_data[k] = v[0]
+                    
+            with open(path, 'w') as f:
+                yaml.dump({self.uniprot_id: self.output_data}, f)
+            return
 
-            elif _format == 'ini' or _format == 'in':
+        elif _format == 'csv':
+            with open(path, 'w') as f:
+                for pdb, ligs in self.output_data.items():
+                    if len(ligs.split(',')) > 1:
+                        logger.warning(f'{pdb} has multiple ligands: {ligs}')
+                        for lig in ligs.split(','):
+                            f.write(f'{pdb},{lig}\n')
+
+        elif _format == 'ini' or _format == 'in':
+            with open(path, 'w') as f:
                 f.write(f'[{self.uniprot_id}]\n')
-                sep = ':'
-
-            for pdb, ligs in self.output_data.items():
-                if len(ligs.split(',')) > 1:
-                    logger.warning(f'{pdb} has multiple ligands: {ligs}')
-                    for lig in ligs.split(','):
-                        f.write(f'{pdb}{sep}{lig}\n')
-                else:
-                    f.write(f'{pdb}{sep}{ligs}\n')
+                for pdb, ligs in self.output_data.items():
+                    f.write(f'{pdb}:{ligs}\n')
+            

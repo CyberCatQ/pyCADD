@@ -663,40 +663,80 @@ class MultiInputFile(BaseFile):
             self.parse_file()
 
     @staticmethod
+    def _parse_from_cfg(config_file:str):
+        '''
+        从配置文件中获取受体与配体的对应关系
+        '''
+        from pyCADD.utils.tool import Myconfig
+
+        config = Myconfig()
+        config.read(config_file)
+        receptors = [receptor for receptor in config.sections()]
+        pdbid_list = []
+        pairs_list = []
+        mappings = []
+        for _list in [config.options(receptor) for receptor in receptors]:
+            pdbid_list.extend(_list)
+
+        for receptor in receptors:
+            for _item in config.items(receptor):
+                ligs = _item[1].split(',')
+                if len(ligs) == 1:
+                    pairs_list.append([_item[0], ligs[0]])
+                    mappings.append({'receptor': receptor, 'pdb': _item[0], 'ligand': ligs[0]})
+                else:
+                    for lig in ligs:
+                        pairs_list.append([_item[0], lig])
+                        mappings.append({'receptor': receptor, 'pdb': _item[0], 'ligand': lig})
+        
+        return pdbid_list, pairs_list, mappings
+
+    @staticmethod
+    def _parse_from_yaml(yaml_file:str):
+        '''
+        从yaml文件中获取受体与配体的对应关系
+        '''
+        import yaml
+        with open(yaml_file, 'r') as f:
+            yaml_dict = yaml.load(f, Loader=yaml.FullLoader)
+
+        pdbid_list = []
+        pairs_list = []
+        mappings = []
+        for receptor in yaml_dict.keys():
+            for pdb, ligs in yaml_dict[receptor].items():
+                if isinstance(ligs, str):
+                    ligs = [ligs]
+                    
+                if len(ligs) == 1:
+                    pairs_list.append((pdb, ligs[0]))
+                    mappings.append({'receptor': receptor, 'pdb': pdb, 'ligand': ligs[0]})
+                else:
+                    for lig in ligs:
+                        pairs_list.append((pdb, lig))
+                        mappings.append({'receptor': receptor, 'pdb': pdb, 'ligand': lig})
+                pdbid_list.append(pdb)
+        return pdbid_list, pairs_list, mappings
+
+    @staticmethod
     def read_from_config(config_file:str) -> 'MultiInputFile':
         '''
-        从配置文件读取输入信息
+        依据配置文件类型初始化
 
         Parameters
         ----------
         config_file : str
             配置文件路径
         '''
-        from pyCADD.utils.tool import Myconfig
 
-        config = Myconfig()
-        config.read(config_file)
-
-        receptors = [receptor for receptor in config.sections()]
-        pdb_list = []
-        pairs_list = []
-        mappings = []
-        for _list in [config.options(receptor) for receptor in receptors]:
-            pdb_list.extend(_list)
-
-        for receptor in receptors:
-            for _item in config.items(receptor):
-                pairs_list.append(_item)
-                current_dict = {}
-                current_dict['receptor'] = receptor
-                current_dict['pdb'] = _item[0]
-                current_dict['ligand'] = _item[1]
-                mappings.append(current_dict)
-
+        if config_file.endswith('ini') or config_file.endswith('in'):
+            pdbid_list, pairs_list, mappings = MultiInputFile._parse_from_cfg(config_file)
+        elif config_file.endswith('yaml') or config_file.endswith('yml'):
+            pdbid_list, pairs_list, mappings = MultiInputFile._parse_from_yaml(config_file)
+            
         _input_file = MultiInputFile(config_file, parse_=False)
-        _input_file.config = config
         _input_file.pairs_list = pairs_list
-        _input_file.pdbid_list = pdb_list
+        _input_file.pdbid_list = pdbid_list
         _input_file.ligand_list = [ligid for pdbid, ligid in pairs_list]
         _input_file.mappings = mappings
         return _input_file
