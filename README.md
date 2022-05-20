@@ -16,6 +16,7 @@ pyCADD
   * 修复MLP模型的BUG
   * 修复获取预测结构函数的BUG
   * 添加获取预测结构的CLI支持
+  * 修复旧版本ConcurrentlogHandler导致的死锁BUG, 不再限制setuptools的版本
 
 * 1.5.1 (2022-05-18) 
   * 完全重构query模块 输入方式修改为Uniprot ID
