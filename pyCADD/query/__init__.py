@@ -8,7 +8,7 @@ from pyCADD.utils.tool import makedirs_from_list
 
 logger = logging.getLogger(__name__)
 # 非配体的小分子
-ignore_lig = ['EDO', 'DMS', 'IPA', 'TBY', 'ARS', 'EU', 'MG', 'IOD', 'ACT', 'CA', 'CAC', 'K', 'FMT', 'BU3', 'PGO', 'PE4'
+ignore_lig = ['EDO', 'DMS', 'IPA', 'TBY', 'ARS', 'EU', 'MG', 'IOD', 'ACT', 'CA', 'CAC', 'K', 'FMT', 'BU3', 'PGO', 'PE4',
                'PO4', 'BR', 'NO3', 'BCT', 'ZN', 'SO4', 'CL', 'NA', 'AU', 'GOL', 'NI', 'YT3', 'PEG', 'PGE']
 
 class QueryClient:
