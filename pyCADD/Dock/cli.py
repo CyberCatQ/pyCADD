@@ -137,7 +137,7 @@ def quick_report(input_file_path, ligand_file_path, parallel, precision, overwri
     ligand_file_path : Specify ligand file path for quick report.
     '''
     from pyCADD.Dock import MultiDocker
-    from pyCADD.Dock.data import save_ensemble_docking_data, save_redocking_data
+    from pyCADD.Dock.data import save_ensemble_docking_data
     input_file = MultiInputFile.read_from_config(input_file_path)
     ligand_file = LigandFile(ligand_file_path)
     console = MultiDocker(input_file)
