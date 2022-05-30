@@ -729,7 +729,11 @@ class MultiInputFile(BaseFile):
             配置文件路径
         '''
         if config_file.endswith('.csv'):
-            return MultiInputFile(config_file)
+            input_file = MultiInputFile(config_file)
+            input_file.mappings = []
+            for pdb, lig in input_file.pairs_list:
+                input_file.mappings.append({'receptor': '', 'pdb': pdb, 'ligand': lig})
+            return input_file
         if config_file.endswith('ini') or config_file.endswith('in'):
             pdbid_list, pairs_list, mappings = MultiInputFile._parse_from_cfg(config_file)
         elif config_file.endswith('yaml') or config_file.endswith('yml'):
