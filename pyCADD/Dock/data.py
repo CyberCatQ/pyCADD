@@ -406,6 +406,7 @@ class Reporter:
         redock_df = self._get_redock_df(refefence_datalist)
         
         final_df = pd.merge(template_df, redock_df, on=['PDB', 'Reference_Ligand'], how='left')
+        final_df.to_csv(os.path.join(report_save_dir, f'reference_data.csv'), index=False)
         final_df = self._generate_img(final_df, 'Reference_Ligand', ligand_save_dir)
 
         # 处理对接数据
