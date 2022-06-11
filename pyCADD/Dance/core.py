@@ -1279,7 +1279,7 @@ class _Evaluator:
             print('-'*50)
 
         if plot:
-            plt.figure(figsize=(20, 20), dpi=300)
+            plt.figure(figsize=(10, 10), dpi=300)
             plt.title('ROC Curve')
             plt.xlim([0.0, 1.0])
             plt.ylim([0.0, 1.0])
@@ -1287,9 +1287,9 @@ class _Evaluator:
             plt.ylabel('True Positive Rate')
             for clf_name, roc_curve_ in roc_curves_.items():
                 plt.plot(roc_curve_[0], roc_curve_[
-                         1], label=f'{clf_name} (AUC={auc_[clf_name]:.3f})')
+                         1], label=f'{clf_name} (AUC={auc_[clf_name]:.3f})', linewidth=3)
             plt.plot([0, 1], [0, 1], linestyle='--',
-                     color='r', label='Random Guess (AUC=0.5)')
+                     color='r', label='Random Guess (AUC=0.5)', linewidth=3)
             plt.legend(loc='lower right')
 
     def _save_model(self, model_state_dict, save_path):
