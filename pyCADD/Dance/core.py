@@ -428,9 +428,9 @@ def get_score(model, X_train: DataFrame, X_test: DataFrame, y_train: Series, y_t
     return train_score, test_score
 
 
-def get_best_SCP(X: DataFrame, y_true: Series, lower_is_better: bool = True):
+def get_SCP(X: DataFrame, y_true: Series, lower_is_better: bool = True):
     '''
-    获取单构象最佳Performance及其ROC-AUC值
+    获取单构象Performance及其ROC-AUC值
 
     Parameters
     ----------
@@ -455,8 +455,8 @@ def get_best_SCP(X: DataFrame, y_true: Series, lower_is_better: bool = True):
             scp = X[comformation]
         results_dict[comformation] = roc_auc_score(y_true, scp)
 
-    return max(results_dict.items(), key=lambda x: x[1])
-
+    # return max(results_dict.items(), key=lambda x: x[1])
+    return results_dict
 
 def get_SCP_report(splits, X, y):
     '''
@@ -473,8 +473,8 @@ def get_SCP_report(splits, X, y):
 
     Return
     ----------
-    list
-        SCP策略测试AUC值
+    DataFrame
+        SCP策略测试AUC矩阵
     '''
 
     scp_performance = []
@@ -482,17 +482,17 @@ def get_SCP_report(splits, X, y):
     for train_index, test_index in splits:
         X_train, X_test = X.iloc[train_index], X.iloc[test_index]
         y_train, y_test = y.iloc[train_index], y.iloc[test_index]
-        best_scp_score = get_best_SCP(X_test, y_test)[1]
-        scp_performance.append(best_scp_score)
+        scp_score = get_SCP(X_test, y_test)[1]
+        scp_performance.append(scp_score)
 
-    _mean = np.mean(scp_performance)
-    _max = np.max(scp_performance)
-    _min = np.min(scp_performance)
-    _std = np.std(scp_performance)
+    scp_performance = pd.DataFrame(scp_performance)
+    _mean = scp_performance.mean().mean()
+    _max = scp_performance.max().max()
+    _min = scp_performance.min().min()
+
     logger.info('SCP score: %.4f' % (_mean))
     logger.info('SCP Max score: %.4f' % (_max))
     logger.info('SCP Min score: %.4f' % (_min))
-    logger.info('SCP std: %.4f' % (_std))
 
     return scp_performance
 
@@ -626,14 +626,13 @@ def CV_model_evaluation(models: dict, X: DataFrame, y: Series, n_repeats=30, n_s
                     (model_name, score_name, _mean))
 
     scp_performance = get_SCP_report(splits, X, y)
-    final_results['SCP'] = scp_performance
 
     if plot:
         plt.figure(figsize=(20, 20))
         result_df = pd.DataFrame(final_results)
-        plt.axhline(np.max(scp_performance), color='r', linestyle='--', lw=2)
-        plt.axhline(np.mean(scp_performance), color='y', linestyle='--', lw=2)
-        plt.axhline(np.min(scp_performance), color='b', linestyle='--', lw=2)
+        plt.axhline(scp_performance.max().max(), color='r', linestyle='--', lw=2)
+        plt.axhline(scp_performance.mean().mean(), color='y', linestyle='--', lw=2)
+        plt.axhline(scp_performance.min().min(), color='b', linestyle='--', lw=2)
         plt.axhline(0.5, color='g', linestyle='--', lw=2)
         plt.legend(['Max SCP', 'Mean SCP', 'Worst SCP',
                    'Random'], loc='lower right')
@@ -641,6 +640,7 @@ def CV_model_evaluation(models: dict, X: DataFrame, y: Series, n_repeats=30, n_s
                        inner='point', split=True)
         plt.show()
 
+    final_results['SCP'] = scp_performance
     return final_results
 
 
@@ -960,11 +960,11 @@ class _Evaluator:
         for clf_name, clf in self.classifiers.items():
             report_results[clf_name] = results[clf_name]
 
-        report_results['Best_SCP'] = np.max(results['SCP'])
-        report_results['Mean_SCP'] = np.mean(results['SCP'])
-        report_results['Worst_SCP'] = np.min(results['SCP'])
-        report_results['SCP_std'] = np.std(results['SCP'])
+        report_results['Best_SCP'] = results['SCP'].max().max()
+        report_results['Mean_SCP'] = results['SCP'].mean().mean()
+        report_results['Worst_SCP'] = results['SCP'].min().min()
 
+        self.cv_results = report_results
         return report_results
 
     @staticmethod
