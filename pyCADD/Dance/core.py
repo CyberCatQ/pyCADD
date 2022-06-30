@@ -443,8 +443,8 @@ def get_SCP(X: DataFrame, y_true: Series, lower_is_better: bool = True):
 
     Return
     ----------
-    tuple(str, float)
-        best_SCP, best_SCP_score
+    dict
+        {'PDB': SCP AUC}
     '''
     results_dict = {}
     comformations = X.columns
@@ -482,7 +482,7 @@ def get_SCP_report(splits, X, y):
     for train_index, test_index in splits:
         X_train, X_test = X.iloc[train_index], X.iloc[test_index]
         y_train, y_test = y.iloc[train_index], y.iloc[test_index]
-        scp_score = get_SCP(X_test, y_test)[1]
+        scp_score = get_SCP(X_test, y_test)
         scp_performance.append(scp_score)
 
     scp_performance = pd.DataFrame(scp_performance)
@@ -1360,6 +1360,43 @@ class _Evaluator:
         with open(path, 'rb') as f:
             self.history = pickle.load(f)
 
+    def _check_params(self, classifier_name):
+        '''
+        检查模型参数是否存在 不存在返回None
+
+        Parameters
+        ----------
+        classifier_name : str
+            模型名称
+
+        Returns
+        -------
+        dict
+            模型参数字典
+        '''
+        lr_params_file = 'best_params_LogisticRegression.json'
+        rf_params_file = 'best_params_RandomForestClassifier.json'
+        gbt_params_file = 'best_params_XGBClassifier.json'
+
+        if classifier_name == 'lr':
+            if not os.path.exists(lr_params_file):
+                return None
+            else:
+                with open(lr_params_file, 'r') as f:
+                    return json.load(f)
+        elif classifier_name == 'rf':
+            if not os.path.exists(rf_params_file):
+                return None
+            else:
+                with open(rf_params_file, 'r') as f:
+                    return json.load(f)
+        elif classifier_name == 'gbt':
+            if not os.path.exists(gbt_params_file):
+                return None
+            else:
+                with open(gbt_params_file, 'r') as f:
+                    return json.load(f)
+
     def evaluate_workflow(self):
         '''
         评估数据集的标准工作流
@@ -1377,25 +1414,25 @@ class _Evaluator:
         # self.add_classifier('lr', parameters=lr_params)
         # self.add_classifier('gbt', parameters=gbt_params)
         # self.add_classifier('rf', parameters=rf_params)
-        self.add_classifier('lr')
-        self.add_classifier('gbt')
-        self.add_classifier('rf')
+        self.add_classifier('lr', parameters=self._check_params('lr'))
+        self.add_classifier('gbt', parameters=self._check_params('gbt'))
+        self.add_classifier('rf', parameters=self._check_params('rf'))
         self.add_classifier('nbc')
         self.add_classifier('dummy')
         self.add_classifier('cs')
-        self.add_classifier('mlp')
+        # self.add_classifier('mlp')
         self.print_classifier_info()
 
         # 不需要对MLP进行CV时 可以取消注释下面的代码
         # self.classifiers.pop('MLPClassifier')
 
-        print('='*100)
-        print('Start Training MLP...')
-        sleep(3)
-        self.mlp_train(plot=False)
-        self.save_model()
-        print('Training finished. Use draw_after_training() to draw the results.')
-        print('='*100)
+        # print('='*100)
+        # print('Start Training MLP...')
+        # sleep(3)
+        # self.mlp_train(plot=False)
+        # self.save_model()
+        # print('Training finished. Use draw_after_training() to draw the results.')
+        # print('='*100)
 
         print('='*100)
         print('Start Cross-Validation...')
@@ -1406,6 +1443,6 @@ class _Evaluator:
             json.dump(self.cv_results, f)
         print('='*100)
 
-        self.add_classifier('BEST MLP', classifier_=self.best_model)
-        self.add_classifier('FINAL MLP', classifier_=self.final_model)
+        # self.add_classifier('BEST MLP', classifier_=self.best_model)
+        # self.add_classifier('FINAL MLP', classifier_=self.final_model)
         self.report()
