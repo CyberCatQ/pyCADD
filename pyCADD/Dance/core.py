@@ -2,20 +2,15 @@ import json
 import os
 from typing import Any, Callable
 
-import numpy as np
 import pandas as pd
 from pandas import DataFrame, Series
-from pyCADD.Dance.algorithm.default_params import (GBT_DEFAULT_PARAMS,
-                                                   LR_DEFAULT_PARAMS,
-                                                   RF_DEFAULT_PARAMS)
-from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score,
-                             precision_score, recall_score, roc_auc_score,
-                             roc_curve)
+
+from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import (GridSearchCV, RandomizedSearchCV,
-                                     RepeatedStratifiedKFold, train_test_split)
+                                     RepeatedStratifiedKFold)
 
 
-def hyperparam_tuning(model, param_gird: dict, X: DataFrame, y: Series, scoring: str = 'roc_auc', cv: int = 5, n_jobs: int = -1, method: str = 'grid', save_dir:str=None, model_name: str = None):
+def hyperparam_tuning(model, param_gird: dict, X: DataFrame, y: Series, scoring: str = 'roc_auc', cv: int = 5, n_jobs: int = -1, method: str = 'grid', save_dir: str = None, model_name: str = None):
     '''
     超参数调优
 
