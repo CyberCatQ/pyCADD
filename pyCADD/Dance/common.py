@@ -1,17 +1,16 @@
 import json
 import logging
 import os
-from typing import Any, Callable
+from typing import Any, Callable, Literal
 
 import numpy as np
 import pandas as pd
 from pandas import DataFrame, Series
-from pyCADD.Dance import algorithm, core
-from pyCADD.utils.tool import makedirs_from_list
+from pyCADD.Dance import core
 from pyCADD.Dance.algorithm.default_params import (GBT_DEFAULT_PARAMS,
                                                    LR_DEFAULT_PARAMS,
                                                    RF_DEFAULT_PARAMS)
-                                                
+from pyCADD.utils.tool import makedirs_from_list
 from rich.prompt import Confirm, Prompt
 from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score,
                              precision_score, recall_score, roc_auc_score,
@@ -22,8 +21,9 @@ logger = logging.getLogger('pyCADD.Dance.base')
 
 DATA_MINING_DIR = os.path.join(os.getcwd(), 'data_mining')
 DATA_PICKLE_DIR = os.path.join(DATA_MINING_DIR, 'data_pickle')
+DATA_CSV_DIR = os.path.join(DATA_MINING_DIR, 'data_csv')
 FIGURES_DIR = os.path.join(DATA_MINING_DIR, 'figures')
-MODELS_DIR = os.path.join(DATA_MINING_DIR, 'models')
+MODELS_DIR = os.path.join(DATA_MINING_DIR, 'models_pickle')
 PARAMS_DIR = os.path.join(DATA_MINING_DIR, 'models_params')
 
 
@@ -34,17 +34,153 @@ class Dancer:
     '''
 
     def __init__(self) -> None:
+        # 创建必要的目录
         makedirs_from_list(self._required_dirs)
-    
+        self.current_datasets = []
+        self.merged_data = None
+
     @property
     def _required_dirs(self):
         return [
             DATA_MINING_DIR,
             DATA_PICKLE_DIR,
+            DATA_CSV_DIR,
             FIGURES_DIR,
             MODELS_DIR,
             PARAMS_DIR
         ]
+
+    def _add_dataset(self, csv_path: str, activity: Literal['positive', 'negative'] = None, *args, **kwargs) -> None:
+        '''
+        增加样本数据集
+
+        Parameters
+        ----------
+        csv_path : str
+            样本数据集的路径
+        activity : Literal['positive', 'negative']
+            样本数据集的活性类型 None则为空
+        *args, **kwargs
+            其他参数 传入pd.read_csv()
+        '''
+        dataset = pd.read_csv(csv_path, *args, **kwargs)
+        # 丢弃所有特征缺失的行
+        dataset.dropna(axis=0, how='all', inplace=True)
+        self.current_datasets.append(
+            {'dataset': dataset, 'activity': activity})
+
+    def add_pos_dataset(self, csv_path: str) -> None:
+        '''
+        增加正样本数据集
+
+        Parameters
+        ----------
+        csv_path : str
+            正样本数据集的csv文件路径
+        '''
+        self._add_dataset(csv_path, 'positive', index_col=0)
+
+    def add_neg_dataset(self, csv_path: str) -> None:
+        '''
+        增加负样本数据集
+
+        Parameters
+        ----------
+        csv_path : str
+            负样本数据集的csv文件路径
+        '''
+        self._add_dataset(csv_path, 'negative', index_col=0)
+
+    def _add_label_col(self) -> None:
+        '''
+        增加活性对应的标签列
+        '''
+        for dataset in self.current_datasets:
+            if dataset['activity'] is None:
+                dataset['dataset']['activity'] = None
+            elif dataset['activity'] == 'positive':
+                dataset['dataset']['activity'] = 1
+            elif dataset['activity'] == 'negative':
+                dataset['dataset']['activity'] = 0
+
+    def _concat_datasets(self) -> DataFrame:
+        '''
+        合并数据集 保存在self.merged_data属性中 并返回合并数据
+        '''
+        if len(self.current_datasets) == 0:
+            raise ValueError('No datasets added.')
+        self._add_label_col()
+        self.merged_data = pd.concat(
+            [dataset['dataset'] for dataset in self.current_datasets])
+        return self.merged_data
+
+    def get_merged_data(self) -> DataFrame:
+        '''
+        返回合并数据集
+        '''
+        return self.merged_data
+
+    def _fill_nan(self, value: Any = 0, dataset: DataFrame = None, inplace: bool = False) -> None:
+        '''
+        返回填充缺失值的数据集
+
+        Parameters
+        ----------
+        value : Any
+            填充缺失值的值 默认为0
+        dataset : DataFrame
+            填充缺失值的数据集 默认为self.merged_data
+        '''
+        if dataset is None:
+            dataset = self.merged_data
+        if inplace:
+            dataset.fillna(value, inplace=True)
+            return None
+        else:
+            return dataset.fillna(value)
+
+    def prepare_data(self, fill_nan: bool = True, *args, **kwargs) -> None:
+        '''
+        准备数据集
+
+        Parameters
+        ----------
+        fill_nan : bool
+            是否填充缺失值 默认为True
+        *args, **kwargs
+            其他参数 传入self._fill_nan()
+            value可指定填充值 默认0
+        '''
+        self._concat_datasets()
+        if fill_nan:
+            self._fill_nan(*args, **kwargs)
+
+    def save_pickle(self, file_name: str, dataset: DataFrame = None) -> None:
+        '''
+        保存数据集
+        '''
+        dataset = dataset if dataset is not None else self.merged_data
+        dataset.to_pickle(os.path.join(DATA_PICKLE_DIR, file_name))
+
+    def save_csv(self, file_name: str, dataset: DataFrame = None) -> None:
+        '''
+        保存数据集
+        '''
+        dataset = dataset if dataset is not None else self.merged_data
+        dataset.to_csv(os.path.join(DATA_CSV_DIR, file_name))
+
+    def save(self, file_name: str, dataset: DataFrame = None) -> None:
+        '''
+        保存数据集
+        '''
+        dataset = dataset if dataset is not None else self.merged_data
+        if file_name.endswith('.csv'):
+            self.save_csv(file_name, dataset)
+        elif file_name.endswith('.pickle') or file_name.endswith('.pkl'):
+            self.save_pickle(file_name, dataset)
+        else:
+            raise ValueError('file_name must end with .csv or .pickle')
+
 
 class Matrix:
     '''
@@ -226,7 +362,7 @@ class Evaluator:
             params = json.load(f)
         return params
 
-    def save_params(self, file_name:str, params: dict) -> None:
+    def save_params(self, file_name: str, params: dict) -> None:
         '''
         保存参数文件
 
@@ -347,7 +483,7 @@ class Evaluator:
         print('=' * 50)
 
         splits = core._get_splits(self.X_train, self.y_train,
-                             n_repeats, k_folds, random_seed)
+                                  n_repeats, k_folds, random_seed)
         self.scp_score_df = core._get_cv_scp_score(
             splits, self.X_train, self.y_train, score_func=score_func)
         best_scp_score = self.scp_score_df.max().max()
