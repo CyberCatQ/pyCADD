@@ -16,7 +16,7 @@ from sklearn.model_selection import train_test_split
 
 logger = logging.getLogger('pyCADD.Dance.base')
 
-DATA_MINING_DIR = os.path.join(os.getcwd(), 'data_mining')
+DATA_MINING_DIR = os.path.join(os.getcwd(), 'dm_result')
 DATA_PICKLE_DIR = os.path.join(DATA_MINING_DIR, 'data_pickle')
 DATA_CSV_DIR = os.path.join(DATA_MINING_DIR, 'data_csv')
 FIGURES_DIR = os.path.join(DATA_MINING_DIR, 'figures')
@@ -61,6 +61,7 @@ class Dancer:
             其他参数 传入pd.read_csv()
         '''
         dataset = pd.read_csv(csv_path, *args, **kwargs)
+        dataset = dataset.sort_index(axis=1)
         # 丢弃所有特征缺失的行
         dataset.dropna(axis=0, how='all', inplace=True)
         self.current_datasets.append(
@@ -88,13 +89,24 @@ class Dancer:
         '''
         self._add_dataset(csv_path, 'negative', index_col=0)
 
+    def add_dataset(self, csv_path: str, *args, **kwargs) -> None:
+        '''
+        增加数据集
+
+        Parameters
+        ----------
+        csv_path : str
+            数据集的csv文件路径
+        '''
+        self._add_dataset(csv_path, index_col=0, *args, **kwargs)
+        
     def _add_label_col(self) -> None:
         '''
         增加活性对应的标签列
         '''
         for dataset in self.current_datasets:
             if dataset['activity'] is None:
-                dataset['dataset']['activity'] = None
+                dataset['dataset']['activity'] = 'Undefined'
             elif dataset['activity'] == 'positive':
                 dataset['dataset']['activity'] = 1
             elif dataset['activity'] == 'negative':
@@ -117,13 +129,13 @@ class Dancer:
         '''
         return self.merged_data
 
-    def _fill_nan(self, value: Any = 0, dataset: DataFrame = None, inplace: bool = False) -> None:
+    def _fill_nan(self, fill_na_value: Any = 0, dataset: DataFrame = None, inplace: bool = False) -> None:
         '''
         返回填充缺失值的数据集
 
         Parameters
         ----------
-        value : Any
+        fill_na_value : Any
             填充缺失值的值 默认为0
         dataset : DataFrame
             填充缺失值的数据集 默认为self.merged_data
@@ -131,10 +143,10 @@ class Dancer:
         if dataset is None:
             dataset = self.merged_data
         if inplace:
-            dataset.fillna(value, inplace=True)
+            dataset.fillna(fill_na_value, inplace=True)
             return None
         else:
-            return dataset.fillna(value)
+            return dataset.fillna(fill_na_value)
 
     def prepare_data(self, fill_nan: bool = True, *args, **kwargs) -> None:
         '''
@@ -150,7 +162,7 @@ class Dancer:
         '''
         self._concat_datasets()
         if fill_nan:
-            self._fill_nan(*args, **kwargs)
+            self._fill_nan(inplace=True, *args, **kwargs)
 
     def save_pickle(self, file_name: str, dataset: DataFrame = None) -> None:
         '''
