@@ -20,6 +20,12 @@ pyCADD Documentation
 
 .. toctree::
    :maxdepth: 2
+   :caption: Dance use guide
+
+   source/dance.md
+
+.. toctree::
+   :maxdepth: 2
    :caption: API Reference
 
    source/modules

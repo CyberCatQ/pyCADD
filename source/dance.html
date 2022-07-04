@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dance Quick Use Guide &mdash; pyCADD  文档</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/translations.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="pyCADD" href="modules.html" />
+    <link rel="prev" title="构建Dock输入文件时的规范" href="input_file_fmt.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> pyCADD
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="在文档中搜索" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Dock module input file format</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Dance use guide</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Dance Quick Use Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#data-preparation">Data preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#modeling-and-evaluation">Modeling and Evaluation</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pyCADD</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyCADD</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Dance Quick Use Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/source/dance.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dance-quick-use-guide">
+<h1>Dance Quick Use Guide<a class="headerlink" href="#dance-quick-use-guide" title="永久链接至标题"></a></h1>
+<section id="data-preparation">
+<h2>Data preparation<a class="headerlink" href="#data-preparation" title="永久链接至标题"></a></h2>
+<p>数据预处理部分。</p>
+<p>导入pyCADD.Dance模块的Dancer对象</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyCADD.Dance</span> <span class="kn">import</span> <span class="n">Dancer</span>
+<span class="n">dancer</span> <span class="o">=</span> <span class="n">Dancer</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>添加Ensemble Docking结果矩阵以进行预处理</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 阳性分子的结果矩阵</span>
+<span class="n">dancer</span><span class="o">.</span><span class="n">add_pos_dataset</span><span class="p">(</span><span class="s1">&#39;your_positive_matrix_path&#39;</span><span class="p">)</span>
+<span class="c1"># 阴性分子的结果矩阵</span>
+<span class="n">dancer</span><span class="o">.</span><span class="n">add_neg_dataset</span><span class="p">(</span><span class="s1">&#39;your_negative_matrix_path&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>如果数据集分子的活性未知，使用add_dataset方法添加数据集，活性标签将被设置为Undefined。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dancer</span><span class="o">.</span><span class="n">add_dataset</span><span class="p">(</span><span class="s1">&#39;your_matrix_path&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>使用prepare_data方法来快速完成数据预处理，包括合并所有添加的数据集，并以0填充缺失值。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dancer</span><span class="o">.</span><span class="n">prepare_data</span><span class="p">()</span>
+<span class="c1"># 如果不需要填充缺失值 使用</span>
+<span class="c1"># dancer.prepare_data(fill_na=False)</span>
+
+<span class="c1"># 如果需要指定其他值填充缺失值 使用</span>
+<span class="c1"># dancer.prepare_data(fill_na=True, fill_na_value=0)</span>
+</pre></div>
+</div>
+<p>返回并查看处理完成的合并数据</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dancer</span><span class="o">.</span><span class="n">get_merged_data</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>保存数据集到文件
+pickle文件将被保存至dm_reult/data_pickle/
+csv文件将被保存至dm_result/data_csv/</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># .pkl/.pickle or .csv</span>
+<span class="n">dancer</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;your_file_name&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="modeling-and-evaluation">
+<h2>Modeling and Evaluation<a class="headerlink" href="#modeling-and-evaluation" title="永久链接至标题"></a></h2>
+<p>建模与模型评估部分。</p>
+<p>导入pyCADD.Dance模块的Matrix与Evaluator对象</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyCADD.Dance</span> <span class="kn">import</span> <span class="n">Matrix</span><span class="p">,</span> <span class="n">Evaluator</span>
+</pre></div>
+</div>
+<p>载入预处理完成的数据集 并划分训练与测试集</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">matrix</span> <span class="o">=</span> <span class="n">Matrix</span><span class="o">.</span><span class="n">from_pickle</span><span class="p">(</span><span class="s1">&#39;your_file_name&#39;</span><span class="p">)</span>
+<span class="c1"># 也可以直接输入DataFrame 并指定随机种子</span>
+<span class="c1"># matrix = Matrix(your_dataframe)</span>
+<span class="c1"># 训练集与测试集划分 指定测试集比例、随机种子以及标签列名 下为默认值</span>
+<span class="c1"># matrix.split_train_test_data(test_size=0.25, random_seed=42, label_col=&#39;activity&#39;)</span>
+<span class="c1"># 查看训练集与测试集</span>
+<span class="c1"># train_data = matrix.get_train_data()</span>
+<span class="c1"># test_data = matrix.get_test_data()</span>
+</pre></div>
+</div>
+<p>使用划分好的数据集建立评估器实例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">evaluator</span> <span class="o">=</span> <span class="n">Evaluator</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>导入所有需要的模型 并创建模型实例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="c1"># from sklearn.ensemble import RandomForestClassifier</span>
+<span class="c1"># from xgboost import XGBClassifier</span>
+
+<span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
+<span class="c1"># rf = RandomForestClassifier()</span>
+<span class="c1"># xgb = XGBClassifier()</span>
+</pre></div>
+</div>
+<p>设定自定义的模型超参数网格空间
+pyCADD.Dance提供了LR RF 与 GBT的默认超参数 您也可以自主指定</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyCADD.Dance.algorithm</span> <span class="kn">import</span> <span class="n">default_params</span>
+<span class="n">default_lr_params</span> <span class="o">=</span> <span class="n">default_params</span><span class="o">.</span><span class="n">LR_DEFAULT_PARAMS</span>
+<span class="c1"># default_rf_params = default_params.RF_DEFAULT_PARAMS</span>
+<span class="c1"># default_gbt_params = default_params.GBT_DEFAULT_PARAMS</span>
+<span class="c1"># your_params_dict = {&#39;params1&#39;:params1, &#39;params2&#39;:params2, ...}</span>
+</pre></div>
+</div>
+<p>使用评估器实例执行超参数搜索 并将最佳超参数赋予模型</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">best_lr_params</span> <span class="o">=</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">search_params</span><span class="p">(</span><span class="n">lr</span><span class="p">,</span> <span class="n">default_lr_params</span><span class="p">)</span>
+<span class="c1"># best_rf_params = evaluator.search_params(rf, default_rf_params)</span>
+<span class="c1"># best_gbt_params = evaluator.search_params(gbt, default_gbt_params)</span>
+
+<span class="n">lr</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">best_lr_params</span><span class="p">)</span>
+<span class="c1"># rf.set_params(**best_rf_params)</span>
+<span class="c1"># gbt.set_params(**best_gbt_params)</span>
+</pre></div>
+</div>
+<p>将模型添加至评估器实例中 查看模型参数信息</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">evaluator</span><span class="o">.</span><span class="n">add_clf</span><span class="p">(</span><span class="n">lr</span><span class="p">,</span> <span class="s1">&#39;LR&#39;</span><span class="p">)</span>
+<span class="c1"># evaluator.add_clf(rf, &#39;RF&#39;)</span>
+<span class="c1"># evaluator.add_clf(gbt, &#39;GBT&#39;)</span>
+
+<span class="n">evaluator</span><span class="o">.</span><span class="n">print_classifier_info</span><span class="p">()</span>
+<span class="c1"># 获取所有已添加的模型dict</span>
+<span class="c1"># evaluator.get_clfs_dict()</span>
+</pre></div>
+</div>
+<p>使用训练集数据执行多重交叉验证 默认使用30次重复的4折交叉验证<br />关于 30x4 交叉验证 参阅<a class="reference external" href="https://pubs.acs.org/doi/10.1021/acs.jcim.1c00511">论文</a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 默认评分将使用sklearn.metrics 的 roc_auc_score 函数 可以自定义评分函数</span>
+<span class="c1"># from sklearn.metrics import roc_auc_score    </span>
+<span class="n">cv_results</span> <span class="o">=</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">repeat_cv</span><span class="p">(</span><span class="n">n_repeats</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">k_folds</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> 
+                                <span class="c1"># score_func=roc_auc_score</span>
+                                <span class="p">)</span>
+<span class="c1"># 返回值cv_results为字典类型 并被保存在evaluator.cv_results中 </span>
+<span class="c1"># 结果同步被保存于当前目录下的cv_results.json文件中</span>
+<span class="c1"># 执行 n x k次交叉验证 记录了每次的结果及单构象排序的最佳值、均值、最差值及标准误差</span>
+
+<span class="c1"># {&#39;best_scp: ...&#39;,</span>
+<span class="c1"># &#39;mean_scp: ...&#39;,</span>
+<span class="c1"># &#39;worst_scp: ...&#39;,</span>
+<span class="c1"># &#39;std_scp: ...&#39;,</span>
+<span class="c1"># &#39;clf_cv_results: {</span>
+<span class="c1">#                   &#39;LR&#39; : [...],</span>
+<span class="c1">#                   &#39;...&#39; : [...],</span>
+<span class="c1">#                  }</span>
+<span class="c1"># }</span>
+
+<span class="c1"># 使用print_cv_results函数打印交叉验证结果</span>
+<span class="n">evaluator</span><span class="o">.</span><span class="n">print_cv_results</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>使用测试集数据执行模型测试 并计算模型的评分</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">evaluator</span><span class="o">.</span><span class="n">testset_eval</span><span class="p">()</span>
+<span class="c1"># 结果被保存于当前目录下的testset_eval_results.json文件中</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="input_file_fmt.html" class="btn btn-neutral float-left" title="构建Dock输入文件时的规范" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="modules.html" class="btn btn-neutral float-right" title="pyCADD" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2022, Yuhang.W.</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用了 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a>开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

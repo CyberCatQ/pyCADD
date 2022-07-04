@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD.Dock.data &mdash; pyCADD 1.5.2 文档</title>
+  <title>pyCADD.Dock.data &mdash; pyCADD  文档</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -35,7 +35,15 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Dock module input file format</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Dance use guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/dance.html">Dance Quick Use Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">pyCADD</a></li>
 </ul>
@@ -474,6 +482,7 @@
         <span class="n">redock_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_redock_df</span><span class="p">(</span><span class="n">refefence_datalist</span><span class="p">)</span>
         
         <span class="n">final_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">template_df</span><span class="p">,</span> <span class="n">redock_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;PDB&#39;</span><span class="p">,</span> <span class="s1">&#39;Reference_Ligand&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+        <span class="n">final_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">report_save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;reference_data.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">final_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_img</span><span class="p">(</span><span class="n">final_df</span><span class="p">,</span> <span class="s1">&#39;Reference_Ligand&#39;</span><span class="p">,</span> <span class="n">ligand_save_dir</span><span class="p">)</span>
 
         <span class="c1"># 处理对接数据</span>

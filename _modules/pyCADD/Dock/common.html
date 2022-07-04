@@ -35,13 +35,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">README</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../README.html">pyCADD</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Dock module input file format</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Dock module input file format</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../source/input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Dance use guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/dance.html">Dance Quick Use Guide</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
@@ -804,7 +804,12 @@
 <span class="sd">        config_file : str</span>
 <span class="sd">            配置文件路径</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-
+        <span class="k">if</span> <span class="n">config_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">):</span>
+            <span class="n">input_file</span> <span class="o">=</span> <span class="n">MultiInputFile</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+            <span class="n">input_file</span><span class="o">.</span><span class="n">mappings</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">pdb</span><span class="p">,</span> <span class="n">lig</span> <span class="ow">in</span> <span class="n">input_file</span><span class="o">.</span><span class="n">pairs_list</span><span class="p">:</span>
+                <span class="n">input_file</span><span class="o">.</span><span class="n">mappings</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;receptor&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;pdb&#39;</span><span class="p">:</span> <span class="n">pdb</span><span class="p">,</span> <span class="s1">&#39;ligand&#39;</span><span class="p">:</span> <span class="n">lig</span><span class="p">})</span>
+            <span class="k">return</span> <span class="n">input_file</span>
         <span class="k">if</span> <span class="n">config_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;ini&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">config_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;in&#39;</span><span class="p">):</span>
             <span class="n">pdbid_list</span><span class="p">,</span> <span class="n">pairs_list</span><span class="p">,</span> <span class="n">mappings</span> <span class="o">=</span> <span class="n">MultiInputFile</span><span class="o">.</span><span class="n">_parse_from_cfg</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">config_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;yaml&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">config_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;yml&#39;</span><span class="p">):</span>

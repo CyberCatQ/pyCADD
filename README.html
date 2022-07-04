@@ -18,9 +18,7 @@
         <script src="_static/translations.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="索引" href="genindex.html" />
-    <link rel="search" title="搜索" href="search.html" />
-    <link rel="next" title="pyCADD" href="source/modules.html" />
-    <link rel="prev" title="pyCADD Documentation" href="index.html" /> 
+    <link rel="search" title="搜索" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -38,35 +36,13 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">README</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">pyCADD</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#id1">功能特性</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">更新日志</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#platform">Platform</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#required">Required</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#attention">！Attention</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#python-version">Python Version</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#python-modules">Python Modules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#note">NOTE:</a></li>
+              <p class="caption" role="heading"><span class="caption-text">Dock module input file format</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/input_file_fmt.html">构建Dock输入文件时的规范</a></li>
 </ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#pycadd-function">pyCADD Function</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#how-to-use">How to Use</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id3"><strong>注意</strong></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick Start</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#docking-of-many-to-one-function">Docking of Many-to-One Function</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#docking-of-one-to-many-function">Docking of One-to-Many Function</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id4">注意：</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#gaussian-calculation-module">Gaussian Calculation Module</a></li>
-</ul>
-</li>
+<p class="caption" role="heading"><span class="caption-text">Dance use guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="source/dance.html">Dance Quick Use Guide</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
@@ -113,27 +89,30 @@
 <section id="id2">
 <h2>更新日志<a class="headerlink" href="#id2" title="永久链接至标题"></a></h2>
 <ul class="simple">
-<li><p>1.5.2</p>
+<li><p>1.5.4 (2022-07-04)</p>
+<ul>
+<li><p>基于在 jupyter notebook 中的应用需要，重构了Dance模块，简化了相关逻辑</p></li>
+<li><p>移除了Dance的UI 完全使用库导入的方式</p></li>
+<li><p>为项目文档增加了Dance的 Use Guide</p></li>
+</ul>
+</li>
+<li><p>1.5.3 (2022-06-12)</p>
+<ul>
+<li><p>修复了Dance模块的一些已知BUG</p></li>
+</ul>
+</li>
+<li><p>1.5.2 (2022-06-01)</p>
 <ul>
 <li><p>修复MLP模型的BUG</p></li>
 <li><p>修复获取预测结构函数的BUG</p></li>
 <li><p>添加获取预测结构的CLI支持</p></li>
+<li><p>修复旧版本ConcurrentlogHandler导致的死锁BUG, 不再限制setuptools的版本</p></li>
 </ul>
 </li>
 <li><p>1.5.1 (2022-05-18)</p>
 <ul>
 <li><p>完全重构query模块 输入方式修改为Uniprot ID</p></li>
 <li><p>增加CLI快速调用接口</p></li>
-</ul>
-</li>
-<li><p>1.5.0 (2022-05-12)</p>
-<ul>
-<li><p>重新以面向对象化方式完全重构 Dock 模块 降低耦合度</p></li>
-<li><p>修改了输入文件逻辑</p></li>
-<li><p>将 Multidock 与 Dock 合并为单一模块 移除了 Multidock 的用户界面(UI)</p></li>
-<li><p>增加了 Dock/Multidock 的命令行接口(CLI) 比起UI更加快速、便捷、易用</p></li>
-<li><p>增加了 Dance 模块的机器学习与深度学习模型支持及简易性能评估(基于AUC)</p></li>
-<li><p>增加了 Dance 模块的标准化数据集性能快速评估工作流(evaluate_workflow)</p></li>
 </ul>
 </li>
 </ul>
@@ -347,10 +326,7 @@
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="pyCADD Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
-        <a href="source/modules.html" class="btn btn-neutral float-right" title="pyCADD" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 
