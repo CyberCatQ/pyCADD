@@ -11,6 +11,11 @@ pyCADD
 * 支持CLI快速调用
 
 ## 更新日志
+* 1.5.4 (2022-07-04)
+  * 基于在 jupyter notebook 中的应用需要，重构了Dance模块，简化了相关逻辑
+  * 移除了Dance的UI 完全使用库导入的方式
+  * 为项目文档增加了Dance的 Use Guide
+
 * 1.5.3 (2022-06-12)
   * 修复了Dance模块的一些已知BUG
 
@@ -23,14 +28,6 @@ pyCADD
 * 1.5.1 (2022-05-18) 
   * 完全重构query模块 输入方式修改为Uniprot ID
   * 增加CLI快速调用接口
-
-* 1.5.0 (2022-05-12) 
-  * 重新以面向对象化方式完全重构 Dock 模块 降低耦合度
-  * 修改了输入文件逻辑 
-  * 将 Multidock 与 Dock 合并为单一模块 移除了 Multidock 的用户界面(UI)
-  * 增加了 Dock/Multidock 的命令行接口(CLI) 比起UI更加快速、便捷、易用
-  * 增加了 Dance 模块的机器学习与深度学习模型支持及简易性能评估(基于AUC)
-  * 增加了 Dance 模块的标准化数据集性能快速评估工作流(evaluate_workflow)
 
 ## Platform  
 

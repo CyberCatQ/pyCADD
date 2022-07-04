@@ -13,7 +13,6 @@ def main():
         '1. Dock Mode',
         '2. VSW',
         '3. Gaussian Calculation',
-        '4. Dance (Data Analyzer)',
         '0. Exit'
     ]
     ui.create_panel(options)
@@ -38,8 +37,5 @@ def main():
     elif flag == '3':
         os.system('python -m pyCADD.Gauss')
         
-    elif flag == '4':
-        os.system('python -m pyCADD.Dance')
-
 if __name__ == '__main__':
     main()
