@@ -7,9 +7,7 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame, Series
 from pyCADD.Dance import core
-from pyCADD.Dance.algorithm.default_params import (GBT_DEFAULT_PARAMS,
-                                                   LR_DEFAULT_PARAMS,
-                                                   RF_DEFAULT_PARAMS)
+from pyCADD.Dance.algorithm import default_params
 from pyCADD.utils.tool import makedirs_from_list
 from rich.prompt import Confirm, Prompt
 from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score,
@@ -316,21 +314,21 @@ class Evaluator:
         '''
         默认GBT参数空间
         '''
-        return GBT_DEFAULT_PARAMS
+        return default_params.GBT_DEFAULT_PARAMS
 
     @property
     def lr_default_params(self) -> dict:
         '''
         默认LR参数空间
         '''
-        return LR_DEFAULT_PARAMS
+        return default_params.LR_DEFAULT_PARAMS
 
     @property
     def rf_default_params(self) -> dict:
         '''
         默认RF参数空间
         '''
-        return RF_DEFAULT_PARAMS
+        return default_params.RF_DEFAULT_PARAMS
 
     @staticmethod
     def get_weights(y: Series) -> Series:
