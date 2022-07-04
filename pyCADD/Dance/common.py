@@ -9,7 +9,6 @@ from pandas import DataFrame, Series
 from pyCADD.Dance import core
 from pyCADD.Dance.algorithm import default_params
 from pyCADD.utils.tool import makedirs_from_list
-from rich.prompt import Confirm, Prompt
 from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score,
                              precision_score, recall_score, roc_auc_score,
                              roc_curve)
