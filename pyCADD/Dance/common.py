@@ -260,7 +260,7 @@ class Matrix:
         cls_instance.test_data = test_data
         return cls_instance
 
-    def split_train_test_data(self, test_size: float = None, random_seed: int = None, label_col: str = 'activity') -> tuple[DataFrame, DataFrame]:
+    def split_train_test_data(self, test_size: float = None, random_seed: int = None, label_col: str = 'activity') -> tuple:
         '''
         划分训练集和测试集数据
         '''
@@ -353,6 +353,24 @@ class Evaluator:
             _weights.append(1 / label_to_count[label])
         return _weights
 
+    def get_lr_default_params(self) -> dict:
+        '''
+        获取默认LR参数空间
+        '''
+        return self.lr_default_params
+    
+    def get_rf_default_params(self) -> dict:
+        '''
+        获取默认RF参数空间
+        '''
+        return self.rf_default_params
+
+    def get_gbt_default_params(self) -> dict:
+        '''
+        获取默认GBT参数空间
+        '''
+        return self.gbt_default_params
+
     def load_params(self, path: str) -> dict:
         '''
         加载参数文件
@@ -434,9 +452,9 @@ class Evaluator:
         '''
         return self.clfs[clf_name]
 
-    def get_clfs_list(self) -> dict:
+    def get_clfs_dict(self) -> dict:
         '''
-        获取分类器实例列表
+        获取分类器实例字典
         '''
         return self.clfs
 

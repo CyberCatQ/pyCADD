@@ -1,8 +1,8 @@
 # Default Hyperparameter Grids of Machine Learning Models
 
 GBT_DEFAULT_PARAMS =  {
-            'gpu_id': [0],
-            'tree_method': ['gpu_hist'],
+            # 'gpu_id': [0],
+            # 'tree_method': ['gpu_hist'],
             'n_estimators': [200, 250, 300],
             'max_depth': [3, 5, 10, 20],
             'gamma': [0.01, 0.1, 0.5, 1],
