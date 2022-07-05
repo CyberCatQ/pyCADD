@@ -9,7 +9,7 @@ import sys
 from rich.prompt import Confirm
 
 logger = logging.getLogger(__name__)
-ratio = 27.2114313131
+RATIO = 27.2114313131
 
 def generate_opt(original_st: str, charge: int, multiplicity: int, dft: str = 'B3LYP', basis_set: str = '6-31g*', solvent: str = 'water', loose: bool = True, correct: bool = True, td: bool = False, freq:bool=False):
     '''
@@ -346,10 +346,10 @@ def get_mo(fchk_file: str):
     mo_pipe.stdout.close()
         
     homo_index = int(re.search(r'[ \d]+(?=is HOMO)', mo_info).group().strip())
-    homo_energy = '%.6f' % (float(re.search(r'(?<=is HOMO, energy:)[-\d. ]+', mo_info).group().strip()) * ratio)
+    homo_energy = '%.6f' % (float(re.search(r'(?<=is HOMO, energy:)[-\d. ]+', mo_info).group().strip()) * RATIO)
     lumo_index = int(re.search(r'[ \d]+(?=is LUMO)', mo_info).group().strip())
-    lumo_energy = '%.6f' % (float(re.search(r'(?<=is LUMO, energy:)[-\d. ]+', mo_info).group().strip()) * ratio)
-    gap = '%.6f' % (float(re.search(r'(?<=HOMO-LUMO gap:)[-\d. ]+', mo_info).group().strip()) * ratio)
+    lumo_energy = '%.6f' % (float(re.search(r'(?<=is LUMO, energy:)[-\d. ]+', mo_info).group().strip()) * RATIO)
+    gap = '%.6f' % (float(re.search(r'(?<=HOMO-LUMO gap:)[-\d. ]+', mo_info).group().strip()) * RATIO)
 
     return {'homo': {'index': homo_index, 'energy': homo_energy}, 'lumo': {'index': lumo_index, 'energy': lumo_energy}, 'gap': gap}
 
