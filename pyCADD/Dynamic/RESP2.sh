@@ -64,7 +64,7 @@ cat << EOF > gau.gjf
 %chk=gau.chk
 $keyword_opt
 
-test
+structure optimization
 
 $chg $multi
 EOF

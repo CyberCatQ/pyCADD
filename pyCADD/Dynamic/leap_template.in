@@ -1,0 +1,32 @@
+source leaprc.protein.ff14SB
+source leaprc.gaff2
+source leaprc.water.tip3p
+
+############Ligand############
+loadamberprep {prepin_file_path}
+loadamberparams {frcmod_file_path}
+lig = loadpdb {ligand_file_path}
+saveamberparm lig {file_prefix}lig.prmtop {file_prefix}lig.inpcrd
+##############################
+
+############Protein###########
+pro = loadpdb {protein_file_path}
+saveamberparm pro {file_prefix}pro.prmtop {file_prefix}pro.inpcrd
+##############################
+
+COM = combine {pro_lig}
+savepdb COM {file_prefix}com.pdb
+
+##########Complex#############
+com = loadpdb {file_prefix}com.pdb
+saveamberparm com {file_prefix}com.prmtop {file_prefix}com.inpcrd
+solvatebox com TIP3PBOX 12.0 0.75
+check com
+addions com Na+ 0
+addions com Cl- 0
+saveamberparm com {file_prefix}comsolvate.prmtop {file_prefix}comsolvate.inpcrd
+##############################
+
+
+quit
+

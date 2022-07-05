@@ -425,7 +425,7 @@ class ComplexFile(MaestroFile):
 
         return mol.number
 
-    def split(self, ligname:str=None, protein_dir:str=None, ligand_dir:str=None, complex_dir:str=None) -> tuple:
+    def split(self, ligname:str=None, protein_dir:str=None, ligand_dir:str=None, complex_dir:str=None, save_fmt:str='pdb') -> tuple:
         '''
         将Maestro文件分割为受体与配体
 
@@ -439,6 +439,8 @@ class ComplexFile(MaestroFile):
             配体文件保存路径
         complex_dir : str
             复合物文件保存路径
+        save_fmt : str
+            保存文件的格式 默认为pdb
 
         Return
         ----------
@@ -464,9 +466,10 @@ class ComplexFile(MaestroFile):
 
         complex_file = pvc.Complex(st, ligand_asl=_residue.getAsl(), ligand_properties=st.property.keys())
 
-        _lig_file = os.path.join(ligand_save_dir, f'{pdbid}-lig-{ligname}.mae')
-        _recep_file = os.path.join(protein_save_dir, f'{pdbid}-pro-{ligname}.mae')
-        _complex_file = os.path.join(complex_save_dir, f'{pdbid}-com-{ligname}.mae')
+        save_fmt = save_fmt if save_fmt.lower() == 'pdb' else 'mae'
+        _lig_file = os.path.join(ligand_save_dir, f'{pdbid}-lig-{ligname}.{save_fmt}')
+        _recep_file = os.path.join(protein_save_dir, f'{pdbid}-pro-{ligname}.{save_fmt}')
+        _complex_file = os.path.join(complex_save_dir, f'{pdbid}-com-{ligname}.{save_fmt}')
 
         complex_file.writeLigand(_lig_file)
         complex_file.writeReceptor(_recep_file) 
