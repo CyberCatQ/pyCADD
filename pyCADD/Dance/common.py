@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import pickle
 from typing import Any, Callable, Literal
 
 import numpy as np
@@ -627,34 +628,12 @@ class Evaluator:
         testset_eval_results = {}
         print('\nTestset Evaluation')
         print('='*50)
+
         for clf_name, clf in self.clfs.items():
-            print('-' * 50)
-            print(f'Evaluating {clf_name} ...')
-
-            clf.fit(self.X_train, self.y_train)
-
-            if isinstance(clf, consensus._Consensus):
-                # 共识性方法预测与真阳性样本相同数量的样本为阳性
-                y_pred = clf.predict(self.X_test, limit_num=self.y_test.sum())
-                y_proba = clf.predict_proba(self.X_test)[:, 1]
-            else:
-                y_pred = clf.predict(self.X_test)
-                y_proba = clf.predict_proba(self.X_test)[:, 1]
-
-            clf_eval_result = self._eval_single_clf(
-                self.y_test, y_pred, y_proba)
-            testset_eval_results[clf_name] = clf_eval_result
-
-            print('-' * 50)
-            print(f'{clf_name} Evaluation Result:')
-            print(f'AUC: {clf_eval_result["auc"]}')
-            print(f'F1: {clf_eval_result["f1"]}')
-            print(f'Accuracy: {clf_eval_result["accuracy"]}')
-            print(f'Precision: {clf_eval_result["precision"]}')
-            print(f'Recall: {clf_eval_result["recall"]}')
-            print('Confusion Matrix:')
-            print(confusion_matrix(self.y_test, y_pred))
-            print('-' * 50)
+            clf.fit(self.X_train, self.y_train)                             # 训练模型
+            testset_eval_results.update(self._testset_eval(clf_name, clf))  # 评估模型
+            self._save_model(clf_name, clf)                                 # 保存模型
+            
         print('='*50)
         print('Testset Evaluation Finished.')
         print('='*50)
@@ -663,3 +642,67 @@ class Evaluator:
             json.dump(testset_eval_results, f)
 
         return testset_eval_results
+
+    def _testset_eval(self, clf_name, clf) -> dict:
+        '''
+        利用测试集数据测试单个分类器的性能
+
+        Parameters
+        ----------
+        clf_name : str  
+            分类器名称
+        clf : Classifier
+            分类器
+
+        Returns
+        -------
+        dict
+            分类器的评估结果
+
+        '''
+
+        _test_results = {}
+
+        print('-' * 50)
+        print(f'Evaluating {clf_name} ...')
+
+        if isinstance(clf, consensus._Consensus):
+            # 共识性方法预测与真阳性样本相同数量的样本为阳性
+            y_pred = clf.predict(self.X_test, limit_num=self.y_test.sum())
+            y_proba = clf.predict_proba(self.X_test)[:, 1]
+        else:
+            y_pred = clf.predict(self.X_test)
+            y_proba = clf.predict_proba(self.X_test)[:, 1]
+
+        clf_eval_result = self._eval_single_clf(
+                self.y_test, y_pred, y_proba)
+
+        _test_results[clf_name] = clf_eval_result
+
+        print('-' * 50)
+        print(f'{clf_name} Evaluation Result:')
+        print(f'AUC: {clf_eval_result["auc"]}')
+        print(f'F1: {clf_eval_result["f1"]}')
+        print(f'Accuracy: {clf_eval_result["accuracy"]}')
+        print(f'Precision: {clf_eval_result["precision"]}')
+        print(f'Recall: {clf_eval_result["recall"]}')
+        print('Confusion Matrix:')
+        print(confusion_matrix(self.y_test, y_pred))
+        print('-' * 50)
+
+        return _test_results
+    
+    def _save_model(self, clf_name, clf):
+        '''
+        保存模型为pkl文件
+
+        Parameters
+        ----------
+        clf_name : str
+            分类器名称
+        clf : Classifier
+            分类器
+        '''
+        file_path = os.path.join(MODELS_DIR, f'{clf_name}.pkl')
+        with open(file_path, 'wb') as f:
+            pickle.dump(clf, f)
