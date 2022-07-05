@@ -4,6 +4,8 @@ import logging
 
 import pandas as pd
 from typing import List
+from pyCADD.utils.common import BaseFile
+
 from schrodinger import structure as struc
 from schrodinger.structure import StructureReader, StructureWriter, Structure
 from schrodinger.job import jobcontrol as jc
@@ -102,22 +104,6 @@ def get_predict_structure(predict_file, output_file:str=None):
 
     with StructureWriter(output_file) as writer:
         writer.extend(ligand_sts)
-
-class BaseFile:
-    '''
-    基本文件类型
-    '''
-    def __init__(self, path) -> None:
-
-        if not os.path.exists(path):
-            raise FileNotFoundError('File %s not found' % path)
-
-        self.file_path = os.path.abspath(path)
-        self.file_name = os.path.split(self.file_path)[-1]
-        self.file_dir = os.path.split(self.file_path)[0]
-        self.file_ext = os.path.splitext(self.file_name)[-1]
-        self.file_prefix = os.path.splitext(self.file_name)[0]
-        self.file_suffix = self.file_ext
 
 class PDBFile(BaseFile):
     '''
