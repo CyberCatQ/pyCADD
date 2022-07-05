@@ -23,7 +23,7 @@ LR_DEFAULT_PARAMS = {
 RF_DEFAULT_PARAMS = {
             'n_estimators': [200, 250, 300],
             'max_depth': [3, 5, 10, 20],
-            'max_features': ['auto', 'sqrt', 'log2'],
+            'max_features': ['sqrt', 'log2'],
             'min_samples_split': [2, 5, 10],
             'min_samples_leaf': [1, 2, 5],
         }

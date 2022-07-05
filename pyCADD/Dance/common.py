@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame, Series
 from pyCADD.Dance import core
-from pyCADD.Dance.algorithm import default_params
+from pyCADD.Dance.algorithm import default_params, consensus
 from pyCADD.utils.tool import makedirs_from_list
 from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score,
                              precision_score, recall_score, roc_auc_score,
@@ -99,7 +99,7 @@ class Dancer:
             数据集的csv文件路径
         '''
         self._add_dataset(csv_path, index_col=0, *args, **kwargs)
-        
+
     def _add_label_col(self) -> None:
         '''
         增加活性对应的标签列
@@ -358,7 +358,7 @@ class Evaluator:
         获取默认LR参数空间
         '''
         return self.lr_default_params
-    
+
     def get_rf_default_params(self) -> dict:
         '''
         获取默认RF参数空间
@@ -631,8 +631,16 @@ class Evaluator:
             print('-' * 50)
             print(f'Evaluating {clf_name} ...')
 
-            y_pred = clf.predict(self.X_test)
-            y_proba = clf.predict_proba(self.X_test)[:, 1]
+            clf.fit(self.X_train, self.y_train)
+
+            if isinstance(clf, consensus._Consensus):
+                # 共识性方法预测与真阳性样本相同数量的样本为阳性
+                y_pred = clf.predict(self.X_test, limit_num=self.y_test.sum())
+                y_proba = clf.predict_proba(self.X_test)[:, 1]
+            else:
+                y_pred = clf.predict(self.X_test)
+                y_proba = clf.predict_proba(self.X_test)[:, 1]
+
             clf_eval_result = self._eval_single_clf(
                 self.y_test, y_pred, y_proba)
             testset_eval_results[clf_name] = clf_eval_result

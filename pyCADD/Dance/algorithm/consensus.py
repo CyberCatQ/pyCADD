@@ -21,7 +21,10 @@ class _Consensus:
         self.result = None
         self.lower_is_better = lower_is_better
 
-        self.params = {'lower_is_better': self.lower_is_better}
+        self.params = {
+            'class' : 'Consensus Strategy',
+            'lower_is_better': self.lower_is_better,
+            }
 
     def get_params(self):
         '''
@@ -35,9 +38,23 @@ class _Consensus:
         '''
         raise NotImplementedError
 
-    def predict(self, X: DataFrame = None, y: Series = None):
+    def predict(self, X: DataFrame, y: Series = None, limit_num: int = None):
         '''
         按照算法进行预测
+
+        Parameters
+        ----------
+        X : DataFrame
+            输入数据
+        y : Series
+            输入数据的标签
+        limit_num : int
+            预测结果的数量n 排名前n的结果将被断言为阳性
+
+        Returns
+        -------
+        Series
+            预测结果
         '''
         # 共识性方法实际并不进行拟合
         # 而是根据公式计算出预测结果
@@ -47,7 +64,26 @@ class _Consensus:
         if self.result is None:
             raise RuntimeError(
                 f'Result is None while using {self.__class__.__name__} method to predict. X is required.')
-        return self.result
+
+        _predict_df = self.result.reset_index()
+        _predict_df.columns = ['index', 'probability']
+        _predict_df.sort_values(by='probability', ascending=False, inplace=True)
+        _predict_df['prediction'] = np.nan
+
+        if limit_num is None:
+            if y is None:
+                raise ValueError('y is required when limit_num is None.')
+            print(
+                f'No limit_num specified, TOP {y.sum()} results (same as the number of true positive samples) will be predicted as positive.')
+            limit_num = y.sum()
+
+        _predict_df.iloc[:limit_num, -1] = 1
+        _predict_df.iloc[limit_num:, -1] = 0
+
+        _predict_df.sort_index(inplace=True)
+        _predict_df.set_index('index', inplace=True)
+
+        return _predict_df.loc[:, 'prediction']
 
     def predict_proba(self, X: DataFrame = None, y: Series = None):
         '''
