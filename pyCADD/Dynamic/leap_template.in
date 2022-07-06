@@ -6,25 +6,25 @@ source leaprc.water.tip3p
 loadamberprep {prepin_file_path}
 loadamberparams {frcmod_file_path}
 lig = loadpdb {ligand_file_path}
-saveamberparm lig {file_prefix}lig.prmtop {file_prefix}lig.inpcrd
+saveamberparm lig {file_prefix}_lig.prmtop {file_prefix}_lig.inpcrd
 ##############################
 
 ############Protein###########
 pro = loadpdb {protein_file_path}
-saveamberparm pro {file_prefix}pro.prmtop {file_prefix}pro.inpcrd
+saveamberparm pro {file_prefix}_pro.prmtop {file_prefix}_pro.inpcrd
 ##############################
 
 COM = combine {pro_lig}
-savepdb COM {file_prefix}com.pdb
+savepdb COM {file_prefix}_com.pdb
 
 ##########Complex#############
-com = loadpdb {file_prefix}com.pdb
-saveamberparm com {file_prefix}com.prmtop {file_prefix}com.inpcrd
+com = loadpdb {file_prefix}_com.pdb
+saveamberparm com {file_prefix}_com.prmtop {file_prefix}_com.inpcrd
 solvatebox com TIP3PBOX 12.0 0.75
 check com
 addions com Na+ 0
 addions com Cl- 0
-saveamberparm com {file_prefix}comsolvate.prmtop {file_prefix}comsolvate.inpcrd
+saveamberparm com {file_prefix}_comsolvate.prmtop {file_prefix}_comsolvate.inpcrd
 ##############################
 
 
