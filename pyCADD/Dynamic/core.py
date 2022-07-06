@@ -6,6 +6,7 @@ from pyCADD.Gauss.base import Gauss
 CWD = os.getcwd()
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 CPU_NUM = os.cpu_count()
+SANDER = 'pmemd.cuda'
 
 
 def _system_call(cmd: str) -> None:
@@ -35,6 +36,22 @@ def _convert_mae_to_pdb(mae_file_path: str) -> None:
     '''
     script_path = os.path.join(SCRIPT_DIR, 'mae2pdb.sh')
     _system_call(f'{script_path} {mae_file_path}')
+
+
+def _creat_file_from_template(template_file_path: str, output_file_path: str, **kwarg):
+    '''
+    从模板文件中读取模板信息
+    并替换为指定内容 从而创建定制文件
+    '''
+    with open(template_file_path, 'r') as f:
+        template = f.read()
+
+    output_file_text = template.format(**kwarg)
+
+    with open(output_file_path, 'w') as f:
+        f.write(output_file_text)
+
+    return BaseFile(output_file_path)
 
 
 def protein_prepare(protein_file: BaseFile, save_dir: str = None) -> BaseFile:
@@ -175,11 +192,12 @@ def _creat_leap_inputfile(
     '''
     save_dir = save_dir if save_dir is None else CWD
 
-    tamplete_file_path = os.path.join(SCRIPT_DIR, 'leap_template.in')
-    with open(tamplete_file_path, 'r') as f:
-        template = f.read()
+    tamplete_file_path = os.path.join(
+        SCRIPT_DIR, 'template', 'leap_template.in')
+    input_file_path = os.path.join(save_dir, prefix + '_leap.in')
 
-    input_file_text = template.format(
+    input_file = _creat_file_from_template(
+        tamplete_file_path, input_file_path,
         ligand_file_path=ligand_file_path,
         prepin_file_path=prepin_file_path,
         frcmod_file_path=frcmod_file_path,
@@ -188,11 +206,7 @@ def _creat_leap_inputfile(
         file_prefix=prefix
     )
 
-    input_file_path = os.path.join(save_dir, prefix + '_leap.in')
-    with open(input_file_path, 'w') as f:
-        f.write(input_file_text)
-
-    return BaseFile(input_file_path)
+    return input_file
 
 
 def leap_prepare(prefix: str, ligand_file: BaseFile, prepin_file: BaseFile, frcmod_file: BaseFile, protein_file: BaseFile, save_dir: str = None) -> None:
@@ -236,3 +250,183 @@ def leap_prepare(prefix: str, ligand_file: BaseFile, prepin_file: BaseFile, frcm
         save_dir, prefix + '_comsolvate.pdb')
     _system_call(
         f'ambpdb -p {comsolvate_topfile_path} < {comsolvate_crdfile_path} > {comsolvate_pdbfile_path}')
+
+
+def _get_water_resnum(comsolvate_pdbfile: BaseFile) -> list:
+    '''
+    获取水箱复合物的全部水分子Residue Number
+
+    Parameters
+    -----------
+    comsolvate_pdbfile : BaseFile
+        水箱复合物PDB文件
+
+    Returns
+    -----------
+    list
+        水分子Residue Number列表
+    '''
+    return os.popen(
+        "cat %s | grep WAT -w | awk '{print $5}'" % comsolvate_pdbfile.file_path).read().splitlines()
+
+
+def _creat_md_inputfile(
+        water_resnum: list,
+        step_num: int = 50000,
+        step_length: float = 0.002,
+        save_dir: str = None) -> tuple:
+    '''
+    创建分子动力学模拟过程的输入文件
+        Step A: 约束主链能量最小化
+        Step B: 约束非主链能量最小化
+        Step C: 无约束能量最小化
+        Step nvt: 体系恒容恒压加热100ps
+        Step npt: 主模拟
+
+    Parameters
+    -----------
+    water_resnum : list
+        水分子Residue Number列表
+    step_num : int
+        模拟步数
+    step_length : float
+        模拟步长
+    save_dir : str, optional
+        保存路径 默认为当前目录
+
+    Returns
+    -----------
+    tuple[BaseFile, BaseFile, BaseFile, BaseFile, BaseFile]
+        分子动力学模拟过程的输入文件
+        step A, B, C, nvt, npt
+    '''
+    template_dir = os.path.join(SCRIPT_DIR, 'template')
+    step_a_temfile_path = os.path.join(template_dir, 'stepA.in')
+    step_b_temfile_path = os.path.join(template_dir, 'stepB.in')
+    step_c_temfile_path = os.path.join(template_dir, 'stepC.in')
+    step_nvt_temfile_path = os.path.join(template_dir, 'step_nvt.in')
+    step_npt_temfile_path = os.path.join(template_dir, 'step_npt.in')
+
+    water_resnum_start = int(water_resnum[0])
+    water_resnum_end = int(water_resnum[-1])
+
+    # setp A input file
+    step_a_inputfile_path = os.path.join(save_dir, 'stepA.in')
+    # 限制主链能量最小化
+    step_a_restraintmask = f"':1-{water_resnum_start-1}'"
+    step_a_inputfile = _creat_file_from_template(
+        step_a_temfile_path, step_a_inputfile_path,
+        restraintmask=step_a_restraintmask
+    )
+
+    # step B input file
+    step_b_inputfile_path = os.path.join(save_dir, 'stepB.in')
+    # 限制非主链能量最小化
+    step_b_restraintmask = f"':{water_resnum_start}:{water_resnum_end}'"
+    step_b_inputfile = _creat_file_from_template(
+        step_b_temfile_path, step_b_inputfile_path,
+        restraintmask=step_b_restraintmask
+    )
+
+    # step C input file
+    step_c_inputfile_path = os.path.join(save_dir, 'stepC.in')
+    step_c_inputfile = _creat_file_from_template(
+        step_c_temfile_path, step_c_inputfile_path
+    )
+
+    # step nvt input file
+    step_nvt_inputfile_path = os.path.join(save_dir, 'step_nvt.in')
+    step_nvt_inputfile = _creat_file_from_template(
+        step_nvt_temfile_path, step_nvt_inputfile_path,
+    )
+
+    # step npt input file
+    step_npt_inputfile_path = os.path.join(save_dir, 'step_npt.in')
+    step_npt_inputfile = _creat_file_from_template(
+        step_npt_temfile_path, step_npt_inputfile_path,
+        step_num=step_num, step_length=step_length
+    )
+
+    return step_a_inputfile, step_b_inputfile, step_c_inputfile, step_nvt_inputfile, step_npt_inputfile
+
+
+def _run_simulation(
+        comsolvate_topfile: BaseFile,
+        comsolvate_crdfile: BaseFile,
+        step_a_inputfile: BaseFile,
+        step_b_inputfile: BaseFile,
+        step_c_inputfile: BaseFile,
+        step_nvt_inputfile: BaseFile,
+        step_npt_inputfile: BaseFile,
+        save_dir: str = None) -> None:
+    '''
+    执行分子动力学模拟工作流
+    '''
+    step_a_dir = os.path.join(save_dir, 'stepA')
+    step_b_dir = os.path.join(save_dir, 'stepB')
+    step_c_dir = os.path.join(save_dir, 'stepC')
+    step_nvt_dir = os.path.join(save_dir, 'step_nvt')
+    step_npt_dir = os.path.join(save_dir, 'step_npt')
+
+    step_a_outfile = os.path.join(step_a_dir, 'stepA.out')
+    step_b_outfile = os.path.join(step_b_dir, 'stepB.out')
+    step_c_outfile = os.path.join(step_c_dir, 'stepC.out')
+    step_nvt_outfile = os.path.join(step_nvt_dir, 'step_nvt.out')
+    step_npt_outfile = os.path.join(step_npt_dir, 'step_npt.out')
+
+    step_a_rstfile = os.path.join(step_a_dir, 'stepA.rst')
+    step_b_rstfile = os.path.join(step_b_dir, 'stepB.rst')
+    step_c_rstfile = os.path.join(step_c_dir, 'stepC.rst')
+    step_nvt_rstfile = os.path.join(step_nvt_dir, 'step_nvt.rst')
+    step_npt_rstfile = os.path.join(step_npt_dir, 'step_npt.rst')
+
+    step_nvt_crdfile = os.path.join(step_nvt_dir, 'step_nvt.crd')
+    step_npt_crdfile = os.path.join(step_npt_dir, 'step_npt.crd')
+
+    # Get more information from AMBER USER PROFILE
+    step_a_cmd = f'{SANDER} -O \
+        -i {step_a_inputfile.file_path} \
+        -o {step_a_outfile} \
+        -c {comsolvate_crdfile.file_path} -p {comsolvate_topfile.file_path} \
+        -r {step_a_rstfile} \
+        -ref {comsolvate_crdfile}'
+
+    step_b_cmd = f'{SANDER} -O \
+        -i {step_b_inputfile.file_path} \
+        -o {step_b_outfile} \
+        -c {step_a_rstfile} -p {comsolvate_topfile.file_path} \
+        -r {step_b_rstfile} \
+        -ref {step_a_rstfile}'
+
+    step_c_cmd = f'{SANDER} -O \
+        -i {step_c_inputfile.file_path} \
+        -o {step_c_outfile} \
+        -c {step_b_rstfile} -p {comsolvate_topfile.file_path} \
+        -r {step_c_rstfile}'
+
+    step_nvt_cmd = f'{SANDER} -O \
+        -i {step_nvt_inputfile.file_path} \
+        -o {step_nvt_outfile} \
+        -c {step_c_rstfile} -p {comsolvate_topfile.file_path} \
+        -r {step_nvt_rstfile} \
+        -x {step_nvt_crdfile}'
+
+    step_npt_cmd = f'{SANDER} -O \
+        -i {step_npt_inputfile.file_path} \
+        -o {step_npt_outfile} \
+        -c {step_nvt_rstfile} -p {comsolvate_topfile.file_path} \
+        -r {step_npt_rstfile} \
+        -x {step_npt_crdfile}'
+
+    print('Running Minimize Progress A...')
+    _system_call(step_a_cmd)
+    print('Running Minimize Progress B...')
+    _system_call(step_b_cmd)
+    print('Running Minimize Progress C...')
+    _system_call(step_c_cmd)
+    print('Running 100ps NVT Progress...')
+    _system_call(step_nvt_cmd)
+    print('Running Molecular Dynamics Simulation...')
+    _system_call(step_npt_cmd)
+
+    print('Simulation Finished.')
