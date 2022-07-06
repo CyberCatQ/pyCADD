@@ -1,0 +1,16 @@
+&cntrl
+imin=0,
+tempi=0.0, temp0=300, ntt=3, gamma_ln=2.0,
+ntp=1, taup=2.0,
+ntb=2,ntc=2,ntf=2,
+nstlim=50000, dt=0.002,
+ntx=1,irest=0,cut=8.0,
+ntpr=1000, ntwr=1000, ntwx=1000,
+/
+&wt TYPE='TEMP0',ISTEP1=0, ISTEP2=25000,
+VALUE1=0.0, VALUE2=300.0, 
+/
+&wt TYPE='END' 
+/
+
+END

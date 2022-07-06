@@ -1,0 +1,11 @@
+&cntrl
+imin=0,
+temp0=300, ntt=3, gamma_ln=5.0,
+ntp=1, taup=2.0,
+ntb=2,ntc=2,ntf=2,
+ntx=5,irest=1,
+ntpr=1000, ntwr=1000, ntwx=1000,
+nstlim={step_num}, dt={step_length},
+/
+
+END

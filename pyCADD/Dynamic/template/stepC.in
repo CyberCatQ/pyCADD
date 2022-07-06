@@ -1,0 +1,10 @@
+&cntrl
+imin=1,
+cut=8.0,
+ntpr=50,
+ntb=1,
+maxcyc=10000,
+ncyc=5000,
+/
+
+END
