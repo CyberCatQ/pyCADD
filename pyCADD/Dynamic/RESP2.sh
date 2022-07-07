@@ -16,9 +16,10 @@ level_SP="B3LYP/def2TZVP em=GD3BJ"
 Gaussian=g16
 
 export inname=$1
-filename=${inname%.*}
-suffix=${inname##*.}
-prefix=basename ${inname%%.*}
+filepath=$inname
+filename=${filepath##*/}
+suffix=${filename##*.}
+prefix=${filename%%.*}
 
 if [ $2 ];then
 	echo "Net charge = $2"
