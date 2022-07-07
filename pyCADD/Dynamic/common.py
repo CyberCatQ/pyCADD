@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 from datetime import datetime
 
 from pyCADD.Dynamic import core
@@ -72,6 +73,7 @@ class Processor:
         protein_file = BaseFile(pretein_file_path)
         self.processed_profile = core.protein_prepare(
             protein_file, save_dir=PRO_RELATED_DIR)
+        logger.info(f'Protein file {self.processed_profile.file_name} has been saved in {PRO_RELATED_DIR}.')
 
     def molecule_prepare(self, molecule_file_path: str, charge: int = 0, multiplicity: int = 1, cpu_num: int = None, solvent: str = 'water') -> None:
         '''
@@ -91,6 +93,9 @@ class Processor:
         self.processed_molfile_pdb, self.prepin_file, self.frcmod_file = core.molecule_prepare(
             molecule_file, save_dir=MOL_RELATED_DIR, charge=charge, multiplicity=multiplicity,
             cpu_num=cpu_num, solvent=solvent)
+        logger.info(f'Molecule file {self.processed_molfile_pdb.file_name} has been saved in {MOL_RELATED_DIR}.')
+        logger.info(f'Prepin file {self.prepin_file.file_name} has been saved in {MOL_RELATED_DIR}.')
+        logger.info(f'Frcmod file {self.frcmod_file.file_name} has been saved in {MOL_RELATED_DIR}.')
 
     def leap_prepare(self, prefix: str = None) -> None:
         '''
@@ -126,6 +131,8 @@ class Processor:
             os.path.join(LEAP_DIR, f'{prefix}_comsolvate.prmtop'))
         self.comsolvate_crdfile = BaseFile(
             os.path.join(LEAP_DIR, f'{prefix}_comsolvate.inpcrd'))
+        
+        logger.info(f'LEaP files have been saved in {LEAP_DIR}.')
 
     def _set_prepared_file(self, file_path: str, file_type: str) -> None:
         '''
@@ -179,10 +186,16 @@ class Processor:
         '''
         if file_type == 'pdb':
             self._set_prepared_file(file_path, 'comsolvate_pdb')
+            logger.info(f'Set comsolvate pdb file: {file_path}')
         elif file_type == 'top':
             self._set_prepared_file(file_path, 'comsolvate_top')
+            logger.info(f'Set comsolvate top file: {file_path}')
         elif file_type == 'crd':
             self._set_prepared_file(file_path, 'comsolvate_crd')
+            logger.info(f'Set comsolvate crd file: {file_path}')
+        else:
+            self._set_prepared_file(file_path, file_type)
+            logger.info(f'Set {file_type} file: {file_path}')
 
 
 class Simulator:
@@ -224,6 +237,8 @@ class Simulator:
          self.step_npt_inputfile) = core._creat_md_inputfile(
             water_resnum, step_num,
             step_length, INPUT_FILE_DIR)
+        
+        logger.info(f'Input files have been saved in {INPUT_FILE_DIR}.')
 
     def shwo_cuda_device(self) -> None:
         '''
@@ -245,7 +260,7 @@ class Simulator:
         cuda_device = self.cuda_device
         print(os.popen(f'nvidia-smi -i {cuda_device}').read())
         os.environ['CUDA_VISIBLE_DEVICES'] = str(cuda_device)
-        print(f'Using GPU device {cuda_device}')
+        logger.info(f'Using GPU device {cuda_device}')
 
     def set_cuda_device(self, cuda_device: int) -> None:
         '''
@@ -257,6 +272,7 @@ class Simulator:
             GPU设备编号
         '''
         self.cuda_device = cuda_device
+        logger.info(f'Set GPU device: {cuda_device}')
         self._apply_cuda_device()
 
     def run_simulation(self, cuda_device: int = None) -> None:
@@ -282,6 +298,7 @@ class Simulator:
         else:
             self._apply_cuda_device()
 
+        start_time = time.time()
         core._run_simulation(
             self.comsolvate_topfile, self.comsolvate_crdfile,
             self.step_a_inputfile, self.setp_b_inputfile,
@@ -289,3 +306,11 @@ class Simulator:
             self.step_npt_inputfile,
             MD_RESULT_DIR
         )
+        end_time = time.time()
+        
+        duration = time.localtime(end_time - start_time)
+
+        logger.info(f'Start: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time))}')
+        logger.info(f'End: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(end_time))}')
+        logger.info(f'Simulation time: {time.strftime("%H:%M:%S", duration)}')
+        logger.info(f'Simulation normally finished.')
