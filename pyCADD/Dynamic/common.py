@@ -87,6 +87,10 @@ class Processor:
             电荷数 默认为0
         multiplicity : int
             自旋多重度 默认为1
+        cpu_num : int
+            计算核数 默认为CPU核数
+        solvent : str
+            计算RESP电荷时液相的溶剂 默认为water
         '''
         cpu_num = cpu_num if cpu_num is not None else CPU_NUM
         molecule_file = BaseFile(molecule_file_path)
