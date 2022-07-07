@@ -41,13 +41,16 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../README.html">pyCADD</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Dock module input file format</span></p>
+<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="input_file_fmt.html">构建Dock输入文件时的规范</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Dance use guide</span></p>
+<p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="dance.html">Dance Quick Use Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dance.html">Dance User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dynamic.html">Dynamic Quick User Guide</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="current">
@@ -56,6 +59,7 @@
 <li class="toctree-l3 current"><a class="reference internal" href="pyCADD.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.Dance.html">pyCADD.Dance package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html">pyCADD.Dock package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dynamic.html">pyCADD.Dynamic package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.Gauss.html">pyCADD.Gauss package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html">pyCADD.VSW package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.query.html">pyCADD.query package</a></li>
@@ -102,6 +106,82 @@
 </section>
 <section id="module-pyCADD.utils.cheminformatics">
 <span id="pycadd-utils-cheminformatics-module"></span><h2>pyCADD.utils.cheminformatics module<a class="headerlink" href="#module-pyCADD.utils.cheminformatics" title="永久链接至标题"></a></h2>
+</section>
+<section id="module-pyCADD.utils.common">
+<span id="pycadd-utils-common-module"></span><h2>pyCADD.utils.common module<a class="headerlink" href="#module-pyCADD.utils.common" title="永久链接至标题"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.utils.common.BaseFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.utils.common.</span></span><span class="sig-name descname"><span class="pre">BaseFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyCADD/utils/common.html#BaseFile"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.utils.common.BaseFile" title="永久链接至目标"></a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>基本文件类型</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.utils.common.BaseFile.file_path">
+<span class="sig-name descname"><span class="pre">file_path</span></span><a class="headerlink" href="#pyCADD.utils.common.BaseFile.file_path" title="永久链接至目标"></a></dt>
+<dd><p>文件绝对路径</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.utils.common.BaseFile.file_name">
+<span class="sig-name descname"><span class="pre">file_name</span></span><a class="headerlink" href="#pyCADD.utils.common.BaseFile.file_name" title="永久链接至目标"></a></dt>
+<dd><p>纯文件名</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.utils.common.BaseFile.file_dir">
+<span class="sig-name descname"><span class="pre">file_dir</span></span><a class="headerlink" href="#pyCADD.utils.common.BaseFile.file_dir" title="永久链接至目标"></a></dt>
+<dd><p>文件所在目录</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.utils.common.BaseFile.file_ext">
+<span class="sig-name descname"><span class="pre">file_ext</span></span><a class="headerlink" href="#pyCADD.utils.common.BaseFile.file_ext" title="永久链接至目标"></a></dt>
+<dd><p>文件扩展名(不含有点)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.utils.common.BaseFile.file_prefix">
+<span class="sig-name descname"><span class="pre">file_prefix</span></span><a class="headerlink" href="#pyCADD.utils.common.BaseFile.file_prefix" title="永久链接至目标"></a></dt>
+<dd><p>文件前缀名</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.utils.common.BaseFile.file_suffix">
+<span class="sig-name descname"><span class="pre">file_suffix</span></span><a class="headerlink" href="#pyCADD.utils.common.BaseFile.file_suffix" title="永久链接至目标"></a></dt>
+<dd><p>文件后缀名(与扩展名相同)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-pyCADD.utils.log">
 <span id="pycadd-utils-log-module"></span><h2>pyCADD.utils.log module<a class="headerlink" href="#module-pyCADD.utils.log" title="永久链接至标题"></a></h2>

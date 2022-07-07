@@ -1,4 +1,4 @@
-## Dance Quick Use Guide
+## Dance User Guide
 
 ### Data preparation
 数据预处理部分。

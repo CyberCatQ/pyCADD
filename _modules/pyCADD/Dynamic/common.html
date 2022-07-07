@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Dynamic.common &mdash; pyCADD  文档</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/translations.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> pyCADD
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="在文档中搜索" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">README</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">pyCADD</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/dance.html">Dance User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/dynamic.html">Dynamic Quick User Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">pyCADD</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyCADD</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">模块代码</a> &raquo;</li>
+      <li>pyCADD.Dynamic.common</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>pyCADD.Dynamic.common 源代码</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">from</span> <span class="nn">pyCADD.Dynamic</span> <span class="kn">import</span> <span class="n">core</span>
+<span class="kn">from</span> <span class="nn">pyCADD.utils.common</span> <span class="kn">import</span> <span class="n">BaseFile</span>
+<span class="kn">from</span> <span class="nn">pyCADD.utils.tool</span> <span class="kn">import</span> <span class="n">makedirs_from_list</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pyCADD.Dynamic&#39;</span><span class="p">)</span>
+
+<span class="n">CWD</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+<span class="n">CPU_NUM</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+<span class="n">SANDER</span> <span class="o">=</span> <span class="s1">&#39;pmemd.cuda&#39;</span>
+
+<span class="n">PRO_RELATED_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CWD</span><span class="p">,</span> <span class="s1">&#39;protein&#39;</span><span class="p">)</span>
+<span class="n">MOL_RELATED_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CWD</span><span class="p">,</span> <span class="s1">&#39;molecule&#39;</span><span class="p">)</span>
+<span class="n">LEAP_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CWD</span><span class="p">,</span> <span class="s1">&#39;leap&#39;</span><span class="p">)</span>
+<span class="n">INPUT_FILE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CWD</span><span class="p">,</span> <span class="s1">&#39;input_file&#39;</span><span class="p">)</span>
+<span class="n">MD_RESULT_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CWD</span><span class="p">,</span> <span class="s1">&#39;md_result&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Processor"><a class="viewcode-back" href="../../../source/pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor">[文档]</a><span class="k">class</span> <span class="nc">Processor</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    为分子动力学模拟执行预处理</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        初始化</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">makedirs_from_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_required_dirs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">processed_profile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processed_molfile_pdb</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepin_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frcmod_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_crdfile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_topfile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_pdbfile</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_required_dirs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">PRO_RELATED_DIR</span><span class="p">,</span>
+            <span class="n">MOL_RELATED_DIR</span><span class="p">,</span>
+            <span class="n">LEAP_DIR</span><span class="p">,</span>
+            <span class="n">INPUT_FILE_DIR</span><span class="p">,</span>
+            <span class="n">MD_RESULT_DIR</span>
+        <span class="p">]</span>
+
+<div class="viewcode-block" id="Processor.cover_to_pdb"><a class="viewcode-back" href="../../../source/pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.cover_to_pdb">[文档]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">cover_to_pdb</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        将mae结构文件转换为pdb格式</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : str</span>
+<span class="sd">            mae结构文件路径</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">core</span><span class="o">.</span><span class="n">_convert_mae_to_pdb</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Processor.protein_prepare"><a class="viewcode-back" href="../../../source/pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.protein_prepare">[文档]</a>    <span class="k">def</span> <span class="nf">protein_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pretein_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        为动力学模拟执行蛋白质结构预处理</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pretein_file_path : str</span>
+<span class="sd">            蛋白质结构文件路径</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">protein_file</span> <span class="o">=</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">pretein_file_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processed_profile</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">protein_prepare</span><span class="p">(</span>
+            <span class="n">protein_file</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">PRO_RELATED_DIR</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Protein file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">processed_profile</span><span class="o">.</span><span class="n">file_name</span><span class="si">}</span><span class="s1"> has been saved in </span><span class="si">{</span><span class="n">PRO_RELATED_DIR</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Processor.molecule_prepare"><a class="viewcode-back" href="../../../source/pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.molecule_prepare">[文档]</a>    <span class="k">def</span> <span class="nf">molecule_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">molecule_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">cpu_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">solvent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;water&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        为动力学模拟执行小分子结构预处理</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        molecule_file_path : str</span>
+<span class="sd">            分子结构文件路径</span>
+<span class="sd">        charge : int</span>
+<span class="sd">            电荷数 默认为0</span>
+<span class="sd">        multiplicity : int</span>
+<span class="sd">            自旋多重度 默认为1</span>
+<span class="sd">        cpu_num : int</span>
+<span class="sd">            计算核数 默认为CPU核数</span>
+<span class="sd">        solvent : str</span>
+<span class="sd">            计算RESP电荷时液相的溶剂 默认为water</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">cpu_num</span> <span class="o">=</span> <span class="n">cpu_num</span> <span class="k">if</span> <span class="n">cpu_num</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CPU_NUM</span>
+        <span class="n">molecule_file</span> <span class="o">=</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">molecule_file_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processed_molfile_pdb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepin_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frcmod_file</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">molecule_prepare</span><span class="p">(</span>
+            <span class="n">molecule_file</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">MOL_RELATED_DIR</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span> <span class="n">multiplicity</span><span class="o">=</span><span class="n">multiplicity</span><span class="p">,</span>
+            <span class="n">cpu_num</span><span class="o">=</span><span class="n">cpu_num</span><span class="p">,</span> <span class="n">solvent</span><span class="o">=</span><span class="n">solvent</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Molecule file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">processed_molfile_pdb</span><span class="o">.</span><span class="n">file_name</span><span class="si">}</span><span class="s1"> has been saved in </span><span class="si">{</span><span class="n">MOL_RELATED_DIR</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Prepin file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prepin_file</span><span class="o">.</span><span class="n">file_name</span><span class="si">}</span><span class="s1"> has been saved in </span><span class="si">{</span><span class="n">MOL_RELATED_DIR</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Frcmod file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">frcmod_file</span><span class="o">.</span><span class="n">file_name</span><span class="si">}</span><span class="s1"> has been saved in </span><span class="si">{</span><span class="n">MOL_RELATED_DIR</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Processor.leap_prepare"><a class="viewcode-back" href="../../../source/pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.leap_prepare">[文档]</a>    <span class="k">def</span> <span class="nf">leap_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        创建leap输入文件 并执行tleap命令</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        prefix : str</span>
+<span class="sd">            leap生成文件前缀 PDBID或其他 None则为当前日期</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">prefix</span> <span class="k">if</span> <span class="n">prefix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processed_molfile_pdb</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prepin_file</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frcmod_file</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processed_profile</span>
+        <span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s1">&#39;Preparing protein or molecules before LEaP has not been done.&#39;</span><span class="p">)</span>
+
+        <span class="n">core</span><span class="o">.</span><span class="n">leap_prepare</span><span class="p">(</span>
+            <span class="n">prefix</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processed_molfile_pdb</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prepin_file</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frcmod_file</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processed_profile</span><span class="p">,</span>
+            <span class="n">LEAP_DIR</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_pdbfile</span> <span class="o">=</span> <span class="n">BaseFile</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">LEAP_DIR</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_comsolvate.pdb&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_topfile</span> <span class="o">=</span> <span class="n">BaseFile</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">LEAP_DIR</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_comsolvate.prmtop&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_crdfile</span> <span class="o">=</span> <span class="n">BaseFile</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">LEAP_DIR</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_comsolvate.inpcrd&#39;</span><span class="p">))</span>
+        
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;LEaP files have been saved in </span><span class="si">{</span><span class="n">LEAP_DIR</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_set_prepared_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        直接设定已准备好的文件</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : str</span>
+<span class="sd">            文件路径</span>
+<span class="sd">        file_type : str</span>
+<span class="sd">            文件类型</span>
+<span class="sd">            protein: 蛋白质PDB结构文件(_leap.pdb)</span>
+<span class="sd">            molecule: 小分子PDB结构文件(_out.pdb)</span>
+<span class="sd">            prepin: amber参数文件(.prepin)</span>
+<span class="sd">            frcmod: amber参数文件(.frcmod)</span>
+<span class="sd">            comsolvate_pdb: 含水蛋白结构文件(_comsolvate.pdb)</span>
+<span class="sd">            comsolvate_top: 含水蛋白拓扑文件(_comsolvate.prmtop)</span>
+<span class="sd">            comsolvate_crd: 含水蛋白坐标文件(_comsolvate.inpcrd)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">_file</span> <span class="o">=</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s1">&#39;protein&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processed_profile</span> <span class="o">=</span> <span class="n">_file</span>
+        <span class="k">elif</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s1">&#39;molecule&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">processed_molfile_pdb</span> <span class="o">=</span> <span class="n">_file</span>
+        <span class="k">elif</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s1">&#39;prepin&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prepin_file</span> <span class="o">=</span> <span class="n">_file</span>
+        <span class="k">elif</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s1">&#39;frcmod&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frcmod_file</span> <span class="o">=</span> <span class="n">_file</span>
+        <span class="k">elif</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s1">&#39;comsolvate_pdb&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_pdbfile</span> <span class="o">=</span> <span class="n">_file</span>
+        <span class="k">elif</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s1">&#39;comsolvate_top&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_topfile</span> <span class="o">=</span> <span class="n">_file</span>
+        <span class="k">elif</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s1">&#39;comsolvate_crd&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_crdfile</span> <span class="o">=</span> <span class="n">_file</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s1"> is not a valid file type.&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Processor.set_comsolvate_file"><a class="viewcode-back" href="../../../source/pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.set_comsolvate_file">[文档]</a>    <span class="k">def</span> <span class="nf">set_comsolvate_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        设定含水蛋白结构相关文件</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : str</span>
+<span class="sd">            文件路径</span>
+<span class="sd">        file_type : str</span>
+<span class="sd">            文件类型</span>
+<span class="sd">            pdb: 含水蛋白结构文件(_comsolvate.pdb)</span>
+<span class="sd">            top: 含水蛋白拓扑文件(_comsolvate.prmtop)</span>
+<span class="sd">            crd: 含水蛋白坐标文件(_comsolvate.inpcrd)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s1">&#39;pdb&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_prepared_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;comsolvate_pdb&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Set comsolvate pdb file: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s1">&#39;top&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_prepared_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;comsolvate_top&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Set comsolvate top file: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s1">&#39;crd&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_prepared_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;comsolvate_crd&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Set comsolvate crd file: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_prepared_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">file_type</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Set </span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s1"> file: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Simulator"><a class="viewcode-back" href="../../../source/pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator">[文档]</a><span class="k">class</span> <span class="nc">Simulator</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">:</span> <span class="n">Processor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_pdbfile</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">comsolvate_pdbfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_topfile</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">comsolvate_topfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_crdfile</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">comsolvate_crdfile</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_a_inputfile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_b_inputfile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_c_inputfile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_nvt_inputfile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_npt_inputfile</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cuda_device</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="Simulator.creat_input_file"><a class="viewcode-back" href="../../../source/pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator.creat_input_file">[文档]</a>    <span class="k">def</span> <span class="nf">creat_input_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50000000</span><span class="p">,</span> <span class="n">step_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.002</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        创建动力学模拟所需的各类输入文件</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        step_num : int</span>
+<span class="sd">            模拟步数</span>
+<span class="sd">        step_length : float</span>
+<span class="sd">            模拟步长</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        模拟总时长 = step_num * step_length ps</span>
+<span class="sd">        默认100ns</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">water_resnum</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">_get_water_resnum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_pdbfile</span><span class="p">)</span>
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">step_a_inputfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">setp_b_inputfile</span><span class="p">,</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">setp_c_inputfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_nvt_inputfile</span><span class="p">,</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">step_npt_inputfile</span><span class="p">)</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">_creat_md_inputfile</span><span class="p">(</span>
+            <span class="n">water_resnum</span><span class="p">,</span> <span class="n">step_num</span><span class="p">,</span>
+            <span class="n">step_length</span><span class="p">,</span> <span class="n">INPUT_FILE_DIR</span><span class="p">)</span>
+        
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Input files have been saved in </span><span class="si">{</span><span class="n">INPUT_FILE_DIR</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Simulator.shwo_cuda_device"><a class="viewcode-back" href="../../../source/pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator.shwo_cuda_device">[文档]</a>    <span class="k">def</span> <span class="nf">shwo_cuda_device</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        显示GPU信息</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">gpu_info</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span><span class="s1">&#39;nvidia-smi&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">gpu_info</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_apply_cuda_device</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        设定模拟使用的GPU设备</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cuda_device : int</span>
+<span class="sd">            GPU设备编号</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">cuda_device</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cuda_device</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;nvidia-smi -i </span><span class="si">{</span><span class="n">cuda_device</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;CUDA_VISIBLE_DEVICES&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cuda_device</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Using GPU device </span><span class="si">{</span><span class="n">cuda_device</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Simulator.set_cuda_device"><a class="viewcode-back" href="../../../source/pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator.set_cuda_device">[文档]</a>    <span class="k">def</span> <span class="nf">set_cuda_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cuda_device</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        设定模拟使用的GPU设备</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cuda_device : int</span>
+<span class="sd">            GPU设备编号</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cuda_device</span> <span class="o">=</span> <span class="n">cuda_device</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Set GPU device: </span><span class="si">{</span><span class="n">cuda_device</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_apply_cuda_device</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Simulator.run_simulation"><a class="viewcode-back" href="../../../source/pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator.run_simulation">[文档]</a>    <span class="k">def</span> <span class="nf">run_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cuda_device</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        启动分子动力学模拟流程</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cuda_device : int</span>
+<span class="sd">            GPU设备编号 默认为0</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_a_inputfile</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setp_b_inputfile</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setp_c_inputfile</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_nvt_inputfile</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_npt_inputfile</span>
+        <span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Creating input files has not been done.&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cuda_device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_cuda_device</span><span class="p">(</span><span class="n">cuda_device</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_apply_cuda_device</span><span class="p">()</span>
+
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">core</span><span class="o">.</span><span class="n">_run_simulation</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_topfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_crdfile</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_a_inputfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">setp_b_inputfile</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setp_c_inputfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_nvt_inputfile</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_npt_inputfile</span><span class="p">,</span>
+            <span class="n">MD_RESULT_DIR</span>
+        <span class="p">)</span>
+        <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">end_time</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Start: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">start_time</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;End: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">end_time</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Simulation time: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H:%M:%S&quot;</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Simulation normally finished.&#39;</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2022, Yuhang.W.</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用了 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a>开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

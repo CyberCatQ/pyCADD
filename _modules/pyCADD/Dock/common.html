@@ -35,13 +35,20 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Dock module input file format</span></p>
+              <p class="caption" role="heading"><span class="caption-text">README</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">pyCADD</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../source/input_file_fmt.html">构建Dock输入文件时的规范</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Dance use guide</span></p>
+<p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dance.html">Dance Quick Use Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/dance.html">Dance User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/dynamic.html">Dynamic Quick User Guide</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
@@ -80,6 +87,8 @@
 
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">pyCADD.utils.common</span> <span class="kn">import</span> <span class="n">BaseFile</span>
+
 <span class="kn">from</span> <span class="nn">schrodinger</span> <span class="kn">import</span> <span class="n">structure</span> <span class="k">as</span> <span class="n">struc</span>
 <span class="kn">from</span> <span class="nn">schrodinger.structure</span> <span class="kn">import</span> <span class="n">StructureReader</span><span class="p">,</span> <span class="n">StructureWriter</span><span class="p">,</span> <span class="n">Structure</span>
 <span class="kn">from</span> <span class="nn">schrodinger.job</span> <span class="kn">import</span> <span class="n">jobcontrol</span> <span class="k">as</span> <span class="n">jc</span>
@@ -178,22 +187,6 @@
 
     <span class="k">with</span> <span class="n">StructureWriter</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">writer</span><span class="p">:</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ligand_sts</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="BaseFile"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.BaseFile">[文档]</a><span class="k">class</span> <span class="nc">BaseFile</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    基本文件类型</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s1">&#39;File </span><span class="si">%s</span><span class="s1"> not found&#39;</span> <span class="o">%</span> <span class="n">path</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">file_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">file_ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">file_suffix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_ext</span></div>
 
 <div class="viewcode-block" id="PDBFile"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.PDBFile">[文档]</a><span class="k">class</span> <span class="nc">PDBFile</span><span class="p">(</span><span class="n">BaseFile</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
@@ -515,7 +508,7 @@
 
         <span class="k">return</span> <span class="n">mol</span><span class="o">.</span><span class="n">number</span></div>
 
-<div class="viewcode-block" id="ComplexFile.split"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.ComplexFile.split">[文档]</a>    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ligname</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">protein_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ligand_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">complex_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<div class="viewcode-block" id="ComplexFile.split"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.ComplexFile.split">[文档]</a>    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ligname</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">protein_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ligand_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">complex_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save_fmt</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;pdb&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        将Maestro文件分割为受体与配体</span>
 
@@ -529,6 +522,8 @@
 <span class="sd">            配体文件保存路径</span>
 <span class="sd">        complex_dir : str</span>
 <span class="sd">            复合物文件保存路径</span>
+<span class="sd">        save_fmt : str</span>
+<span class="sd">            保存文件的格式 默认为pdb</span>
 
 <span class="sd">        Return</span>
 <span class="sd">        ----------</span>
@@ -554,9 +549,10 @@
 
         <span class="n">complex_file</span> <span class="o">=</span> <span class="n">pvc</span><span class="o">.</span><span class="n">Complex</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">ligand_asl</span><span class="o">=</span><span class="n">_residue</span><span class="o">.</span><span class="n">getAsl</span><span class="p">(),</span> <span class="n">ligand_properties</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">property</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
-        <span class="n">_lig_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ligand_save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">-lig-</span><span class="si">{</span><span class="n">ligname</span><span class="si">}</span><span class="s1">.mae&#39;</span><span class="p">)</span>
-        <span class="n">_recep_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">protein_save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">-pro-</span><span class="si">{</span><span class="n">ligname</span><span class="si">}</span><span class="s1">.mae&#39;</span><span class="p">)</span>
-        <span class="n">_complex_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">complex_save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">-com-</span><span class="si">{</span><span class="n">ligname</span><span class="si">}</span><span class="s1">.mae&#39;</span><span class="p">)</span>
+        <span class="n">save_fmt</span> <span class="o">=</span> <span class="n">save_fmt</span> <span class="k">if</span> <span class="n">save_fmt</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;pdb&#39;</span> <span class="k">else</span> <span class="s1">&#39;mae&#39;</span>
+        <span class="n">_lig_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ligand_save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">-lig-</span><span class="si">{</span><span class="n">ligname</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">save_fmt</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">_recep_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">protein_save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">-pro-</span><span class="si">{</span><span class="n">ligname</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">save_fmt</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">_complex_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">complex_save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">-com-</span><span class="si">{</span><span class="n">ligname</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">save_fmt</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="n">complex_file</span><span class="o">.</span><span class="n">writeLigand</span><span class="p">(</span><span class="n">_lig_file</span><span class="p">)</span>
         <span class="n">complex_file</span><span class="o">.</span><span class="n">writeReceptor</span><span class="p">(</span><span class="n">_recep_file</span><span class="p">)</span> 

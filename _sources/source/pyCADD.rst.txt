@@ -9,6 +9,7 @@ Subpackages
 
    pyCADD.Dance
    pyCADD.Dock
+   pyCADD.Dynamic
    pyCADD.Gauss
    pyCADD.VSW
    pyCADD.query

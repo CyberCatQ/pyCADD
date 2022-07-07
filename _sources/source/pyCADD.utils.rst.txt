@@ -12,6 +12,14 @@ pyCADD.utils.cheminformatics module
    :undoc-members:
    :show-inheritance:
 
+pyCADD.utils.common module
+--------------------------
+
+.. automodule:: pyCADD.utils.common
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pyCADD.utils.log module
 -----------------------
 
