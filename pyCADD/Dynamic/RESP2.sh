@@ -7,9 +7,9 @@
 
 
 #Edited by YH. W 
-#Edit Date: 2021/05/18
+#Edit Date: 2022/07/07
 
-#!/bin/bash
+#!/bin/sh
 delta=0.5
 level_opt="B3LYP/def2SVP em=GD3BJ"
 level_SP="B3LYP/def2TZVP em=GD3BJ"
@@ -18,6 +18,7 @@ Gaussian=g16
 export inname=$1
 filename=${inname%.*}
 suffix=${inname##*.}
+prefix=basename ${inname%%.*}
 
 if [ $2 ];then
 	echo "Net charge = $2"
@@ -165,8 +166,8 @@ mv gau.chg solv.chg
 echo RESP charge in solvent phase has been outputted to solv.chg
 
 #### Calculate RESP2
-chgname=${filename}".chg"
-pqrname=${filename}".pqr"
+chgname=${prefix}".chg"
+pqrname=${prefix}".pqr"
 
 paste gas.chg solv.chg |awk '{printf $1 " " $2 " " $3 " " $4 " " (1-d)*$5+d*$10 "\n"}' d=$delta > $chgname
 
@@ -183,4 +184,4 @@ mv tmp.pqr $pqrname
 
 
 echo
-echo Finished! The optimized atomic coordinates with RESP2 charges \(the last column\) have been exported to $pqrname in current folder
+echo Finished! The optimized atomic coordinates with RESP2 charges \(the last column\) have been exported to $pqrname
