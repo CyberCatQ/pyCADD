@@ -376,6 +376,7 @@ def _trace_progress(output_file_path: str, step: int = 50000000):
             current_step = re.findall(r'\d+', _current)[0]
             progress.update(taskID, completed=int(current_step))
         sleep(1)
+    progress.stop()
 
 
 def _run_simulation(
