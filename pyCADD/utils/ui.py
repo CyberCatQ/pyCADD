@@ -22,6 +22,17 @@ __update_date__ = "Undefined"
 
 from pyCADD import __version__, __update_date__
 
+def _env_check(env_value):
+    try:
+        env = os.environ[env_value]
+    except KeyError:
+        env = None
+    return env
+
+SCHRODINGER = _env_check('SCHRODINGER')
+AMBER = _env_check('AMBERHOME')
+GAUSS = os.path.dirname(os.popen('which g16').read())
+
 
 class UI:
     '''
@@ -34,8 +45,9 @@ class UI:
         self.menu_name = '[bold magenta]Menu: %s' % menu_name
         self.options = ''
         self.additional_info = ''
-        self.schrodinger = Text(os.environ['SCHRODINGER'], style='u i')
-        self.gauss_dir = Text(os.path.dirname(os.popen('which g16').read()), style='u i')
+        self.schrodinger = Text(SCHRODINGER, style='u i')
+        self.gauss_dir = Text(GAUSS, style='u i')
+        self.amber_dir = Text(AMBER, style='u i')
         self.cpu_count = NUM_PARALLEL
 
         self._additional_info_dict = {}
@@ -43,6 +55,8 @@ class UI:
 
         self.gauss_check = True
         self.schrodinger_check = True
+        self.amber_check = True
+
         if not self.schrodinger:
             self.schrodinger = Text('Not installed', style='bold red')
             self.schrodinger_check = False
@@ -50,6 +64,10 @@ class UI:
         if not self.gauss_dir:
             self.gauss_dir = Text('Not installed', style='bold red')
             self.gauss_check = False
+        
+        if not self.amber_dir:
+            self.amber_dir = Text('Not installed', style='bold red')
+            self.amber_check = False
             
     @property
     def title(self) -> None:
@@ -104,7 +122,8 @@ class UI:
             (f'{self.cpu_count}/{os.cpu_count()}', 'bold blue'), 
             ' Python Version: ',(platform.python_version(), 'bold blue'),
             '\nSchrodinger: ', self.schrodinger,
-            '\nGaussian: ', self.gauss_dir
+            '\nGaussian: ', self.gauss_dir,
+            '\nAmber: ', self.amber_dir
             )
 
     @property
