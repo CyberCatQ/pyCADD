@@ -1,8 +1,10 @@
 import os
+import re
+from time import sleep
 
-from pyCADD.utils.common import BaseFile
-from pyCADD.utils.tool import makedirs_from_list
 from pyCADD.Gauss.base import Gauss
+from pyCADD.utils.common import BaseFile
+from pyCADD.utils.tool import _get_progress, makedirs_from_list
 
 CWD = os.getcwd()
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -253,6 +255,7 @@ def leap_prepare(prefix: str, ligand_file: BaseFile, prepin_file: BaseFile, frcm
 
     os.chdir(CWD)
 
+
 def _get_water_resnum(comsolvate_pdbfile: BaseFile) -> list:
     '''
     获取水箱复合物的全部水分子Residue Number
@@ -353,6 +356,28 @@ def _creat_md_inputfile(
     return step_a_inputfile, step_b_inputfile, step_c_inputfile, step_nvt_inputfile, step_npt_inputfile
 
 
+def _trace_progress(output_file_path: str, step: int = 50000000):
+    '''
+    追踪分子动力学模拟进程
+
+    Parameters
+    -----------
+    output_file_path : str
+        分子动力学模拟过程的输出文件路径
+    step : int, optional
+        模拟步数 默认为50000000
+    '''
+    progress, taskID = _get_progress('Molecule Dynamics Simulation', 'bold cyan', total=step)
+    progress.start()
+    progress.start_task(taskID)
+    while not progress.finished:
+        _current = os.popen(f'tail -n 10 {output_file_path} | grep NSTEP').read()
+        if _current:
+            current_step = re.findall(r'\d+', _current)[0]
+            progress.update(taskID, completed=int(current_step))
+        sleep(1)
+
+
 def _run_simulation(
         comsolvate_topfile: BaseFile,
         comsolvate_crdfile: BaseFile,
@@ -426,12 +451,12 @@ def _run_simulation(
     step_nvt_cmd += f'-r {step_nvt_rstfile} '
     step_nvt_cmd += f'-x {step_nvt_crdfile}'
 
-    step_npt_cmd = f'{SANDER} -O '
+    step_npt_cmd = f'nohup {SANDER} -O '
     step_npt_cmd += f'-i {step_npt_inputfile.file_path} '
     step_npt_cmd += f'-o {step_npt_outfile} '
     step_npt_cmd += f'-c {step_nvt_rstfile} -p {comsolvate_topfile.file_path} '
     step_npt_cmd += f'-r {step_npt_rstfile} '
-    step_npt_cmd += f'-x {step_npt_crdfile}'
+    step_npt_cmd += f'-x {step_npt_crdfile} > /dev/null 2>&1 &'
 
     print('Running Minimize Progress A...')
     _system_call(step_a_cmd)
@@ -443,5 +468,6 @@ def _run_simulation(
     _system_call(step_nvt_cmd)
     print('Running Molecular Dynamics Simulation...')
     _system_call(step_npt_cmd)
+    _trace_progress(step_npt_outfile)
 
     print('Simulation Finished.')
