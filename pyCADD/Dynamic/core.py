@@ -141,22 +141,13 @@ def molecule_prepare(
         f'chmod 777 {script_resp2_path} && {script_resp2_path} {file_path} {charge} {multiplicity} {solvent}'
     )
 
-    pqr_file_path = os.path.join(save_dir, file_prefix + '.pqr')
-    mol2_file_path = os.path.join(save_dir, file_prefix + '.mol2')
-    prepin_file_path = os.path.join(save_dir, file_prefix + '.prepin')
     pdb_file_path = os.path.join(save_dir, file_prefix + '_out.pdb')
+    prepin_file_path = os.path.join(save_dir, file_prefix + '.prepin')
     frcmod_file_path = os.path.join(save_dir, file_prefix + '.frcmod')
-
-    # 优化及计算完成的结构转换为mol2格式
-    _system_call(f'obabel -ipqr {pqr_file_path} -omol2 -O {mol2_file_path}')
 
     # 生成Amber pripi文件
     _system_call(
-        f'antechamber -fi mol2 -i {mol2_file_path} -fo prepi -o {prepin_file_path}')
-
-    # 生成Amber pdb文件
-    _system_call(
-        f'antechamber -fi mol2 -i {mol2_file_path} -o {pdb_file_path} -fo pdb')
+        f'antechamber -fi pdb -i {pdb_file_path} -fo prepi -o {prepin_file_path}')
 
     # 生成Amber Parameters文件
     _system_call(

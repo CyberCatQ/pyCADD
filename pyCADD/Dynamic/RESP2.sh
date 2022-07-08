@@ -7,7 +7,7 @@
 
 
 #Edited by YH. W 
-#Edit Date: 2022/07/07
+#Edit Date: 2022/07/08
 
 #!/bin/sh
 delta=0.5
@@ -47,7 +47,7 @@ fi
 
 echo delta parameter is $delta
 
-keyword_opt="# "$level_opt" opt=loose "$solvent
+keyword_opt="# "$level_opt" opt=loose "$solvent" nosymm"
 keyword_SP_gas="# "$level_SP" pop=MK IOp(6/33=2,6/42=6)"
 keyword_SP_solv="# "$level_SP" "$solvent" pop=MK IOp(6/33=2,6/42=6)"
 
@@ -56,31 +56,30 @@ Multiwfn $1 > /dev/null << EOF
 100
 2
 2
-tmp.xyz
+origin.xyz
 0
 q
 EOF
 
 #Optimize geometry
-cat << EOF > gau.gjf
-%chk=gau.chk
+cat << EOF > opt.gjf
+%chk=opt.chk
 $keyword_opt
 
 structure optimization
 
 $chg $multi
 EOF
-awk '{if (NR>2) print }' tmp.xyz >> gau.gjf
-cat << EOF >> gau.gjf
+awk '{if (NR>2) print }' origin.xyz >> opt.gjf
+cat << EOF >> opt.gjf
 
 
 EOF
-rm tmp.xyz
 
 echo
 echo Running optimization task under solvent via Gaussian...
-$Gaussian < gau.gjf > gau.out
-if grep -Fq "Normal termination" gau.out
+$Gaussian < opt.gjf > opt.out
+if grep -Fq "Normal termination" opt.out
 then
 	echo Done!
 else
@@ -89,8 +88,8 @@ else
 fi
 
 #### Single point in gas
-cat << EOF > gau.gjf
-%chk=gau.chk
+cat << EOF > gas.gjf
+%chk=gas.chk
 $keyword_SP_gas geom=allcheck guess=read
 
 
@@ -98,9 +97,9 @@ EOF
 
 echo
 echo Running single point task in gas phase via Gaussian...
-$Gaussian < gau.gjf > gau.out
+$Gaussian < gas.gjf > gas.out
 
-if grep -Fq "Normal termination" gau.out
+if grep -Fq "Normal termination" gas.out
 then
 	echo Done!
 else
@@ -109,15 +108,15 @@ else
 fi
 
 echo Running formchk...
-formchk gau.chk > /dev/null
+formchk gas.chk > /dev/null
 
 echo Running Multiwfn...
-Multiwfn gau.fchk > /dev/null << EOF
+Multiwfn gas.fchk > /dev/null << EOF
 7
 18
 8
 1
-gau.out
+gas.out
 y
 0
 0
@@ -128,8 +127,8 @@ mv gau.chg gas.chg
 echo RESP charge in gas phase has been outputted to gas.chg
 
 #### Single point in solvent
-cat << EOF > gau.gjf
-%chk=gau.chk
+cat << EOF > solv.gjf
+%chk=solv.chk
 $keyword_SP_solv geom=allcheck guess=read
 
 
@@ -137,9 +136,9 @@ EOF
 
 echo
 echo Running single point task in solvent phase via Gaussian...
-$Gaussian < gau.gjf > gau.out
+$Gaussian < solv.gjf > solv.out
 
-if grep -Fq "Normal termination" gau.out
+if grep -Fq "Normal termination" solv.out
 then
 	echo Done!
 else
@@ -148,15 +147,15 @@ else
 fi
 
 echo Running formchk...
-formchk gau.chk > /dev/null
+formchk solv.chk > /dev/null
 
 echo Running Multiwfn...
-Multiwfn gau.fchk > /dev/null << EOF
+Multiwfn solv.fchk > /dev/null << EOF
 7
 18
 8
 1
-gau.out
+solv.out
 y
 0
 0
@@ -168,21 +167,21 @@ echo RESP charge in solvent phase has been outputted to solv.chg
 
 #### Calculate RESP2
 chgname=${prefix}".chg"
-pqrname=${prefix}".pqr"
+outputfile=${prefix}"_out.pdb"
 
 paste gas.chg solv.chg |awk '{printf $1 " " $2 " " $3 " " $4 " " (1-d)*$5+d*$10 "\n"}' d=$delta > $chgname
 
 Multiwfn $chgname > /dev/null << EOF
 100
 2
-1
-tmp.pqr
+-1
+tmp.pdb
 0
 q
 EOF
 
-mv tmp.pqr $pqrname
+mv tmp.pdb $outputfile
 
 
 echo
-echo Finished! The optimized atomic coordinates with RESP2 charges \(the last column\) have been exported to $pqrname
+echo Finished! The optimized atomic coordinates with RESP2 charges \(the last column\) have been exported to $outputfile
