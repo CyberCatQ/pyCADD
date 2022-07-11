@@ -137,31 +137,35 @@ def molecule_prepare(
 
     print('Optimizing ligand structure...')
     # 高斯坐标优化与RESP2电荷计算
+    # 完成时 生成.pqr文件
     _system_call(
         f'chmod 777 {script_resp2_path} && {script_resp2_path} {file_path} {charge} {multiplicity} {solvent}'
     )
 
-    pdb_file_path = os.path.join(save_dir, file_prefix + '_out.pdb')
-    prepin_file_path = os.path.join(save_dir, file_prefix + '.prepin')
+    # 参数生成过程文件
+    pqr_file_path = os.path.join(save_dir, file_prefix + '.pqr')
+    mol2_file_path = os.path.join(save_dir, file_prefix + '.mol2')
+
+    # Openbabel格式转换 pqr -> mol2 电荷信息传递至mol2文件
+    _system_call(f'obabel -ipqr {pqr_file_path} -omol2 -O tmp.mol2')
+    # Openbabel生成的mol2文件无法被parmchk2直接使用 需要antechamber转换
+    # mol2文件带有RESP2电荷信息
+    _system_call(f'antechamber -fi mol2 -i tmp.mol2 -fo mol2 -o {mol2_file_path} && rm tmp.mol2')
+
     frcmod_file_path = os.path.join(save_dir, file_prefix + '.frcmod')
-
-    # 生成Amber pripi文件
+    
+    # 生成Amber Gaff Force Filed Parameters文件
     _system_call(
-        f'antechamber -fi pdb -i {pdb_file_path} -fo prepi -o {prepin_file_path}')
-
-    # 生成Amber Parameters文件
-    _system_call(
-        f'parmchk2 -i {prepin_file_path} -f prepi -o {frcmod_file_path}')
+        f'parmchk2 -i {mol2_file_path} -f mol2 -o {frcmod_file_path}')
 
     os.chdir(CWD)
 
-    return BaseFile(pdb_file_path), BaseFile(prepin_file_path), BaseFile(frcmod_file_path)
+    return BaseFile(mol2_file_path), BaseFile(frcmod_file_path)
 
 
 def _creat_leap_inputfile(
         prefix: str,
         ligand_file_path: str,
-        prepin_file_path: str,
         frcmod_file_path: str,
         protein_file_path: str,
         save_dir: str = None) -> BaseFile:
@@ -174,8 +178,6 @@ def _creat_leap_inputfile(
         文件名前缀
     ligand_file_path : str
         小分子文件路径
-    prepin_file_path : str
-        Amber prepi文件路径
     frcmod_file_path : str
         Amber Parameters文件路径
     protein_file_path : str
@@ -192,7 +194,6 @@ def _creat_leap_inputfile(
     input_file = _creat_file_from_template(
         tamplete_file_path, input_file_path,
         ligand_file_path=ligand_file_path,
-        prepin_file_path=prepin_file_path,
         frcmod_file_path=frcmod_file_path,
         protein_file_path=protein_file_path,
         pro_lig='{pro lig}',
@@ -202,7 +203,7 @@ def _creat_leap_inputfile(
     return input_file
 
 
-def leap_prepare(prefix: str, ligand_file: BaseFile, prepin_file: BaseFile, frcmod_file: BaseFile, protein_file: BaseFile, save_dir: str = None) -> None:
+def leap_prepare(prefix: str, ligand_file: BaseFile, frcmod_file: BaseFile, protein_file: BaseFile, save_dir: str = None) -> None:
     '''
     创建LEaP输入文件并执行tleap命令
 
@@ -212,8 +213,6 @@ def leap_prepare(prefix: str, ligand_file: BaseFile, prepin_file: BaseFile, frcm
         生成文件的文件名前缀
     ligand_file : BaseFile
         小分子文件
-    prepin_file : BaseFile
-        Amber prepi文件
     frcmod_file : BaseFile
         Amber Parameters文件
     protein_file : BaseFile
@@ -222,7 +221,6 @@ def leap_prepare(prefix: str, ligand_file: BaseFile, prepin_file: BaseFile, frcm
         保存路径 默认为当前目录
     '''
     ligand_file_path = ligand_file.file_path
-    prepin_file_path = prepin_file.file_path
     frcmod_file_path = frcmod_file.file_path
     protein_file_path = protein_file.file_path
 
@@ -230,7 +228,7 @@ def leap_prepare(prefix: str, ligand_file: BaseFile, prepin_file: BaseFile, frcm
     os.chdir(save_dir)
 
     leap_inputfile = _creat_leap_inputfile(
-        prefix, ligand_file_path, prepin_file_path, frcmod_file_path, protein_file_path, save_dir)
+        prefix, ligand_file_path, frcmod_file_path, protein_file_path, save_dir)
     # 调用tleap命令
     _system_call(f'tleap -f {leap_inputfile.file_path}')
 
@@ -363,9 +361,13 @@ def _trace_progress(output_file_path: str, step: int = 50000000):
     progress.start_task(taskID)
     while not progress.finished:
         _current = os.popen(f'tail -n 10 {output_file_path} | grep NSTEP').read()
+        _finished = os.popen(f'tail -n 20 {output_file_path} | grep Final').read()
         if _current:
             current_step = re.findall(r'\d+', _current)[0]
             progress.update(taskID, completed=int(current_step))
+        elif _finished:
+            progress.update(taskID, completed=step)
+            break
         sleep(1)
     progress.stop()
 
@@ -456,7 +458,7 @@ def _run_simulation(
     _system_call(step_b_cmd)
     print('Running Minimize Progress C...')
     _system_call(step_c_cmd)
-    print('Running 100ps NVT Progress...')
+    print('Running 100ps Heating Progress...')
     _system_call(step_nvt_cmd)
     print('Running Molecular Dynamics Simulation...')
     _system_call(step_npt_cmd)

@@ -48,8 +48,8 @@ fi
 echo delta parameter is $delta
 
 keyword_opt="# "$level_opt" opt=loose "$solvent" nosymm"
-keyword_SP_gas="# "$level_SP" pop=MK IOp(6/33=2,6/42=6)"
-keyword_SP_solv="# "$level_SP" "$solvent" pop=MK IOp(6/33=2,6/42=6)"
+keyword_SP_gas="# "$level_SP" pop=MK IOp(6/33=2,6/42=6) nosymm"
+keyword_SP_solv="# "$level_SP" "$solvent" pop=MK IOp(6/33=2,6/42=6) nosymm"
 
 #### Convert input file to .xyz file
 Multiwfn $1 > /dev/null << EOF
@@ -87,7 +87,10 @@ else
 	exit 1
 fi
 
+formchk opt.chk > /dev/null
+
 #### Single point in gas
+cp opt.chk gas.chk
 cat << EOF > gas.gjf
 %chk=gas.chk
 $keyword_SP_gas geom=allcheck guess=read
@@ -123,10 +126,10 @@ y
 q
 EOF
 
-mv gau.chg gas.chg
 echo RESP charge in gas phase has been outputted to gas.chg
 
 #### Single point in solvent
+cp gas.chk solv.chk
 cat << EOF > solv.gjf
 %chk=solv.chk
 $keyword_SP_solv geom=allcheck guess=read
@@ -162,25 +165,24 @@ y
 q
 EOF
 
-mv gau.chg solv.chg
 echo RESP charge in solvent phase has been outputted to solv.chg
 
 #### Calculate RESP2
 chgname=${prefix}".chg"
-outputfile=${prefix}"_out.pdb"
+outputfile=${prefix}".pqr"
 
 paste gas.chg solv.chg |awk '{printf $1 " " $2 " " $3 " " $4 " " (1-d)*$5+d*$10 "\n"}' d=$delta > $chgname
 
 Multiwfn $chgname > /dev/null << EOF
 100
 2
--1
-tmp.pdb
+1
+tmp.pqr
 0
 q
 EOF
 
-mv tmp.pdb $outputfile
+mv tmp.pqr $outputfile
 
 
 echo

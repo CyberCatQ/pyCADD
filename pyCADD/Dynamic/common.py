@@ -33,7 +33,6 @@ class Processor:
 
         self.processed_profile = None
         self.processed_molfile_pdb = None
-        self.prepin_file = None
         self.frcmod_file = None
         self.comsolvate_crdfile = None
         self.comsolvate_topfile = None
@@ -73,7 +72,7 @@ class Processor:
         protein_file = BaseFile(pretein_file_path)
         self.processed_profile = core.protein_prepare(
             protein_file, save_dir=PRO_RELATED_DIR)
-        logger.info(f'Protein file {self.processed_profile.file_name} has been saved in {PRO_RELATED_DIR}.')
+        logger.info(f'Protein file {self.processed_profile.file_name} has been saved in {PRO_RELATED_DIR} .')
 
     def molecule_prepare(self, molecule_file_path: str, charge: int = 0, multiplicity: int = 1, cpu_num: int = None, solvent: str = 'water') -> None:
         '''
@@ -94,12 +93,11 @@ class Processor:
         '''
         cpu_num = cpu_num if cpu_num is not None else CPU_NUM
         molecule_file = BaseFile(molecule_file_path)
-        self.processed_molfile_pdb, self.prepin_file, self.frcmod_file = core.molecule_prepare(
+        self.processed_molfile_pdb, self.frcmod_file = core.molecule_prepare(
             molecule_file, save_dir=MOL_RELATED_DIR, charge=charge, multiplicity=multiplicity,
             cpu_num=cpu_num, solvent=solvent)
-        logger.info(f'Molecule file {self.processed_molfile_pdb.file_name} has been saved in {MOL_RELATED_DIR}.')
-        logger.info(f'Prepin file {self.prepin_file.file_name} has been saved in {MOL_RELATED_DIR}.')
-        logger.info(f'Frcmod file {self.frcmod_file.file_name} has been saved in {MOL_RELATED_DIR}.')
+        logger.info(f'Molecule file {self.processed_molfile_pdb.file_name} has been saved in {MOL_RELATED_DIR} .')
+        logger.info(f'Frcmod file {self.frcmod_file.file_name} has been saved in {MOL_RELATED_DIR} .')
 
     def leap_prepare(self, prefix: str = None) -> None:
         '''
@@ -113,7 +111,6 @@ class Processor:
         prefix = prefix if prefix is not None else datetime.now().strftime('%Y%m%d')
         if not all([
             self.processed_molfile_pdb,
-            self.prepin_file,
             self.frcmod_file,
             self.processed_profile
         ]):
@@ -123,7 +120,6 @@ class Processor:
         core.leap_prepare(
             prefix,
             self.processed_molfile_pdb,
-            self.prepin_file,
             self.frcmod_file,
             self.processed_profile,
             LEAP_DIR
@@ -136,7 +132,7 @@ class Processor:
         self.comsolvate_crdfile = BaseFile(
             os.path.join(LEAP_DIR, f'{prefix}_comsolvate.inpcrd'))
         
-        logger.info(f'LEaP files have been saved in {LEAP_DIR}.')
+        logger.info(f'LEaP files have been saved in {LEAP_DIR} .')
 
     def _set_prepared_file(self, file_path: str, file_type: str) -> None:
         '''
@@ -150,7 +146,6 @@ class Processor:
             文件类型
             protein: 蛋白质PDB结构文件(_leap.pdb)
             molecule: 小分子PDB结构文件(_out.pdb)
-            prepin: amber参数文件(.prepin)
             frcmod: amber参数文件(.frcmod)
             comsolvate_pdb: 含水蛋白结构文件(_comsolvate.pdb)
             comsolvate_top: 含水蛋白拓扑文件(_comsolvate.prmtop)
@@ -161,8 +156,6 @@ class Processor:
             self.processed_profile = _file
         elif file_type == 'molecule':
             self.processed_molfile_pdb = _file
-        elif file_type == 'prepin':
-            self.prepin_file = _file
         elif file_type == 'frcmod':
             self.frcmod_file = _file
         elif file_type == 'comsolvate_pdb':
