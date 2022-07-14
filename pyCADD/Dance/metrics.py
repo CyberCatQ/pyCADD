@@ -9,13 +9,13 @@ def nef_score(y_true, y_score, percent: int = None):
 
     Parameters
     ----------
-    y_true : array-like of shape = [n_samples] or [n_samples, n_outputs]
-        Ground truth (correct) target values.
-    y_score : array-like of shape = [n_samples] or [n_samples, n_outputs]
-        Estimated target values.
-    percent : float
-        EF percentage, i.e. EF_1% is enrichment factor for first percent of
-        given samples. This function assumes that results are already sorted and
+    y_true : array-like or pandas.Series
+        样本的真实标签
+    y_score : array-like or pandas.Series
+        样本的预测得分(概率)
+    percent : int
+        早期富集百分率 取前 `percent%` 的样本计算NEF值
+        默认为None 将使用阳性样本在总样本中的比率 Ra = actives / total
     '''
 
     if isinstance(y_true, pd.Series):
