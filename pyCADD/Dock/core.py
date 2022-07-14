@@ -144,7 +144,7 @@ def grid_generate(complex_file:ComplexFile, gridbox_size:int=20, save_dir:str=No
 
         return GridFile(grid_file, ligname, lig_resnum)
 
-def dock(grid_file:GridFile, lig_file:LigandFile, precision:str='SP', calc_rmsd:bool=False, save_dir:str=None, overwrite:bool=False) -> DockResultFile:
+def dock(grid_file:GridFile, lig_file:LigandFile, precision:str='SP', calc_rmsd:bool=False, ligand_only:bool=False, save_dir:str=None, overwrite:bool=False) -> DockResultFile:
     '''
     一对一/多对一 glide dock任务输入文件编写与运行
 
@@ -198,6 +198,8 @@ def dock(grid_file:GridFile, lig_file:LigandFile, precision:str='SP', calc_rmsd:
         'LIGANDFILE %s\n' % lig_file.file_path,
         'PRECISION %s\n' % precision
     ]
+    if ligand_only:
+        glide_dock_config.append('POSE_OUTTYPE ligandlib\n')
     if calc_rmsd:
         glide_dock_config.append('CALC_INPUT_RMS True\n')
     if precision == 'XP':
