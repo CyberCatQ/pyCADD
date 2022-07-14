@@ -9,6 +9,7 @@ import pandas as pd
 from pandas import DataFrame, Series
 from pyCADD.Dance import core
 from pyCADD.Dance.algorithm import default_params, consensus
+from pyCADD.Dance.metrics import nef_score
 from pyCADD.utils.tool import makedirs_from_list
 from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score,
                              precision_score, recall_score, roc_auc_score,
@@ -546,7 +547,7 @@ class Evaluator:
         print(f'{n_repeats} x {k_folds} cross-validation finished.')
         print('=' * 50)
 
-        with open('cv_results.json', 'w') as f:
+        with open(f'cv_results_{self.score_func_name}.json', 'w') as f:
             json.dump(self.cv_results, f)
 
         return self.cv_results
@@ -597,6 +598,7 @@ class Evaluator:
             分类器的评估结果
         '''
         auc = roc_auc_score(y_test, y_proba)
+        nef = nef_score(y_test, y_proba)
         f1 = f1_score(y_test, y_pred)
         acc = accuracy_score(y_test, y_pred)
         precision = precision_score(y_test, y_pred)
@@ -605,6 +607,7 @@ class Evaluator:
 
         return {
             'auc': auc,
+            'nef': nef,
             'f1': f1,
             'accuracy': acc,
             'precision': precision,
@@ -682,6 +685,7 @@ class Evaluator:
         print('-' * 50)
         print(f'{clf_name} Evaluation Result:')
         print(f'AUC: {clf_eval_result["auc"]}')
+        print(f'NEF: {clf_eval_result["nef"]}')
         print(f'F1: {clf_eval_result["f1"]}')
         print(f'Accuracy: {clf_eval_result["accuracy"]}')
         print(f'Precision: {clf_eval_result["precision"]}')
