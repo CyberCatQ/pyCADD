@@ -88,7 +88,7 @@ def protein_prepare(protein_file: BaseFile, save_dir: str = None) -> BaseFile:
         f'pdb4amber -i {file_path} -o {dry_file_path} -p --dry --add-missing-atoms ')
     # 去除原生H原子
     _system_call(f'pdb4amber -i {dry_file_path} -o {noH_file_path} -y')
-    # 添加H原子并重新格式化
+    # 重新格式化
     _system_call(f'pdb4amber -i {noH_file_path} -o {leap_file_path}')
 
     return BaseFile(leap_file_path)

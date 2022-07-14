@@ -15,8 +15,9 @@ saveamberparm pro {file_prefix}_pro.prmtop {file_prefix}_pro.inpcrd
 
 ##########Complex#############
 com = combine {pro_lig}
+savepdb com {file_prefix}_com.pdb
 saveamberparm com {file_prefix}_com.prmtop {file_prefix}_com.inpcrd
-solvatebox com TIP3PBOX 12.0 0.75
+solvatebox com TIP3PBOX 12.0
 check com
 addions com Na+ 0
 saveamberparm com {file_prefix}_comsolvate.prmtop {file_prefix}_comsolvate.inpcrd
