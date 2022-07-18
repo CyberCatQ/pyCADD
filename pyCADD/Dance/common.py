@@ -572,7 +572,7 @@ class Evaluator:
         print(formatter.format('Std SCP', '%.4f' % self.cv_results['std_scp']))
         print('-' * 50)
         print(formatter.format('Classifier', 'Mean Score'))
-        print(formatter.format('-'*25, '-'*30))
+        print(formatter.format('-' * 50))
         for clf_name, clf_cv_results in self.cv_results['clf_cv_results'].items():
             print(formatter.format(clf_name, '%.4f' %
                   np.mean(clf_cv_results)))  # 打印每个分类器的平均AUC
