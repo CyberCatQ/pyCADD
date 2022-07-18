@@ -19,6 +19,8 @@ LEAP_DIR = os.path.join(CWD, 'leap')
 INPUT_FILE_DIR = os.path.join(CWD, 'input_file')
 MD_RESULT_DIR = os.path.join(CWD, 'md_result')
 
+ANALYSIS_RESULT_DIR = os.path.join(CWD, 'md_analysis')
+
 
 class Processor:
     '''
@@ -72,7 +74,8 @@ class Processor:
         protein_file = BaseFile(pretein_file_path)
         self.processed_profile = core.protein_prepare(
             protein_file, save_dir=PRO_RELATED_DIR)
-        logger.info(f'Protein file {self.processed_profile.file_name} has been saved in {PRO_RELATED_DIR} .')
+        logger.info(
+            f'Protein file {self.processed_profile.file_name} has been saved in {PRO_RELATED_DIR} .')
 
     def molecule_prepare(self, molecule_file_path: str, charge: int = 0, multiplicity: int = 1, cpu_num: int = None, solvent: str = 'water') -> None:
         '''
@@ -96,8 +99,10 @@ class Processor:
         self.processed_molfile_pdb, self.frcmod_file = core.molecule_prepare(
             molecule_file, save_dir=MOL_RELATED_DIR, charge=charge, multiplicity=multiplicity,
             cpu_num=cpu_num, solvent=solvent)
-        logger.info(f'Molecule file {self.processed_molfile_pdb.file_name} has been saved in {MOL_RELATED_DIR} .')
-        logger.info(f'Frcmod file {self.frcmod_file.file_name} has been saved in {MOL_RELATED_DIR} .')
+        logger.info(
+            f'Molecule file {self.processed_molfile_pdb.file_name} has been saved in {MOL_RELATED_DIR} .')
+        logger.info(
+            f'Frcmod file {self.frcmod_file.file_name} has been saved in {MOL_RELATED_DIR} .')
 
     def leap_prepare(self, prefix: str = None) -> None:
         '''
@@ -131,7 +136,7 @@ class Processor:
             os.path.join(LEAP_DIR, f'{prefix}_comsolvate.prmtop'))
         self.comsolvate_crdfile = BaseFile(
             os.path.join(LEAP_DIR, f'{prefix}_comsolvate.inpcrd'))
-        
+
         logger.info(f'LEaP files have been saved in {LEAP_DIR} .')
 
     def _set_prepared_file(self, file_path: str, file_type: str) -> None:
@@ -234,7 +239,7 @@ class Simulator:
          self.step_npt_inputfile) = core._creat_md_inputfile(
             water_resnum, step_num,
             step_length, INPUT_FILE_DIR)
-        
+
         logger.info(f'Input files have been saved in {INPUT_FILE_DIR}.')
 
     def shwo_cuda_device(self) -> None:
@@ -304,10 +309,216 @@ class Simulator:
             MD_RESULT_DIR
         )
         end_time = time.time()
-        
+
         duration = time.localtime(end_time - start_time)
 
-        logger.info(f'Start: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time))}')
-        logger.info(f'End: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(end_time))}')
+        logger.info(
+            f'Start: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time))}')
+        logger.info(
+            f'End: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(end_time))}')
         logger.info(f'Simulation time: {time.strftime("%H:%M:%S", duration)}')
         logger.info(f'Simulation normally finished.')
+
+
+class Analyzer:
+    '''
+    MD模拟轨迹分析器
+    '''
+
+    def __init__(self) -> None:
+
+        from pytraj import iterload
+        self._iterload = iterload
+
+        from pyCADD.Dynamic import analysis
+        self.analyzer = analysis
+
+        self.traj_file_path = None
+        self.traj_file = None
+        self.traj = None
+
+        self.top_file_path = None
+        self.top_file = None
+        self.top = None
+        makedirs_from_list(self._require_dir)
+
+        self.mdout_file = None
+
+        self.rmsd = None
+        self.rmsf = None
+        self.hbond = None
+        self.distance = None
+        self.angle = None
+
+    @property
+    def _require_dir(self):
+        return [
+            ANALYSIS_RESULT_DIR
+        ]
+
+    def load_traj(self, traj_file_path: str, top_file_path: str) -> None:
+        '''
+        加载轨迹文件
+
+        Parameters
+        ----------
+        traj_file_path : str
+            轨迹文件路径
+        top_file_path : str
+            拓扑文件路径
+        '''
+
+        self.traj_file = BaseFile(traj_file_path)
+        self.top_file = BaseFile(top_file_path)
+
+        self.traj = self._iterload(
+            self.traj_file.file_path, self.top_file.file_path)
+
+        logger.info(
+            f'Trajectory file {self.traj_file.file_path} has been loaded.')
+        logger.info(
+            f'Topology file {self.top_file.file_path} has been loaded.')
+        print('Trajectory Info:\n', self.traj)
+    
+    def load_mdout(self, mdout_file_path: str) -> None:
+        '''
+        加载MD模拟输出文件
+
+        Parameters
+        ----------
+        mdout_file_path : str
+            MD模拟输出文件路径
+        '''
+
+        self.mdout_file = BaseFile(mdout_file_path)
+        logger.info(
+            f'MD output file {self.mdout_file.file_path} has been loaded.')
+
+
+
+    def calc_rmsd(self, mask: str = '@CA', ref: int = 0, **kwargs) -> None:
+        '''
+        计算RMSD
+
+        Parameters
+        ----------
+        mask : str
+            计算RMSD的Amber mask
+        ref : int
+            参考轨迹索引号 默认第一帧0
+        '''
+
+        save_dir = os.path.join(ANALYSIS_RESULT_DIR, 'rmsd')
+        os.makedirs(save_dir, exist_ok=True)
+        self.rmsd = self.analyzer._calc_rmsd(
+            self.traj, mask=mask, reference=ref, save_dir=save_dir, **kwargs)
+
+    def calc_rmsf(self, mask: str = '@CA', options: str = 'byres', **kwargs) -> None:
+        '''
+        计算RMSF
+
+        Parameters
+        ----------
+        mask : str
+            计算RMSF的Amber mask
+        options : str
+            RMSF计算选项 默认byres
+        '''
+        save_dir = os.path.join(ANALYSIS_RESULT_DIR, 'rmsf')
+        os.makedirs(save_dir, exist_ok=True)
+        self.rmsf = self.analyzer._calc_rmsf(
+            self.traj, mask=mask, options=options, save_dir=save_dir, **kwargs)
+
+    def calc_hbond(self, mask: str = None, distance: float = 3.0, angle: float = 135.0, options: str = None, **kwargs) -> None:
+        '''
+        检测并追踪 Hbond 键长、键角
+
+        Parameters
+        ----------
+        mask : str
+            指定原子间的Amber mask 默认为自动识别 cutoff < distance 的原子
+        options : str
+            Hbond计算选项 默认为
+                avgout OUTPUTFILE 输出氢键平均信息文件   
+                printatomnum 打印原子序号   
+                nointramol 仅计算分子间氢键   
+        '''
+        save_dir = os.path.join(ANALYSIS_RESULT_DIR, 'hbond')
+        os.makedirs(save_dir, exist_ok=True)
+        self.hbond = self.analyzer._calc_hbond(
+            self.traj, mask=mask, distance=distance, angle=angle, options=options, save_dir=save_dir, **kwargs)
+
+    def trace_distance(self, mask: str, **kwargs) -> None:
+        '''
+        追踪指定原子之间的距离
+
+        Parameters
+        ----------
+        mask : str
+            指定原子Amber mask
+        '''
+        save_dir = os.path.join(ANALYSIS_RESULT_DIR, 'distance')
+        os.makedirs(save_dir, exist_ok=True)
+        self.distance = self.analyzer._trace_distance(
+            self.traj, mask=mask, save=True, save_dir=save_dir, **kwargs)
+
+    def trace_angle(self, mask: str, **kwargs) -> None:
+        '''
+        追踪指定原子之间的键角
+
+        Parameters
+        ----------
+        mask : str
+            指定原子Amber mask
+        '''
+        save_dir = os.path.join(ANALYSIS_RESULT_DIR, 'angle')
+        os.makedirs(save_dir, exist_ok=True)
+        self.angle = self.analyzer._trace_angle(
+            self.traj, mask=mask, save=True, save_dir=save_dir, **kwargs)
+
+    def extract_frame(self, frame:int, **kwargs) -> None:
+        '''
+        提取指定帧
+        帧索引开始于0 结束于最大帧数量-1
+
+        Parameters
+        ----------
+        frame : int
+            提取帧索引号
+        '''
+        save_dir = os.path.join(ANALYSIS_RESULT_DIR, 'frame_structures')
+        os.makedirs(save_dir, exist_ok=True)
+        self.frame = self.analyzer._extract_frame(
+            traj=self.traj, frame_indices=[frame], save_dir=save_dir, **kwargs)
+
+    def extract_frames(self, start: int, end: int, **kwargs) -> None:
+        '''
+        提取指定帧范围
+        帧索引开始于0 结束于最大帧数量-1
+
+        Parameters
+        ----------
+        start : int
+            开始帧索引号
+        end : int
+            结束帧索引号
+        '''
+        save_dir = os.path.join(ANALYSIS_RESULT_DIR, 'frame_structures')
+        os.makedirs(save_dir, exist_ok=True)
+        indices = range(start, end + 1)
+        self.frames = self.analyzer._extract_frame(
+            traj=self.traj, frame_indices=indices, save_dir=save_dir, **kwargs)
+    
+    def extract_lowest_energy_st(self) -> None:
+        '''
+        提取最低能量结构
+        '''
+        save_dir = os.path.join(ANALYSIS_RESULT_DIR, 'LE_structures')
+        os.makedirs(save_dir, exist_ok=True)
+        if self.mdout_file is None:
+            raise ValueError('Please load mdout file first.')
+
+        self.LE_frame, self.LE_time, self.LE_energy = self.analyzer._get_lowest_energy_info(
+            mdout_file=self.mdout_file, save_dir=save_dir)
+        
+        self.analyzer._extract_frame(self.traj, frame_indices=[self.LE_frame], save_dir=save_dir)
