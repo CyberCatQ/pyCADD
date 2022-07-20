@@ -5,7 +5,7 @@ from pyCADD.utils.common import BaseFile
 
 # If you can not import pytraj, please use the following code
 # conda uninstall ambertools
-# conda install -c conda-forge ambertools compilers
+# conda install -c conda-forge ambertools
 import pytraj as pt
 import pandas as pd
 from numpy import ndarray
@@ -40,7 +40,7 @@ def _calc_rmsd(trajectory: Any, mask: str = '@CA', reference: Any = 0, save_dir:
 
     save_dir = CWD if save_dir is None else save_dir
     output_file = os.path.join(save_dir, 'RMSD_RESULTS.csv')
-    pd.DataFrame(data_rmsd, columns=['time', 'rmsd']).to_csv(
+    pd.DataFrame(data_rmsd, columns=['rmsd']).to_csv(
         output_file, index=False)
 
     return data_rmsd

@@ -7,9 +7,11 @@ from pyCADD.utils.common import BaseFile
 from pyCADD.utils.tool import _get_progress, makedirs_from_list
 
 CWD = os.getcwd()
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 CPU_NUM = os.cpu_count()
 SANDER = 'pmemd.cuda'
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATE_DIR = os.path.join(SCRIPT_DIR, 'template')
 
 
 def _system_call(cmd: str) -> None:
@@ -150,10 +152,11 @@ def molecule_prepare(
     _system_call(f'obabel -ipqr {pqr_file_path} -omol2 -O tmp.mol2')
     # Openbabel生成的mol2文件无法被parmchk2直接使用 需要antechamber转换
     # mol2文件带有RESP2电荷信息
-    _system_call(f'antechamber -fi mol2 -i tmp.mol2 -fo mol2 -o {mol2_file_path} && rm tmp.mol2')
+    _system_call(
+        f'antechamber -fi mol2 -i tmp.mol2 -fo mol2 -o {mol2_file_path} && rm tmp.mol2')
 
     frcmod_file_path = os.path.join(save_dir, file_prefix + '.frcmod')
-    
+
     # 生成Amber Gaff Force Filed Parameters文件
     _system_call(
         f'parmchk2 -i {mol2_file_path} -f mol2 -o {frcmod_file_path}')
@@ -187,8 +190,7 @@ def _creat_leap_inputfile(
     '''
     save_dir = save_dir if save_dir is not None else CWD
 
-    tamplete_file_path = os.path.join(
-        SCRIPT_DIR, 'template', 'leap_template.in')
+    tamplete_file_path = os.path.join(TEMPLATE_DIR, 'leap_template.in')
     input_file_path = os.path.join(save_dir, prefix + '_leap.in')
 
     input_file = _creat_file_from_template(
@@ -295,12 +297,11 @@ def _creat_md_inputfile(
     '''
     save_dir = save_dir if save_dir is not None else CWD
 
-    template_dir = os.path.join(SCRIPT_DIR, 'template')
-    step_a_temfile_path = os.path.join(template_dir, 'step_a.in')
-    step_b_temfile_path = os.path.join(template_dir, 'step_b.in')
-    step_c_temfile_path = os.path.join(template_dir, 'step_c.in')
-    step_nvt_temfile_path = os.path.join(template_dir, 'step_nvt.in')
-    step_npt_temfile_path = os.path.join(template_dir, 'step_npt.in')
+    step_a_temfile_path = os.path.join(TEMPLATE_DIR, 'step_a.in')
+    step_b_temfile_path = os.path.join(TEMPLATE_DIR, 'step_b.in')
+    step_c_temfile_path = os.path.join(TEMPLATE_DIR, 'step_c.in')
+    step_nvt_temfile_path = os.path.join(TEMPLATE_DIR, 'step_nvt.in')
+    step_npt_temfile_path = os.path.join(TEMPLATE_DIR, 'step_npt.in')
 
     water_resnum_start = int(water_resnum[0])
     water_resnum_end = int(water_resnum[-1])
@@ -356,12 +357,15 @@ def _trace_progress(output_file_path: str, step: int = 50000000):
     step : int, optional
         模拟步数 默认为50000000
     '''
-    progress, taskID = _get_progress('Molecule Dynamics Simulation', 'bold cyan', total=step)
+    progress, taskID = _get_progress(
+        'Molecule Dynamics Simulation', 'bold cyan', total=step)
     progress.start()
     progress.start_task(taskID)
     while not progress.finished:
-        _current = os.popen(f'tail -n 10 {output_file_path} | grep NSTEP').read()
-        _finished = os.popen(f'tail -n 20 {output_file_path} | grep Final').read()
+        _current = os.popen(
+            f'tail -n 10 {output_file_path} | grep NSTEP').read()
+        _finished = os.popen(
+            f'tail -n 20 {output_file_path} | grep Final').read()
         if _current:
             current_step = re.findall(r'\d+', _current)[0]
             progress.update(taskID, completed=int(current_step))
@@ -465,3 +469,86 @@ def _run_simulation(
     _trace_progress(step_npt_outfile)
 
     print('Simulation Finished.')
+
+
+def _creat_energy_inputfile(job_type: str, startframe: int, endframe: int, interval: int, decomp:bool=False, save_dir: str = None) -> BaseFile:
+    '''
+    创建能量计算相关输入文件
+
+    Parameters
+    ----------
+    job_type : str
+        能量计算类型，可选值为：
+        'pb/gb': 同时进行MM-PB/GBSA自由能计算
+        'gb': 进行MM-GBSA自由能计算
+        'nmode': 进行 Normal Mode 熵变计算
+    startframe : int
+        计算分析起始帧
+    endframe : int
+        计算分析结束帧
+    interval : int
+        计算分析帧间隔
+    decomp : bool, optional
+        是否进行能量分解计算 默认为False
+    save_dir : str, optional
+        计算结果保存目录 默认为当前目录
+
+    Returns
+    -------
+    BaseFile
+        能量计算输入文件
+    '''
+    save_dir = save_dir if save_dir is not None else CWD
+
+    if job_type == 'pb/gb':
+        if decomp:
+            template_file = os.path.join(TEMPLATE_DIR, 'mmpb_gbsa_decom.in')
+        else:
+            template_file = os.path.join(TEMPLATE_DIR, 'mmpb_gbsa_only.in')
+    elif job_type == 'gb':
+        if decomp:
+            template_file = os.path.join(TEMPLATE_DIR, 'mmgbsa_decom.in')
+        else:
+            template_file = os.path.join(TEMPLATE_DIR, 'mmgbsa_only.in')
+    elif job_type == 'nmode':
+        template_file = os.path.join(TEMPLATE_DIR, 'nmode.in')
+    else:
+        raise ValueError(f'Invalid job_type: {job_type}')
+
+    output_file = os.path.join(save_dir, os.path.basename(template_file))
+    input_file = _creat_file_from_template(
+        template_file,
+        output_file,
+        startframe=startframe,
+        endframe=endframe,
+        interval=interval
+    )
+
+    return input_file
+
+
+def _run_energy_calculation(
+    input_file: BaseFile, comsolvate_topfile: BaseFile, com_topfile: BaseFile,
+    receptor_topfile: BaseFile, ligand_topfile: BaseFile, traj_file: BaseFile,
+    output_filepath: str = None, decom_output_filepath: str = None, cpu_num: int = None
+    ) -> None:
+
+    cpu_num = cpu_num if cpu_num is not None else CPU_NUM
+    energy_cmd = f'mpirun -np {cpu_num} MMPBSA.py.MPI -O '
+    energy_cmd += f'-i {input_file.file_path} '
+    energy_cmd += f'-sp {comsolvate_topfile.file_path} '
+    energy_cmd += f'-cp {com_topfile.file_path} '
+    energy_cmd += f'-rp {receptor_topfile.file_path} '
+    energy_cmd += f'-lp {ligand_topfile.file_path} '
+    energy_cmd += f'-y {traj_file.file_path} '
+
+    if output_filepath is not None:
+        energy_cmd += f'-o {output_filepath} '
+    if decom_output_filepath is not None:
+        energy_cmd += f'-do {decom_output_filepath} '
+
+    energy_cmd += f'> {input_file.file_prefix}.log '
+
+    print('Running Energy Calculation...')
+    _system_call(energy_cmd)
+    print('Energy Calculation Finished.')

@@ -1,0 +1,8 @@
+# Input file for Normal mode calculation
+&general
+    startframe={startframe}, endframe={endframe}, interval={interval},
+    verbose=2, keep_files=2, netcdf=1,
+/
+&nmode
+    maxcyc=10000, drms=0.001,
+/

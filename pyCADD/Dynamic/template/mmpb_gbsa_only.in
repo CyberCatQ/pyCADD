@@ -1,0 +1,11 @@
+# Input file for GB/PB calculation
+&general
+    startframe={startframe}, endframe={endframe}, interval={interval},
+    verbose=2, keep_files=2, netcdf=1,
+/
+&gb
+    igb=5, saltcon=0.15,
+/
+&pb
+    istrng=0.15, fillratio=4.0
+/
