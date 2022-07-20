@@ -99,6 +99,9 @@ def get_predict_structure(predict_file, output_file:str=None):
     for ligand in predict_ligand_df['Ligand']:
         ligand_file = ligand + '.mae'
         ligand_file_path = os.path.join('ligands', ligand_file)
+        if not os.path.exists(ligand_file_path):
+            logger.warning('Ligand file %s not found!' % ligand_file_path)
+            continue
         st = StructureReader.read(ligand_file_path)
         ligand_sts.append(st)
 
