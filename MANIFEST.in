@@ -1,4 +1,4 @@
 include pyCADD/VSW/*.ini
-include pyCADD/scripts/*
 include pyCADD/README.md
+include pyCADD/Dynamic/template/*.in
 include pyCADD/LICENSE

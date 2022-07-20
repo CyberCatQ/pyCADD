@@ -11,6 +11,11 @@ pyCADD
 * 支持CLI快速调用
 
 ## 更新日志
+* 1.6.1 (2022-07-14)
+  * 添加了Dynamic模块的MD后处理工具Analyzer
+  * 为MD后处理添加了CLI接口 pycadd-mdanalysis
+  * 为Dance添加了新的统计方法 标准富集因子NEF
+  
 * 1.6.0 (2022-07-07)
   * 分子动力学模块 Dynamic 开发完成
   * 添加了Dynamic的CLI接口
