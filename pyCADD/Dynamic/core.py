@@ -4,7 +4,7 @@ from time import sleep
 
 from pyCADD.Gauss.base import Gauss
 from pyCADD.utils.common import BaseFile
-from pyCADD.utils.tool import _get_progress, makedirs_from_list
+from pyCADD.utils.tool import _get_progress, makedirs_from_list, timeit
 
 CWD = os.getcwd()
 CPU_NUM = os.cpu_count()
@@ -375,7 +375,7 @@ def _trace_progress(output_file_path: str, step: int = 50000000):
         sleep(1)
     progress.stop()
 
-
+@timeit
 def _run_simulation(
         comsolvate_topfile: BaseFile,
         comsolvate_crdfile: BaseFile,
@@ -526,7 +526,7 @@ def _creat_energy_inputfile(job_type: str, startframe: int, endframe: int, inter
 
     return input_file
 
-
+@timeit
 def _run_energy_calculation(
     input_file: BaseFile, comsolvate_topfile: BaseFile, com_topfile: BaseFile,
     receptor_topfile: BaseFile, ligand_topfile: BaseFile, traj_file: BaseFile,

@@ -33,30 +33,26 @@ def main(protein_file, molecule_file, charge, multiplicity, solvent, prefix, par
 
 
 @click.command()
-@click.option('-y', type=click.Path(exists=True), help='Trajectory file path.', prompt='Please specify trajectory file path.')
-@click.option('-sp', type=click.Path(exists=True), help='Solvated complex topology file path.', prompt='Please specify solvated complex topology file path:')
-@click.option('-lp', type=click.Path(exists=True), help='Ligand topology file path.', prompt='Please specify ligand topology file path:')
-@click.option('-rp', type=click.Path(exists=True), help='Receptor topology file path.', prompt='Please specify receptor topology file path:')
-@click.option('-cp', type=click.Path(exists=True), help='Complex topology file path.', prompt='Please specify complex topology file path:')
-@click.option('-ro', type=click.Path(exists=True), help='Molecular dynamics output file path.', prompt='Please specify molecular dynamics output file path:')
+@click.option('-y', type=click.Path(exists=True), help='Trajectory file path.', prompt='Please specify trajectory file path')
+@click.option('-sp', type=click.Path(exists=True), help='Solvated complex topology file path.', prompt='Please specify solvated complex topology file path')
+@click.option('-lp', type=click.Path(exists=True), help='Ligand topology file path.', prompt='Please specify ligand topology file path')
+@click.option('-rp', type=click.Path(exists=True), help='Receptor topology file path.', prompt='Please specify receptor topology file path')
+@click.option('-cp', type=click.Path(exists=True), help='Complex topology file path.', prompt='Please specify complex topology file path')
+@click.option('-ro', type=click.Path(exists=True), help='Molecular dynamics output file path.', prompt='Please specify molecular dynamics output file path')
 @click.option('--no-hbond', '-nh', is_flag=True, help='Disable calculating and tracing of hydrogen bonds.')
 @click.option('--no-rmsd', '-nd', is_flag=True, help='Disable calculating of RMSD.')
 @click.option('--no-rmsf', '-nf', is_flag=True, help='Disable calculating of RMSF.')
 @click.option('--no-extract', '-ne', is_flag=True, help='Disable extracting of lowest energy structure.')
 @click.option(
-    '--decomP', '-d', 
-    type=(int, int, int), 
-    help='Performing MM-GBSA energy decomposition from START_FRAME to END_FRAME with STEP_SIZE.', 
-    prompt='Please specify decomposition START_FRAME, END_FRAME, STEP_SIZE:'
-    )
+    '--decomp', '-d', 
+    is_flag=True,
+    help='Performing MM-GBSA energy decomposition from START_FRAME(INT1) to END_FRAME(INT2) with STEP_SIZE(INT3).')
 @click.option(
     '--nmode', '-e', 
-    type=(int, int, int), 
-    help='Performing entropy calculation with normal mode(nmode) from START_FRAME to END_FRAME with STEP_SIZE.', 
-    prompt='Please specify entropy calculation START_FRAME, END_FRAME, STEP_SIZE:'
-    )
+    is_flag=True,
+    help='Performing entropy calculation with normal mode(nmode) from START_FRAME(INT1) to END_FRAME(INT2) with STEP_SIZE(INT3).')
 @click.option('--parallel', '-n', default=os.cpu_count(), show_default=True, type=int, help='Number of parallel processes used in energy calculation.')
-def analysis(y, sp, lp, rp, cp, ro, no_hbond, no_rmsd, no_rmsf, no_extract, decomp=None, nmode=None, parallel=None):
+def analysis(y, sp, lp, rp, cp, ro, no_hbond, no_rmsd, no_rmsf, no_extract, decomp, nmode, parallel=None):
     '''
     Post-process for molecular dynamics simulation.\n
     Workflow:\n
@@ -79,6 +75,16 @@ def analysis(y, sp, lp, rp, cp, ro, no_hbond, no_rmsd, no_rmsf, no_extract, deco
         mdout_file_path=ro
         )
 
+    if decomp:
+        decomp_start_fm = input('Please specify energy decomposition START_FRAME:')
+        decomp_end_fm = input('Please specify energy decomposition END_FRAME:')
+        decomp_step_size = input('Please specify energy decomposition STEP_SIZE:')
+    
+    if nmode:
+        nmode_start_fm = input('Please specify nmode START_FRAME:')
+        nmode_end_fm = input('Please specify nmode END_FRAME:')
+        nmode_step_size = input('Please specify nmode STEP_SIZE:')
+
     if not no_rmsd:
         analyzer.calc_rmsd()
     if not no_rmsf:
@@ -87,11 +93,11 @@ def analysis(y, sp, lp, rp, cp, ro, no_hbond, no_rmsd, no_rmsf, no_extract, deco
         analyzer.calc_hbond()
     if not no_extract:
         analyzer.extract_lowest_energy_st()
-    if decomp is not None:
-        start_frame, end_frame, step_size = decomp
-        analyzer.creat_energy_inputfile(start_frame=start_frame, end_frame=end_frame, interval=step_size, job_type='decomp')
+    if decomp:
+        analyzer.creat_energy_inputfile(start_frame=decomp_start_fm, end_frame=decomp_end_fm, interval=decomp_step_size, job_type='decomp')
         analyzer.run_energy_calc(cpu_num=parallel)
-    if nmode is not None:
-        start_frame, end_frame, step_size = nmode
-        analyzer.creat_energy_inputfile(start_frame=start_frame, end_frame=end_frame, interval=step_size, job_type='entropy')
+    if nmode:
+        analyzer.creat_energy_inputfile(start_frame=nmode_start_fm, end_frame=nmode_end_fm, interval=nmode_step_size, job_type='entropy')
         analyzer.run_energy_calc(cpu_num=parallel)
+
+    os.system('rm _MMPBSA_*')

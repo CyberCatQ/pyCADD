@@ -1,6 +1,5 @@
 import logging
 import os
-import time
 from datetime import datetime
 from typing import Literal
 
@@ -301,7 +300,6 @@ class Simulator:
         else:
             self._apply_cuda_device()
 
-        start_time = time.time()
         core._run_simulation(
             self.comsolvate_topfile, self.comsolvate_crdfile,
             self.step_a_inputfile, self.setp_b_inputfile,
@@ -309,15 +307,7 @@ class Simulator:
             self.step_npt_inputfile,
             MD_RESULT_DIR
         )
-        end_time = time.time()
 
-        duration = time.localtime(end_time - start_time)
-
-        logger.info(
-            f'Start: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time))}')
-        logger.info(
-            f'End: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(end_time))}')
-        logger.info(f'Simulation time: {time.strftime("%H:%M:%S", duration)}')
         logger.info(f'Simulation normally finished.')
 
 
@@ -455,6 +445,9 @@ class Analyzer:
 
         save_dir = os.path.join(ANALYSIS_RESULT_DIR, 'rmsd')
         os.makedirs(save_dir, exist_ok=True)
+        logger.info(f'Calculating RMSD...')
+        logger.info(f'Amber mask: {mask}')
+        logger.info(f'Reference frame: {ref}')
         self.rmsd = self.analyzer._calc_rmsd(
             self.traj, mask=mask, reference=ref, save_dir=save_dir, **kwargs)
 
@@ -471,6 +464,10 @@ class Analyzer:
         '''
         save_dir = os.path.join(ANALYSIS_RESULT_DIR, 'rmsf')
         os.makedirs(save_dir, exist_ok=True)
+
+        logger.info(f'Calculating RMSF...')
+        logger.info(f'Amber mask: {mask}')
+        logger.info(f'Options: {options}')
         self.rmsf = self.analyzer._calc_rmsf(
             self.traj, mask=mask, options=options, save_dir=save_dir, **kwargs)
 
@@ -490,6 +487,12 @@ class Analyzer:
         '''
         save_dir = os.path.join(ANALYSIS_RESULT_DIR, 'hbond')
         os.makedirs(save_dir, exist_ok=True)
+
+        logger.info(f'Calculating and tracing H-bonds...')
+        logger.info(f'Amber mask: {mask}')
+        logger.info(f'Distance cutoff: {distance}')
+        logger.info(f'Angle cutoff: {angle}')
+        logger.info(f'Options: {options}')
         self.hbond = self.analyzer._calc_hbond(
             self.traj, mask=mask, distance=distance, angle=angle, options=options, save_dir=save_dir, **kwargs)
 
@@ -563,8 +566,14 @@ class Analyzer:
         if self.mdout_file is None:
             raise ValueError('Please load mdout file first.')
 
+        logger.info(f'Detecting lowest energy frame...')
         self.LE_frame, self.LE_time, self.LE_energy = self.analyzer._get_lowest_energy_info(
             mdout_file=self.mdout_file, save_dir=save_dir)
+        
+        logger.info(f'Lowest energy frame: {self.LE_frame}')
+        logger.info(f'Lowest energy time: {self.LE_time}')
+        logger.info(f'Lowest energy: {self.LE_energy}')
+        logger.info(f'Extracting lowest energy structure: Frame {self.LE_frame}...')
 
         self.analyzer._extract_frame(self.traj, frame_indices=[
                                      self.LE_frame], save_dir=save_dir)
@@ -664,10 +673,17 @@ class Analyzer:
 
         output_file = output_file if output_file is not None else os.path.join(
             save_dir, 'FINAL_RESULTS_MMPBSA.csv')
+        while True:
+            i = 2
+            if os.path.exists(output_file):
+                output_file = os.path.join(save_dir, f'{BaseFile(output_file).file_prefix}_{str(i)}.csv')
+                i += 1
+            else:
+                break
+            
         decom_output_file = decom_output_file if decom_output_file is not None else os.path.join(
             save_dir, 'FINAL_RESULTS_DECOMP.csv')
 
-        start_time = time.time()
         core._run_energy_calculation(
             input_file=input_file, comsolvate_topfile=self.top_file,
             com_topfile=self.com_topfile, receptor_topfile=self.recep_topfile,
@@ -675,13 +691,4 @@ class Analyzer:
             output_filepath=output_file, decom_output_filepath=decom_output_file,
             cpu_num=cpu_num
             )
-        end_time = time.time()
-        
-        duration = time.localtime(end_time - start_time)
-
-        logger.info(
-            f'Start: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time))}')
-        logger.info(
-            f'End: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(end_time))}')
-        logger.info(f'Calculating time: {time.strftime("%H:%M:%S", duration)}')
         logger.info(f'Calculating normally finished.')
