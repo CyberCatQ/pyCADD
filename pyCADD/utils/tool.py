@@ -3,6 +3,7 @@ import time
 import logging
 import requests
 import multiprocessing
+import functools
 
 # For Schrodinger 2021-2 or newer release
 import importlib
@@ -243,3 +244,20 @@ def get_config(config_file: str) -> Myconfig:
     config = Myconfig()
     config.read(config_file)
     return config
+
+def timeit(func):
+    '''
+    计时装饰器
+    '''
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        end = time.time()
+        logger.info(
+            f'Start: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start))}')
+        logger.info(
+            f'End: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(end))}')
+        logger.info(f'Duration: {time.strftime("%H:%M:%S", time.gmtime(end - start))}')
+        return result
+    return wrapper
