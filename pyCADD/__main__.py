@@ -1,13 +1,26 @@
 import os
 import sys
 import logging
+import getopt
 
 logger = logging.getLogger(__name__)
 
 from pyCADD.utils.ui import UI
 enter_text = '[bold]Enter the Code of Options'
 
+from pyCADD import __version__
+
 def main():
+    if len(sys.argv) != 1:
+        try:
+            opts, args = getopt.getopt(sys.argv[1:], 'hv', ['help', 'version'])
+        except getopt.GetoptError as err:
+            print(err)
+            sys.exit(2)
+        for opt, arg in opts:
+            if opt in ('-v', '--version', '-V'):
+                print('pyCADD Version', __version__)
+                sys.exit(0)
     ui = UI()
     options = [
         '1. Dock Mode',
