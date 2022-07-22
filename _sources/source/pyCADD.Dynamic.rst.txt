@@ -4,6 +4,14 @@ pyCADD.Dynamic package
 Submodules
 ----------
 
+pyCADD.Dynamic.analysis module
+------------------------------
+
+.. automodule:: pyCADD.Dynamic.analysis
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pyCADD.Dynamic.cli module
 -------------------------
 

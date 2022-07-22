@@ -28,6 +28,14 @@ pyCADD.Dance.core module
    :undoc-members:
    :show-inheritance:
 
+pyCADD.Dance.metrics module
+---------------------------
+
+.. automodule:: pyCADD.Dance.metrics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

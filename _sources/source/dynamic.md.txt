@@ -16,7 +16,7 @@ Dynamic模块只需要最少的必要输入和几个关键参数调节即可快�
 
 ### Python包调用Dynamic模块
 
-首先 从模块中导入结构预处理器 `Processor` 及实施分子动力学模拟的模拟器 `Simulator`, 然后创建一个预处理器实例`processor`
+首先 从模块中导入结构预处理器 `Processor` 及实施分子动力学模拟的模拟器 `Simulator`, 然后创建一个预处理器实例 `processor`
 
 ```python
 from pyCADD.Dynamic import Processor, Simulator
@@ -48,11 +48,9 @@ processor.molecule_prepare(molecule_file, charge=0, multiplicity=1)
 
 这一过程包括以下几个步骤：
 1. 高斯结构优化 (需要Gaussian 16, 使用泛函B3LYP、基组def2SVP、色散矫正em=GD3BJ、loose收敛限)
-2. 计算小分子的RESP2电荷 (需要Multiwfn) 关于RESP2(0.5)电荷的更多信息，参阅[RESP2(0.5)电荷](http://sobereva.com/531)
-3. OpenBabel格式转换 (需要OpenBabel) 生成结构优化及电荷计算后的小分子结构文件`.mol2`
-4. antechamber (需要AmberTools) 生成Amber模拟模型参数文件`.prepin`及`.frcmod`
-5. parmchk2 (需要AmberTools) 生成最终优化完成的小分子结构文件`_out.pdb`
-
+2. 计算小分子的RESP2电荷 (需要Multiwfn)并生成输出PDB结构`_out.pdb` 关于RESP2(0.5)电荷的更多信息，参阅[RESP2(0.5)电荷](http://sobereva.com/531)
+3. antechamber (需要AmberTools) 生成Amber模拟模型参数文件`.prepin`
+4. parmchk2 (需要AmberTools) 生成Amber模拟模型参数文件`.frcmod`
 所有此步骤的过程文件保存在`molecule`目录中。
 
 #### Amber模拟前准备-LEaP
@@ -121,7 +119,6 @@ cd 1FBY
 cp SOMEWHERE/1FBY-pro-9CR.pdb ./
 cp SOMEWHERE/1FBY-lig-9CR.pdb ./
 pycadd-dynamic --charge -1 --multiplicity 1 --prefix 1FBY --parallel 48 --with-gpu 0 1FBY-pro-9CR.pdb 1FBY-lig-9CR.pdb
-# 可使用nohup命令后台运行
 ```
 使用
 ```bash

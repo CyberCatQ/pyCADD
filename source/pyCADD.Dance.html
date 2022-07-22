@@ -38,11 +38,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">README</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../README.html">pyCADD</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="input_file_fmt.html">构建Dock输入文件时的规范</a></li>
 </ul>
@@ -498,6 +494,25 @@ clf_cv_results为交叉验证结果</p>
 </dd>
 <dt class="field-odd">返回类型</dt>
 <dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.Dance.metrics">
+<span id="pycadd-dance-metrics-module"></span><h2>pyCADD.Dance.metrics module<a class="headerlink" href="#module-pyCADD.Dance.metrics" title="永久链接至标题"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dance.metrics.nef_score">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dance.metrics.</span></span><span class="sig-name descname"><span class="pre">nef_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyCADD/Dance/metrics.html#nef_score"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dance.metrics.nef_score" title="永久链接至目标"></a></dt>
+<dd><p>计算NEF值</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> (<em>array-like</em><em> or </em><em>pandas.Series</em>) – 样本的真实标签</p></li>
+<li><p><strong>y_score</strong> (<em>array-like</em><em> or </em><em>pandas.Series</em>) – 样本的预测得分(概率)</p></li>
+<li><p><strong>percent</strong> (<em>int</em>) – 早期富集百分率 取前 <cite>percent%</cite> 的样本计算NEF值
+默认为None 将使用阳性样本在总样本中的比率 Ra = actives / total</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

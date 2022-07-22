@@ -35,11 +35,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">README</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../README.html">pyCADD</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../source/input_file_fmt.html">构建Dock输入文件时的规范</a></li>
 </ul>
@@ -182,6 +178,9 @@
     <span class="k">for</span> <span class="n">ligand</span> <span class="ow">in</span> <span class="n">predict_ligand_df</span><span class="p">[</span><span class="s1">&#39;Ligand&#39;</span><span class="p">]:</span>
         <span class="n">ligand_file</span> <span class="o">=</span> <span class="n">ligand</span> <span class="o">+</span> <span class="s1">&#39;.mae&#39;</span>
         <span class="n">ligand_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;ligands&#39;</span><span class="p">,</span> <span class="n">ligand_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">ligand_file_path</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Ligand file </span><span class="si">%s</span><span class="s1"> not found!&#39;</span> <span class="o">%</span> <span class="n">ligand_file_path</span><span class="p">)</span>
+            <span class="k">continue</span>
         <span class="n">st</span> <span class="o">=</span> <span class="n">StructureReader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">ligand_file_path</span><span class="p">)</span>
         <span class="n">ligand_sts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
 

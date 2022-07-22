@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD.utils.tool &mdash; pyCADD 1.5.2 文档</title>
+  <title>pyCADD.utils.tool &mdash; pyCADD  文档</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -35,7 +35,18 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/dance.html">Dance User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/dynamic.html">Dynamic Quick User Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">pyCADD</a></li>
 </ul>
@@ -70,6 +81,7 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">functools</span>
 
 <span class="c1"># For Schrodinger 2021-2 or newer release</span>
 <span class="kn">import</span> <span class="nn">importlib</span>
@@ -310,6 +322,23 @@
     <span class="n">config</span> <span class="o">=</span> <span class="n">Myconfig</span><span class="p">()</span>
     <span class="n">config</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="timeit"><a class="viewcode-back" href="../../../source/pyCADD.utils.html#pyCADD.utils.tool.timeit">[文档]</a><span class="k">def</span> <span class="nf">timeit</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    计时装饰器</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Start: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">start</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;End: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">end</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Duration: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H:%M:%S&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">wrapper</span></div>
 </pre></div>
 
            </div>

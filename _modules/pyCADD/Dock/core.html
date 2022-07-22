@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD.Dock.core &mdash; pyCADD 1.5.2 文档</title>
+  <title>pyCADD.Dock.core &mdash; pyCADD  文档</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -35,7 +35,18 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/dance.html">Dance User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/dynamic.html">Dynamic Quick User Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">pyCADD</a></li>
 </ul>
@@ -212,7 +223,7 @@
 
         <span class="k">return</span> <span class="n">GridFile</span><span class="p">(</span><span class="n">grid_file</span><span class="p">,</span> <span class="n">ligname</span><span class="p">,</span> <span class="n">lig_resnum</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="dock"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.core.dock">[文档]</a><span class="k">def</span> <span class="nf">dock</span><span class="p">(</span><span class="n">grid_file</span><span class="p">:</span><span class="n">GridFile</span><span class="p">,</span> <span class="n">lig_file</span><span class="p">:</span><span class="n">LigandFile</span><span class="p">,</span> <span class="n">precision</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;SP&#39;</span><span class="p">,</span> <span class="n">calc_rmsd</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DockResultFile</span><span class="p">:</span>
+<div class="viewcode-block" id="dock"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.core.dock">[文档]</a><span class="k">def</span> <span class="nf">dock</span><span class="p">(</span><span class="n">grid_file</span><span class="p">:</span><span class="n">GridFile</span><span class="p">,</span> <span class="n">lig_file</span><span class="p">:</span><span class="n">LigandFile</span><span class="p">,</span> <span class="n">precision</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;SP&#39;</span><span class="p">,</span> <span class="n">calc_rmsd</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ligand_only</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DockResultFile</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    一对一/多对一 glide dock任务输入文件编写与运行</span>
 
@@ -266,6 +277,8 @@
         <span class="s1">&#39;LIGANDFILE </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">lig_file</span><span class="o">.</span><span class="n">file_path</span><span class="p">,</span>
         <span class="s1">&#39;PRECISION </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">precision</span>
     <span class="p">]</span>
+    <span class="k">if</span> <span class="n">ligand_only</span><span class="p">:</span>
+        <span class="n">glide_dock_config</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;POSE_OUTTYPE ligandlib</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">calc_rmsd</span><span class="p">:</span>
         <span class="n">glide_dock_config</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;CALC_INPUT_RMS True</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">precision</span> <span class="o">==</span> <span class="s1">&#39;XP&#39;</span><span class="p">:</span>

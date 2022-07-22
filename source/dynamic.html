@@ -38,11 +38,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">README</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../README.html">pyCADD</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="input_file_fmt.html">构建Dock输入文件时的规范</a></li>
 </ul>
@@ -110,7 +106,7 @@
 </section>
 <section id="pythondynamic">
 <h2>Python包调用Dynamic模块<a class="headerlink" href="#pythondynamic" title="永久链接至标题"></a></h2>
-<p>首先 从模块中导入结构预处理器 <code class="docutils literal notranslate"><span class="pre">Processor</span></code> 及实施分子动力学模拟的模拟器 <code class="docutils literal notranslate"><span class="pre">Simulator</span></code>, 然后创建一个预处理器实例<code class="docutils literal notranslate"><span class="pre">processor</span></code></p>
+<p>首先 从模块中导入结构预处理器 <code class="docutils literal notranslate"><span class="pre">Processor</span></code> 及实施分子动力学模拟的模拟器 <code class="docutils literal notranslate"><span class="pre">Simulator</span></code>, 然后创建一个预处理器实例 <code class="docutils literal notranslate"><span class="pre">processor</span></code></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyCADD.Dynamic</span> <span class="kn">import</span> <span class="n">Processor</span><span class="p">,</span> <span class="n">Simulator</span>
 <span class="n">processor</span> <span class="o">=</span> <span class="n">Processor</span><span class="p">()</span>     <span class="c1"># 实例化的同时，将在当前目录创建所有必要的文件夹</span>
 </pre></div>
@@ -143,12 +139,11 @@
 <p>这一过程包括以下几个步骤：</p>
 <ol class="simple">
 <li><p>高斯结构优化 (需要Gaussian 16, 使用泛函B3LYP、基组def2SVP、色散矫正em=GD3BJ、loose收敛限)</p></li>
-<li><p>计算小分子的RESP2电荷 (需要Multiwfn) 关于RESP2(0.5)电荷的更多信息，参阅<a class="reference external" href="http://sobereva.com/531">RESP2(0.5)电荷</a></p></li>
-<li><p>OpenBabel格式转换 (需要OpenBabel) 生成结构优化及电荷计算后的小分子结构文件<code class="docutils literal notranslate"><span class="pre">.mol2</span></code></p></li>
-<li><p>antechamber (需要AmberTools) 生成Amber模拟模型参数文件<code class="docutils literal notranslate"><span class="pre">.prepin</span></code>及<code class="docutils literal notranslate"><span class="pre">.frcmod</span></code></p></li>
-<li><p>parmchk2 (需要AmberTools) 生成最终优化完成的小分子结构文件<code class="docutils literal notranslate"><span class="pre">_out.pdb</span></code></p></li>
+<li><p>计算小分子的RESP2电荷 (需要Multiwfn)并生成输出PDB结构<code class="docutils literal notranslate"><span class="pre">_out.pdb</span></code> 关于RESP2(0.5)电荷的更多信息，参阅<a class="reference external" href="http://sobereva.com/531">RESP2(0.5)电荷</a></p></li>
+<li><p>antechamber (需要AmberTools) 生成Amber模拟模型参数文件<code class="docutils literal notranslate"><span class="pre">.prepin</span></code></p></li>
+<li><p>parmchk2 (需要AmberTools) 生成Amber模拟模型参数文件<code class="docutils literal notranslate"><span class="pre">.frcmod</span></code>
+所有此步骤的过程文件保存在<code class="docutils literal notranslate"><span class="pre">molecule</span></code>目录中。</p></li>
 </ol>
-<p>所有此步骤的过程文件保存在<code class="docutils literal notranslate"><span class="pre">molecule</span></code>目录中。</p>
 </section>
 <section id="amber-leap">
 <h3>Amber模拟前准备-LEaP<a class="headerlink" href="#amber-leap" title="永久链接至标题"></a></h3>
@@ -216,7 +211,6 @@
 cp SOMEWHERE/1FBY-pro-9CR.pdb ./
 cp SOMEWHERE/1FBY-lig-9CR.pdb ./
 pycadd-dynamic --charge -1 --multiplicity <span class="m">1</span> --prefix 1FBY --parallel <span class="m">48</span> --with-gpu <span class="m">0</span> 1FBY-pro-9CR.pdb 1FBY-lig-9CR.pdb
-<span class="c1"># 可使用nohup命令后台运行</span>
 </pre></div>
 </div>
 <p>使用</p>

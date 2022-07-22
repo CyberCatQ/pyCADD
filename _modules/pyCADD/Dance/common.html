@@ -35,11 +35,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">README</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../README.html">pyCADD</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../source/input_file_fmt.html">构建Dock输入文件时的规范</a></li>
 </ul>
@@ -91,6 +87,7 @@
 <span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">Series</span>
 <span class="kn">from</span> <span class="nn">pyCADD.Dance</span> <span class="kn">import</span> <span class="n">core</span>
 <span class="kn">from</span> <span class="nn">pyCADD.Dance.algorithm</span> <span class="kn">import</span> <span class="n">default_params</span><span class="p">,</span> <span class="n">consensus</span>
+<span class="kn">from</span> <span class="nn">pyCADD.Dance.metrics</span> <span class="kn">import</span> <span class="n">nef_score</span>
 <span class="kn">from</span> <span class="nn">pyCADD.utils.tool</span> <span class="kn">import</span> <span class="n">makedirs_from_list</span>
 <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="p">(</span><span class="n">accuracy_score</span><span class="p">,</span> <span class="n">confusion_matrix</span><span class="p">,</span> <span class="n">f1_score</span><span class="p">,</span>
                              <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span><span class="p">,</span> <span class="n">roc_auc_score</span><span class="p">,</span>
@@ -628,7 +625,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">n_repeats</span><span class="si">}</span><span class="s1"> x </span><span class="si">{</span><span class="n">k_folds</span><span class="si">}</span><span class="s1"> cross-validation finished.&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=&#39;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;cv_results.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;cv_results_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">score_func_name</span><span class="si">}</span><span class="s1">.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cv_results</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cv_results</span></div>
@@ -653,7 +650,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="n">formatter</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;Std SCP&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%.4f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">cv_results</span><span class="p">[</span><span class="s1">&#39;std_scp&#39;</span><span class="p">]))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">formatter</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;Classifier&#39;</span><span class="p">,</span> <span class="s1">&#39;Mean Score&#39;</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">formatter</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">25</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">30</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">formatter</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">clf_name</span><span class="p">,</span> <span class="n">clf_cv_results</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cv_results</span><span class="p">[</span><span class="s1">&#39;clf_cv_results&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">formatter</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">clf_name</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%.4f</span><span class="s1">&#39;</span> <span class="o">%</span>
                   <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clf_cv_results</span><span class="p">)))</span>  <span class="c1"># 打印每个分类器的平均AUC</span>
@@ -679,6 +676,7 @@
 <span class="sd">            分类器的评估结果</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">auc</span> <span class="o">=</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_proba</span><span class="p">)</span>
+        <span class="n">nef</span> <span class="o">=</span> <span class="n">nef_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_proba</span><span class="p">)</span>
         <span class="n">f1</span> <span class="o">=</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
         <span class="n">acc</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
         <span class="n">precision</span> <span class="o">=</span> <span class="n">precision_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
@@ -687,6 +685,7 @@
 
         <span class="k">return</span> <span class="p">{</span>
             <span class="s1">&#39;auc&#39;</span><span class="p">:</span> <span class="n">auc</span><span class="p">,</span>
+            <span class="s1">&#39;nef&#39;</span><span class="p">:</span> <span class="n">nef</span><span class="p">,</span>
             <span class="s1">&#39;f1&#39;</span><span class="p">:</span> <span class="n">f1</span><span class="p">,</span>
             <span class="s1">&#39;accuracy&#39;</span><span class="p">:</span> <span class="n">acc</span><span class="p">,</span>
             <span class="s1">&#39;precision&#39;</span><span class="p">:</span> <span class="n">precision</span><span class="p">,</span>
@@ -764,6 +763,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">clf_name</span><span class="si">}</span><span class="s1"> Evaluation Result:&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;AUC: </span><span class="si">{</span><span class="n">clf_eval_result</span><span class="p">[</span><span class="s2">&quot;auc&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;NEF: </span><span class="si">{</span><span class="n">clf_eval_result</span><span class="p">[</span><span class="s2">&quot;nef&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;F1: </span><span class="si">{</span><span class="n">clf_eval_result</span><span class="p">[</span><span class="s2">&quot;f1&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Accuracy: </span><span class="si">{</span><span class="n">clf_eval_result</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Precision: </span><span class="si">{</span><span class="n">clf_eval_result</span><span class="p">[</span><span class="s2">&quot;precision&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
