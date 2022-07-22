@@ -13,6 +13,8 @@ pyCADD
 ## 更新日志
 * 1.6.2 (2022-07-21)
   * 修复了 Dynamic-Analyzer 的一些BUG
+  * 修复了 python wheel build 的一些BUG
+  * 更新了API文档
 
 * 1.6.1 (2022-07-14)
   * 添加了 Dynamic 模块的MD后处理工具 Analyzer
