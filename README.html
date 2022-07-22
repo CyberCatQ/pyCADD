@@ -114,6 +114,20 @@
 <section id="id2">
 <h2>更新日志<a class="headerlink" href="#id2" title="永久链接至标题"></a></h2>
 <ul class="simple">
+<li><p>1.6.2 (2022-07-21)</p>
+<ul>
+<li><p>修复了 Dynamic-Analyzer 的一些BUG</p></li>
+<li><p>修复了 python wheel 打包的一些BUG</p></li>
+<li><p>更新了API文档</p></li>
+</ul>
+</li>
+<li><p>1.6.1 (2022-07-14)</p>
+<ul>
+<li><p>添加了 Dynamic 模块的MD后处理工具 Analyzer</p></li>
+<li><p>为 Dynamic-Analyzer 添加了CLI接口 pycadd-mdanalysis</p></li>
+<li><p>为 Dance 添加了新的统计方法 标准富集因子NEF</p></li>
+</ul>
+</li>
 <li><p>1.6.0 (2022-07-07)</p>
 <ul>
 <li><p>分子动力学模块 Dynamic 开发完成</p></li>
@@ -185,10 +199,13 @@
 <li><p>pandas</p></li>
 <li><p>numpy</p></li>
 <li><p>rich</p></li>
-<li><p>ConcurrentLogHandler</p></li>
+<li><p>concurrent_log_handler</p></li>
 <li><p>scikit-learn</p></li>
 <li><p>seaborn</p></li>
 <li><p>xlsxwriter</p></li>
+<li><p>pyyaml</p></li>
+<li><p>click</p></li>
+<li><p>scipy</p></li>
 </ul>
 <section id="note">
 <h4>NOTE:<a class="headerlink" href="#note" title="永久链接至标题"></a></h4>
@@ -228,21 +245,12 @@
 <td>自动编写高斯结构优化、单点能、TDDFT等计算任务输入文件并启动计算任务</td>
 </tr>
 <tr>
-<td>*Dynamic</td>
+<td><em>Dynamic</em></td>
 <td>自动化分子动力学模拟准备与运行</td>
 </tr>
-</tbody>
-</table><table border="1" class="docutils">
-<thead>
 <tr>
-<th>开发中</th>
-<th>Function</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><em>pynalysis.py</em></td>
-<td>MD轨迹分析</td>
+<td><em>Dynamic-Analyzer</em></td>
+<td>自动化分子动力学模拟后处理分析</td>
 </tr>
 </tbody>
 </table></section>
@@ -279,6 +287,10 @@
 <tr>
 <td><code>pycadd-dynamic</code></td>
 <td><em>Dynamic</em></td>
+</tr>
+<tr>
+<td><code>pycadd-mdanalysis</code></td>
+<td><em>Dynamic-Analyzer</em></td>
 </tr>
 </tbody>
 </table><p>使用</p>

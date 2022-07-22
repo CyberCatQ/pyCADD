@@ -1,6 +1,6 @@
 ## Dance User Guide
 
-### Data preparation
+### 数据准备 Data preparation
 数据预处理部分。
 
 导入pyCADD.Dance模块的Dancer对象
@@ -46,7 +46,7 @@ csv文件将被保存至dm_result/data_csv/
 dancer.save('your_file_name')
 ```
 
-### Modeling and Evaluation
+### 建模与评估 Modeling and Evaluation
 建模与模型评估部分。
 
 导入pyCADD.Dance模块的Matrix与Evaluator对象

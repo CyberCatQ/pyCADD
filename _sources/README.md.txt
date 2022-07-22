@@ -11,6 +11,16 @@ pyCADD
 * 支持CLI快速调用
 
 ## 更新日志
+* 1.6.2 (2022-07-21)
+  * 修复了 Dynamic-Analyzer 的一些BUG
+  * 修复了 python wheel 打包的一些BUG
+  * 更新了API文档
+
+* 1.6.1 (2022-07-14)
+  * 添加了 Dynamic 模块的MD后处理工具 Analyzer
+  * 为 Dynamic-Analyzer 添加了CLI接口 pycadd-mdanalysis
+  * 为 Dance 添加了新的统计方法 标准富集因子NEF
+  
 * 1.6.0 (2022-07-07)
   * 分子动力学模块 Dynamic 开发完成
   * 添加了Dynamic的CLI接口
@@ -60,10 +70,13 @@ pyCADD
 * pandas
 * numpy
 * rich
-* ConcurrentLogHandler
+* concurrent_log_handler
 * scikit-learn
 * seaborn
 * xlsxwriter  
+* pyyaml
+* click
+* scipy
 
 #### NOTE:
 
@@ -80,12 +93,8 @@ pyCADD
 |*VSW*            | 自动化虚拟筛选 |
 |*query* | 自动化晶体信息查询与解析 |
 |*Gauss* | 自动编写高斯结构优化、单点能、TDDFT等计算任务输入文件并启动计算任务 |
-|*Dynamic | 自动化分子动力学模拟准备与运行 |
-
-
-| 开发中 | Function |  
-|-------|-------|
-|*pynalysis.py*      | MD轨迹分析 |
+|*Dynamic* | 自动化分子动力学模拟准备与运行 |
+|*Dynamic-Analyzer* | 自动化分子动力学模拟后处理分析 |
 
 ## How to Use
 
@@ -108,6 +117,7 @@ pyCADD
 | `pycadd-query` | *query* |
 | `pycadd-gauss` | *Gauss* |
 | `pycadd-dynamic` | *Dynamic* |
+| `pycadd-mdanalysis` | *Dynamic-Analyzer* |
 
 使用
 

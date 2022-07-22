@@ -1,6 +1,6 @@
 ## Dock Quick Start
 
-### **注意**  
+**注意**  
 
 * 由于Schrodinger Suite使用了闭源环境提供Python API调用, 使用 `Dock` 模块相关功能(包括CLI命令)脚本时, 应该保证您正处于由 Schrodinger 建立的虚拟环境中，并在该环境中安装包括 `pyCADD` 在内所有需要的[Python Modules](#python-modules)
 * 要使用Schrodinger内部脚本创建虚拟环境, 请参阅 [如何建立Schrodinger Python Virtual Env](https://content.schrodinger.com/Docs/r2022-1/python_api/intro.html#general-python-information)
@@ -40,8 +40,7 @@
 
 以获取更多帮助信息。
 
-
-### 注意：
+**注意**
 
 * 脚本将自动识别文本文件中每一行的PDB ID并自行批量下载  
 * 应用程序默认使用系统最大核心数量的 75% 进行集合式对接工作 通过设置 `-n/--parallel <NUM>` 参数来指定使用的核心数量

@@ -14,7 +14,7 @@ Dynamic模块只需要最少的必要输入和几个关键参数调节即可快�
 * 如果使用 pyCADD.Dock 模块进行过分子对接，则可在 `protein` 及 `ligand` 目录下找到已经拆分好的蛋白和配体小分子的PDB格式结构文件。
 
 
-### Python包调用Dynamic模块
+### Python 包调用 Dynamic 模块
 
 首先 从模块中导入结构预处理器 `Processor` 及实施分子动力学模拟的模拟器 `Simulator`, 然后创建一个预处理器实例 `processor`
 
@@ -53,7 +53,7 @@ processor.molecule_prepare(molecule_file, charge=0, multiplicity=1)
 4. parmchk2 (需要AmberTools) 生成Amber模拟模型参数文件`.frcmod`
 所有此步骤的过程文件保存在`molecule`目录中。
 
-#### Amber模拟前准备-LEaP
+#### Amber 模拟前准备 - LEaP
 在蛋白与小分子都准备就绪后，使用LEaP来完成最终的模拟准备文件生成。
 为了方便识别生成文件，选择一个任意名称作为生成文件前缀名 `prefix` ，这通常可以是PDBID或配体小分子名等。
 ```python
@@ -104,7 +104,7 @@ simulator.run_simulation()
 
 进程将阻塞至模拟完成。
 
-### CLI 调用Dynamic模块
+### CLI 调用 Dynamic 模块
 
 使用命令
 ```bash

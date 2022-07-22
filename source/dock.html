@@ -38,17 +38,19 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+              <p class="caption" role="heading"><span class="caption-text">README</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">pyCADD</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="input_file_fmt.html">构建Dock输入文件时的规范</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Dock Quick Start</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#id1"><strong>注意</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#docking-of-many-to-one-function">Docking of Many-to-One Function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#docking-of-one-to-many-function">Docking of One-to-Many Function</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">注意：</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="dance.html">Dance User Guide</a></li>
@@ -86,14 +88,12 @@
              
   <section id="dock-quick-start">
 <h1>Dock Quick Start<a class="headerlink" href="#dock-quick-start" title="永久链接至标题"></a></h1>
-<section id="id1">
-<h2><strong>注意</strong><a class="headerlink" href="#id1" title="永久链接至标题"></a></h2>
+<p><strong>注意</strong></p>
 <ul class="simple">
 <li><p>由于Schrodinger Suite使用了闭源环境提供Python API调用, 使用 <code class="docutils literal notranslate"><span class="pre">Dock</span></code> 模块相关功能(包括CLI命令)脚本时, 应该保证您正处于由 Schrodinger 建立的虚拟环境中，并在该环境中安装包括 <code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 在内所有需要的<a class="reference external" href="#python-modules">Python Modules</a></p></li>
 <li><p>要使用Schrodinger内部脚本创建虚拟环境, 请参阅 <a class="reference external" href="https://content.schrodinger.com/Docs/r2022-1/python_api/intro.html#general-python-information">如何建立Schrodinger Python Virtual Env</a></p></li>
 <li><p>在Schrodinger内部环境中安装额外的python packages, 请使用<code class="docutils literal notranslate"><span class="pre">run</span> <span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&lt;package&gt;</span></code>命令或参阅<a class="reference external" href="https://www.schrodinger.com/pythonapi/">Schrodinger Python API 文档</a></p></li>
 </ul>
-</section>
 <section id="docking-of-many-to-one-function">
 <h2>Docking of Many-to-One Function<a class="headerlink" href="#docking-of-many-to-one-function" title="永久链接至标题"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> UI 的 <code class="docutils literal notranslate"><span class="pre">1.</span> <span class="pre">Dock</span> <span class="pre">Mode</span></code> 提供了将一个或多个配体对接于单个受体结构的功能<br />运行 <code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 选择模式1并使用功能6 提供包含一个多个配体的单一 <code class="docutils literal notranslate"><span class="pre">.mae</span></code> 或 <code class="docutils literal notranslate"><span class="pre">.maegz</span></code> 的文件路径即可</p>
@@ -122,9 +122,7 @@
 </pre></div>
 </div>
 <p>以获取更多帮助信息。</p>
-</section>
-<section id="id2">
-<h2>注意：<a class="headerlink" href="#id2" title="永久链接至标题"></a></h2>
+<p><strong>注意</strong></p>
 <ul class="simple">
 <li><p>脚本将自动识别文本文件中每一行的PDB ID并自行批量下载</p></li>
 <li><p>应用程序默认使用系统最大核心数量的 75% 进行集合式对接工作 通过设置 <code class="docutils literal notranslate"><span class="pre">-n/--parallel</span> <span class="pre">&lt;NUM&gt;</span></code> 参数来指定使用的核心数量</p></li>
