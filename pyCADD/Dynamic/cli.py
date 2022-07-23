@@ -36,7 +36,7 @@ def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, par
     prefix = os.path.basename(os.getcwd()) if prefix is None else prefix
     processor.leap_prepare(prefix)
     simulator = Simulator(processor)
-    step_num = time * 1000 / 0.002
+    step_num = int(time * 1000 / 0.002)
     simulator.creat_input_file(step_num=step_num)
     simulator.run_simulation(with_gpu)
 
@@ -80,7 +80,7 @@ def simulate(top_file, pdb_file, inpcrd_file, with_gpu, time):
     processor.set_comsolvate_file(pdb_file, 'pdb')
     processor.set_comsolvate_file(inpcrd_file, 'crd')
     simulator = Simulator(processor)
-    step_num = time * 1000 / 0.002
+    step_num = int(time * 1000 / 0.002)
     simulator.creat_input_file(step_num=step_num)
     simulator.run_simulation(with_gpu)
 
