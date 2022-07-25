@@ -154,8 +154,10 @@ def analysis(y, sp, lp, rp, cp, ro, no_hbond, no_rmsd, no_rmsf, no_extract, deco
     if decomp:
         analyzer.creat_energy_inputfile(start_frame=decomp_start_fm, end_frame=decomp_end_fm, interval=decomp_step_size, job_type='decomp')
         analyzer.run_energy_calc(cpu_num=parallel)
+        os.system('rm _MMPBSA_*')
     if nmode:
         analyzer.creat_energy_inputfile(start_frame=nmode_start_fm, end_frame=nmode_end_fm, interval=nmode_step_size, job_type='entropy')
         analyzer.run_energy_calc(cpu_num=parallel)
+        os.system('rm _MMPBSA_*')
 
-    os.system('rm _MMPBSA_*')
+    

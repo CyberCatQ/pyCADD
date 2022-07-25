@@ -1,5 +1,6 @@
 import os
 import re
+import logging
 from time import sleep
 
 from pyCADD.Gauss.base import Gauss
@@ -13,6 +14,7 @@ SANDER = 'pmemd.cuda'
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = os.path.join(SCRIPT_DIR, 'template')
 
+logger = logging.getLogger(__name__)
 
 def _system_call(cmd: str) -> None:
     '''
@@ -346,7 +348,7 @@ def _creat_md_inputfile(
     return step_a_inputfile, step_b_inputfile, step_c_inputfile, step_nvt_inputfile, step_npt_inputfile
 
 
-def _trace_progress(output_file_path: str, step: int = 50000000):
+def _trace_progress(output_file_path: str, step: int):
     '''
     追踪分子动力学模拟进程
 
@@ -375,6 +377,31 @@ def _trace_progress(output_file_path: str, step: int = 50000000):
         sleep(1)
     progress.stop()
 
+def _get_input_config(input_file:str):
+    '''
+    获取分子动力学模拟过程的输入文件配置
+
+    Parameters
+    -----------
+    input_file : str
+        分子动力学模拟过程的输入文件路径
+
+    Returns
+    -----------
+    dict
+        分子动力学模拟过程的输入文件配置
+    '''
+    cfg_dict = {}
+    with open(input_file, 'r') as f:
+        lines = f.read().splitlines()
+    config_str = ''.join(lines[1:])
+    config = config_str.split(',')
+    for cfg in config:
+        if cfg.startswith('/') or cfg.startswith('&'):
+            continue
+        cfg_dict[cfg.split('=')[0].strip()] = cfg.split('=')[1]
+    return cfg_dict
+
 @timeit
 def _run_simulation(
         comsolvate_topfile: BaseFile,
@@ -395,6 +422,16 @@ def _run_simulation(
     step_c_dir = os.path.join(save_dir, 'step_c')
     step_nvt_dir = os.path.join(save_dir, 'step_nvt')
     step_npt_dir = os.path.join(save_dir, 'step_npt')
+
+    nvt_cfg = _get_input_config(step_nvt_inputfile.file_path)
+    npt_cfg = _get_input_config(step_npt_inputfile.file_path)
+    step_num = int(npt_cfg['nstlim'])
+    step_size = float(npt_cfg['dt'])
+    simulate_time = step_num * step_size / 1000
+
+    logger.info(f'Simulate steps: {step_num}')
+    logger.info(f'Simulate step size: {step_size}')
+    logger.info(f'Simulate time: {simulate_time} ns')
 
     makedirs_from_list(
         [
@@ -456,19 +493,19 @@ def _run_simulation(
     step_npt_cmd += f'-r {step_npt_rstfile} '
     step_npt_cmd += f'-x {step_npt_crdfile} > /dev/null 2>&1 &'
 
-    print('Running Minimize Progress A...')
+    logger.info('Running Minimize Progress A...')
     _system_call(step_a_cmd)
-    print('Running Minimize Progress B...')
+    logger.info('Running Minimize Progress B...')
     _system_call(step_b_cmd)
-    print('Running Minimize Progress C...')
+    logger.info('Running Minimize Progress C...')
     _system_call(step_c_cmd)
-    print('Running 100ps Heating Progress...')
+    logger.info('Running 100ps Heating Progress...')
     _system_call(step_nvt_cmd)
-    print('Running Molecular Dynamics Simulation...')
+    logger.info(f'Running {simulate_time} ns Molecular Dynamics Simulation...')
     _system_call(step_npt_cmd)
-    _trace_progress(step_npt_outfile)
+    _trace_progress(step_npt_outfile, step_num)
 
-    print('Simulation Finished.')
+    logger.info('Simulation Finished.')
 
 
 def _creat_energy_inputfile(job_type: str, startframe: int, endframe: int, interval: int, decomp:bool=False, save_dir: str = None) -> BaseFile:
