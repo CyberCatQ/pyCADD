@@ -40,6 +40,12 @@ class Processor:
         self.comsolvate_topfile = None
         self.comsolvate_pdbfile = None
 
+        self.step_a_inputfile = None
+        self.step_b_inputfile = None
+        self.step_c_inputfile = None
+        self.step_nvt_inputfile = None
+        self.step_npt_inputfile = None
+
     @property
     def _required_dirs(self):
         return [
@@ -199,24 +205,6 @@ class Processor:
             self._set_prepared_file(file_path, file_type)
             logger.info(f'Set {file_type} file: {file_path}')
 
-
-class Simulator:
-
-    def __init__(self, processor: Processor) -> None:
-        self.processor = processor
-
-        self.comsolvate_pdbfile = processor.comsolvate_pdbfile
-        self.comsolvate_topfile = processor.comsolvate_topfile
-        self.comsolvate_crdfile = processor.comsolvate_crdfile
-
-        self.step_a_inputfile = None
-        self.step_b_inputfile = None
-        self.step_c_inputfile = None
-        self.step_nvt_inputfile = None
-        self.step_npt_inputfile = None
-
-        self.cuda_device = 0
-
     def creat_input_file(self, step_num: int = 50000000, step_length: float = 0.002):
         '''
         创建动力学模拟所需的各类输入文件
@@ -241,6 +229,57 @@ class Simulator:
             step_length, INPUT_FILE_DIR)
 
         logger.info(f'Input files have been saved in {INPUT_FILE_DIR}.')
+    
+    def load_input_file(self, file_path:str, step:str) -> None:
+        '''
+        加载输入文件
+
+        Parameters
+        ----------
+        file_path : str
+            输入文件路径
+        step : str
+            模拟步骤
+            a: 第一步
+            b: 第二步
+            c: 第三步
+            nvt: 第四步
+            npt: 第五步
+        '''
+        if step == 'a':
+            self.step_a_inputfile = BaseFile(file_path)
+            logger.info(f'Load step A input file: {file_path}')
+        elif step == 'b':
+            self.step_b_inputfile = BaseFile(file_path)
+            logger.info(f'Load step B input file: {file_path}')
+        elif step == 'c':
+            self.step_c_inputfile = BaseFile(file_path)
+            logger.info(f'Load step C input file: {file_path}')
+        elif step == 'nvt':
+            self.step_nvt_inputfile = BaseFile(file_path)
+            logger.info(f'Load step NVT input file: {file_path}')
+        elif step == 'npt':
+            self.step_npt_inputfile = BaseFile(file_path)
+            logger.info(f'Load step NPT input file: {file_path}')
+        else:
+            raise RuntimeError(f'{step} is not a valid step.')
+
+
+class Simulator:
+
+    def __init__(self, processor: Processor) -> None:
+        self.processor = processor
+
+        self.comsolvate_pdbfile = processor.comsolvate_pdbfile
+        self.comsolvate_topfile = processor.comsolvate_topfile
+        self.comsolvate_crdfile = processor.comsolvate_crdfile
+        self.step_a_inputfile = processor.step_a_inputfile
+        self.step_b_inputfile = processor.step_b_inputfile
+        self.step_c_inputfile = processor.step_c_inputfile
+        self.step_nvt_inputfile = processor.step_nvt_inputfile
+        self.step_npt_inputfile = processor.step_npt_inputfile
+
+        self.cuda_device = 0
 
     def shwo_cuda_device(self) -> None:
         '''
@@ -288,8 +327,8 @@ class Simulator:
         '''
         if not all([
             self.step_a_inputfile,
-            self.setp_b_inputfile,
-            self.setp_c_inputfile,
+            self.step_b_inputfile,
+            self.step_c_inputfile,
             self.step_nvt_inputfile,
             self.step_npt_inputfile
         ]):
@@ -302,8 +341,8 @@ class Simulator:
 
         core._run_simulation(
             self.comsolvate_topfile, self.comsolvate_crdfile,
-            self.step_a_inputfile, self.setp_b_inputfile,
-            self.setp_c_inputfile, self.step_nvt_inputfile,
+            self.step_a_inputfile, self.step_b_inputfile,
+            self.step_c_inputfile, self.step_nvt_inputfile,
             self.step_npt_inputfile,
             MD_RESULT_DIR
         )

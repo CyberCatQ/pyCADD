@@ -35,9 +35,9 @@ def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, par
         molecule_file, charge, multiplicity, parallel, solvent)
     prefix = os.path.basename(os.getcwd()) if prefix is None else prefix
     processor.leap_prepare(prefix)
-    simulator = Simulator(processor)
     step_num = int(time * 1000 / 0.002)
-    simulator.creat_input_file(step_num=step_num)
+    processor.creat_input_file(step_num=step_num)
+    simulator = Simulator(processor)
     simulator.run_simulation(with_gpu)
 
 @main.command(short_help='Automatically preparing required files for MD only.')
@@ -48,7 +48,8 @@ def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, par
 @click.option('--solvent', '-s', default='water', show_default=True, type=str, help='Solvent used in molecule preparation.')
 @click.option('--prefix', '-p', default=None, type=str, help='Prefix of output files.')
 @click.option('--parallel', '-n', default=os.cpu_count(), show_default=True, type=int, help='Number of parallel processes.')
-def prepare(protein_file, molecule_file, charge, multiplicity, solvent, prefix, parallel):
+@click.option('--time', '-t', default=100, show_default=True, type=int, help='Total time(ns) of simulation. Default to 100 ns.')
+def prepare(protein_file, molecule_file, charge, multiplicity, solvent, prefix, parallel, time):
     '''
     Prepare required files for MD.\n
     protein_file : Specify protein file (PDB format) path for MD.\n
@@ -60,14 +61,16 @@ def prepare(protein_file, molecule_file, charge, multiplicity, solvent, prefix, 
     processor.molecule_prepare(molecule_file, charge, multiplicity, parallel, solvent)
     prefix = os.path.basename(os.getcwd()) if prefix is None else prefix
     processor.leap_prepare(prefix)
+    step_num = int(time * 1000 / 0.002)
+    processor.creat_input_file(step_num=step_num)
+
 
 @main.command(short_help='Running molecular dynamics simulation with prepared files.')
 @click.argument('pdb_file', type=click.Path(exists=True))
 @click.argument('top_file', type=click.Path(exists=True))
 @click.argument('inpcrd_file', type=click.Path(exists=True))
 @click.option('--with-gpu', '-g', default=0, show_default=True, type=int, help='Specify GPU device code used in simulation. Default to 0')
-@click.option('--time', '-t', default=100, show_default=True, type=int, help='Total time(ns) of simulation. Default to 100 ns.')
-def simulate(top_file, pdb_file, inpcrd_file, with_gpu, time):
+def simulate(top_file, pdb_file, inpcrd_file, with_gpu):
     '''
     Run molecular dynamics simulation.\n
     top_file : Specify solvated complex topology file (TOP format) path for MD.\n
@@ -79,9 +82,12 @@ def simulate(top_file, pdb_file, inpcrd_file, with_gpu, time):
     processor.set_comsolvate_file(top_file, 'top')
     processor.set_comsolvate_file(pdb_file, 'pdb')
     processor.set_comsolvate_file(inpcrd_file, 'crd')
+    processor.load_input_file('input_file/step_a.in', 'a')
+    processor.load_input_file('input_file/step_b.in', 'b')
+    processor.load_input_file('input_file/step_c.in', 'c')
+    processor.load_input_file('input_file/step_nvt.in', 'nvt')
+    processor.load_input_file('input_file/step_npt.in', 'npt')
     simulator = Simulator(processor)
-    step_num = int(time * 1000 / 0.002)
-    simulator.creat_input_file(step_num=step_num)
     simulator.run_simulation(with_gpu)
 
 @main.command(short_help='Post analysis for MD simulation.')
