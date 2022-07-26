@@ -22,7 +22,9 @@ def main():
 @click.option('--parallel', '-n', default=os.cpu_count(), show_default=True, type=int, help='Number of parallel processes.')
 @click.option('--with-gpu', '-g', default=0, show_default=True, type=int, help='Specify GPU device code used in simulation. Default to 0')
 @click.option('--time', '-t', default=100, show_default=True, type=int, help='Total time(ns) of simulation. Default to 100 ns.')
-def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, parallel, with_gpu, time):
+@click.option('-bcc', is_flag=True, help='Use existing BCC charges instead of RESP.')
+@click.option('--overwrite', '-O', is_flag=True, help='Overwrite existing files.')
+def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, parallel, with_gpu, time, bcc, overwrite):
     '''
     Prepare required files and run molecular dynamics simulation.\n
     protein_file : Specify protein file (PDB format) path for MD.\n
@@ -31,12 +33,19 @@ def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, par
     from pyCADD.Dynamic import Processor, Simulator
     processor = Processor()
     processor.protein_prepare(protein_file)
-    processor.molecule_prepare(
-        molecule_file, charge, multiplicity, parallel, solvent)
+    if not bcc:
+        processor.molecule_prepare(
+            molecule_file, charge, multiplicity, parallel, solvent, overwrite, 'resp')
+    else:
+        processor.molecule_prepare(
+            molecule_file, charge, multiplicity, parallel, solvent, overwrite, 'bcc')
+
     prefix = os.path.basename(os.getcwd()) if prefix is None else prefix
     processor.leap_prepare(prefix)
     step_num = int(time * 1000 / 0.002)
     processor.creat_input_file(step_num=step_num)
+    print(f'input files: {processor.step_a_inputfile.file_name}, {processor.step_b_inputfile.file_name}, {processor.step_c_inputfile.file_name}')
+    print(f'{processor.step_nvt_inputfile.file_name}, {processor.step_npt_inputfile.file_name}')
     simulator = Simulator(processor)
     simulator.run_simulation(with_gpu)
 
@@ -49,7 +58,9 @@ def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, par
 @click.option('--prefix', '-p', default=None, type=str, help='Prefix of output files.')
 @click.option('--parallel', '-n', default=os.cpu_count(), show_default=True, type=int, help='Number of parallel processes.')
 @click.option('--time', '-t', default=100, show_default=True, type=int, help='Total time(ns) of simulation. Default to 100 ns.')
-def prepare(protein_file, molecule_file, charge, multiplicity, solvent, prefix, parallel, time):
+@click.option('-bcc', is_flag=True, help='Use existing BCC charges instead of RESP.')
+@click.option('--overwrite', '-O', is_flag=True, help='Overwrite existing files.')
+def prepare(protein_file, molecule_file, charge, multiplicity, solvent, prefix, parallel, time, bcc, overwrite):
     '''
     Prepare required files for MD.\n
     protein_file : Specify protein file (PDB format) path for MD.\n
@@ -58,29 +69,28 @@ def prepare(protein_file, molecule_file, charge, multiplicity, solvent, prefix, 
     from pyCADD.Dynamic import Processor
     processor = Processor()
     processor.protein_prepare(protein_file)
-    processor.molecule_prepare(molecule_file, charge, multiplicity, parallel, solvent)
+    if not bcc:
+        processor.molecule_prepare(molecule_file, charge, multiplicity, parallel, solvent, overwrite, 'resp')
+    else:
+        processor.molecule_prepare(molecule_file, charge, multiplicity, parallel, solvent, overwrite, 'bcc')
     prefix = os.path.basename(os.getcwd()) if prefix is None else prefix
     processor.leap_prepare(prefix)
     step_num = int(time * 1000 / 0.002)
     processor.creat_input_file(step_num=step_num)
 
-
 @main.command(short_help='Running molecular dynamics simulation with prepared files.')
-@click.argument('pdb_file', type=click.Path(exists=True))
 @click.argument('top_file', type=click.Path(exists=True))
 @click.argument('inpcrd_file', type=click.Path(exists=True))
 @click.option('--with-gpu', '-g', default=0, show_default=True, type=int, help='Specify GPU device code used in simulation. Default to 0')
-def simulate(top_file, pdb_file, inpcrd_file, with_gpu):
+def simulate(top_file, inpcrd_file, with_gpu):
     '''
     Run molecular dynamics simulation.\n
     top_file : Specify solvated complex topology file (TOP format) path for MD.\n
-    pdb_file : Specify solvated complex pdb file (PDB format) path for MD.\n
     inpcrd_file : Specify solvated complex input coordinate file (INPCRD format) path for MD.
     '''
     from pyCADD.Dynamic import Processor, Simulator
     processor = Processor()
     processor.set_comsolvate_file(top_file, 'top')
-    processor.set_comsolvate_file(pdb_file, 'pdb')
     processor.set_comsolvate_file(inpcrd_file, 'crd')
     processor.load_input_file('input_file/step_a.in', 'a')
     processor.load_input_file('input_file/step_b.in', 'b')

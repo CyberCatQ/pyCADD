@@ -83,7 +83,15 @@ class Processor:
         logger.info(
             f'Protein file {self.processed_profile.file_name} has been saved in {PRO_RELATED_DIR} .')
 
-    def molecule_prepare(self, molecule_file_path: str, charge: int = 0, multiplicity: int = 1, cpu_num: int = None, solvent: str = 'water') -> None:
+    def molecule_prepare(
+        self, 
+        molecule_file_path: str, 
+        charge: int = 0, 
+        multiplicity: int = 1, 
+        cpu_num: int = None, 
+        solvent: str = 'water', 
+        overwrite: bool = False,
+        method:str = 'resp') -> None:
         '''
         为动力学模拟执行小分子结构预处理
 
@@ -99,12 +107,23 @@ class Processor:
             计算核数 默认为CPU核数
         solvent : str
             计算RESP电荷时液相的溶剂 默认为water
+        overwrite : bool
+            是否覆盖已存在的文件 默认为False
+        method : str
+            计算方法 默认为resp电荷
+            option: resp, bcc
         '''
         cpu_num = cpu_num if cpu_num is not None else CPU_NUM
         molecule_file = BaseFile(molecule_file_path)
-        self.processed_molfile_pdb, self.frcmod_file = core.molecule_prepare(
+        if method == 'resp':
+            self.processed_molfile_pdb, self.frcmod_file = core.molecule_prepare_resp2(
             molecule_file, save_dir=MOL_RELATED_DIR, charge=charge, multiplicity=multiplicity,
-            cpu_num=cpu_num, solvent=solvent)
+            cpu_num=cpu_num, solvent=solvent, overwrite=overwrite)
+        elif method == 'bcc':
+            self.processed_molfile_pdb, self.frcmod_file = core.molecule_prepare_bcc(
+                molecule_file, save_dir=MOL_RELATED_DIR, charge=charge, overwrite=overwrite)
+        else:
+            raise ValueError(f'Method {method} is not supported.')
         logger.info(
             f'Molecule file {self.processed_molfile_pdb.file_name} has been saved in {MOL_RELATED_DIR} .')
         logger.info(
@@ -222,9 +241,9 @@ class Processor:
         默认100ns
         '''
         water_resnum = core._get_water_resnum(self.comsolvate_pdbfile)
-        (self.step_a_inputfile, self.setp_b_inputfile,
-         self.setp_c_inputfile, self.step_nvt_inputfile,
-         self.step_npt_inputfile) = core._creat_md_inputfile(
+        (self.step_a_inputfile, self.step_b_inputfile, 
+        self.step_c_inputfile, self.step_nvt_inputfile, 
+        self.step_npt_inputfile) = core._creat_md_inputfile(
             water_resnum, step_num,
             step_length, INPUT_FILE_DIR)
 
@@ -270,7 +289,6 @@ class Simulator:
     def __init__(self, processor: Processor) -> None:
         self.processor = processor
 
-        self.comsolvate_pdbfile = processor.comsolvate_pdbfile
         self.comsolvate_topfile = processor.comsolvate_topfile
         self.comsolvate_crdfile = processor.comsolvate_crdfile
         self.step_a_inputfile = processor.step_a_inputfile

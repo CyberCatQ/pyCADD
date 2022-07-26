@@ -29,7 +29,7 @@ def _system_call(cmd: str) -> None:
 
     return_code = os.system(cmd)
     if return_code != 0:
-        raise RuntimeError(f'System call failed: {cmd}')
+        raise RuntimeError(f'System call failed: {cmd}') from None
 
 
 def _convert_mae_to_pdb(mae_file_path: str) -> None:
@@ -98,13 +98,14 @@ def protein_prepare(protein_file: BaseFile, save_dir: str = None) -> BaseFile:
     return BaseFile(leap_file_path)
 
 
-def molecule_prepare(
+def molecule_prepare_resp2(
         ligand_file: BaseFile,
         cpu_num: int = None,
         charge: int = None,
         multiplicity: int = None,
         solvent: str = None,
-        save_dir: str = None) -> tuple:
+        save_dir: str = None,
+        overwrite: bool = False) -> tuple:
     '''
     预处理小分子文件
         高斯坐标优化与RESP2(0.5)电荷计算
@@ -123,6 +124,8 @@ def molecule_prepare(
         计算溶剂 默认为水
     save_dir : str, optional
         保存路径 过程及结果文件保存至该目录 如为None则保存至当前目录
+    overwrite : bool, optional
+        是否覆盖已存在文件 默认为False
     '''
 
     save_dir = save_dir if save_dir is not None else CWD
@@ -137,8 +140,19 @@ def molecule_prepare(
     solvent = solvent if solvent is not None else 'water'
     script_resp2_path = os.path.join(SCRIPT_DIR, 'RESP2.sh')
 
+    # 参数生成过程文件
+    pqr_file_path = os.path.join(save_dir, file_prefix + '.pqr')
+    mol2_file_path = os.path.join(save_dir, file_prefix + '.mol2')
+    frcmod_file_path = os.path.join(save_dir, file_prefix + '.frcmod')
+
+    if os.path.exists(mol2_file_path) and not overwrite:
+        _system_call(f'parmchk2 -i {mol2_file_path} -f mol2 -o {frcmod_file_path}')
+        return BaseFile(mol2_file_path), BaseFile(frcmod_file_path)
+
     Gauss(file_path).set_system(cpu_num, '16GB')
 
+    if os.popen('which obabel').read() == '':
+        raise RuntimeError('Openbabel may not be installed.')
     print('Optimizing ligand structure...')
     # 高斯坐标优化与RESP2电荷计算
     # 完成时 生成.pqr文件
@@ -146,18 +160,12 @@ def molecule_prepare(
         f'chmod 777 {script_resp2_path} && {script_resp2_path} {file_path} {charge} {multiplicity} {solvent}'
     )
 
-    # 参数生成过程文件
-    pqr_file_path = os.path.join(save_dir, file_prefix + '.pqr')
-    mol2_file_path = os.path.join(save_dir, file_prefix + '.mol2')
-
     # Openbabel格式转换 pqr -> mol2 电荷信息传递至mol2文件
     _system_call(f'obabel -ipqr {pqr_file_path} -omol2 -O tmp.mol2')
     # Openbabel生成的mol2文件无法被parmchk2直接使用 需要antechamber转换
     # mol2文件带有RESP2电荷信息
     _system_call(
         f'antechamber -fi mol2 -i tmp.mol2 -fo mol2 -o {mol2_file_path} && rm tmp.mol2')
-
-    frcmod_file_path = os.path.join(save_dir, file_prefix + '.frcmod')
 
     # 生成Amber Gaff Force Filed Parameters文件
     _system_call(
@@ -167,6 +175,51 @@ def molecule_prepare(
 
     return BaseFile(mol2_file_path), BaseFile(frcmod_file_path)
 
+def molecule_prepare_bcc(
+    ligand_file: BaseFile,
+    charge: int,
+    save_dir: str = None,
+    overwrite:bool = False) -> tuple:
+    '''
+    使用AM1-BCC快速计算原子电荷 并完成配体预处理
+
+    Parameters
+    ----------
+    ligand_file : BaseFile
+        小分子文件
+    charge : int
+        电荷数
+    save_dir : str, optional
+        保存路径 过程及结果文件保存至该目录 如为None则保存至当前目录
+    overwrite : bool, optional
+        是否覆盖已存在的mol2结果文件 默认为False
+    '''
+
+    save_dir = save_dir if save_dir is not None else CWD
+    file_path = ligand_file.file_path
+    file_prefix = ligand_file.file_prefix
+
+    # 参数生成过程文件
+    mol2_file_path = os.path.join(save_dir, file_prefix + '.mol2')
+    frcmod_file_path = os.path.join(save_dir, file_prefix + '.frcmod')
+
+    if os.path.exists(mol2_file_path) and not overwrite:
+        _system_call(f'parmchk2 -i {mol2_file_path} -f mol2 -o {frcmod_file_path}')
+        return BaseFile(mol2_file_path), BaseFile(frcmod_file_path)
+    
+    _system_call(
+        f'pdb4amber -i {ligand_file.file_path} -o tmp.pdb'
+    )
+
+    _system_call(
+        f'antechamber -fi pdb -i tmp.pdb -fo mol2 -o {mol2_file_path} -c bcc -nc {charge} && rm tmp.pdb'
+    )
+
+    _system_call(
+        f'parmchk2 -i {mol2_file_path} -f mol2 -o {frcmod_file_path}'
+    )
+
+    return BaseFile(mol2_file_path), BaseFile(frcmod_file_path)
 
 def _creat_leap_inputfile(
         prefix: str,
