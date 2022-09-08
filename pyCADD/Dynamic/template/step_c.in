@@ -5,7 +5,7 @@
  ntb=1,
  ntc=1,
  ntf=1,
- maxcyc=100000,
+ maxcyc=10000,
  ncyc=5000,
 
 /
