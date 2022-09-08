@@ -66,7 +66,7 @@ def _calc_rmsf(trajectory: Any, mask: str = '@CA', options: str = 'byres', save_
     ndarray
         RMSF结果数组
     '''
-
+    trajectory = pt.superpose(trajectory, mask=mask, ref=0)
     data_rmsf = pt.rmsf(trajectory, mask=mask,
                         options=options, *args, **kwargs)
 
