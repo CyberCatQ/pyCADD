@@ -9,7 +9,8 @@ from pyCADD.utils.tool import _get_progress, makedirs_from_list, timeit
 
 CWD = os.getcwd()
 CPU_NUM = os.cpu_count()
-SANDER = 'pmemd.cuda'
+PMEMD = 'pmemd.cuda'
+SANDER = f'mpirun -np {str(int(CPU_NUM / 2))} sander.MPI'
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = os.path.join(SCRIPT_DIR, 'template')
@@ -512,34 +513,41 @@ def _run_simulation(
     step_npt_crdfile = os.path.join(step_npt_dir, 'step_npt.crd')
 
     # Get more information from AMBER USER PROFILE
-    step_a_cmd = f'{SANDER} -O '
+    step_a_cmd = f'{PMEMD} -O '
     step_a_cmd += f'-i {step_a_inputfile.file_path} '
     step_a_cmd += f'-o {step_a_outfile} '
     step_a_cmd += f'-c {comsolvate_crdfile.file_path} -p {comsolvate_topfile.file_path} '
     step_a_cmd += f'-r {step_a_rstfile} '
     step_a_cmd += f'-ref {comsolvate_crdfile.file_path}'
 
-    step_b_cmd = f'{SANDER} -O '
+    step_b_cmd = f'{PMEMD} -O '
     step_b_cmd += f'-i {step_b_inputfile.file_path} '
     step_b_cmd += f'-o {step_b_outfile} '
     step_b_cmd += f'-c {step_a_rstfile} -p {comsolvate_topfile.file_path} '
     step_b_cmd += f'-r {step_b_rstfile} '
     step_b_cmd += f'-ref {step_a_rstfile}'
 
-    step_c_cmd = f'{SANDER} -O '
+    step_c_cmd = f'{PMEMD} -O '
     step_c_cmd += f'-i {step_c_inputfile.file_path} '
     step_c_cmd += f'-o {step_c_outfile} '
     step_c_cmd += f'-c {step_b_rstfile} -p {comsolvate_topfile.file_path} '
     step_c_cmd += f'-r {step_c_rstfile} '
 
-    step_nvt_cmd = f'{SANDER} -O '
+    step_nvt_cmd = f'{PMEMD} -O '
     step_nvt_cmd += f'-i {step_nvt_inputfile.file_path} '
     step_nvt_cmd += f'-o {step_nvt_outfile} '
     step_nvt_cmd += f'-c {step_c_rstfile} -p {comsolvate_topfile.file_path} '
     step_nvt_cmd += f'-r {step_nvt_rstfile} '
     step_nvt_cmd += f'-x {step_nvt_crdfile}'
 
-    step_npt_cmd = f'nohup {SANDER} -O '
+    step_nvt_cmd_cpu = f'{SANDER} -O '
+    step_nvt_cmd_cpu += f'-i {step_nvt_inputfile.file_path} '
+    step_nvt_cmd_cpu += f'-o {step_nvt_outfile} '
+    step_nvt_cmd_cpu += f'-c {step_c_rstfile} -p {comsolvate_topfile.file_path} '
+    step_nvt_cmd_cpu += f'-r {step_nvt_rstfile} '
+    step_nvt_cmd_cpu += f'-x {step_nvt_crdfile}'
+
+    step_npt_cmd = f'nohup {PMEMD} -O '
     step_npt_cmd += f'-i {step_npt_inputfile.file_path} '
     step_npt_cmd += f'-o {step_npt_outfile} '
     step_npt_cmd += f'-c {step_nvt_rstfile} -p {comsolvate_topfile.file_path} '
@@ -553,7 +561,15 @@ def _run_simulation(
     logger.info('Running Minimize Progress C...')
     _system_call(step_c_cmd)
     logger.info('Running 100ps Heating Progress...')
-    _system_call(step_nvt_cmd)
+    
+    try:
+        _system_call(step_nvt_cmd)
+    except RuntimeError: 
+        logger.warning('GPU version of PMEMD failed, trying CPU version sander.MPI ...')
+        logger.info(f'Using CMD: {SANDER}')
+        _system_call(step_nvt_cmd_cpu)
+        _trace_progress(step_nvt_outfile, 50000)
+
     logger.info(f'Running {simulate_time} ns Molecular Dynamics Simulation...')
     _system_call(step_npt_cmd)
     _trace_progress(step_npt_outfile, step_num)

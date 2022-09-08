@@ -44,8 +44,8 @@ def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, par
     processor.leap_prepare(prefix)
     step_num = int(time * 1000 / 0.002)
     processor.creat_input_file(step_num=step_num)
-    print(f'input files: {processor.step_a_inputfile.file_name}, {processor.step_b_inputfile.file_name}, {processor.step_c_inputfile.file_name}')
-    print(f'{processor.step_nvt_inputfile.file_name}, {processor.step_npt_inputfile.file_name}')
+    # print(f'input files: {processor.step_a_inputfile.file_name}, {processor.step_b_inputfile.file_name}, {processor.step_c_inputfile.file_name}')
+    # print(f'{processor.step_nvt_inputfile.file_name}, {processor.step_npt_inputfile.file_name}')
     simulator = Simulator(processor)
     simulator.run_simulation(with_gpu)
 
