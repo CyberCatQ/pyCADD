@@ -546,10 +546,6 @@ class Analyzer:
         os.makedirs(save_dir, exist_ok=True)
 
         logger.info(f'Calculating and tracing H-bonds...')
-        logger.info(f'Amber mask: {mask}')
-        logger.info(f'Distance cutoff: {distance}')
-        logger.info(f'Angle cutoff: {angle}')
-        logger.info(f'Options: {options}')
         self.hbond = self.analyzer._calc_hbond(
             self.traj, mask=mask, distance=distance, angle=angle, options=options, save_dir=save_dir, **kwargs)
 

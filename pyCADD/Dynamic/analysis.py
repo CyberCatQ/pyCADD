@@ -1,4 +1,5 @@
 import os
+import logging
 from typing import Any
 
 from pyCADD.utils.common import BaseFile
@@ -14,6 +15,7 @@ CPU_NUM = os.cpu_count()
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 CWD = os.getcwd()
 
+logger = logging.getLogger(__name__)
 
 def _calc_rmsd(trajectory: Any, mask: str = '@CA', reference: Any = 0, save_dir: str = None, *args, **kwargs) -> ndarray:
     '''
@@ -91,11 +93,28 @@ def _calc_hbond(
         pytraj MD轨迹对象
     mask : str
         统计轨迹氢键的Amber mask 默认为发现所有氢键
+    distance : float
+        氢键长度阈值 默认为3.0
+    angle : float
+        氢键角度阈值 默认为135
+    options : str
+        氢键统计选项 默认为None
+    save_dir : str
+        保存路径 默认为当前路径
+
+    Returns
+    -------
+    tuple  
+        氢键长度/角度变化结果数组
     '''
     save_dir = CWD if save_dir is None else save_dir
     avgout_file = f'{save_dir}/HBOND_RESULTS.dat'
     options = f'avgout {avgout_file} printatomnum nointramol' if options is None else options
 
+    logger.info(f'Amber mask: {mask}')
+    logger.info(f'Distance cutoff: {distance}')
+    logger.info(f'Angle cutoff: {angle}')
+    logger.info(f'Options: {options}')
     hbond = pt.hbond(trajectory, mask=mask, distance=distance,
                      angle=angle, options=options, *args, **kwargs)
     distance_mask, angle_mask = hbond.get_amber_mask()
@@ -103,9 +122,11 @@ def _calc_hbond(
     hbond_distance = _trace_distance(trajectory, distance_mask)
     hbond_angle = _trace_angle(trajectory, angle_mask)
 
+    hbond_num_time_file = os.path.join(save_dir, 'HBOND_NUM_TIME.csv')
     hbond_distance_file = os.path.join(save_dir, 'HBOND_DIS_RESULTS.csv')
     hbond_angle_file = os.path.join(save_dir, 'HBOND_ANG_RESULTS.csv')
 
+    pd.DataFrame(hbond.total_solute_hbonds()).to_csv(hbond_num_time_file)
     pd.DataFrame(hbond_distance, index=distance_mask).T.to_csv(
         hbond_distance_file, index=False)
     pd.DataFrame(hbond_angle, index=angle_mask).T.to_csv(
