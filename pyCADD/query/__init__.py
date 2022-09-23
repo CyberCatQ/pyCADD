@@ -38,13 +38,13 @@ class QueryClient:
         return self.mutation_pdb
     
     def _query_uniprot(self):
-        save_path = os.path.join(self.uniprot_save_dir, self.uniprot_id + '.txt')
+        save_path = os.path.join(self.uniprot_save_dir, self.uniprot_id + '.json')
         query_uniprot(self.uniprot_id, save_path)
     
     def _query_pdb(self):
         if self.pdb_list is None:
             self._query_uniprot()
-            self.pdb_list = parse_uniport(os.path.join(self.uniprot_save_dir, self.uniprot_id + '.txt'))
+            self.pdb_list = parse_uniport(os.path.join(self.uniprot_save_dir, self.uniprot_id + '.json'))
         save_path = os.path.join(self.pdb_save_dir, self.uniprot_id + '.json')
         self.data_dict = query_pdb(self.pdb_list, save_path, self.pdb_query_cfg)
         self._parse_json()
