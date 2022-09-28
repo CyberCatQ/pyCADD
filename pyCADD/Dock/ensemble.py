@@ -39,7 +39,8 @@ def split_ligand(ligand_file:LigandFile, save_dir:str=None, overwrite:bool=False
     ligand_path_list = []
     activity_label_name = [f'{_type}_user_{_label}' for _type in ('b', 's') for _label in ('Activity', 'activity')]
     for index, structure in enumerate(ligand_file.structures):
-        st_name = f"{index}-{structure.property['s_m_title']}"
+        # st_name = f"{index}-{structure.property['s_m_title']}"
+        st_name = f"{index}-{ligand_file.file_prefix}"
         structure.property['i_user_StructureIndex'] = index
 
         st_activity = ''
