@@ -95,7 +95,7 @@ def calc_admet(file_path, overwrite):
 @click.argument('library_file_path', type=str)
 @click.option('--parallel', '-n', default=os.cpu_count(), type=int, help='Number of parallel processes.')
 @click.option('--precision', '-p', default='SP', required=False, type=click.Choice(['SP', 'XP']), help='Docking Precision (SP/XP), default SP.')
-@click.option('--redock/--no-redock', is_flag=True, required=True, help='Redock ligands from crystals to grids or not.')
+@click.option('--redock', is_flag=True, help='Redock ligands from crystals to grids or not.')
 @click.option('--overwrite', '-O', is_flag=True, help='Overwrite the file.')
 def ensemble_dock(input_file_path, library_file_path, parallel, precision, redock, overwrite):
     '''
