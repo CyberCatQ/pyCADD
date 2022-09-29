@@ -415,7 +415,7 @@ class _Console:
             with open(os.path.join(self.result_save_dir, f'redock_failed_{precision}.csv'), 'w') as f:
                 f.write('\n'.join(redock_failed_list))
     
-    def multi_extract_data(self, precision:str='SP', num_parallel:int=None, overwrite:bool=False, redock_data:str='False') -> list:
+    def multi_extract_data(self, precision:str='SP', num_parallel:int=None, overwrite:bool=False, redock_data:str=False) -> list:
         '''
         多进程 提取对接结果数据
 

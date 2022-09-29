@@ -192,6 +192,9 @@ def dock(grid_file:GridFile, lig_file:LigandFile, precision:str='SP', calc_rmsd:
     input_file = f'{pdbid}_{internal_ligand}_glide-dock_{docking_ligand}_{precision}.in'
     job_name = f'{pdbid}-{internal_ligand}-Glide-Dock-{docking_ligand}-{precision}'
     output_file = job_name + '_pv.maegz'
+    if ligand_only:
+        output_file = job_name + '_lib.maegz'
+        
     glide_dock_config = [
         'FORCEFIELD %s\n' % FORCEFIELD,
         'GRIDFILE %s\n' % grid_file.file_path,
