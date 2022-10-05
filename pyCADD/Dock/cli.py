@@ -1,5 +1,6 @@
 import os
 import click
+import pickle
 from pyCADD.Dock.common import DockResultFile, GridFile, MaestroFile, PDBFile, LigandFile, ComplexFile, MultiInputFile
 from pyCADD.Dock.data import Reporter
 import warnings

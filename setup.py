@@ -20,7 +20,7 @@ setup(
                       r"scikit-learn", 'pandas>=1.4.1', 
                       'matplotlib>=2.2.2', 'seaborn>=0.11.2', 'openpyxl', 
                       'xgboost', 'pyyaml>=6.0', 'click', 'scipy', 
-                      'xlsxwriter', 'openpyxl', 'requests'],
+                      'xlsxwriter>=3.0', 'openpyxl', 'requests'],
     license='GNU General Public License v3.0',
     python_requires='>=3.5,<3.10',
     long_description=long_description,

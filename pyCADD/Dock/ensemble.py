@@ -282,7 +282,7 @@ class _Console:
         split_result_list = []
         # split不进行多进程化
         for minimized_file in minimized_file_list:
-            receptor_file, ligand_file = minimized_file.split(protein_dir=self.protein_save_dir, ligand_dir=self.ligand_save_dir, complex_dir=self.complex_save_dir)
+            receptor_file, ligand_file = minimized_file.split(protein_dir=self.protein_save_dir, ligand_dir=self.ligand_save_dir, complex_dir=self.complex_save_dir, save_fmt='mae')
             split_result_list.append((receptor_file, ligand_file))
         
         self.minimized_split_list = split_result_list

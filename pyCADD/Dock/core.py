@@ -158,6 +158,8 @@ def dock(grid_file:GridFile, lig_file:LigandFile, precision:str='SP', calc_rmsd:
         对接精度(HTVS|SP|XP) 默认SP
     calc_rmsd : bool
         是否计算rmsd to input ligand geometries 默认False
+    ligand_only : bool
+        是否仅在输出文件中保留配体 默认False
     save_dir : str
         保存Dock结果文件的目录 保存于该目录的PDBID文件夹下
     overwrite : bool
@@ -186,7 +188,10 @@ def dock(grid_file:GridFile, lig_file:LigandFile, precision:str='SP', calc_rmsd:
     # 如果已有对接成功文件 跳过对接步骤
     if os.path.exists(dock_result_file) and not overwrite:     
         logger.debug('File %s is existed.' % dock_result_file)
-        os.chdir(_cwd)                           
+        os.chdir(_cwd)
+        if ligand_only:
+            # logger.debug('Output file will include ligand only.')
+            return DockResultFile(dock_result_file, internal_ligand, internal_ligand_resnum, docking_ligand, precision, ligand_only=True)
         return DockResultFile(dock_result_file, internal_ligand, internal_ligand_resnum, docking_ligand, precision)
 
     input_file = f'{pdbid}_{internal_ligand}_glide-dock_{docking_ligand}_{precision}.in'
@@ -223,7 +228,11 @@ def dock(grid_file:GridFile, lig_file:LigandFile, precision:str='SP', calc_rmsd:
     logger.debug(f'{pdbid}-{docking_ligand} Glide Docking Completed')
     logger.debug(f'Docking Result File: {dock_result_file} Saved.')
     os.chdir(_cwd)
-
+    
+    if ligand_only:
+        # logger.debug('Output file will include ligand only.')
+        return DockResultFile(dock_result_file, internal_ligand, internal_ligand_resnum, docking_ligand, precision, ligand_only=True)
+    
     return DockResultFile(dock_result_file, internal_ligand, internal_ligand_resnum, docking_ligand, precision)
 
 def calc_mmgbsa(maestrofile:DockResultFile, overwrite:bool=False) -> ComplexFile:

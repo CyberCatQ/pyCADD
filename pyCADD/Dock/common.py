@@ -522,15 +522,20 @@ class DockResultFile(MaestroFile):
     '''
     Maestro对接结果文件类型
     仅含有2个Entry
-        * structure[0]: receptor
-        * structure[1]: ligand
+        * structures[0]: receptor
+        * structures[1]: ligand
+    当ligand_lib_only为True时，只含有ligand
+        * structures[0]: ligand
     '''
-    def __init__(self, path:str, ligand:str=None, lig_resnum:int=None, docking_ligand:str=None, precision:str=None) -> None:
+    def __init__(self, path:str, ligand:str=None, lig_resnum:int=None, docking_ligand:str=None, precision:str=None, ligand_only:bool=False) -> None:
         super().__init__(path, ligand, lig_resnum)
         self.internal_ligand_name = ligand if ligand is not None else self.file_prefix.split('_')[1]
         self.internal_ligand_resnum = lig_resnum
         self.docking_ligand_name = docking_ligand if docking_ligand is not None else self.file_prefix.split('_')[3]
         self.precision = precision if precision is not None else self.file_prefix.split('_')[4]
+        self.ligand_only = ligand_only
+        # if self.ligand_only:
+        #     logger.debug('Docking Result File is Ligand Only.')
 
     @property
     def merged_file(self) -> ComplexFile:
@@ -555,7 +560,10 @@ class DockResultFile(MaestroFile):
         '''
         返回对接结果的配体结构
         '''
+        if self.ligand_only:
+            return self.structures[0]
         return self.structures[1]
+    
     @property
     def property(self) -> dict:
         '''
