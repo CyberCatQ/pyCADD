@@ -11,6 +11,16 @@ pyCADD
 * 支持CLI快速调用
 
 ## 更新日志
+* 1.6.3 (2022-10-27)
+  * 修改了 Dock 模块的对接函数调用 不再使用Schrodinger任务管理层
+    * 显著降低无意义时间损耗 提升 Ensemble Docking 速度
+    * 完全减除任务管理层perl的长期内存占用 避免后期速度下降
+    * 完全保障了 CPU 100%时间满载运行对接任务
+  * 修改 Dock 的默认的结果文件生成为仅输出配体结构 
+    * 显著减少对接结果文件体积
+  * 修复了Dynamic Analysis模块的BUG
+    * 现在以重原子间距离计算氢键键长
+  
 * 1.6.2 (2022-07-21)
   * 修复了 Dynamic-Analyzer 的一些BUG
   * 修复了 python wheel build 的一些BUG
@@ -51,11 +61,11 @@ pyCADD
 ## Required
 
 * [Schrodinger Suite](https://www.schrodinger.com/)2020-3 或更高版本
-* [AMBER](http://ambermd.org/) 18 或更高版本
+* [AMBER](http://ambermd.org/) 18 或更高版本 
 * [Gaussian](http://gaussian.com/) 16.A01 或更高版本
 * [Multiwfn](http://sobereva.com/multiwfn/) 3.7 或更高版本
 * [OpenBabel](https://openbabel.org/) 2.4 或更高版本
-* CUDA 9.0 或以上版本
+* CUDA 9.0 或以上版本(Optional)
 ### ！Attention
 * `pyCADD` 不包含以上所需程序的安装与许可证 您需要自行获得授权并安装恰当
 * 使用本应用程序进行学术研究必须遵守以上所需各程序的相关文献引用规定
@@ -93,8 +103,7 @@ pyCADD
 |*VSW*            | 自动化虚拟筛选 |
 |*query* | 自动化晶体信息查询与解析 |
 |*Gauss* | 自动编写高斯结构优化、单点能、TDDFT等计算任务输入文件并启动计算任务 |
-|*Dynamic* | 自动化分子动力学模拟准备与运行 |
-|*Dynamic-Analyzer* | 自动化分子动力学模拟后处理分析 |
+|*Dynamic* | 自动化分子动力学模拟准备与运行 自动化分子动力学模拟后处理分析 |
 
 ## How to Use
 
@@ -117,13 +126,15 @@ pyCADD
 | `pycadd-query` | *query* |
 | `pycadd-gauss` | *Gauss* |
 | `pycadd-dynamic` | *Dynamic* |
-| `pycadd-mdanalysis` | *Dynamic-Analyzer* |
+| `pycadd-dynamic analysis` | *Dynamic-Analyzer* |
 
-使用
+使用如
 
     pycadd-dock --help
+    pycadd-dynamic --help
+    pycadd-dock ensemble-dock --help
 
-来获取更多帮助信息。
+样式的命令来获取各模块的更多帮助信息。
 
 各模块使用指南及更多帮助信息, 请参阅[API文档](https://cybercatq.github.io/pyCADD)。
 
@@ -136,4 +147,5 @@ pyCADD
 
 YH. W  
 School of Pharmaceutical Sciences, Xiamen University  
-2022-07-07
+Copyight © 2022 XMU   
+2022-10-27
