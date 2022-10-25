@@ -15,6 +15,7 @@ from rich.table import Column
 from configparser import ConfigParser
 from threading import Thread
 from concurrent.futures import ProcessPoolExecutor, Future
+from multiprocessing import Manager, Pool
 
 NUM_PARALLEL = multiprocessing.cpu_count() // 4 * 3
 logger = logging.getLogger(__name__)

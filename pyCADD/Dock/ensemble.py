@@ -2,7 +2,7 @@ import logging
 import os
 from concurrent.futures import ProcessPoolExecutor
 
-from pyCADD.utils.tool import download_pdb_list, makedirs_from_list, _get_progress, _multiprocssing_run, NUM_PARALLEL
+from pyCADD.utils.tool import download_pdb_list, makedirs_from_list, _get_progress, _multiprocssing_run, NUM_PARALLEL, Manager
 from pyCADD.Dock.common import PDBFile, DockResultFile, LigandFile, MultiInputFile
 from pyCADD.Dock.core import minimize, grid_generate, dock
 from pyCADD.Dock.data import extra_docking_data
@@ -31,26 +31,27 @@ def split_ligand(ligand_file:LigandFile, save_dir:str=None, overwrite:bool=False
 
     save_dir = ligand_file.file_dir if save_dir is None else save_dir
     logger.debug(f'Prepare to split structure file {ligand_file.file_name} to {save_dir}')
-
-    progress, taskID = _get_progress('Reading Ligands', 'bold cyan', len(ligand_file.structures))
+    structures = list(ligand_file.structures)
+    progress, taskID = _get_progress('Reading Ligands', 'bold cyan', len(structures))
     progress.start()
     progress.start_task(taskID)
-
-    label_list = []
-    ligand_path_list = []
     activity_label_name = [f'{_type}_user_{_label}' for _type in ('b', 's') for _label in ('Activity', 'activity')]
     
     # Wait for Test
-    if num_per_process is not None:
+    # TODO: Can not work
+    if parallel_num is not None:
+        label_list = Manager().list()
+        ligand_path_list = Manager().list()
         # 分为多份并行处理
-        num_per_process = len(ligand_file.structures) // parallel_num
-        index_list = [(i, i + num_per_process) for i in range(0, len(ligand_file.structures), num_per_process)]
-        if index_list[-1][1] > len(ligand_file.structures):
-            index_list[-1] = (index_list[-1][0], len(ligand_file.structures))
-        logger.debug(f'Parallel split ligand file {ligand_file.file_name} to {parallel_num} processes')
+        num_per_process = len(structures) // parallel_num
+        index_list = [(i, i + num_per_process) for i in range(0, len(structures), num_per_process)]
+        if index_list[-1][1] > len(structures):
+            index_list[-1] = (index_list[-1][0], len(structures))
+        logger.debug(f'Index list: {index_list}')
+        logger.debug(f'Parallelly split ligand file {ligand_file.file_name} with {parallel_num} processes')
         
-        structures_group_list = [ligand_file.structures[i:j] for i, j in index_list]
-        
+        structures_group_list = [structures[i:j] for i, j in index_list]
+
         def _split_ligand(structures_group, start_index:int=0):
             part_ligand_path_list = []
             part_label_list = []
@@ -81,9 +82,12 @@ def split_ligand(ligand_file:LigandFile, save_dir:str=None, overwrite:bool=False
             for index, structures_group in enumerate(structures_group_list):
                 future = pool.submit(_split_ligand, structures_group, index_list[index][0])
                 future.add_done_callback(_callback)
+
     else:
         # Original method
-        for index, structure in enumerate(ligand_file.structures):
+        label_list = []
+        ligand_path_list = []
+        for index, structure in enumerate(structures):
             # st_name = f"{index}-{structure.property['s_m_title']}"
             st_name = f"{index}-{ligand_file.file_prefix}"
             structure.property['i_user_StructureIndex'] = index
@@ -333,7 +337,7 @@ class _Console:
         self.minimized_split_list = split_result_list
         return split_result_list
     
-    def ligand_split(self, external_ligand_file:LigandFile, overwrite:bool=False) -> list:
+    def ligand_split(self, external_ligand_file:LigandFile, overwrite:bool=False, parallel_num:int=None) -> list:
         '''
         拆分外部ligand文件
         
@@ -349,7 +353,7 @@ class _Console:
         '''
         logger.debug(f'Prepare to split {external_ligand_file}')
         ligand_save_dir = self.ligand_save_dir
-        self.ligand_path_list = split_ligand(external_ligand_file, ligand_save_dir, overwrite)
+        self.ligand_path_list = split_ligand(external_ligand_file, ligand_save_dir, overwrite, parallel_num=parallel_num)
         self.ligand_file_list = [LigandFile(ligand_path) for ligand_path in self.ligand_path_list]
         return self.ligand_file_list
         
