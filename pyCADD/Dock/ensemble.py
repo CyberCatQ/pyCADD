@@ -1,14 +1,15 @@
 import logging
 import os
+from concurrent.futures import ProcessPoolExecutor
 
 from pyCADD.utils.tool import download_pdb_list, makedirs_from_list, _get_progress, _multiprocssing_run, NUM_PARALLEL
-from pyCADD.Dock.common import GridFile, PDBFile, DockResultFile, LigandFile, MultiInputFile
+from pyCADD.Dock.common import PDBFile, DockResultFile, LigandFile, MultiInputFile
 from pyCADD.Dock.core import minimize, grid_generate, dock
 from pyCADD.Dock.data import extra_docking_data
 
 logger = logging.getLogger(__name__)
 
-def split_ligand(ligand_file:LigandFile, save_dir:str=None, overwrite:bool=False) -> list:
+def split_ligand(ligand_file:LigandFile, save_dir:str=None, overwrite:bool=False, parallel_num:int=None) -> list:
     '''
     将单个maestro文件中包含的所有小分子拆分为多个独立mae文件
     
@@ -38,26 +39,70 @@ def split_ligand(ligand_file:LigandFile, save_dir:str=None, overwrite:bool=False
     label_list = []
     ligand_path_list = []
     activity_label_name = [f'{_type}_user_{_label}' for _type in ('b', 's') for _label in ('Activity', 'activity')]
-    for index, structure in enumerate(ligand_file.structures):
-        # st_name = f"{index}-{structure.property['s_m_title']}"
-        st_name = f"{index}-{ligand_file.file_prefix}"
-        structure.property['i_user_StructureIndex'] = index
-
-        st_activity = ''
-        for _label in activity_label_name:
-            try:
-                st_activity = structure.property[_label]
-                break
-            except KeyError:
-                continue
-        label_list.append(f'{st_name},{st_activity}')
-
-        output_file = os.path.join(save_dir, f'{st_name}.mae')
-        if not os.path.exists(output_file) or overwrite:
-            structure.write(output_file)
+    
+    # Wait for Test
+    if num_per_process is not None:
+        # 分为多份并行处理
+        num_per_process = len(ligand_file.structures) // parallel_num
+        index_list = [(i, i + num_per_process) for i in range(0, len(ligand_file.structures), num_per_process)]
+        if index_list[-1][1] > len(ligand_file.structures):
+            index_list[-1] = (index_list[-1][0], len(ligand_file.structures))
+        logger.debug(f'Parallel split ligand file {ligand_file.file_name} to {parallel_num} processes')
         
-        ligand_path_list.append(output_file)
-        progress.update(taskID, advance=1)
+        structures_group_list = [ligand_file.structures[i:j] for i, j in index_list]
+        
+        def _split_ligand(structures_group, start_index:int=0):
+            part_ligand_path_list = []
+            part_label_list = []
+            for index, structure in enumerate(structures_group):
+                index = index + start_index
+                st_name = f"{index}-{ligand_file.file_prefix}"
+                structure.property['i_user_StructureIndex'] = index
+                st_activity = ''
+                for _label in activity_label_name:
+                    try:
+                        st_activity = structure.property[_label]
+                        break
+                    except KeyError:
+                        continue
+                part_label_list.append(f'{st_name},{st_activity}')
+                output_file = os.path.join(save_dir, f'{st_name}.mae')
+                if not os.path.exists(output_file) or overwrite:
+                    structure.write(output_file)
+                progress.update(taskID, advance=1)
+                part_ligand_path_list.append(output_file)
+            return part_ligand_path_list, part_label_list
+        
+        def _callback(result):
+            ligand_path_list.extend(result[0])
+            label_list.extend(result[1])
+        
+        with ProcessPoolExecutor(max_workers=parallel_num) as pool:
+            for index, structures_group in enumerate(structures_group_list):
+                future = pool.submit(_split_ligand, structures_group, index_list[index][0])
+                future.add_done_callback(_callback)
+    else:
+        # Original method
+        for index, structure in enumerate(ligand_file.structures):
+            # st_name = f"{index}-{structure.property['s_m_title']}"
+            st_name = f"{index}-{ligand_file.file_prefix}"
+            structure.property['i_user_StructureIndex'] = index
+
+            st_activity = ''
+            for _label in activity_label_name:
+                try:
+                    st_activity = structure.property[_label]
+                    break
+                except KeyError:
+                    continue
+            label_list.append(f'{st_name},{st_activity}')
+
+            output_file = os.path.join(save_dir, f'{st_name}.mae')
+            if not os.path.exists(output_file) or overwrite:
+                structure.write(output_file)
+            
+            ligand_path_list.append(output_file)
+            progress.update(taskID, advance=1)
 
     with open(os.path.join(save_dir, 'label.csv'), 'w') as f:
         f.write('\n'.join(label_list))

@@ -9,7 +9,7 @@ from pyCADD.utils.common import BaseFile
 # conda install -c conda-forge ambertools
 import pytraj as pt
 import pandas as pd
-from numpy import ndarray
+from numpy import array, ndarray
 
 CPU_NUM = os.cpu_count()
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -117,7 +117,14 @@ def _calc_hbond(
     logger.info(f'Options: {options}')
     hbond = pt.hbond(trajectory, mask=mask, distance=distance,
                      angle=angle, options=options, *args, **kwargs)
-    distance_mask, angle_mask = hbond.get_amber_mask()
+    
+    # distance_mask from get_amber_mask() is acceptor-donorH
+    # but needed distance is calculated from acceptor-donor
+    # distance_mask, angle_mask = hbond.get_amber_mask()
+    _, angle_mask = hbond.get_amber_mask()
+    distance_mask = [(_mask.split()[0], _mask.split()[2]) for _mask in angle_mask]
+    distance_mask = [" ".join(_mask_tuple) for _mask_tuple in distance_mask]
+    distance_mask = np.array(distance_mask)
 
     hbond_distance = _trace_distance(trajectory, distance_mask)
     hbond_angle = _trace_angle(trajectory, angle_mask)

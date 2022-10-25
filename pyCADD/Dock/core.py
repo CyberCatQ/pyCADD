@@ -217,8 +217,10 @@ def dock(grid_file:GridFile, lig_file:LigandFile, precision:str='SP', calc_rmsd:
     with open(input_file, 'w') as f:
         f.writelines(glide_dock_config)
 
-    launch(f'glide {input_file} -JOBNAME {job_name}')
-
+    # Jobcontrol Layer 使得对接速度减慢 在高通量任务中不使用
+    # launch(f'glide {input_file} -JOBNAME {job_name}')
+    os.system(f'glide {input_file} -JOBNAME {job_name} -WAIT -NOJOBID > {job_name}.log 2>&1')
+    
     try:
         os.rename(output_file, dock_result_file)
     except Exception:
