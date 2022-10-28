@@ -124,7 +124,7 @@ def _calc_hbond(
     _, angle_mask = hbond.get_amber_mask()
     distance_mask = [(_mask.split()[0], _mask.split()[2]) for _mask in angle_mask]
     distance_mask = [" ".join(_mask_tuple) for _mask_tuple in distance_mask]
-    distance_mask = np.array(distance_mask)
+    distance_mask = array(distance_mask)
 
     hbond_distance = _trace_distance(trajectory, distance_mask)
     hbond_angle = _trace_angle(trajectory, angle_mask)

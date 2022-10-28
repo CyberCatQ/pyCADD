@@ -135,7 +135,8 @@ def grid_generate(complex_file:ComplexFile, gridbox_size:int=20, save_dir:str=No
     with open(input_file, 'w') as f:  
         f.writelines(glide_grid_config)
 
-    launch(f'glide {input_file} -JOBNAME {job_name}')
+    # launch(f'glide {input_file} -JOBNAME {job_name}')
+    os.system(f'glide {input_file} -JOBNAME {job_name} -WAIT -NOJOBID > {job_name}.log 2>&1')
     if not os.path.exists(grid_file):
         raise RuntimeError(f'{grid_file} Generation Failed.')
     else:
