@@ -59,6 +59,7 @@ def split_ligand(ligand_file:LigandFile, save_dir:str=None, overwrite:bool=False
                 index = index + start_index
                 st_name = f"{index}-{ligand_file.file_prefix}"
                 structure.property['i_user_StructureIndex'] = index
+                structure.property['s_user_StructureName'] = st_name
                 st_activity = ''
                 for _label in activity_label_name:
                     try:
@@ -91,6 +92,7 @@ def split_ligand(ligand_file:LigandFile, save_dir:str=None, overwrite:bool=False
             # st_name = f"{index}-{structure.property['s_m_title']}"
             st_name = f"{index}-{ligand_file.file_prefix}"
             structure.property['i_user_StructureIndex'] = index
+            structure.property['s_user_StructureName'] = st_name
 
             st_activity = ''
             for _label in activity_label_name:
