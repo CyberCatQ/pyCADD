@@ -36,24 +36,6 @@ pyCADD
   * 添加了Dynamic的CLI接口
   * 为项目文档增加了 Dynamic 的 User Guide
 
-* 1.5.4 (2022-07-04)
-  * 基于在 jupyter notebook 中的应用需要，重构了Dance模块，简化了相关逻辑
-  * 移除了Dance的UI 完全使用库导入的方式
-  * 为项目文档增加了 Dance 的 User Guide
-
-* 1.5.3 (2022-06-12)
-  * 修复了Dance模块的一些已知BUG
-
-* 1.5.2 (2022-06-01)
-  * 修复MLP模型的BUG
-  * 修复获取预测结构函数的BUG
-  * 添加获取预测结构的CLI支持
-  * 修复旧版本ConcurrentlogHandler导致的死锁BUG, 不再限制setuptools的版本
-
-* 1.5.1 (2022-05-18) 
-  * 完全重构query模块 输入方式修改为Uniprot ID
-  * 增加CLI快速调用接口
-
 ## Platform  
 
 * Linux  
