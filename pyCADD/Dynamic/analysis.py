@@ -233,7 +233,9 @@ def _get_lowest_energy_info(mdout_file: BaseFile, save_dir: str = None) -> tuple
     energy_file = 'summary.EPTOT'
     energy_df = pd.read_csv(energy_file, sep='\s+', header=None, names=['time', 'energy'])
     frame = energy_df['energy'].idxmin()
-    time, energy = energy_df.iloc[energy_df['energy'].idxmin(), :].values
+    if frame == 1:
+        frame = energy_df.loc[2:, 'energy'].idxmin()
+    time, energy = energy_df.iloc[frame, :].values
 
     with open(output_file, 'w') as f:
         f.write(f'frame,time,energy\n')
