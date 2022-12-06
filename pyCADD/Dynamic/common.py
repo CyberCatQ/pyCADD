@@ -129,6 +129,39 @@ class Processor:
         logger.info(
             f'Frcmod file {self.frcmod_file.file_name} has been saved in {MOL_RELATED_DIR} .')
 
+    def load_processed_profile(self, profile_path:str) -> None:
+        '''
+        为Processor载入其他方法生成的配体分子文件
+        
+        Parameters
+        ----------
+        profile_path : str
+            文件路径
+        '''
+        self.processed_profile = BaseFile(profile_path)
+
+    def load_processed_molfile(self, molfile_path:str) -> None:
+        '''
+        为Processor载入其他方法生成的配体分子文件
+        
+        Parameters
+        ----------
+        molfile_path : str
+            文件路径
+        '''
+        self.processed_molfile_pdb = BaseFile(molfile_path)
+
+    def load_frcmod_file(self, file_path:str) -> None:
+        '''
+        为Processor载入其他方法生成的配体分子参数frcmod文件
+        
+        Parameters
+        ----------
+        file_path : str
+            .frcmod 文件路径
+        '''
+        self.frcmod_file = BaseFile(file_path)
+        
     def leap_prepare(self, prefix: str = None) -> None:
         '''
         创建leap输入文件 并执行tleap命令
