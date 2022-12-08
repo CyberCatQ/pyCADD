@@ -61,8 +61,64 @@ def _creat_file_from_template(template_file_path: str, output_file_path: str, **
 
     return BaseFile(output_file_path)
 
+def _get_atom_lines(mol2file):
+    '''
+    从mol2文件中获取原子行信息
+    
+    Parameters
+    ----------
+    mol2file : str
+        mol2文件路径
+    
+    Returns
+    -------
+    list
+        原子行信息列表 
+        [
+            [原子序号, 原子名, x, y, z, 原子类型, 残基序号, 残基名, 电荷量],
+            ...
+        ]
+    '''
+    with open(mol2file) as f:
+        lines = f.read().splitlines()
+    start_idx = lines.index('@<TRIPOS>ATOM')
+    end_idx = lines.index('@<TRIPOS>BOND')
+    atom_lines = lines[start_idx+1:end_idx]
+    return [line.split() for line in atom_lines]
 
-def protein_prepare(protein_file: BaseFile, save_dir: str = None) -> BaseFile:
+def _merge_charge(charge_mol2, origin_mol2, output_mol2):
+    '''
+    合并mol2原始坐标与计算得到的电荷量
+    
+    Parameters
+    ----------
+    charge_mol2 : str
+        计算得到电荷量的mol2文件路径(原子顺序需与origin_mol2一致)
+    origin_mol2 : str
+        原始mol2文件路径
+    output_mol2 : str
+        合并后的mol2文件路径
+
+    '''
+    mol2_line_fmt = "{:>7} {:<10} {:>10} {:>10} {:>10} {:<5} {:>4} {:<7} {:>10}\n"
+    ori_atom_lines = _get_atom_lines(origin_mol2)
+    chg_atom_lines = _get_atom_lines(charge_mol2)
+    result_lines = ori_atom_lines.copy()
+    for i, line in enumerate(result_lines):
+        result_lines[i][8] = chg_atom_lines[i][8]
+    result_lines = [mol2_line_fmt.format(*line) for line in result_lines]
+    
+    with open(origin_mol2) as f:
+        lines = f.readlines()
+    atom_start_idx = lines.index('@<TRIPOS>ATOM\n')
+    atom_end_idx = lines.index('@<TRIPOS>BOND\n')
+    
+    with open(output_mol2, 'w') as f:
+        f.writelines(lines[:atom_start_idx+1])
+        f.writelines(result_lines)
+        f.writelines(lines[atom_end_idx:])
+        
+def protein_prepare(protein_file: BaseFile, save_dir: str = None, keep_water: bool = False) -> BaseFile:
     '''
     预处理蛋白质PDB文件
         PDB文件格式化 for Amber | 去除原生H原子 | 使用rudece添加H原子 | 再次格式化
@@ -73,6 +129,8 @@ def protein_prepare(protein_file: BaseFile, save_dir: str = None) -> BaseFile:
         蛋白质PDB文件
     save_dir : str, optional
         保存路径 过程及结果文件保存至该目录 如为None则保存至当前目录
+    keep_water : bool, optional
+        是否保留输入结构中的水分子, 默认为 False
 
     Returns
     -------
@@ -96,6 +154,15 @@ def protein_prepare(protein_file: BaseFile, save_dir: str = None) -> BaseFile:
     # 重新格式化
     _system_call(f'pdb4amber -i {noH_file_path} -o {leap_file_path}')
 
+    if keep_water:
+        _system_call(f'pdb4amber -i {file_path} -o tmp.pdb')
+        _system_call(f'cat tmp.pdb | grep "HOH" > water.pdb')
+        _system_call(
+            f'cat {leap_file_path} | grep -v "END" > tmp.pdb && \
+            cat water.pdb | sed "s/HOH/WAT/" >> tmp.pdb && \
+            echo END >> tmp.pdb')
+        _system_call(f'pdb4amber -i tmp.pdb -o {leap_file_path}')
+        # _system_call(f'rm tmp.pdb water.pdb')
     return BaseFile(leap_file_path)
 
 
@@ -106,7 +173,8 @@ def molecule_prepare_resp2(
         multiplicity: int = None,
         solvent: str = None,
         save_dir: str = None,
-        overwrite: bool = False) -> tuple:
+        overwrite: bool = False,
+        keep_origin_cood: bool = False) -> tuple:
     '''
     预处理小分子文件
         高斯坐标优化与RESP2(0.5)电荷计算
@@ -127,6 +195,13 @@ def molecule_prepare_resp2(
         保存路径 过程及结果文件保存至该目录 如为None则保存至当前目录
     overwrite : bool, optional
         是否覆盖已存在文件 默认为False
+    keep_origin_cood : bool, optional
+        是否在输出结构中保留原始坐标 而不使用高斯结构优化的坐标 默认为False
+        
+    Returns
+    -------
+    BaseFile, BaseFile
+        已计算电荷的mol2文件, frcmod文件
     '''
 
     save_dir = save_dir if save_dir is not None else CWD
@@ -164,10 +239,22 @@ def molecule_prepare_resp2(
     # Openbabel格式转换 pqr -> mol2 电荷信息传递至mol2文件
     _system_call(f'obabel -ipqr {pqr_file_path} -omol2 -O tmp.mol2')
     # Openbabel生成的mol2文件无法被parmchk2直接使用 需要antechamber转换
-    # mol2文件带有RESP2电荷信息
+    # mol2文件带有RESP2电荷信息 但坐标已经高斯优化而改变
     _system_call(
         f'antechamber -fi mol2 -i tmp.mol2 -fo mol2 -o {mol2_file_path} && rm tmp.mol2')
 
+    if keep_origin_cood:
+        # 维持对接结果的坐标 并将RESP2电荷信息合并至mol2文件
+        origin_file = ligand_file.file_path
+        file_ext = ligand_file.file_ext
+        
+        if file_ext == 'pdb':
+            _system_call(f'pdb4amber -i {file_path} -o origin.pdb')
+            _system_call(f'antechamber -fi pdb -i origin.pdb -fo mol2 -o origin.mol2 && rm origin.pdb')
+        else:
+            _system_call(f'antechamber -fi {file_ext} -i {file_path} -fo mol2 -o origin.mol2')
+        _merge_charge(mol2_file_path, 'origin.mol2', mol2_file_path)
+        
     # 生成Amber Gaff Force Filed Parameters文件
     _system_call(
         f'parmchk2 -i {mol2_file_path} -f mol2 -o {frcmod_file_path}')

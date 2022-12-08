@@ -23,8 +23,10 @@ def main():
 @click.option('--with-gpu', '-g', default=0, show_default=True, type=int, help='Specify GPU device code used in simulation. Default to 0')
 @click.option('--time', '-t', default=100, show_default=True, type=int, help='Total time(ns) of simulation. Default to 100 ns.')
 @click.option('-bcc', is_flag=True, help='Use existing BCC charges instead of RESP.')
+@click.option('--keep-cood', '-k', is_flag=True, help='Keep atoms coordinates from the input molecular file after calculating resp charge, instead of using the gaussian optimized output.')
+@click.option('--keep-water', '-w', is_flag=True, help='Keep water molecules in the original protein file.')
 @click.option('--overwrite', '-O', is_flag=True, help='Overwrite existing files.')
-def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, parallel, with_gpu, time, bcc, overwrite):
+def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, parallel, with_gpu, time, bcc, keep_cood, keep_water, overwrite):
     '''
     Prepare required files and run molecular dynamics simulation.\n
     protein_file : Specify protein file (PDB format) path for MD.\n
@@ -32,13 +34,13 @@ def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, par
     '''
     from pyCADD.Dynamic import Processor, Simulator
     processor = Processor()
-    processor.protein_prepare(protein_file)
+    processor.protein_prepare(protein_file, keep_water=keep_water)
     if not bcc:
         processor.molecule_prepare(
-            molecule_file, charge, multiplicity, parallel, solvent, overwrite, 'resp')
+            molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='resp', keep_origin_cood=keep_cood)
     else:
         processor.molecule_prepare(
-            molecule_file, charge, multiplicity, parallel, solvent, overwrite, 'bcc')
+            molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='bcc')
 
     prefix = os.path.basename(os.getcwd()) if prefix is None else prefix
     processor.leap_prepare(prefix)
@@ -59,8 +61,10 @@ def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, par
 @click.option('--parallel', '-n', default=os.cpu_count(), show_default=True, type=int, help='Number of parallel processes.')
 @click.option('--time', '-t', default=100, show_default=True, type=int, help='Total time(ns) of simulation. Default to 100 ns.')
 @click.option('-bcc', is_flag=True, help='Use existing BCC charges instead of RESP.')
+@click.option('--keep-cood', '-k', is_flag=True, help='Keep atoms coordinates from the input molecular file after calculating resp charge, instead of using the gaussian optimized output.')
+@click.option('--keep-water', '-w', is_flag=True, help='Keep water molecules in the original protein file.')
 @click.option('--overwrite', '-O', is_flag=True, help='Overwrite existing files.')
-def prepare(protein_file, molecule_file, charge, multiplicity, solvent, prefix, parallel, time, bcc, overwrite):
+def prepare(protein_file, molecule_file, charge, multiplicity, solvent, prefix, parallel, time, bcc, keep_cood, keep_water, overwrite):
     '''
     Prepare required files for MD.\n
     protein_file : Specify protein file (PDB format) path for MD.\n
@@ -68,11 +72,11 @@ def prepare(protein_file, molecule_file, charge, multiplicity, solvent, prefix, 
     '''
     from pyCADD.Dynamic import Processor
     processor = Processor()
-    processor.protein_prepare(protein_file)
+    processor.protein_prepare(protein_file, keep_water=keep_water)
     if not bcc:
-        processor.molecule_prepare(molecule_file, charge, multiplicity, parallel, solvent, overwrite, 'resp')
+        processor.molecule_prepare(molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='resp', keep_origin_cood=keep_cood)
     else:
-        processor.molecule_prepare(molecule_file, charge, multiplicity, parallel, solvent, overwrite, 'bcc')
+        processor.molecule_prepare(molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='bcc')
     prefix = os.path.basename(os.getcwd()) if prefix is None else prefix
     processor.leap_prepare(prefix)
     step_num = int(time * 1000 / 0.002)

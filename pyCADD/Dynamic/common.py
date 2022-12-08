@@ -68,7 +68,7 @@ class Processor:
         '''
         core._convert_mae_to_pdb(file_path)
 
-    def protein_prepare(self, pretein_file_path: str) -> None:
+    def protein_prepare(self, pretein_file_path: str, keep_water: bool = False) -> None:
         '''
         为动力学模拟执行蛋白质结构预处理
 
@@ -76,10 +76,12 @@ class Processor:
         ----------
         pretein_file_path : str
             蛋白质结构文件路径
+        keep_water : bool, optional
+            是否保留输入结构中的水分子, 默认为 False
         '''
         protein_file = BaseFile(pretein_file_path)
         self.processed_profile = core.protein_prepare(
-            protein_file, save_dir=PRO_RELATED_DIR)
+            protein_file, save_dir=PRO_RELATED_DIR, keep_water=keep_water)
         logger.info(
             f'Protein file {self.processed_profile.file_name} has been saved in {PRO_RELATED_DIR} .')
 
@@ -91,7 +93,8 @@ class Processor:
         cpu_num: int = None, 
         solvent: str = 'water', 
         overwrite: bool = False,
-        method:str = 'resp') -> None:
+        method:str = 'resp',
+        keep_origin_cood: bool = False) -> None:
         '''
         为动力学模拟执行小分子结构预处理
 
@@ -112,13 +115,16 @@ class Processor:
         method : str
             计算方法 默认为resp电荷
             option: resp, bcc
+        keep_origin_cood : bool, optional
+            是否在输出结构中保留原始坐标(计算RESP时) 
+            而不使用高斯结构优化的坐标 默认为False
         '''
         cpu_num = cpu_num if cpu_num is not None else CPU_NUM
         molecule_file = BaseFile(molecule_file_path)
         if method == 'resp':
             self.processed_molfile_pdb, self.frcmod_file = core.molecule_prepare_resp2(
             molecule_file, save_dir=MOL_RELATED_DIR, charge=charge, multiplicity=multiplicity,
-            cpu_num=cpu_num, solvent=solvent, overwrite=overwrite)
+            cpu_num=cpu_num, solvent=solvent, overwrite=overwrite, keep_origin_cood=keep_origin_cood)
         elif method == 'bcc':
             self.processed_molfile_pdb, self.frcmod_file = core.molecule_prepare_bcc(
                 molecule_file, save_dir=MOL_RELATED_DIR, charge=charge, overwrite=overwrite)
