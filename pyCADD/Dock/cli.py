@@ -96,9 +96,10 @@ def calc_admet(file_path, overwrite):
 @click.argument('library_file_path', type=str)
 @click.option('--parallel', '-n', default=os.cpu_count(), type=int, help='Number of parallel processes.')
 @click.option('--precision', '-p', default='SP', required=False, type=click.Choice(['SP', 'XP', 'HTVS']), help='Docking Precision (HTVS/SP/XP), default SP.')
+@click.option('--del_water', '-w', is_flag=True, help='Delete all water molecules from crystal. If not specified, water molecules near the binding pocket within 5A will be kept.')
 @click.option('--redock', is_flag=True, help='Redock ligands from crystals to grids or not.')
 @click.option('--overwrite', '-O', is_flag=True, help='Overwrite the file.')
-def ensemble_dock(input_file_path, library_file_path, parallel, precision, redock, overwrite):
+def ensemble_dock(input_file_path, library_file_path, parallel, precision, del_water, redock, overwrite):
     '''
     Perform ensemble docking. \n
     input_file_path : Specify input file path for ensemble docking.
@@ -111,7 +112,7 @@ def ensemble_dock(input_file_path, library_file_path, parallel, precision, redoc
     console = MultiDocker(input_file)
     console.ligand_split(library_file, overwrite=overwrite)
     console.set_parallel_num(parallel)
-    console.multi_minimize(overwrite=overwrite)
+    console.multi_minimize(overwrite=overwrite, del_water=del_water)
     console.multi_grid_generate(overwrite=overwrite)
     console.minimized_split()
     console.creat_mapping()
