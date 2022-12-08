@@ -35,6 +35,6 @@ class BaseFile:
         self.file_path = os.path.abspath(path)
         self.file_name = os.path.split(self.file_path)[-1]
         self.file_dir = os.path.split(self.file_path)[0]
-        self.file_ext = os.path.splitext(self.file_name)[-1]
+        self.file_ext = os.path.splitext(self.file_name)[-1].replace('.', '')
         self.file_prefix = os.path.splitext(self.file_name)[0]
         self.file_suffix = self.file_ext
