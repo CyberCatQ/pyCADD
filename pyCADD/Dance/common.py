@@ -216,6 +216,8 @@ class Matrix:
 
         self.train_data = None
         self.test_data = None
+        self.X = None
+        self.y = None
 
     @classmethod
     def from_pickle(cls, path, *args, **kwargs) -> 'Matrix':
@@ -274,6 +276,8 @@ class Matrix:
         X, y = self.data.drop([label_col], axis=1), self.data[label_col]
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=test_size, random_state=random_seed, stratify=y)
+        self.X = X
+        self.y = y
         self.train_data = pd.concat([X_train, y_train], axis=1)
         self.test_data = pd.concat([X_test, y_test], axis=1)
 
@@ -284,7 +288,7 @@ class Matrix:
         获取训练集数据
         '''
         if self.train_data is None:
-            self.split_train_test_data()
+            self.split_train_test_data(label_col=label_col)
         return self.train_data
 
     def get_test_data(self, label_col: str = 'activity') -> DataFrame:
@@ -292,7 +296,7 @@ class Matrix:
         获取测试集数据
         '''
         if self.test_data is None:
-            self.split_train_test_data()
+            self.split_train_test_data(label_col=label_col)
         return self.test_data
 
 
@@ -312,6 +316,8 @@ class Evaluator:
         self.matrix = matrix
         self.train_data = matrix.get_train_data()
         self.test_data = matrix.get_test_data()
+        self.X = matrix.X
+        self.y = matrix.y
         self.X_train = self.train_data.drop([label_col], axis=1)
         self.y_train = self.train_data[label_col]
         self.X_test = self.test_data.drop([label_col], axis=1)
@@ -405,7 +411,7 @@ class Evaluator:
         with open(os.path.join(PARAMS_DIR, file_name), 'w') as f:
             json.dump(params, f)
 
-    def search_params(self, clf: Any, params_grid: dict, *args, **kwargs) -> dict:
+    def search_params(self, clf: Any, params_grid: dict, method:str='grid', *args, **kwargs) -> dict:
         '''
         对模型实施最佳超参数搜索
 
@@ -415,13 +421,18 @@ class Evaluator:
             分类器
         params_grid : dict
             参数空间
+        method : str
+            调优方法
+        * grid: 网格搜索
+        * random: 随机搜索
+        
         args : tuple
             其他参数 传递给hyperparam_tuning函数
         kwargs : dict
             其他参数 传递给hyperparam_tuning函数
         '''
         params = core.hyperparam_tuning(
-            clf, params_grid, self.X_train, self.y_train, save_dir=PARAMS_DIR, *args, **kwargs
+            clf, params_grid, self.X_train, self.y_train, save_dir=PARAMS_DIR, method=method, *args, **kwargs
         )
         return params
 
@@ -477,7 +488,7 @@ class Evaluator:
             print('-'*100)
         print('='*100)
 
-    def repeat_cv(self, n_repeats: int = 30, k_folds: int = 4, random_seed: int = 42, score_func: Callable = roc_auc_score) -> dict:
+    def repeat_cv(self, n_repeats: int = 30, k_folds: int = 4, random_seed: int = 42, score_func: Callable = roc_auc_score, use_train_set_only:bool=False) -> dict:
         '''
         对所有添加的分类器执行多重交叉验证
 
@@ -492,6 +503,9 @@ class Evaluator:
         score_func : Callable
             评估函数
             默认为roc_auc_score
+        use_train_set_only : bool
+            是否只使用训练集进行交叉验证
+            如为False 则在交叉验证中使用完整数据集
 
         Returns
         -------
@@ -511,10 +525,17 @@ class Evaluator:
         print(f'Score Function: {score_func.__name__}')
         print('=' * 50)
 
-        splits = core._get_splits(self.X_train, self.y_train,
+        if use_train_set_only:
+            cv_dataset = self.X_train
+            cv_datalabel = self.y_train
+        else:
+            cv_dataset = self.X
+            cv_datalabel = self.y
+        
+        splits = core._get_splits(cv_dataset, cv_datalabel,
                                   n_repeats, k_folds, random_seed)
         self.scp_score_df = core._get_cv_scp_score(
-            splits, self.X_train, self.y_train, score_func=score_func)
+                splits, cv_dataset, cv_datalabel, score_func=score_func)
         best_scp_score = self.scp_score_df.max().max()
         mean_scp_score = self.scp_score_df.mean().mean()
         worst_scp_score = self.scp_score_df.min().min()
@@ -535,7 +556,7 @@ class Evaluator:
             print('-' * 50)
             print(f'Validating {clf_name} ...')
             repeat_cv_result = core._repeat_cross_validation(
-                clf, splits, self.X_train, self.y_train, score_func)
+                clf, splits, cv_dataset, cv_datalabel, score_func)
             self.cv_results['clf_cv_results'][clf_name] = repeat_cv_result
             print('%s mean Score: %.4f' % (
                 clf_name,
@@ -572,7 +593,7 @@ class Evaluator:
         print(formatter.format('Std SCP', '%.4f' % self.cv_results['std_scp']))
         print('-' * 50)
         print(formatter.format('Classifier', 'Mean Score'))
-        print(formatter.format('-' * 50))
+        print('-' * 50)
         for clf_name, clf_cv_results in self.cv_results['clf_cv_results'].items():
             print(formatter.format(clf_name, '%.4f' %
                   np.mean(clf_cv_results)))  # 打印每个分类器的平均AUC

@@ -34,6 +34,7 @@ def hyperparam_tuning(model, param_gird: dict, X: DataFrame, y: Series, scoring:
         调优方法
         * grid: 网格搜索
         * random: 随机搜索
+        
     save_dir : str | None
         参数文件保存路径 为None则不保存
     model_name : str
@@ -96,6 +97,7 @@ def _score(model, X_train: DataFrame, X_test: DataFrame, y_train: Series, y_test
     '''
 
     # 适用于sklearn模型与Consensus模型
+    # 相同模型连续fit 不会记录历史模型权重等信息 而是直接覆盖 故不需要重新初始化模型
     model.fit(X_train, y_train)
 
     # 概率预测
