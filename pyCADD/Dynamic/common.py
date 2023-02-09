@@ -1,11 +1,13 @@
 import logging
 import os
 from datetime import datetime
-from typing import Literal
+from typing import Literal, Union
 
-from pyCADD.Dynamic import core
 from pyCADD.utils.common import BaseFile
 from pyCADD.utils.tool import makedirs_from_list
+from pyCADD.Dynamic import core
+from pyCADD.Dynamic.core import MDProcess, MinimizeProcess, NPTProcess, NVTProcess
+from pyCADD.Dynamic.template import LeapInput, HeatInput, NVTInput, NPTInput, MMGBSAInput, RestrainedMinimizeInput, MinimizeInput
 
 logger = logging.getLogger('pyCADD.Dynamic')
 
@@ -40,11 +42,7 @@ class Processor:
         self.comsolvate_topfile = None
         self.comsolvate_pdbfile = None
 
-        self.step_a_inputfile = None
-        self.step_b_inputfile = None
-        self.step_c_inputfile = None
-        self.step_nvt_inputfile = None
-        self.step_npt_inputfile = None
+        self.md_process_list = []
 
     @property
     def _required_dirs(self):
@@ -86,15 +84,15 @@ class Processor:
             f'Protein file {self.processed_profile.file_name} has been saved in {PRO_RELATED_DIR} .')
 
     def molecule_prepare(
-        self, 
-        molecule_file_path: str, 
-        charge: int = 0, 
-        multiplicity: int = 1, 
-        cpu_num: int = None, 
-        solvent: str = 'water', 
-        overwrite: bool = False,
-        method:str = 'resp',
-        keep_origin_cood: bool = False) -> None:
+            self,
+            molecule_file_path: str,
+            charge: int = 0,
+            multiplicity: int = 1,
+            cpu_num: int = None,
+            solvent: str = 'water',
+            overwrite: bool = False,
+            method: str = 'resp',
+            keep_origin_cood: bool = False) -> None:
         '''
         为动力学模拟执行小分子结构预处理
 
@@ -123,8 +121,8 @@ class Processor:
         molecule_file = BaseFile(molecule_file_path)
         if method == 'resp':
             self.processed_molfile_pdb, self.frcmod_file = core.molecule_prepare_resp2(
-            molecule_file, save_dir=MOL_RELATED_DIR, charge=charge, multiplicity=multiplicity,
-            cpu_num=cpu_num, solvent=solvent, overwrite=overwrite, keep_origin_cood=keep_origin_cood)
+                molecule_file, save_dir=MOL_RELATED_DIR, charge=charge, multiplicity=multiplicity,
+                cpu_num=cpu_num, solvent=solvent, overwrite=overwrite, keep_origin_cood=keep_origin_cood)
         elif method == 'bcc':
             self.processed_molfile_pdb, self.frcmod_file = core.molecule_prepare_bcc(
                 molecule_file, save_dir=MOL_RELATED_DIR, charge=charge, overwrite=overwrite)
@@ -135,10 +133,10 @@ class Processor:
         logger.info(
             f'Frcmod file {self.frcmod_file.file_name} has been saved in {MOL_RELATED_DIR} .')
 
-    def load_processed_profile(self, profile_path:str) -> None:
+    def load_processed_profile(self, profile_path: str) -> None:
         '''
-        为Processor载入其他方法生成的配体分子文件
-        
+        为Processor载入其他方法生成的蛋白结构文件
+
         Parameters
         ----------
         profile_path : str
@@ -146,10 +144,10 @@ class Processor:
         '''
         self.processed_profile = BaseFile(profile_path)
 
-    def load_processed_molfile(self, molfile_path:str) -> None:
+    def load_processed_molfile(self, molfile_path: str) -> None:
         '''
         为Processor载入其他方法生成的配体分子文件
-        
+
         Parameters
         ----------
         molfile_path : str
@@ -157,18 +155,18 @@ class Processor:
         '''
         self.processed_molfile_pdb = BaseFile(molfile_path)
 
-    def load_frcmod_file(self, file_path:str) -> None:
+    def load_frcmod_file(self, file_path: str) -> None:
         '''
         为Processor载入其他方法生成的配体分子参数frcmod文件
-        
+
         Parameters
         ----------
         file_path : str
             .frcmod 文件路径
         '''
         self.frcmod_file = BaseFile(file_path)
-        
-    def leap_prepare(self, prefix: str = None) -> None:
+
+    def leap_prepare(self, prefix: str = None, box_size:float=12.0, **kwargs) -> None:
         '''
         创建leap输入文件 并执行tleap命令
 
@@ -185,13 +183,15 @@ class Processor:
         ]):
             raise RuntimeError(
                 'Preparing protein or molecules before LEaP has not been done.')
-
+        logger.info('Preparing LEaP files...')
+        logger.info(f"TIP3P Water Box size: {box_size} Angstroms")
         core.leap_prepare(
             prefix,
             self.processed_molfile_pdb,
             self.frcmod_file,
             self.processed_profile,
-            LEAP_DIR
+            box_size=box_size,
+            save_dir=LEAP_DIR,
         )
 
         self.comsolvate_pdbfile = BaseFile(
@@ -263,64 +263,334 @@ class Processor:
             self._set_prepared_file(file_path, file_type)
             logger.info(f'Set {file_type} file: {file_path}')
 
-    def creat_input_file(self, step_num: int = 50000000, step_length: float = 0.002):
+    def get_water_resnum(self) -> list:
         '''
-        创建动力学模拟所需的各类输入文件
+        获取溶剂化文件中的水分子Residue Number列表
+        '''
+        if self.comsolvate_pdbfile is None:
+            raise ValueError('Solvated complex pdb file has not been prepared/load.')
+        return core._get_water_resnum(self.comsolvate_pdbfile)
+        
+    def creat_minimize_input(
+            self, maxcyc: int = 10000, ncyc: int = 5000, cut: float = 8.0,
+            restraint: bool = False, restraint_mask: str = None, restraint_wt: float = 2.0,
+            file_name: str = None, **kwargs) -> BaseFile:
+        '''
+        创建能量最小化阶段输入文件
 
         Parameters
         ----------
-        step_num : int
-            模拟步数
-        step_length : float
-            模拟步长
+        maxcyc : int, optional
+            最大迭代次数, 默认10000
+        ncyc : int, optional
+            前ncyc步使用最速下降法, 之后使用共轭梯度法, 默认5000
+        cut : float, optional
+            非势能截断距离, 默认8.0
+        restraint : bool, optional
+            是否使用约束, 默认False
+        restraint_mask : str, optional
+            约束原子的Amber Mask, 启用restraint时必须指定.
+        restraint_wt : float, optional
+            约束力常数, 默认2.0.
+        file_name : str, optional
+            输入文件名, 默认minimize.in
+        **kwargs : dict
+            其他参数, 传入到InputFile中
 
-        Notes
-        -----
-        模拟总时长 = step_num * step_length ps
-        默认100ns
+        Returns
+        -------
+        BaseFile
+            能量最小化输入文件对象
         '''
-        water_resnum = core._get_water_resnum(self.comsolvate_pdbfile)
-        (self.step_a_inputfile, self.step_b_inputfile, 
-        self.step_c_inputfile, self.step_nvt_inputfile, 
-        self.step_npt_inputfile) = core._creat_md_inputfile(
-            water_resnum, step_num,
-            step_length, INPUT_FILE_DIR)
-
-        logger.info(f'Input files have been saved in {INPUT_FILE_DIR}.')
-    
-    def load_input_file(self, file_path:str, step:str) -> None:
-        '''
-        加载输入文件
-
-        Parameters
-        ----------
-        file_path : str
-            输入文件路径
-        step : str
-            模拟步骤
-            a: 第一步
-            b: 第二步
-            c: 第三步
-            nvt: 第四步
-            npt: 第五步
-        '''
-        if step == 'a':
-            self.step_a_inputfile = BaseFile(file_path)
-            logger.info(f'Load step A input file: {file_path}')
-        elif step == 'b':
-            self.step_b_inputfile = BaseFile(file_path)
-            logger.info(f'Load step B input file: {file_path}')
-        elif step == 'c':
-            self.step_c_inputfile = BaseFile(file_path)
-            logger.info(f'Load step C input file: {file_path}')
-        elif step == 'nvt':
-            self.step_nvt_inputfile = BaseFile(file_path)
-            logger.info(f'Load step NVT input file: {file_path}')
-        elif step == 'npt':
-            self.step_npt_inputfile = BaseFile(file_path)
-            logger.info(f'Load step NPT input file: {file_path}')
+        if not restraint:
+            constructor = MinimizeInput(
+                maxcyc=maxcyc, ncyc=ncyc, cut=cut, **kwargs)
         else:
-            raise RuntimeError(f'{step} is not a valid step.')
+            if restraint_mask is None:
+                raise RuntimeError(
+                    'restraint_mask is required when restraint is True.')
+            constructor = RestrainedMinimizeInput(
+                maxcyc=maxcyc, ncyc=ncyc, cut=cut,
+                restraintmask=restraint_mask, restraint_wt=restraint_wt,
+                **kwargs)
+
+        file_name = file_name if file_name is not None else 'minimize.in'
+        file_path = os.path.join(INPUT_FILE_DIR, file_name)
+
+        constructor.save(file_path)
+
+        logger.info(
+            f'Minimize process input file created for {file_name.split(".")[0]}.')
+        logger.info(
+            f'maxcyc: {maxcyc}, ncyc: {ncyc}, restraint: {restraint}, restraint mask: {restraint_mask}')
+
+        return BaseFile(file_path)
+
+    def creat_heat_input(
+        self, tgt_temp: float = 300.0,
+        heat_step: int = 9000, total_step: int = 10000,
+        step_length: float = 0.002, file_name: str = None,
+    ) -> BaseFile:
+        '''
+        创建体系加热阶段输入文件
+
+        Parameters
+        ----------
+        tgt_temp : float, optional
+            目标温度, 默认300.0
+        heat_step : int, optional
+            加热步数, 默认9000
+        total_step : int, optional
+            总步数, 默认10000
+        step_length : float, optional
+            步长, 默认0.002 ps
+        file_name : str, optional
+            输入文件名, 默认heat.in
+
+        Returns
+        -------
+        BaseFile
+            加热阶段输入文件对象
+        '''
+        constructor = HeatInput(
+            tgt_temperature=tgt_temp, heat_step=heat_step,
+            total_step=total_step, step_length=step_length)
+
+        file_name = file_name if file_name is not None else 'heat.in'
+        file_path = os.path.join(INPUT_FILE_DIR, file_name)
+
+        constructor.save(file_path)
+
+        logger.info(
+            f'Heat process input file created for {file_name.split(".")[0]}.')
+        logger.info(
+            f'tgt_temp: {tgt_temp}, heat_step: {heat_step}, total_step: {total_step}')
+
+        return BaseFile(file_path)
+
+    def creat_nvt_input(
+            self, temp0: float = 300.0, total_step: int = 500000, step_length: float = 0.002,
+            irest: int = 1, ntx: int = 5, file_name: str = None, **kwargs) -> BaseFile:
+        '''
+        创建NVT阶段输入文件
+
+        Parameters
+        ----------
+        temp0 : float, optional
+            初始温度, 默认300.0
+        total_step : int, optional
+            总步数, 默认500000, 1ns
+        step_length : float, optional
+            步长, 默认0.002 ps
+        file_name : str, optional
+            输入文件名, 默认nvt.in
+        irest : int, optional
+            重启标志, 默认1
+        ntx : int, optional
+            坐标文件输入标志, 默认5
+        **kwargs : dict
+            其他参数, 传入到NVT InputFile中
+
+        Returns
+        -------
+        BaseFile
+            NVT阶段输入文件对象
+        '''
+        constructor = NVTInput(
+            temp0=temp0, nstlim=total_step, dt=step_length, irest=irest, ntx=ntx,
+            **kwargs)
+
+        file_name = file_name if file_name is not None else 'nvt.in'
+        file_path = os.path.join(INPUT_FILE_DIR, file_name)
+
+        constructor.save(file_path)
+
+        logger.info(
+            f'NVT process input file created for {file_name.split(".")[0]}.')
+        logger.info(
+            f'temp0: {temp0}, total_step: {total_step}, step_length: {step_length}, irest: {irest}, ntx: {ntx}')
+
+        return BaseFile(file_path)
+
+    def creat_npt_input(
+            self, temp0: float = 300.0, total_step: int = 50000000, step_length: float = 0.002,
+            irest: int = 1, ntx: int = 5, taup: float = 2.0,
+            file_name: str = None, **kwargs) -> BaseFile:
+        '''
+        创建NPT阶段输入文件
+
+        Parameters
+        ----------
+        temp0 : float, optional
+            初始温度, 默认300.0
+        total_step : int, optional
+            总步数, 默认50000000, 100ns
+        step_length : float, optional
+            步长, 默认0.002 ps
+        irest : int, optional
+            重启标志, 默认1
+        ntx : int, optional
+            坐标文件输入标志, 默认5
+        taup : float, optional
+            压强控制时间, 默认2.0 ps
+        file_name : str, optional
+            输入文件名, 默认npt.in
+
+        Returns
+        -------
+        BaseFile
+            NPT阶段输入文件对象
+        '''
+        constructor = NPTInput(
+            temp0=temp0, nstlim=total_step, dt=step_length, irest=irest, ntx=ntx,
+            taup=taup, **kwargs)
+
+        file_name = file_name if file_name is not None else 'npt.in'
+        file_path = os.path.join(INPUT_FILE_DIR, file_name)
+
+        constructor.save(file_path)
+
+        logger.info(
+            f'NPT process input file created for {file_name.split(".")[0]}.')
+        logger.info(
+            f'temp0: {temp0}, total_step: {total_step}, step_length: {step_length}, irest: {irest}, ntx: {ntx}, taup: {taup}')
+
+        return BaseFile(file_path)
+
+    def add_process(self, input_file: Union[BaseFile, str], process_name: str = None, _type:str=None, _obj:MDProcess=None, **kwargs) -> None:
+        '''
+        在工作流中添加单个步骤(Minimize, NVT, NPT, etc.)
+
+        Parameters
+        ----------
+        input_file : BaseFile | str
+            MD步骤输入文件(或路径)
+        process_name : str, optional
+            工作流步骤名称, 默认为输入文件名
+        _type : str, optional
+            工作流步骤类型, 默认为None, 可选值为minimize, nvt, npt
+        _obj : MDProcess, optional
+            工作流步骤对象, 默认为None, 可选值为MinimizeProcess, NVTProcess, NPTProcess, 优先级高于_type
+        **kwargs : dict
+            其他参数, 写入输入文件并赋值至MDProcess属性中
+        '''
+        if isinstance(input_file, str):
+            input_file = BaseFile(input_file)
+        if _type == 'minimize':
+            obj = MinimizeProcess
+        elif _type == 'nvt':
+            obj = NVTProcess
+        elif _type == 'npt':
+            obj = NPTProcess
+        else:
+            obj = MDProcess
+        if _obj is not None:
+            obj = _obj
+        self.md_process_list.append(
+            obj(input_file, process_name, **kwargs))
+        logger.info(f'Process {process_name} has been added to Workflow.')
+
+    def add_minimize_process(self, maxcyc: int = 10000, ncyc: int = 5000, process_name: str = 'minimize', restraint: bool = False, restraint_mask: str = None, **kwargs) -> None:
+        '''
+        在工作流中添加能量最小化步骤
+
+        Parameters
+        ----------
+        maxcyc : int, optional
+            最大迭代次数, 默认10000
+        ncyc : int, optional
+            前ncyc步使用最速下降法, 之后使用共轭梯度法, 默认5000
+        process_name : str, optional
+            工作流步骤名称, 默认为minimize.
+        restraint : bool, optional
+            是否添加约束, 默认为False.
+        restraint_mask : str, optional
+            约束原子的Amber Mask, 启用restraint时必须指定.
+        **kwargs : dict
+            其他参数, 传入到Minimize InputFile中
+        '''
+        file_name = process_name + '.in'
+        self.add_process(
+            self.creat_minimize_input(
+                maxcyc=maxcyc, ncyc=ncyc, 
+                restraint=restraint, restraint_mask=restraint_mask, 
+                file_name=file_name, **kwargs),
+            process_name, 
+            _type='minimize',
+            **kwargs)
+
+    def add_nvt_process(self, total_step: int = 500000, step_length: float = 0.002, process_name: str = 'nvt', is_production:bool=False, **kwargs):
+        '''
+        在工作流中添加NVT步骤
+
+        Parameters
+        ----------
+        total_step : int, optional
+            MD步骤步数, 默认50000000
+        step_length : float, optional
+            MD步骤步长, 默认0.002
+        process_name : str, optional
+            工作流步骤名称, 默认为nvt
+        is_production : bool, optional
+            该NVT步骤是否为生产步骤, 默认为False
+        **kwargs : dict
+            其他参数, 传入到NVT InputFile中
+        '''
+        file_name = process_name + '.in'
+        self.add_process(
+            self.creat_nvt_input(
+                total_step=total_step, step_length=step_length, file_name=file_name, **kwargs),
+            process_name,
+            _type='nvt', is_production=is_production,
+            **kwargs
+        )
+
+    def add_heat_process(self, tgt_temp: float = 300.0, heat_step: int = 9000, total_step: int = 10000, step_length: float = 0.002, process_name: str = 'heat', **kwargs):
+        '''
+        在工作流中添加加热步骤
+
+        Parameters
+        ----------
+        tgt_temp : float
+            加热目标温度(K), 默认300.0K
+        heat_step : int, optional
+            加热步数, 默认9000
+        total_step : int, optional
+            总加热阶段步数, 默认10000
+        step_length : float, optional
+            步长, 默认0.002 ps
+        process_name : str, optional
+            工作流步骤名称, 默认为heat
+        '''
+        file_name = process_name + '.in'
+        self.add_process(
+            self.creat_heat_input(tgt_temp=tgt_temp, heat_step=heat_step,
+                                  total_step=total_step, step_length=step_length, file_name=file_name),
+            process_name,
+            **kwargs
+        )
+
+    def add_npt_process(self, total_step: int = 50000000, step_length: float = 0.002, process_name: str = 'npt', is_production:bool=False, **kwargs):
+        '''
+        在工作流中添加NPT步骤
+
+        Parameters
+        ----------
+        step_num : int, optional
+            步数, 默认50000000, 100ns
+        step_length : float, optional
+            步长, 默认0.002 ps
+        process_name : str, optional
+            工作流步骤名称, 默认为npt
+        '''
+        file_name = process_name + '.in'
+        self.add_process(
+            self.creat_npt_input(
+                total_step=total_step, step_length=step_length, file_name=file_name, **kwargs),
+            process_name, _type='npt', 
+            is_production=is_production,
+            **kwargs
+        )
 
 
 class Simulator:
@@ -330,11 +600,7 @@ class Simulator:
 
         self.comsolvate_topfile = processor.comsolvate_topfile
         self.comsolvate_crdfile = processor.comsolvate_crdfile
-        self.step_a_inputfile = processor.step_a_inputfile
-        self.step_b_inputfile = processor.step_b_inputfile
-        self.step_c_inputfile = processor.step_c_inputfile
-        self.step_nvt_inputfile = processor.step_nvt_inputfile
-        self.step_npt_inputfile = processor.step_npt_inputfile
+        self.md_process_list = processor.md_process_list
 
         self.cuda_device = 0
 
@@ -382,14 +648,8 @@ class Simulator:
         cuda_device : int
             GPU设备编号 默认为0
         '''
-        if not all([
-            self.step_a_inputfile,
-            self.step_b_inputfile,
-            self.step_c_inputfile,
-            self.step_nvt_inputfile,
-            self.step_npt_inputfile
-        ]):
-            raise RuntimeError('Creating input files has not been done.')
+        if len(self.md_process_list) == 0:
+            raise RuntimeError('No MD process has been added.')
 
         if cuda_device is not None:
             self.set_cuda_device(cuda_device)
@@ -398,9 +658,7 @@ class Simulator:
 
         core._run_simulation(
             self.comsolvate_topfile, self.comsolvate_crdfile,
-            self.step_a_inputfile, self.step_b_inputfile,
-            self.step_c_inputfile, self.step_nvt_inputfile,
-            self.step_npt_inputfile,
+            self.md_process_list,
             MD_RESULT_DIR
         )
 
@@ -442,7 +700,8 @@ class Analyzer:
         self.recep_topfile_path = receptor_topfile_path
         self.ligand_topfile_path = ligand_topfile_path
 
-        self.mdout_file = BaseFile(mdout_file_path) if mdout_file_path is not None else None
+        self.mdout_file = BaseFile(
+            mdout_file_path) if mdout_file_path is not None else None
         self.com_topfile = None
         self.recep_topfile = None
         self.ligand_topfile = None
@@ -452,7 +711,7 @@ class Analyzer:
                 com_topfile_path=self.com_topfile_path,
                 receptor_topfile_path=self.recep_topfile_path,
                 ligand_topfile_path=self.ligand_topfile_path
-                )
+            )
 
         self.rmsd = None
         self.rmsf = None
@@ -505,10 +764,10 @@ class Analyzer:
             f'MD output file {self.mdout_file.file_path} has been loaded.')
 
     def load_topfile(
-        self, 
-        comsolvated_topfile_path:str=None, com_topfile_path:str=None,
-        receptor_topfile_path:str=None, ligand_topfile_path:str=None
-        ) -> None:
+        self,
+        comsolvated_topfile_path: str = None, com_topfile_path: str = None,
+        receptor_topfile_path: str = None, ligand_topfile_path: str = None
+    ) -> None:
 
         if comsolvated_topfile_path is not None:
             self.top_file = BaseFile(comsolvated_topfile_path)
@@ -661,11 +920,12 @@ class Analyzer:
         logger.info(f'Detecting lowest energy frame...')
         self.LE_frame, self.LE_time, self.LE_energy = self.analyzer._get_lowest_energy_info(
             mdout_file=self.mdout_file, save_dir=save_dir)
-        
+
         logger.info(f'Lowest energy frame: {self.LE_frame}')
         logger.info(f'Lowest energy time: {self.LE_time}')
         logger.info(f'Lowest energy: {self.LE_energy}')
-        logger.info(f'Extracting lowest energy structure: Frame {self.LE_frame}...')
+        logger.info(
+            f'Extracting lowest energy structure: Frame {self.LE_frame}...')
 
         self.analyzer._extract_frame(self.traj, frame_indices=[
                                      self.LE_frame], save_dir=save_dir)
@@ -732,7 +992,7 @@ class Analyzer:
 
         return self.inputfile
 
-    def run_energy_calc(self, output_file:str=None, decom_output_file:str=None, cpu_num:int=None, input_file:BaseFile=None) -> None:
+    def run_energy_calc(self, output_file: str = None, decom_output_file: str = None, cpu_num: int = None, input_file: BaseFile = None) -> None:
         '''
         运行能量计算任务
 
@@ -757,22 +1017,24 @@ class Analyzer:
         if self.top_file is None or self.traj_file is None:
             raise ValueError('Please load solvated complex top file first.')
         if not all([
-            self.com_topfile, 
-            self.recep_topfile, 
+            self.com_topfile,
+            self.recep_topfile,
             self.ligand_topfile
-            ]):
-            raise ValueError('Please load complex/receptor/ligand top file first.')
+        ]):
+            raise ValueError(
+                'Please load complex/receptor/ligand top file first.')
 
         output_file = output_file if output_file is not None else os.path.join(
             save_dir, 'FINAL_RESULTS_MMPBSA.csv')
         while True:
             i = 2
             if os.path.exists(output_file):
-                output_file = os.path.join(save_dir, f'{BaseFile(output_file).file_prefix}_{str(i)}.csv')
+                output_file = os.path.join(
+                    save_dir, f'{BaseFile(output_file).file_prefix}_{str(i)}.csv')
                 i += 1
             else:
                 break
-            
+
         decom_output_file = decom_output_file if decom_output_file is not None else os.path.join(
             save_dir, 'FINAL_RESULTS_DECOMP.csv')
 
@@ -782,5 +1044,5 @@ class Analyzer:
             ligand_topfile=self.ligand_topfile, traj_file=self.traj_file,
             output_filepath=output_file, decom_output_filepath=decom_output_file,
             cpu_num=cpu_num
-            )
+        )
         logger.info(f'Calculating normally finished.')
