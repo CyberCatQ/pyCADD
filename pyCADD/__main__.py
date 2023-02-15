@@ -13,7 +13,7 @@ from pyCADD import __version__
 def main():
     if len(sys.argv) != 1:
         try:
-            opts, args = getopt.getopt(sys.argv[1:], 'hv', ['help', 'version'])
+            opts, args = getopt.getopt(sys.argv[1:], 'hvV', ['help', 'version'])
         except getopt.GetoptError as err:
             print(err)
             sys.exit(2)
