@@ -9,7 +9,7 @@ from pyCADD.utils.common import BaseFile
 from pyCADD.utils.tool import _get_progress, makedirs_from_list, timeit
 
 CWD = os.getcwd()
-CPU_NUM = os.cpu_count()
+CPU_NUM = os.cpu_count() or 2
 PMEMD = 'pmemd.cuda'
 SANDER = f'mpirun -np {str(int(CPU_NUM / 2))} sander.MPI'
 
@@ -167,7 +167,7 @@ def protein_prepare(protein_file: BaseFile, save_dir: str = None, keep_water: bo
             cat water.pdb | sed "s/HOH/WAT/" >> tmp.pdb && \
             echo END >> tmp.pdb')
         _system_call(f'pdb4amber -i tmp.pdb -o {leap_file_path}')
-        # _system_call(f'rm tmp.pdb water.pdb')
+        _system_call(f'rm tmp.pdb water.pdb')
     return BaseFile(leap_file_path)
 
 
