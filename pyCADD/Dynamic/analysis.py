@@ -37,7 +37,7 @@ def _calc_rmsd(trajectory: Any, mask: str = '@CA', reference: Any = 0, save_dir:
     ndarray
         RMSD结果数组
     '''
-
+    trajectory = pt.superpose(trajectory, mask=mask, ref=0)
     data_rmsd = pt.rmsd(trajectory, mask=mask, ref=reference, *args, **kwargs)
 
     save_dir = CWD if save_dir is None else save_dir
