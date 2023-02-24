@@ -14,7 +14,7 @@ def main():
 
 @main.command(short_help='Automatic MD workflow (including preparation and simulation).')
 @click.argument('protein_file', type=click.Path(exists=True))
-@click.argument('molecule_file', type=click.Path(exists=True))
+@click.argument('molecule_file', type=click.Path(exists=True), required=False)
 @click.option('--charge', '-c', default=0, show_default=True, type=int, help='Charge of molecule.')
 @click.option('--multiplicity', '-m', default=1, show_default=True, type=int, help='Multiplicity of molecule.')
 @click.option('--solvent', '-s', default='water', show_default=True, type=str, help='Solvent used in molecule preparation.')
@@ -31,19 +31,20 @@ def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, par
     '''
     Prepare required files and run molecular dynamics simulation.\n
     protein_file : Specify protein file (PDB format) path for MD.\n
-    molecule_file : Specify molecule file (PDB format) path for MD.
+    molecule_file : Specify molecule file (PDB format) path for MD. If not specified, apo system(protein only) will be simulated.\n
     '''
     from pyCADD.Dynamic import Processor, Simulator
     # Prepare files
-    processor = Processor()
+    processor = Processor() if molecule_file is not None else Processor(apo=True)
+    if molecule_file is not None:
+        if not bcc:
+            processor.molecule_prepare(
+                molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='resp', keep_origin_cood=keep_cood)
+        else:
+            processor.molecule_prepare(
+                molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='bcc')
+            
     processor.protein_prepare(protein_file, keep_water=keep_water)
-    if not bcc:
-        processor.molecule_prepare(
-            molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='resp', keep_origin_cood=keep_cood)
-    else:
-        processor.molecule_prepare(
-            molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='bcc')
-
     prefix = os.path.basename(os.getcwd()) if prefix is None else prefix
     processor.leap_prepare(prefix=prefix, box_size=box_size)
     step_num = int(time * 1000 / 0.002)
@@ -66,7 +67,7 @@ def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, par
 
 @main.command(short_help='Automatically preparing required files for MD only.')
 @click.argument('protein_file', type=click.Path(exists=True))
-@click.argument('molecule_file', type=click.Path(exists=True))
+@click.argument('molecule_file', type=click.Path(exists=True), required=False)
 @click.option('--charge', '-c', default=0, show_default=True, type=int, help='Charge of molecule.')
 @click.option('--multiplicity', '-m', default=1, show_default=True, type=int, help='Multiplicity of molecule.')
 @click.option('--solvent', '-s', default='water', show_default=True, type=str, help='Solvent used in molecule preparation.')
@@ -82,18 +83,20 @@ def prepare(protein_file, molecule_file, charge, multiplicity, solvent, prefix, 
     '''
     Prepare required files for MD.\n
     protein_file : Specify protein file (PDB format) path for MD.\n
-    molecule_file : Specify molecule file (PDB format) path for MD.
+    molecule_file : Specify molecule file (PDB format) path for MD. If not specified, apo system(protein only) will be simulated.\n
     '''
     from pyCADD.Dynamic import Processor
-    processor = Processor()
+    processor = Processor() if molecule_file is not None else Processor(apo=True)
+    
+    if molecule_file is not None:
+        if not bcc:
+            processor.molecule_prepare(
+                molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='resp', keep_origin_cood=keep_cood)
+        else:
+            processor.molecule_prepare(
+                molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='bcc')
+            
     processor.protein_prepare(protein_file, keep_water=keep_water)
-    if not bcc:
-        processor.molecule_prepare(
-            molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='resp', keep_origin_cood=keep_cood)
-    else:
-        processor.molecule_prepare(
-            molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='bcc')
-
     prefix = os.path.basename(os.getcwd()) if prefix is None else prefix
     processor.leap_prepare(prefix=prefix, box_size=box_size)
     step_num = int(time * 1000 / 0.002)

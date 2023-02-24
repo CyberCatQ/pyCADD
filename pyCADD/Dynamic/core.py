@@ -2,6 +2,7 @@ import os
 import re
 import logging
 from time import sleep
+from typing import Union
 
 from pyCADD.Dynamic.template import LeapInput
 from pyCADD.Gauss.base import Gauss
@@ -123,7 +124,7 @@ def _merge_charge(charge_mol2, origin_mol2, output_mol2):
         f.writelines(lines[atom_end_idx:])
 
 
-def protein_prepare(protein_file: BaseFile, save_dir: str = None, keep_water: bool = False) -> BaseFile:
+def protein_prepare(protein_file: BaseFile, save_dir: Union[str, None] = None, keep_water: bool = False) -> BaseFile:
     '''
     预处理蛋白质PDB文件
         PDB文件格式化 for Amber | 去除原生H原子 | 使用rudece添加H原子 | 再次格式化
@@ -173,11 +174,11 @@ def protein_prepare(protein_file: BaseFile, save_dir: str = None, keep_water: bo
 
 def molecule_prepare_resp2(
         ligand_file: BaseFile,
-        cpu_num: int = None,
-        charge: int = None,
-        multiplicity: int = None,
-        solvent: str = None,
-        save_dir: str = None,
+        cpu_num: Union[int, None] = None,
+        charge: Union[int, None] = None,
+        multiplicity: Union[int, None] = None,
+        solvent: Union[str, None] = None,
+        save_dir: Union[str, None] = None,
         overwrite: bool = False,
         keep_origin_cood: bool = False) -> tuple:
     '''
@@ -276,7 +277,7 @@ def molecule_prepare_resp2(
 def molecule_prepare_bcc(
         ligand_file: BaseFile,
         charge: int,
-        save_dir: str = None,
+        save_dir: Union[str, None] = None,
         overwrite: bool = False) -> tuple:
     '''
     使用AM1-BCC快速计算原子电荷 并完成配体预处理
@@ -323,11 +324,11 @@ def molecule_prepare_bcc(
 
 def _creat_leap_inputfile(
         prefix: str,
-        ligand_file_path: str,
-        frcmod_file_path: str,
         protein_file_path: str,
-        box_size:float = 12.0,
-        save_dir: str = None) -> BaseFile:
+        ligand_file_path: Union[str, None] = None,
+        frcmod_file_path: Union[str, None] = None,
+        box_size: float = 12.0,
+        save_dir: Union[str, None] = None) -> BaseFile:
     '''
     创建LEaP输入文件
 
@@ -350,9 +351,9 @@ def _creat_leap_inputfile(
     input_file_path = os.path.join(save_dir, prefix + '_leap.in')
 
     input_file = LeapInput(
+        protein_file_path=protein_file_path,
         ligand_file_path=ligand_file_path,
         frcmod_file_path=frcmod_file_path,
-        protein_file_path=protein_file_path,
         file_prefix=prefix,
         box_size=box_size
     )
@@ -360,7 +361,7 @@ def _creat_leap_inputfile(
     return BaseFile(input_file_path)
 
 
-def leap_prepare(prefix: str, ligand_file: BaseFile, frcmod_file: BaseFile, protein_file: BaseFile, box_size:float=12.0, save_dir: str = None) -> None:
+def leap_prepare(prefix: str, ligand_file: BaseFile, frcmod_file: BaseFile, protein_file: BaseFile, box_size: float = 12.0, save_dir: Union[str, None] = None) -> None:
     '''
     创建LEaP输入文件并执行tleap命令
 
@@ -387,7 +388,7 @@ def leap_prepare(prefix: str, ligand_file: BaseFile, frcmod_file: BaseFile, prot
     os.chdir(save_dir)
 
     leap_inputfile = _creat_leap_inputfile(
-        prefix, ligand_file_path, frcmod_file_path, protein_file_path, box_size=box_size, save_dir=save_dir)
+        prefix, ligand_file_path=ligand_file_path, frcmod_file_path=frcmod_file_path, protein_file_path=protein_file_path, box_size=box_size, save_dir=save_dir)
     # 调用tleap命令
     _system_call(f'tleap -f {leap_inputfile.file_path}')
 
@@ -402,6 +403,46 @@ def leap_prepare(prefix: str, ligand_file: BaseFile, frcmod_file: BaseFile, prot
         f'ambpdb -p {comsolvate_topfile_path} < {comsolvate_crdfile_path} > {comsolvate_pdbfile_path}')
 
     os.chdir(CWD)
+
+
+def leap_prepare_for_apo(prefix: str, protein_file: BaseFile, box_size: float = 12.0, save_dir: Union[str, None] = None) -> None:
+    '''
+    创建Apo晶体的LEaP输入文件并执行tleap命令
+
+    Parameters
+    -----------
+    prefix : str
+        生成文件的文件名前缀
+    protein_file : BaseFile
+        蛋白质PDB文件
+    box_size : float, optional
+        水箱大小 默认为12.0 Angstrom
+    save_dir : str, optional
+        保存路径 默认为当前目录
+    '''
+
+    protein_file_path = protein_file.file_path
+
+    save_dir = save_dir if save_dir is not None else CWD
+    os.chdir(save_dir)
+
+    leap_inputfile = _creat_leap_inputfile(
+        prefix=prefix, protein_file_path=protein_file_path, box_size=box_size, save_dir=save_dir)
+    # 调用tleap命令
+    _system_call(f'tleap -f {leap_inputfile.file_path}')
+
+    # 生成水箱复合物PDB文件
+    comsolvate_topfile_path = os.path.join(
+        save_dir, prefix + '_comsolvate.prmtop')
+    comsolvate_crdfile_path = os.path.join(
+        save_dir, prefix + '_comsolvate.inpcrd')
+    comsolvate_pdbfile_path = os.path.join(
+        save_dir, prefix + '_comsolvate.pdb')
+    _system_call(
+        f'ambpdb -p {comsolvate_topfile_path} < {comsolvate_crdfile_path} > {comsolvate_pdbfile_path}')
+
+    os.chdir(CWD)
+
 
 def _get_water_resnum(comsolvate_pdbfile: BaseFile) -> list:
     '''
@@ -468,25 +509,28 @@ def _get_input_config(input_file: str) -> list[dict]:
     output_list = []
     type_pattern = r'&(.*?)\n'
     config_pattern = "(?<=&{_type}\n).*"
-    
+
     with open(input_file, 'r') as f:
         lines = f.readlines()
-    
+
     config_str = "".join([line for line in lines])
     config_list = config_str.split('/')
-    
+
     for index, config in enumerate(config_list):
         config = config.strip()
         if config == '' or config == 'END':
             continue
         _type = re.findall(type_pattern, config)[0]
-        _config_list = re.findall(config_pattern.format(_type=_type), config, re.S)[0].split(',')
-        config_dict = {"_index":index, "_type": _type}
+        _config_list = re.findall(config_pattern.format(
+            _type=_type), config, re.S)[0].split(',')
+        config_dict = {"_index": index, "_type": _type}
         config_dict.update(
-            {k.strip():v.strip() for k, v in [item.split('=') for item in _config_list]}
+            {k.strip(): v.strip()
+             for k, v in [item.split('=') for item in _config_list]}
         )
         output_list.append(config_dict)
     return output_list
+
 
 class BaseProcess:
     def __init__(self, input_file: BaseFile, process_name: str, **kwargs) -> None:
@@ -494,32 +538,34 @@ class BaseProcess:
         self.name = self.process_name = process_name
         self.cfg = _get_input_config(input_file.file_path)
         for k, v in kwargs.items():
-            setattr(self, k ,v)
-        
+            setattr(self, k, v)
+
     def run(self, **kwargs) -> None:
         raise NotImplementedError
-        
+
+
 class MDProcess(BaseProcess):
     def __init__(self, input_file: BaseFile, process_name: str, **kwargs) -> None:
-        
+
         super().__init__(input_file, process_name, **kwargs)
-        self.control_cfg = [cfg for cfg in self.cfg if cfg['_type'] == 'cntrl'][0]
+        self.control_cfg = [
+            cfg for cfg in self.cfg if cfg['_type'] == 'cntrl'][0]
         self.is_minimize = bool(int(self.control_cfg.get('imin') or 0))
         self.is_restrained = bool(int(self.control_cfg.get('ntr') or 0))
         self.is_production = False
         self.total_step = int(self.control_cfg.get('nstlim') or self.control_cfg.get('maxcyc'))
         self.step_size = float(self.control_cfg.get('dt')) if not self.is_minimize else 1
-        
+
         self.toplogy_file = None
         self.inpcrd_file = None
         self.mdout_file_path = None
         self.mdcrd_file_path = None
         self.mdrst_file_path = None
-        
-    def run(self, toplogy_file:BaseFile, inpcrd_file:BaseFile, reference_file:BaseFile=None, save_dir:str=None, nohup:bool=False)-> 'MDProcess':
+
+    def run(self, toplogy_file: BaseFile, inpcrd_file: BaseFile, reference_file: Union[BaseFile, None] = None, save_dir: Union[str, None] = None, nohup: bool = False) -> 'MDProcess':
         '''
         Run MD process.
-        
+
         Parameters
         -----------
         save_dir : str, optional
@@ -529,25 +575,27 @@ class MDProcess(BaseProcess):
         self.inpcrd_file = inpcrd_file
         save_dir = save_dir if save_dir is not None else CWD
         os.makedirs(save_dir, exist_ok=True)
-        
-        self.mdout_file_path = os.path.join(save_dir, self.process_name + '.out')
-        self.mdcrd_file_path = os.path.join(save_dir, self.process_name + '.nc')
-        self.mdrst_file_path = os.path.join(save_dir, self.process_name + '.rst')
+
+        self.mdout_file_path = os.path.join(
+            save_dir, self.process_name + '.out')
+        self.mdcrd_file_path = os.path.join(
+            save_dir, self.process_name + '.nc')
+        self.mdrst_file_path = os.path.join(
+            save_dir, self.process_name + '.rst')
         simulation_time = self.total_step * self.step_size / 1000
-        
-        
+
         if not self.is_minimize:
             logger.info(f'Simulation total steps: {self.total_step}')
             logger.info(f'Simulation step size: {self.step_size} ps')
             logger.info(f'Simulation total time: {simulation_time} ns')
-        
+
         self.cmd = f"{PMEMD} -O"
         self.cmd += f" -i {self.input_file.file_path}"
         self.cmd += f" -o {self.mdout_file_path}"
         self.cmd += f" -c {self.inpcrd_file.file_path}"
         self.cmd += f" -p {self.toplogy_file.file_path}"
         self.cmd += f" -r {self.mdrst_file_path}"
-        
+
         if not self.is_minimize:
             self.cmd += f" -x {self.mdcrd_file_path}"
         else:
@@ -556,8 +604,9 @@ class MDProcess(BaseProcess):
 
         if nohup:
             self.cmd = f'nohup {self.cmd} > /dev/null 2>&1 &'
-            
-        logger.debug(f'Process {self.process_name} running command: {self.cmd}')
+
+        logger.debug(
+            f'Process {self.process_name} running command: {self.cmd}')
         logger.info(f'Running process {self.process_name} ...')
         _system_call(self.cmd)
         if nohup:
@@ -576,38 +625,43 @@ class MDProcess(BaseProcess):
         #         _trace_progress(self.mdout_file_path, self.total_step)
 
         logger.info(f"Process {self.process_name} finished.")
-        
+
         return self
+
 
 class MinimizeProcess(MDProcess):
     def __init__(self, input_file: BaseFile, process_name: str, **kwargs) -> None:
         super().__init__(input_file, process_name, **kwargs)
-        
+
+
 class NPTProcess(MDProcess):
-    def __init__(self, input_file: BaseFile, process_name: str, is_production:bool=False, **kwargs) -> None:
+    def __init__(self, input_file: BaseFile, process_name: str, is_production: bool = False, **kwargs) -> None:
         super().__init__(input_file, process_name, **kwargs)
         self.is_production = is_production
-        
+
+
 class NVTProcess(MDProcess):
-    def __init__(self, input_file: BaseFile, process_name: str, is_production:bool=False, **kwargs) -> None:
+    def __init__(self, input_file: BaseFile, process_name: str, is_production: bool = False, **kwargs) -> None:
         super().__init__(input_file, process_name, **kwargs)
         self.is_production = is_production
-        
+
+
 @timeit
 def _run_simulation(
         comsolvate_topfile: BaseFile,
         comsolvate_crdfile: BaseFile,
         process_list: list[MDProcess],
-        save_dir: str = None) -> None:
+        save_dir: Union[str, None] = None) -> None:
     '''
     执行分子动力学模拟工作流
     '''
     save_dir = save_dir if save_dir is not None else CWD
 
     for index, process in enumerate(process_list):
-        
+
         process_output_dir = os.path.join(save_dir, process.process_name)
-        inpcrd_file = comsolvate_crdfile if index == 0 else BaseFile(finished_process.mdrst_file_path)
+        inpcrd_file = comsolvate_crdfile if index == 0 else BaseFile(
+            finished_process.mdrst_file_path)
         reference_file = inpcrd_file if process.is_restrained else None
         nohup = True if process.is_production else False
         finished_process = process.run(
@@ -616,9 +670,9 @@ def _run_simulation(
             save_dir=process_output_dir,
             reference_file=reference_file,
             nohup=nohup
-            )
+        )
         sleep(1)
-        
+
     # step_a_dir = os.path.join(save_dir, 'step_a')
     # step_b_dir = os.path.join(save_dir, 'step_b')
     # step_c_dir = os.path.join(save_dir, 'step_c')
@@ -627,7 +681,7 @@ def _run_simulation(
 
     # nvt_cfg = _get_input_config(step_nvt_inputfile.file_path)
     # npt_cfg = _get_input_config(step_npt_inputfile.file_path)
-    
+
     # step_num = int(npt_cfg['nstlim'])
     # step_size = float(npt_cfg['dt'])
     # simulate_time = step_num * step_size / 1000
@@ -727,7 +781,7 @@ def _run_simulation(
     # logger.info('Simulation Finished.')
 
 
-def _creat_energy_inputfile(job_type: str, startframe: int, endframe: int, interval: int, decomp: bool = False, save_dir: str = None) -> BaseFile:
+def _creat_energy_inputfile(job_type: str, startframe: int, endframe: int, interval: int, decomp: bool = False, save_dir: Union[str, None] = None) -> BaseFile:
     '''
     创建能量计算相关输入文件
 
@@ -787,7 +841,7 @@ def _creat_energy_inputfile(job_type: str, startframe: int, endframe: int, inter
 def _run_energy_calculation(
     input_file: BaseFile, comsolvate_topfile: BaseFile, com_topfile: BaseFile,
     receptor_topfile: BaseFile, ligand_topfile: BaseFile, traj_file: BaseFile,
-    output_filepath: str = None, decom_output_filepath: str = None, cpu_num: int = None
+    output_filepath: Union[str, None] = None, decom_output_filepath: Union[str, None] = None, cpu_num: Union[int, None] = None
 ) -> None:
 
     cpu_num = cpu_num if cpu_num is not None else CPU_NUM

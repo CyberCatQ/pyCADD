@@ -29,7 +29,7 @@ class Processor:
     为分子动力学模拟执行预处理
     '''
 
-    def __init__(self):
+    def __init__(self, apo: bool = False):
         '''
         初始化
         '''
@@ -41,6 +41,9 @@ class Processor:
         self.comsolvate_crdfile = None
         self.comsolvate_topfile = None
         self.comsolvate_pdbfile = None
+        if apo:
+            logger.info('Initializing Processor for apo system.')
+        self.apo = apo
 
         self.md_process_list = []
 
@@ -166,7 +169,7 @@ class Processor:
         '''
         self.frcmod_file = BaseFile(file_path)
 
-    def leap_prepare(self, prefix: str = None, box_size:float=12.0, **kwargs) -> None:
+    def leap_prepare(self, prefix: str = None, box_size: float = 12.0, **kwargs) -> None:
         '''
         创建leap输入文件 并执行tleap命令
 
@@ -176,23 +179,29 @@ class Processor:
             leap生成文件前缀 PDBID或其他 None则为当前日期
         '''
         prefix = prefix if prefix is not None else datetime.now().strftime('%Y%m%d')
-        if not all([
-            self.processed_molfile_pdb,
-            self.frcmod_file,
-            self.processed_profile
-        ]):
+        _check_dirs = [self.processed_molfile_pdb, self.frcmod_file,
+                       self.processed_profile] if not self.apo else [self.processed_profile]
+        if not all(_check_dirs):
             raise RuntimeError(
                 'Preparing protein or molecules before LEaP has not been done.')
         logger.info('Preparing LEaP files...')
         logger.info(f"TIP3P Water Box size: {box_size} Angstroms")
-        core.leap_prepare(
-            prefix,
-            self.processed_molfile_pdb,
-            self.frcmod_file,
-            self.processed_profile,
-            box_size=box_size,
-            save_dir=LEAP_DIR,
-        )
+        if not self.apo:
+            core.leap_prepare(
+                prefix=prefix,
+                ligand_file=self.processed_molfile_pdb,
+                frcmod_file=self.frcmod_file,
+                protein_file=self.processed_profile,
+                box_size=box_size,
+                save_dir=LEAP_DIR,
+            )
+        else:
+            core.leap_prepare_for_apo(
+                prefix=prefix,
+                protein_file=self.processed_profile,
+                box_size=box_size,
+                save_dir=LEAP_DIR
+            )
 
         self.comsolvate_pdbfile = BaseFile(
             os.path.join(LEAP_DIR, f'{prefix}_comsolvate.pdb'))
@@ -268,9 +277,10 @@ class Processor:
         获取溶剂化文件中的水分子Residue Number列表
         '''
         if self.comsolvate_pdbfile is None:
-            raise ValueError('Solvated complex pdb file has not been prepared/load.')
+            raise ValueError(
+                'Solvated complex pdb file has not been prepared/load.')
         return core._get_water_resnum(self.comsolvate_pdbfile)
-        
+
     def creat_minimize_input(
             self, maxcyc: int = 10000, ncyc: int = 5000, cut: float = 8.0,
             restraint: bool = False, restraint_mask: str = None, restraint_wt: float = 2.0,
@@ -457,7 +467,7 @@ class Processor:
 
         return BaseFile(file_path)
 
-    def add_process(self, input_file: Union[BaseFile, str], process_name: str = None, _type:str=None, _obj:MDProcess=None, **kwargs) -> None:
+    def add_process(self, input_file: Union[BaseFile, str], process_name: str = None, _type: str = None, _obj: MDProcess = None, **kwargs) -> None:
         '''
         在工作流中添加单个步骤(Minimize, NVT, NPT, etc.)
 
@@ -512,14 +522,14 @@ class Processor:
         file_name = process_name + '.in'
         self.add_process(
             self.creat_minimize_input(
-                maxcyc=maxcyc, ncyc=ncyc, 
-                restraint=restraint, restraint_mask=restraint_mask, 
+                maxcyc=maxcyc, ncyc=ncyc,
+                restraint=restraint, restraint_mask=restraint_mask,
                 file_name=file_name, **kwargs),
-            process_name, 
+            process_name,
             _type='minimize',
             **kwargs)
 
-    def add_nvt_process(self, total_step: int = 500000, step_length: float = 0.002, process_name: str = 'nvt', is_production:bool=False, **kwargs):
+    def add_nvt_process(self, total_step: int = 500000, step_length: float = 0.002, process_name: str = 'nvt', is_production: bool = False, **kwargs):
         '''
         在工作流中添加NVT步骤
 
@@ -570,7 +580,7 @@ class Processor:
             **kwargs
         )
 
-    def add_npt_process(self, total_step: int = 50000000, step_length: float = 0.002, process_name: str = 'npt', is_production:bool=False, **kwargs):
+    def add_npt_process(self, total_step: int = 50000000, step_length: float = 0.002, process_name: str = 'npt', is_production: bool = False, **kwargs):
         '''
         在工作流中添加NPT步骤
 
@@ -587,7 +597,7 @@ class Processor:
         self.add_process(
             self.creat_npt_input(
                 total_step=total_step, step_length=step_length, file_name=file_name, **kwargs),
-            process_name, _type='npt', 
+            process_name, _type='npt',
             is_production=is_production,
             **kwargs
         )

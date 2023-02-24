@@ -2,7 +2,7 @@
 # using str.format() to replace the placeholders with the actual values.
 
 from abc import ABC, abstractmethod
-from typing import Literal
+from typing import Literal, Union
 
 #########################
 # Basic Class Definition
@@ -103,14 +103,7 @@ class BaseConstructor(ABC):
         del self.__dict__[attr_name]
         self._state_keys.remove(attr_name)
 
-
-_LEAP_BASE_TEMPLATE = """
-
-############Ligand############
-loadamberparams {frcmod_file_path}
-lig = loadmol2 {ligand_file_path}
-saveamberparm lig {file_prefix}_lig.prmtop {file_prefix}_lig.inpcrd
-##############################
+_LEAP_BASE_TEMPLATE_APO = """
 
 ############Protein###########
 pro = loadpdb {protein_file_path}
@@ -130,6 +123,14 @@ saveamberparm com {file_prefix}_comsolvate.prmtop {file_prefix}_comsolvate.inpcr
 quit
 
 """
+_LEAP_BASE_TEMPLATE_LIGAND = """
+############Ligand############
+loadamberparams {frcmod_file_path}
+lig = loadmol2 {ligand_file_path}
+saveamberparm lig {file_prefix}_lig.prmtop {file_prefix}_lig.inpcrd
+##############################
+"""
+_LEAP_BASE_TEMPLATE = _LEAP_BASE_TEMPLATE_LIGAND + _LEAP_BASE_TEMPLATE_APO
 
 
 class LeapConstructor(BaseConstructor):
@@ -156,7 +157,10 @@ class LeapConstructor(BaseConstructor):
         """
         Return the base template of the LEaP file.
         """
-        return _LEAP_BASE_TEMPLATE
+        if self.get_state_dict().get("ligand_file_path") is None:
+            return _LEAP_BASE_TEMPLATE_APO
+        else:
+            return _LEAP_BASE_TEMPLATE
 
     def _get_force_field_template(self) -> str:
         """
@@ -327,10 +331,10 @@ NPT_DEFAULT = {
 class LeapInput(LeapConstructor):
     def __init__(
             self,
-            ligand_file_path: str,
-            frcmod_file_path: str,
             protein_file_path: str,
-            file_prefix: str = None,
+            ligand_file_path: Union[str, None] = None,
+            frcmod_file_path: Union[str, None] = None,
+            file_prefix: Union[str, None] = None,
             box_size: float = 12.0,
             box_type: str = 'TIP3PBOX',
             add_ions_type: str = 'Na+',
