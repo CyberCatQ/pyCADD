@@ -3,6 +3,7 @@ import logging
 from typing import Any
 
 from pyCADD.utils.common import BaseFile
+from pyCADD.Dynamic.core import _system_call 
 
 # If you can not import pytraj, please use the following code
 # conda uninstall ambertools
@@ -112,7 +113,7 @@ def _calc_hbond(
     options = f'avgout {avgout_file} printatomnum nointramol' if options is None else options
 
     logger.info(f'Amber mask: {mask}')
-    logger.info(f'Distance cutoff: {distance}')
+    logger.info(f'Distance cutoff: {distance} angstrom')
     logger.info(f'Angle cutoff: {angle}')
     logger.info(f'Options: {options}')
     hbond = pt.hbond(trajectory, mask=mask, distance=distance,
@@ -132,7 +133,19 @@ def _calc_hbond(
     hbond_num_time_file = os.path.join(save_dir, 'HBOND_NUM_TIME.csv')
     hbond_distance_file = os.path.join(save_dir, 'HBOND_DIS_RESULTS.csv')
     hbond_angle_file = os.path.join(save_dir, 'HBOND_ANG_RESULTS.csv')
-
+    
+    # generate Hbond lifetime with cppttraj
+    logger.info('Generating Hbond lifetime with cpptraj...')
+    cpptraj_input_file = os.path.join(save_dir, 'cpptraj.in')
+    lifetime_file = os.path.join(save_dir, 'lifetime.dat')
+    with open(cpptraj_input_file, 'w') as f:
+        f.write(f'parm {trajectory.topology.filename}\n')
+        f.write(f'trajin {trajectory.filename}\n')
+        f.write(f'hbond hbonds {mask} dist {distance} angle {angle} printatomnum nointramol series uuseries {lifetime_file}\n')
+        f.write(f'run\n')
+        f.write(f'quit\n')
+    _system_call(f'cpptraj -i {cpptraj_input_file}')
+    
     pd.DataFrame(hbond.total_solute_hbonds()).to_csv(hbond_num_time_file)
     pd.DataFrame(hbond_distance, index=distance_mask).T.to_csv(
         hbond_distance_file, index=False)

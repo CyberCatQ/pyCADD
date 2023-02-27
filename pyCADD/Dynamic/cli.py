@@ -140,7 +140,7 @@ def simulate(top_file, inpcrd_file, with_gpu):
 @main.command(short_help='Simple post analysis for MD simulation.')
 @click.option('-y', type=click.Path(exists=True), help='Trajectory file path.', prompt='Please specify trajectory file path')
 @click.option('-sp', type=click.Path(exists=True), help='Solvated complex topology file path.', prompt='Please specify solvated complex topology file path')
-@click.option('-lp', type=click.Path(exists=True), help='Ligand topology file path.', prompt='Please specify ligand topology file path')
+@click.option('-lp', type=click.Path(exists=True), help='Ligand topology file path. If not specified, apo system analysis will be performed.')
 @click.option('-rp', type=click.Path(exists=True), help='Receptor topology file path.', prompt='Please specify receptor topology file path')
 @click.option('-cp', type=click.Path(exists=True), help='Complex topology file path.', prompt='Please specify complex topology file path')
 @click.option('-ro', type=click.Path(exists=True), help='Molecular dynamics output file path.', prompt='Please specify molecular dynamics output file path')
@@ -181,14 +181,14 @@ def analysis(y, sp, lp, rp, cp, ro, no_hbond, no_rmsd, no_rmsf, decomp, nmode, p
         )
 
     if decomp:
-        decomp_start_fm = input('Please specify energy decomposition START_FRAME:')
-        decomp_end_fm = input('Please specify energy decomposition END_FRAME:')
-        decomp_step_size = input('Please specify energy decomposition STEP_SIZE:')
+        decomp_start_fm = input('Please specify energy decomposition START_FRAME:\n')
+        decomp_end_fm = input('Please specify energy decomposition END_FRAME:\n')
+        decomp_step_size = input('Please specify energy decomposition STEP_SIZE:\n')
 
     if nmode:
-        nmode_start_fm = input('Please specify nmode START_FRAME:')
-        nmode_end_fm = input('Please specify nmode END_FRAME:')
-        nmode_step_size = input('Please specify nmode STEP_SIZE:')
+        nmode_start_fm = input('Please specify nmode START_FRAME:\n')
+        nmode_end_fm = input('Please specify nmode END_FRAME:\n')
+        nmode_step_size = input('Please specify nmode STEP_SIZE:\n')
 
     if not no_rmsd:
         analyzer.calc_rmsd()

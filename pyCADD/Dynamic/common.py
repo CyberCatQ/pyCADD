@@ -709,6 +709,8 @@ class Analyzer:
         self.com_topfile_path = com_topfile_path
         self.recep_topfile_path = receptor_topfile_path
         self.ligand_topfile_path = ligand_topfile_path
+        
+        self.apo = False if self.ligand_topfile_path is not None else True
 
         self.mdout_file = BaseFile(
             mdout_file_path) if mdout_file_path is not None else None
@@ -716,7 +718,11 @@ class Analyzer:
         self.recep_topfile = None
         self.ligand_topfile = None
 
-        if any([self.com_topfile_path, self.recep_topfile_path, self.ligand_topfile_path]):
+        if not self.apo:
+            _check_list = [self.com_topfile_path, self.recep_topfile_path, self.ligand_topfile_path]
+        else:
+            _check_list = [self.com_topfile_path, self.recep_topfile_path]
+        if any(_check_list):
             self.load_topfile(
                 com_topfile_path=self.com_topfile_path,
                 receptor_topfile_path=self.recep_topfile_path,
@@ -795,6 +801,8 @@ class Analyzer:
             self.ligand_topfile = BaseFile(ligand_topfile_path)
             logger.info(
                 f'Ligand topology file {self.ligand_topfile.file_path} has been loaded.')
+        else:
+            logger.info('Ligand topology file is not provided. Perform analysis for Apo system.')
 
     def calc_rmsd(self, mask: str = '@CA', ref: int = 0, **kwargs) -> None:
         '''
