@@ -96,13 +96,14 @@ def get_predict_structure(predict_file, output_file:str=None):
     predict_ligand_df = pd.read_csv(predict_file)
     ligand_sts = []
     
-    for ligand in predict_ligand_df['Ligand']:
+    for index, ligand in enumerate(predict_ligand_df['Ligand']):
         ligand_file = ligand + '.mae'
         ligand_file_path = os.path.join('ligands', ligand_file)
         if not os.path.exists(ligand_file_path):
             logger.warning('Ligand file %s not found!' % ligand_file_path)
             continue
         st = StructureReader.read(ligand_file_path)
+        st.property['i_user_SortedIndex'] = index
         ligand_sts.append(st)
 
     with StructureWriter(output_file) as writer:
