@@ -5,7 +5,7 @@ from time import sleep
 from typing import Union
 
 from pyCADD.Dynamic.template import LeapInput
-from pyCADD.Gauss.base import Gauss
+from pyCADD.Density.base import Gauss
 from pyCADD.utils.common import BaseFile
 from pyCADD.utils.tool import _get_progress, makedirs_from_list, timeit
 

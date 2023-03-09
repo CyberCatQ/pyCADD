@@ -30,8 +30,8 @@ setup(
             'pyCADD = pyCADD.__main__:main', 
             'pycadd = pyCADD.__main__:main', 
             'pycadd-dock = pyCADD.Dock.cli:cli_main',
-            'pycadd-gauss = pyCADD.Gauss.__main__:main',
-            'pycadd-query = pyCADD.query.cli:main',
+            'pycadd-gauss = pyCADD.Density.__main__:main',
+            'pycadd-query = pyCADD.Demand.cli:main',
             'pycadd-dynamic = pyCADD.Dynamic.cli:main'
             ]
     }

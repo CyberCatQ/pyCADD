@@ -10,7 +10,7 @@ def main(uniprot_id, not_del_mutations, not_del_ignore, cutoff, output_format):
     '''
     Get PDB crystals info with uniprot_id.
     '''
-    from pyCADD.query import QueryClient
+    from pyCADD.Demand import QueryClient
     client = QueryClient(uniprot_id)
     del_mutations = not not_del_mutations
     del_ignore = not not_del_ignore

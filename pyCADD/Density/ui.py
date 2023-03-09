@@ -1,5 +1,5 @@
 from pyCADD.utils.ui import UI
-from pyCADD.Gauss.base import Gauss
+from pyCADD.Density.base import Gauss
 import os
 import logging
 logger = logging.getLogger('pyCADD.Gauss')
