@@ -77,8 +77,8 @@ class UI:
         return Text.assemble(
             ('pyCADD', 'bold medium_spring_green'), 
             ' -- A ', ('Python Package', 'bold yellow'), 
-            ' For ', 
-            ('Computer-aid Drug Design', 'bold cyan')
+            ' for ', 
+            ('Computer-aided Drug Design', 'bold cyan')
             )
 
     @property

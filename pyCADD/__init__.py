@@ -1,4 +1,4 @@
-__version__= '1.6.4dev1'
+__version__= '1.6.4'
 __update_date__ = '2023-03-09'
 __author__ = 'YH. W'
 __institution__ = 'Xiamen University, China'
