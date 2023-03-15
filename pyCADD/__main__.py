@@ -13,7 +13,7 @@ from pyCADD import __version__
 def main():
     if len(sys.argv) != 1:
         try:
-            opts, args = getopt.getopt(sys.argv[1:], 'hv', ['help', 'version'])
+            opts, args = getopt.getopt(sys.argv[1:], 'hvV', ['help', 'version'])
         except getopt.GetoptError as err:
             print(err)
             sys.exit(2)
@@ -23,9 +23,10 @@ def main():
                 sys.exit(0)
     ui = UI()
     options = [
-        '1. Dock Mode',
-        '2. VSW',
-        '3. Gaussian Calculation',
+        '1. Query the PDB data from Uniprot ID',
+        '2. Dock Mode',
+        '3. VSW',
+        '4. Gaussian Calculation',
         '0. Exit'
     ]
     ui.create_panel(options)
@@ -33,7 +34,7 @@ def main():
 
     if flag == '0':
         sys.exit(0)
-    elif flag in '12':
+    elif flag in '23':
         if not ui.schrodinger_check:
             logger.error('Schrodinger platform is not installed.')
             return
@@ -41,14 +42,17 @@ def main():
             if os.system(r'run python3 -c "import pyCADD"') != 0:
                 os.system('run python3 -m pip install pyCADD >/dev/null')
             
-    if flag == '1':
+    if flag == '2':
         os.system('run python3 -m pyCADD.Dock')
 
-    elif flag == '2':
+    elif flag == '3':
         os.system('run python3 -m pyCADD.VSW')
     
-    elif flag == '3':
-        os.system('python -m pyCADD.Gauss')
+    elif flag == '4':
+        os.system('python -m pyCADD.Density')
+    
+    elif flag == '1':
+        os.system('python -m pyCADD.Demand')
         
 if __name__ == '__main__':
     main()

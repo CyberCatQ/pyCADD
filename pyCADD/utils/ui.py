@@ -48,7 +48,7 @@ class UI:
         self.schrodinger = Text(SCHRODINGER, style='u i')
         self.gauss_dir = Text(GAUSS, style='u i')
         self.amber_dir = Text(AMBER, style='u i')
-        self.cpu_count = NUM_PARALLEL
+        self.cpu = NUM_PARALLEL
 
         self._additional_info_dict = {}
         self._info_index = 0
@@ -77,8 +77,8 @@ class UI:
         return Text.assemble(
             ('pyCADD', 'bold medium_spring_green'), 
             ' -- A ', ('Python Package', 'bold yellow'), 
-            ' For ', 
-            ('Computer-aid Drug Design', 'bold cyan')
+            ' for ', 
+            ('Computer-aided Drug Design', 'bold cyan')
             )
 
     @property
@@ -119,7 +119,7 @@ class UI:
             'Current date: ', 
             (now, 'bold blue'),
             '\nParallel threads: ', 
-            (f'{self.cpu_count}/{os.cpu_count()}', 'bold blue'), 
+            (f'{self.cpu}/{os.cpu_count()}', 'bold blue'), 
             ' Python Version: ',(platform.python_version(), 'bold blue'),
             '\nSchrodinger: ', self.schrodinger,
             '\nGaussian: ', self.gauss_dir,

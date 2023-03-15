@@ -1,6 +1,6 @@
 import sys
 
-from pyCADD.Gauss.ui import UI_Gauss
+from pyCADD.Density.ui import UI_Gauss
 
 def main():
     enter_text = '[bold]Enter the Code of Options'

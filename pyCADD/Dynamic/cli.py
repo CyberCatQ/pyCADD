@@ -14,7 +14,7 @@ def main():
 
 @main.command(short_help='Automatic MD workflow (including preparation and simulation).')
 @click.argument('protein_file', type=click.Path(exists=True))
-@click.argument('molecule_file', type=click.Path(exists=True))
+@click.argument('molecule_file', type=click.Path(exists=True), required=False)
 @click.option('--charge', '-c', default=0, show_default=True, type=int, help='Charge of molecule.')
 @click.option('--multiplicity', '-m', default=1, show_default=True, type=int, help='Multiplicity of molecule.')
 @click.option('--solvent', '-s', default='water', show_default=True, type=str, help='Solvent used in molecule preparation.')
@@ -25,35 +25,49 @@ def main():
 @click.option('-bcc', is_flag=True, help='Use existing BCC charges instead of RESP.')
 @click.option('--keep-cood', '-k', is_flag=True, help='Keep atoms coordinates from the input molecular file after calculating resp charge, instead of using the gaussian optimized output.')
 @click.option('--keep-water', '-w', is_flag=True, help='Keep water molecules in the original protein file.')
+@click.option('--box-size', '-b', default=12, show_default=True, type=float, help='TIP3P Water Box size of simulation. Default to 12 Angstrom.')
 @click.option('--overwrite', '-O', is_flag=True, help='Overwrite existing files.')
-def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, parallel, with_gpu, time, bcc, keep_cood, keep_water, overwrite):
+def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, parallel, with_gpu, time, bcc, keep_cood, keep_water, box_size, overwrite):
     '''
     Prepare required files and run molecular dynamics simulation.\n
     protein_file : Specify protein file (PDB format) path for MD.\n
-    molecule_file : Specify molecule file (PDB format) path for MD.
+    molecule_file : Specify molecule file (PDB format) path for MD. If not specified, apo system(protein only) will be simulated.\n
     '''
     from pyCADD.Dynamic import Processor, Simulator
-    processor = Processor()
+    # Prepare files
+    processor = Processor() if molecule_file is not None else Processor(apo=True)
+    if molecule_file is not None:
+        if not bcc:
+            processor.molecule_prepare(
+                molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='resp', keep_origin_cood=keep_cood)
+        else:
+            processor.molecule_prepare(
+                molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='bcc')
+            
     processor.protein_prepare(protein_file, keep_water=keep_water)
-    if not bcc:
-        processor.molecule_prepare(
-            molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='resp', keep_origin_cood=keep_cood)
-    else:
-        processor.molecule_prepare(
-            molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='bcc')
-
     prefix = os.path.basename(os.getcwd()) if prefix is None else prefix
-    processor.leap_prepare(prefix)
+    processor.leap_prepare(prefix=prefix, box_size=box_size)
     step_num = int(time * 1000 / 0.002)
-    processor.creat_input_file(step_num=step_num)
-    # print(f'input files: {processor.step_a_inputfile.file_name}, {processor.step_b_inputfile.file_name}, {processor.step_c_inputfile.file_name}')
-    # print(f'{processor.step_nvt_inputfile.file_name}, {processor.step_npt_inputfile.file_name}')
+    
+    water_resnum = processor.get_water_resnum()
+    water_resnum_start = int(water_resnum[0])
+    water_resnum_end = int(water_resnum[-1])
+    
+    processor.add_minimize_process(process_name='stepA', restraint=True, restraint_mask=f"':1-{water_resnum_start-1}'")
+    processor.add_minimize_process(process_name='stepB', restraint=True, restraint_mask=f"':{water_resnum_start}-{water_resnum_end}'")
+    processor.add_minimize_process(process_name='stepC')
+    processor.add_heat_process()
+    processor.add_npt_process(total_step=500000, process_name='eq_npt')
+    processor.add_nvt_process(total_step=500000, process_name='eq_nvt')
+    processor.add_npt_process(total_step=step_num, is_production=True, process_name='production')
+    
+    # Run simulation
     simulator = Simulator(processor)
     simulator.run_simulation(with_gpu)
 
 @main.command(short_help='Automatically preparing required files for MD only.')
 @click.argument('protein_file', type=click.Path(exists=True))
-@click.argument('molecule_file', type=click.Path(exists=True))
+@click.argument('molecule_file', type=click.Path(exists=True), required=False)
 @click.option('--charge', '-c', default=0, show_default=True, type=int, help='Charge of molecule.')
 @click.option('--multiplicity', '-m', default=1, show_default=True, type=int, help='Multiplicity of molecule.')
 @click.option('--solvent', '-s', default='water', show_default=True, type=str, help='Solvent used in molecule preparation.')
@@ -63,24 +77,41 @@ def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, par
 @click.option('-bcc', is_flag=True, help='Use existing BCC charges instead of RESP.')
 @click.option('--keep-cood', '-k', is_flag=True, help='Keep atoms coordinates from the input molecular file after calculating resp charge, instead of using the gaussian optimized output.')
 @click.option('--keep-water', '-w', is_flag=True, help='Keep water molecules in the original protein file.')
+@click.option('--box-size', '-b', default=12, show_default=True, type=float, help='TIP3P Water Box size of simulation. Default to 12 Angstrom.')
 @click.option('--overwrite', '-O', is_flag=True, help='Overwrite existing files.')
-def prepare(protein_file, molecule_file, charge, multiplicity, solvent, prefix, parallel, time, bcc, keep_cood, keep_water, overwrite):
+def prepare(protein_file, molecule_file, charge, multiplicity, solvent, prefix, parallel, time, bcc, keep_cood, keep_water, box_size, overwrite):
     '''
     Prepare required files for MD.\n
     protein_file : Specify protein file (PDB format) path for MD.\n
-    molecule_file : Specify molecule file (PDB format) path for MD.
+    molecule_file : Specify molecule file (PDB format) path for MD. If not specified, apo system(protein only) will be simulated.\n
     '''
     from pyCADD.Dynamic import Processor
-    processor = Processor()
+    processor = Processor() if molecule_file is not None else Processor(apo=True)
+    
+    if molecule_file is not None:
+        if not bcc:
+            processor.molecule_prepare(
+                molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='resp', keep_origin_cood=keep_cood)
+        else:
+            processor.molecule_prepare(
+                molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='bcc')
+            
     processor.protein_prepare(protein_file, keep_water=keep_water)
-    if not bcc:
-        processor.molecule_prepare(molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='resp', keep_origin_cood=keep_cood)
-    else:
-        processor.molecule_prepare(molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='bcc')
     prefix = os.path.basename(os.getcwd()) if prefix is None else prefix
-    processor.leap_prepare(prefix)
+    processor.leap_prepare(prefix=prefix, box_size=box_size)
     step_num = int(time * 1000 / 0.002)
-    processor.creat_input_file(step_num=step_num)
+    
+    water_resnum = processor.get_water_resnum()
+    water_resnum_start = int(water_resnum[0])
+    water_resnum_end = int(water_resnum[-1])
+    
+    processor.creat_minimize_input(restraint=True, restraint_mask=f"':1-{water_resnum_start-1}'", file_name="stepA.in")
+    processor.creat_minimize_input(restraint=True, restraint_mask=f"':{water_resnum_start}-{water_resnum_end}'", file_name="stepB.in")
+    processor.creat_minimize_input(file_name="stepC.in")
+    processor.creat_heat_input(file_name="heat.in")
+    processor.creat_npt_input(total_step=500000, file_name="eq_npt.in")
+    processor.creat_nvt_input(total_step=500000, file_name="eq_nvt.in")
+    processor.creat_npt_input(total_step=step_num, file_name="production.in")
 
 @main.command(short_help='Running molecular dynamics simulation with prepared files.')
 @click.argument('top_file', type=click.Path(exists=True))
@@ -96,25 +127,27 @@ def simulate(top_file, inpcrd_file, with_gpu):
     processor = Processor()
     processor.set_comsolvate_file(top_file, 'top')
     processor.set_comsolvate_file(inpcrd_file, 'crd')
-    processor.load_input_file('input_file/step_a.in', 'a')
-    processor.load_input_file('input_file/step_b.in', 'b')
-    processor.load_input_file('input_file/step_c.in', 'c')
-    processor.load_input_file('input_file/step_nvt.in', 'nvt')
-    processor.load_input_file('input_file/step_npt.in', 'npt')
+    processor.add_process('input_file/stepA.in', 'stepA', 'minimize')
+    processor.add_process('input_file/stepB.in', 'stepB', 'minimize')
+    processor.add_process('input_file/stepC.in', 'stepC', 'minimize')
+    processor.add_process('input_file/heat.in', 'heat')
+    processor.add_process('input_file/eq_npt.in', 'eq_npt', 'npt')
+    processor.add_process('input_file/eq_nvt.in', 'eq_nvt', 'nvt')
+    processor.add_process('input_file/production.in', 'production', 'npt')
     simulator = Simulator(processor)
     simulator.run_simulation(with_gpu)
 
-@main.command(short_help='Post analysis for MD simulation.')
+@main.command(short_help='Simple post analysis for MD simulation.')
 @click.option('-y', type=click.Path(exists=True), help='Trajectory file path.', prompt='Please specify trajectory file path')
 @click.option('-sp', type=click.Path(exists=True), help='Solvated complex topology file path.', prompt='Please specify solvated complex topology file path')
-@click.option('-lp', type=click.Path(exists=True), help='Ligand topology file path.', prompt='Please specify ligand topology file path')
+@click.option('-lp', type=click.Path(exists=True), help='Ligand topology file path. If not specified, apo system analysis will be performed.')
 @click.option('-rp', type=click.Path(exists=True), help='Receptor topology file path.', prompt='Please specify receptor topology file path')
 @click.option('-cp', type=click.Path(exists=True), help='Complex topology file path.', prompt='Please specify complex topology file path')
 @click.option('-ro', type=click.Path(exists=True), help='Molecular dynamics output file path.', prompt='Please specify molecular dynamics output file path')
 @click.option('--no-hbond', '-nh', is_flag=True, help='Disable calculating and tracing of hydrogen bonds.')
 @click.option('--no-rmsd', '-nd', is_flag=True, help='Disable calculating of RMSD.')
 @click.option('--no-rmsf', '-nf', is_flag=True, help='Disable calculating of RMSF.')
-@click.option('--no-extract', '-ne', is_flag=True, help='Disable extracting of lowest energy structure.')
+# @click.option('--no-extract', '-ne', is_flag=True, help='Disable extracting of lowest energy structure.')
 @click.option(
     '--decomp', '-d', 
     is_flag=True,
@@ -124,7 +157,7 @@ def simulate(top_file, inpcrd_file, with_gpu):
     is_flag=True,
     help='Performing entropy calculation with normal mode(nmode) from START_FRAME(INT1) to END_FRAME(INT2) with STEP_SIZE(INT3).')
 @click.option('--parallel', '-n', default=os.cpu_count(), show_default=True, type=int, help='Number of parallel processes used in energy calculation.')
-def analysis(y, sp, lp, rp, cp, ro, no_hbond, no_rmsd, no_rmsf, no_extract, decomp, nmode, parallel=None):
+def analysis(y, sp, lp, rp, cp, ro, no_hbond, no_rmsd, no_rmsf, decomp, nmode, parallel=None):
     '''
     Post-process for molecular dynamics simulation.\n
     Workflow:\n
@@ -148,14 +181,14 @@ def analysis(y, sp, lp, rp, cp, ro, no_hbond, no_rmsd, no_rmsf, no_extract, deco
         )
 
     if decomp:
-        decomp_start_fm = input('Please specify energy decomposition START_FRAME:')
-        decomp_end_fm = input('Please specify energy decomposition END_FRAME:')
-        decomp_step_size = input('Please specify energy decomposition STEP_SIZE:')
-    
+        decomp_start_fm = input('Please specify energy decomposition START_FRAME:\n')
+        decomp_end_fm = input('Please specify energy decomposition END_FRAME:\n')
+        decomp_step_size = input('Please specify energy decomposition STEP_SIZE:\n')
+
     if nmode:
-        nmode_start_fm = input('Please specify nmode START_FRAME:')
-        nmode_end_fm = input('Please specify nmode END_FRAME:')
-        nmode_step_size = input('Please specify nmode STEP_SIZE:')
+        nmode_start_fm = input('Please specify nmode START_FRAME:\n')
+        nmode_end_fm = input('Please specify nmode END_FRAME:\n')
+        nmode_step_size = input('Please specify nmode STEP_SIZE:\n')
 
     if not no_rmsd:
         analyzer.calc_rmsd()
@@ -163,8 +196,8 @@ def analysis(y, sp, lp, rp, cp, ro, no_hbond, no_rmsd, no_rmsf, no_extract, deco
         analyzer.calc_rmsf()
     if not no_hbond:
         analyzer.calc_hbond()
-    if not no_extract:
-        analyzer.extract_lowest_energy_st()
+    # if not no_extract:
+    #     analyzer.extract_lowest_energy_st()
     if decomp:
         analyzer.creat_energy_inputfile(start_frame=decomp_start_fm, end_frame=decomp_end_fm, interval=decomp_step_size, job_type='decomp')
         analyzer.run_energy_calc(cpu_num=parallel)

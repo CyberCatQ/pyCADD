@@ -6,7 +6,7 @@ from urllib import parse
 import pandas as pd
 import requests
 import yaml
-from pyCADD.query.config import BaseQueryCfg
+from pyCADD.Demand.config import BaseQueryCfg
 from pyCADD.utils.tool import makedirs_from_list
 
 logger = logging.getLogger(__name__)

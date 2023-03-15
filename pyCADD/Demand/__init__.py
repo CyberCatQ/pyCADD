@@ -1,0 +1,1 @@
+from pyCADD.Demand.core import QueryClient

@@ -1,7 +1,7 @@
+__version__= '1.6.4'
+__update_date__ = '2023-03-09'
+__author__ = 'YH. W'
+__institution__ = 'Xiamen University, China'
+
 from pyCADD.utils.log import _init_log
-
-__version__= '1.6.3'
-__update_date__ = '2022-10-27'
-
-
 _init_log('pyCADD')

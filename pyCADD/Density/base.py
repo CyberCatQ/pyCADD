@@ -2,7 +2,7 @@ import os
 import logging
 logger = logging.getLogger(__name__)
 
-from pyCADD.Gauss import core
+from pyCADD.Density import core
 
 class Gauss:
     '''
