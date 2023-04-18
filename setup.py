@@ -22,7 +22,7 @@ setup(
                       'xgboost', 'pyyaml>=6.0', 'click', 'scipy', 
                       'xlsxwriter>=3.0', 'openpyxl', 'requests'],
     license='GNU General Public License v3.0',
-    python_requires='>=3.5,<3.10',
+    python_requires='>=3.8',
     long_description=long_description,
     long_description_content_type='text/markdown',
     entry_points={
@@ -30,8 +30,8 @@ setup(
             'pyCADD = pyCADD.__main__:main', 
             'pycadd = pyCADD.__main__:main', 
             'pycadd-dock = pyCADD.Dock.cli:cli_main',
-            'pycadd-gauss = pyCADD.Density.__main__:main',
-            'pycadd-query = pyCADD.Demand.cli:main',
+            'pycadd-density = pyCADD.Density.__main__:main',
+            'pycadd-demand = pyCADD.Demand.cli:main',
             'pycadd-dynamic = pyCADD.Dynamic.cli:main'
             ]
     }
