@@ -1,5 +1,6 @@
 import logging
 import os
+import pickle
 from concurrent.futures import ProcessPoolExecutor
 
 from pyCADD.utils.tool import download_pdb_list, makedirs_from_list, _get_progress, _multiprocssing_run, NUM_PARALLEL, Manager
@@ -498,7 +499,9 @@ class _Console:
 
         if self.redock_file_list is not None and redock_data is not False:
             redock_data_list = _multiprocssing_run(extra_docking_data, self.redock_file_list, job_name='Extract Redocking Data', num_parallel=num_parallel)
-        
+            with open(os.path.join(self.result_save_dir, f'redock_data_{precision}.pickle'), 'wb') as f:
+                pickle.dump(redock_data_list, f)
+                
         # 请求only redock数据 但没有执行过redock时 将返回空列表
         if redock_data == 'only':
             return redock_data_list
@@ -528,11 +531,13 @@ class _Console:
                         logger.debug(f'Skip extracting data from {pdbid},{ligid},{ligand_name}')
                         continue
                     dockfile_path_list.append(os.path.join(self.base_dock_save_dir, pdbid, f'{pdbid}_{ligid}_glide-dock_{ligand_name}_{precision}.maegz'))
-            self.dock_file_list = [DockResultFile(dockresult_file_path) for dockresult_file_path in dockfile_path_list if os.path.exists(dockresult_file_path)]
+            self.dock_file_list = [DockResultFile(dockresult_file_path, ligand_only=True) for dockresult_file_path in dockfile_path_list if os.path.exists(dockresult_file_path)]
         
         # 已执行对接或未执行对接都从构造的dock_file_list中提取数据
         external_data_list = _multiprocssing_run(extra_docking_data, self.dock_file_list, job_name='Extract Docking Data', num_parallel=num_parallel)
-
+        with open(os.path.join(self.result_save_dir, f'external_data_{precision}.pkl'), 'wb') as f:
+            pickle.dump(external_data_list, f)
+            
         if redock_data is False:
             return external_data_list
         elif redock_data == 'append':
