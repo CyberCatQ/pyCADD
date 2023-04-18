@@ -195,11 +195,12 @@ class PDBFile(BaseFile):
         '''
         
         ligand_id = self.ligid if ligand_id is None else ligand_id
+        ligand_id = ligand_id.strip().upper()
         assert ligand_id is not None, 'Ligand ID is not specified.'
         _all_match_lig = [res for res in self.structure.residue if res.pdbres.strip() == ligand_id]
 
         if len(_all_match_lig) == 0:
-            raise ValueError('No ligand found in PDB file.')
+            raise ValueError(f'No ligand {ligand_id} found in PDB file.')
         elif len(_all_match_lig) == 1:
                 self.ligid = _all_match_lig[0].pdbres.strip()
                 self.lig_resnum = _all_match_lig[0].resnum
