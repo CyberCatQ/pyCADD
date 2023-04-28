@@ -413,7 +413,7 @@ class _Console:
             self.dock_file_list = _multiprocssing_run(dock, mapping, precision, calc_rmsd, True, self.base_dock_save_dir, overwrite, job_name='Ensemble Docking', num_parallel=num_parallel)
         except KeyboardInterrupt as e:
             logger.warning('Docking interrupted.')
-            pass
+            raise
 
         # Failed check
         total_result = [f'{mapping_item[0].pdbid},{mapping_item[0].internal_ligand},{mapping_item[1].ligand_name}' for mapping_item in self.mapping]
@@ -457,9 +457,13 @@ class _Console:
         redock_mapping = self._creat_mapping(self.grid_file_list, redock_ligand_files, _failed_list)
         if self_only:
             redock_mapping = [mapping_item for mapping_item in redock_mapping if f'{mapping_item[0].pdbid}-lig-{mapping_item[0].ligand}' == mapping_item[1].ligand_name]
-
-        self.redock_file_list = _multiprocssing_run(dock, redock_mapping, precision, calc_rmsd, True, self.base_dock_save_dir, overwrite, job_name='Ensemble Redocking', num_parallel=num_parallel)
-
+        
+        try:
+            self.redock_file_list = _multiprocssing_run(dock, redock_mapping, precision, calc_rmsd, True, self.base_dock_save_dir, overwrite, job_name='Ensemble Redocking', num_parallel=num_parallel)
+        except KeyboardInterrupt as e:
+            logger.warning('Docking interrupted.')
+            raise
+        
         total_result = total_result = [f'{mapping_item[0].pdbid},{mapping_item[0].internal_ligand},{mapping_item[1].ligand_name}' for mapping_item in redock_mapping]
         success_result = [f'{dock_result_item.pdbid},{dock_result_item.internal_ligand_name},{dock_result_item.docking_ligand_name}' for dock_result_item in self.redock_file_list]
         redock_failed_list = list(set(total_result) - set(success_result))

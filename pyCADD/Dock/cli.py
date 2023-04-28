@@ -103,7 +103,7 @@ def ensemble_dock(input_file_path, library_file_path, parallel, precision, del_w
     '''
     Perform ensemble docking. \n
     input_file_path : Specify input file path for ensemble docking.
-    library_file_path : Specify compounds library file path for ensemble docking. If not specified, redock ligands will be performed even without --redock.
+    library_file_path : Specify compounds library file path for ensemble docking. If not specified, redocking ligands will be performed even without redock flag.
     '''
     from pyCADD.Dock import MultiDocker
     from pyCADD.Dock.data import save_ensemble_docking_data, save_redocking_data
@@ -156,7 +156,7 @@ def extract_data(input_file_path, library_file_path, parallel, precision, redock
     dock_data_list = console.multi_extract_data(redock_data=False, precision=precision)
     save_ensemble_docking_data(dock_data_list, save_dir=console.result_save_dir, precision=precision)
     
-@cli_main.command(short_help='Quick Report for ligand(s).')
+@cli_main.command(short_help='Generate quick report for ligand(s).')
 @click.argument('input_file_path', type=str)
 @click.argument('ligand_file_path', type=str)
 @click.option('--parallel', '-n', default=os.cpu_count(), type=int, help='Number of parallel processes.')
@@ -164,7 +164,7 @@ def extract_data(input_file_path, library_file_path, parallel, precision, redock
 @click.option('--overwrite', '-O', is_flag=True, help='Overwrite the file.')
 def quick_report(input_file_path, ligand_file_path, parallel, precision, overwrite):
     '''
-    Quick report for ligand(s). \n
+    Generate quick report for ligand(s). \n
     input_file_path : Specify input file path for quick report.
     ligand_file_path : Specify ligand file path for quick report.
     '''
