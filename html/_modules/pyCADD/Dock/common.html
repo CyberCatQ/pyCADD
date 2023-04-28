@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Dock.common &mdash; pyCADD  文档</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/translations.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> pyCADD
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="在文档中搜索" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/dance.html">Dance User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/dynamic.html">Dynamic Quick User Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">pyCADD</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyCADD</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">模块代码</a> &raquo;</li>
+          <li><a href="../Dock.html">pyCADD.Dock</a> &raquo;</li>
+      <li>pyCADD.Dock.common</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>pyCADD.Dock.common 源代码</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">pyCADD.utils.common</span> <span class="kn">import</span> <span class="n">BaseFile</span>
+
+<span class="kn">from</span> <span class="nn">schrodinger</span> <span class="kn">import</span> <span class="n">structure</span> <span class="k">as</span> <span class="n">struc</span>
+<span class="kn">from</span> <span class="nn">schrodinger.structure</span> <span class="kn">import</span> <span class="n">StructureReader</span><span class="p">,</span> <span class="n">StructureWriter</span><span class="p">,</span> <span class="n">Structure</span>
+<span class="kn">from</span> <span class="nn">schrodinger.job</span> <span class="kn">import</span> <span class="n">jobcontrol</span> <span class="k">as</span> <span class="n">jc</span>
+<span class="kn">from</span> <span class="nn">schrodinger.application.glide</span> <span class="kn">import</span> <span class="n">poseviewconvert</span> <span class="k">as</span> <span class="n">pvc</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="check_pdb"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.check_pdb">[文档]</a><span class="k">def</span> <span class="nf">check_pdb</span><span class="p">(</span><span class="n">pdb</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    检查PDB ID合法性</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        合法返回True 否则返回False</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^\d[0-9a-zA-Z]{3,}$&#39;</span><span class="p">,</span> <span class="n">pdb</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="get_input_pdbid"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.get_input_pdbid">[文档]</a><span class="k">def</span> <span class="nf">get_input_pdbid</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    获取用户输入的PDBID并检查合法性</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ----------</span>
+<span class="sd">    str</span>
+<span class="sd">        PDB ID字符串</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">pdbid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">check_pdb</span><span class="p">(</span><span class="n">pdbid</span><span class="p">):</span>        
+        <span class="k">return</span> <span class="n">pdbid</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;To get PDB ID automatically, please change current folder to PDBID.&#39;</span><span class="p">)</span>
+            <span class="n">pdbid</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Input PDB ID:&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;PDB ID: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">pdbid</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">check_pdb</span><span class="p">(</span><span class="n">pdbid</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">pdbid</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Please enter correct PDB ID!&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="launch"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.launch">[文档]</a><span class="k">def</span> <span class="nf">launch</span><span class="p">(</span><span class="n">cmd</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    使用jobcontrol启动一项job并等待结束</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cmd : str</span>
+<span class="sd">        等待执行的命令字符串</span>
+<span class="sd">    timeout : int</span>
+<span class="sd">        超时时限(秒)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">cmd_list</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>  <span class="c1"># launch_job以列表形式提交参数</span>
+    <span class="n">job</span> <span class="o">=</span> <span class="n">jc</span><span class="o">.</span><span class="n">launch_job</span><span class="p">(</span><span class="n">cmd_list</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Command: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">cmd</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;JobId: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">job</span><span class="o">.</span><span class="n">JobId</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Job Name: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">job</span><span class="o">.</span><span class="n">Name</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Job Status: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">job</span><span class="o">.</span><span class="n">Status</span><span class="p">)</span>
+    <span class="n">job</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>  <span class="c1"># 阻塞进程 等待Job结束</span>
+
+    <span class="c1"># 如果任务失败 直接返回而不抛出异常 只输出错误信息 以防止多进程中的一个进程被意外kill</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">job</span><span class="o">.</span><span class="n">StructureOutputFile</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Job </span><span class="si">%s</span><span class="s1"> Failed&#39;</span> <span class="o">%</span> <span class="n">job</span><span class="o">.</span><span class="n">Name</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;File </span><span class="si">%s</span><span class="s1"> saved.&#39;</span> <span class="o">%</span> <span class="n">job</span><span class="o">.</span><span class="n">StructureOutputFile</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_predict_structure"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.get_predict_structure">[文档]</a><span class="k">def</span> <span class="nf">get_predict_structure</span><span class="p">(</span><span class="n">predict_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    调用Schrodinger API提取 合并指定预测结构</span>
+
+<span class="sd">    Parameters </span>
+<span class="sd">    ----------</span>
+<span class="sd">    predict_file : str</span>
+<span class="sd">        预测结构文件(csv)路径</span>
+<span class="sd">    output_file : str</span>
+<span class="sd">        输出结构文件(pdb|mae|maegz)路径</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">prefix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">predict_file</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">output_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">.mae&#39;</span> <span class="k">if</span> <span class="n">output_file</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">output_file</span>
+    <span class="n">predict_ligand_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">predict_file</span><span class="p">)</span>
+    <span class="n">ligand_sts</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">ligand</span> <span class="ow">in</span> <span class="n">predict_ligand_df</span><span class="p">[</span><span class="s1">&#39;Ligand&#39;</span><span class="p">]:</span>
+        <span class="n">ligand_file</span> <span class="o">=</span> <span class="n">ligand</span> <span class="o">+</span> <span class="s1">&#39;.mae&#39;</span>
+        <span class="n">ligand_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;ligands&#39;</span><span class="p">,</span> <span class="n">ligand_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">ligand_file_path</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Ligand file </span><span class="si">%s</span><span class="s1"> not found!&#39;</span> <span class="o">%</span> <span class="n">ligand_file_path</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">StructureReader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">ligand_file_path</span><span class="p">)</span>
+        <span class="n">ligand_sts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">StructureWriter</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">writer</span><span class="p">:</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ligand_sts</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PDBFile"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.PDBFile">[文档]</a><span class="k">class</span> <span class="nc">PDBFile</span><span class="p">(</span><span class="n">BaseFile</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    PDB文件类型</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">ligand_id</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : str</span>
+<span class="sd">            PDB文件路径</span>
+<span class="sd">        ligand_id : str    </span>
+<span class="sd">            配体小分子名称</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ligid</span> <span class="o">=</span> <span class="n">ligand_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lig_resnum</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">StructureReader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">))</span>
+        
+    <span class="k">def</span> <span class="nf">_catch_lig</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        从PDB文件获取配体小分子信息</span>
+<span class="sd">        按行分割并返回列表</span>
+
+<span class="sd">        Return</span>
+<span class="sd">        ----------</span>
+<span class="sd">        list[dict]</span>
+<span class="sd">            配体小分子信息列表</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">result_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">_items</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;chain&#39;</span><span class="p">,</span> <span class="s1">&#39;resid&#39;</span><span class="p">,</span> <span class="s1">&#39;atom_num&#39;</span><span class="p">]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;HET &#39;</span><span class="p">):</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">:])</span>
+                <span class="n">lig_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">_items</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))}</span>
+                <span class="n">result_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lig_dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result_list</span>
+
+    <span class="k">def</span> <span class="nf">_get_lig_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lig_res</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">lig_res</span><span class="o">.</span><span class="n">pdbres</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> 
+            <span class="s1">&#39;chain&#39;</span><span class="p">:</span> <span class="n">lig_res</span><span class="o">.</span><span class="n">chain</span><span class="p">,</span> 
+            <span class="s1">&#39;resid&#39;</span><span class="p">:</span> <span class="n">lig_res</span><span class="o">.</span><span class="n">resnum</span><span class="p">,</span> 
+            <span class="s1">&#39;atom_num&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">lig_res</span><span class="p">)</span>
+            <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_input_from_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">liglist</span><span class="p">:</span><span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        获取索引的配体小分子信息(仅限于liglist内)</span>
+
+<span class="sd">        Return</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dict</span>
+<span class="sd">            配体小分子信息</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">ligindex</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Please specify ligand index:&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">ligindex</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">liglist</span><span class="p">):</span>
+                <span class="n">selected_lig</span> <span class="o">=</span> <span class="n">liglist</span><span class="p">[</span><span class="n">ligindex</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ligid</span> <span class="o">=</span> <span class="n">selected_lig</span><span class="o">.</span><span class="n">pdbres</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lig_resnum</span> <span class="o">=</span> <span class="n">selected_lig</span><span class="o">.</span><span class="n">resnum</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_lig_info</span><span class="p">(</span><span class="n">selected_lig</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Wrong index, please try agagin.&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PDBFile.get_lig"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.PDBFile.get_lig">[文档]</a>    <span class="k">def</span> <span class="nf">get_lig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ligand_id</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">select_first</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        从PDB文件获取指定配体小分子信息:</span>
+<span class="sd">            Name, Chain, Resid, Atom_num</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ligand_id : str</span>
+<span class="sd">            配体小分子名称</span>
+<span class="sd">        select_first : bool</span>
+<span class="sd">            存在多个配体时 是否自动选择第一个(默认为False)</span>
+<span class="sd">        </span>
+<span class="sd">        Return</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dict</span>
+<span class="sd">            配体小分子信息</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="n">ligand_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ligid</span> <span class="k">if</span> <span class="n">ligand_id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">ligand_id</span>
+        <span class="k">assert</span> <span class="n">ligand_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Ligand ID is not specified.&#39;</span>
+        <span class="n">_all_match_lig</span> <span class="o">=</span> <span class="p">[</span><span class="n">res</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">residue</span> <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">pdbres</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="n">ligand_id</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">_all_match_lig</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No ligand found in PDB file.&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">_all_match_lig</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ligid</span> <span class="o">=</span> <span class="n">_all_match_lig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pdbres</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lig_resnum</span> <span class="o">=</span> <span class="n">_all_match_lig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">resnum</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_lig_info</span><span class="p">(</span><span class="n">_all_match_lig</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">select_first</span><span class="p">:</span>
+                <span class="n">first_lig</span> <span class="o">=</span> <span class="n">_all_match_lig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ligid</span> <span class="o">=</span> <span class="n">first_lig</span><span class="o">.</span><span class="n">pdbres</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lig_resnum</span> <span class="o">=</span> <span class="n">first_lig</span><span class="o">.</span><span class="n">resnum</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Selected the first ligand: </span><span class="si">{</span><span class="n">first_lig</span><span class="o">.</span><span class="n">pdbres</span><span class="si">}</span><span class="s1">:Chain </span><span class="si">{</span><span class="n">first_lig</span><span class="o">.</span><span class="n">chain</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">first_lig</span><span class="o">.</span><span class="n">resnum</span><span class="si">}</span><span class="s1">&#39;</span> <span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_lig_info</span><span class="p">(</span><span class="n">_all_match_lig</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="n">fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0:&lt;10}{1:&lt;10}{2:&lt;10}{3:&lt;10}{4:&lt;10}</span><span class="s1">&#39;</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Crystal </span><span class="si">%s</span><span class="s1"> has multiple ligands&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;Index&#39;</span><span class="p">,</span> <span class="s1">&#39;PDBID&#39;</span><span class="p">,</span> <span class="s1">&#39;Name&#39;</span><span class="p">,</span> <span class="s1">&#39;Chain&#39;</span><span class="p">,</span> <span class="s1">&#39;Resnum&#39;</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">lig</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_all_match_lig</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="p">,</span> <span class="n">lig</span><span class="o">.</span><span class="n">pdbres</span><span class="p">,</span> <span class="n">lig</span><span class="o">.</span><span class="n">chain</span><span class="p">,</span> <span class="n">lig</span><span class="o">.</span><span class="n">resnum</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_from_list</span><span class="p">(</span><span class="n">_all_match_lig</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="PDBFile.get_lig_name"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.PDBFile.get_lig_name">[文档]</a>    <span class="k">def</span> <span class="nf">get_lig_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        从PDB文件获取配体小分子名称</span>
+<span class="sd">        按行分割并返回列表</span>
+
+<span class="sd">        Return</span>
+<span class="sd">        ----------</span>
+<span class="sd">        str</span>
+<span class="sd">            配体小分子名称</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ligid</span></div>
+    
+<div class="viewcode-block" id="PDBFile.keep_chain"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.PDBFile.keep_chain">[文档]</a>    <span class="k">def</span> <span class="nf">keep_chain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_name</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">select_first_lig</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        返回保留单链的结构</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        chain : str</span>
+<span class="sd">            需要保留的链(默认为配体所在链)</span>
+<span class="sd">        select_first_lig : bool</span>
+<span class="sd">            存在多个配体时 是否自动选择第一个(默认为False, 仅chain_name为None时生效)</span>
+
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">chain_name</span> <span class="o">=</span> <span class="n">chain_name</span> <span class="k">if</span> <span class="n">chain_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lig</span><span class="p">(</span><span class="n">select_first</span><span class="o">=</span><span class="n">select_first_lig</span><span class="p">)[</span><span class="s1">&#39;chain&#39;</span><span class="p">]</span>
+        <span class="n">singlechain_file</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-chain-</span><span class="si">%s</span><span class="s1">.mae&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span><span class="p">,</span> <span class="n">chain_name</span><span class="p">)</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">MaestroFile</span><span class="o">.</span><span class="n">get_first_structure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">)</span>  <span class="c1"># 读取原始PDB结构</span>
+        <span class="n">st_chain_only</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">chain</span><span class="p">[</span><span class="n">chain_name</span><span class="p">]</span><span class="o">.</span><span class="n">extractStructure</span><span class="p">()</span>
+        <span class="n">st_chain_only</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">singlechain_file</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">MaestroFile</span><span class="p">(</span><span class="n">singlechain_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ligid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lig_resnum</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="MaestroFile"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.MaestroFile">[文档]</a><span class="k">class</span> <span class="nc">MaestroFile</span><span class="p">(</span><span class="n">BaseFile</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maestro文件类型</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">ligand</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lig_resnum</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">_pdbid_from_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">_pdbid_from_file</span> <span class="o">=</span> <span class="n">_pdbid_from_file</span> <span class="k">if</span> <span class="n">check_pdb</span><span class="p">(</span><span class="n">_pdbid_from_file</span><span class="p">)</span> <span class="k">else</span> <span class="n">_pdbid_from_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span> <span class="o">=</span> <span class="n">_pdbid_from_file</span> <span class="k">if</span> <span class="n">check_pdb</span><span class="p">(</span><span class="n">_pdbid_from_file</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ligid</span> <span class="o">=</span> <span class="n">ligand</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lig_resnum</span> <span class="o">=</span> <span class="n">lig_resnum</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">st_reader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StructureReader</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">StructureReader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">structures</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Structure</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">st</span> <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">st_reader</span><span class="p">]</span>
+    
+<div class="viewcode-block" id="MaestroFile.get_first_structure"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.MaestroFile.get_first_structure">[文档]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_first_structure</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        获取Maestro文件中的第一个结构</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : str</span>
+<span class="sd">            Maestro文件路径</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="n">StructureReader</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MaestroFile.convert_format"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.MaestroFile.convert_format">[文档]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">convert_format</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">to_format</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        转换结构格式</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : str</span>
+<span class="sd">            需要转换的文件路径</span>
+<span class="sd">        to_format : str</span>
+<span class="sd">            转换后的格式</span>
+<span class="sd">        </span>
+<span class="sd">        Return</span>
+<span class="sd">        ----------</span>
+<span class="sd">        str</span>
+<span class="sd">            转换后的文件路径</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">MaestroFile</span><span class="o">.</span><span class="n">get_first_structure</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">prefix</span><span class="p">,</span> <span class="n">suffix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">to_format</span> <span class="o">==</span> <span class="s1">&#39;pdb&#39;</span><span class="p">:</span>
+            <span class="n">converted_file</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;.pdb&#39;</span>
+        <span class="k">elif</span> <span class="n">to_format</span> <span class="o">==</span> <span class="s1">&#39;mae&#39;</span><span class="p">:</span>
+            <span class="n">converted_file</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;.mae&#39;</span>
+        <span class="k">elif</span> <span class="n">to_format</span> <span class="o">==</span> <span class="s1">&#39;maegz&#39;</span><span class="p">:</span>
+            <span class="n">converted_file</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;.maegz&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unsupported format: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">to_format</span><span class="p">)</span>
+
+        <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">converted_file</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">converted_file</span></div>
+    
+<div class="viewcode-block" id="MaestroFile.minimize"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.MaestroFile.minimize">[文档]</a>    <span class="k">def</span> <span class="nf">minimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">side_chain</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">missing_loop</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">del_water</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        优化结构并执行能量最小化</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">pdbid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span>
+        <span class="n">minimized_file</span> <span class="o">=</span> <span class="n">pdbid</span> <span class="o">+</span> <span class="s1">&#39;_minimized.mae&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">overwrite</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">minimized_file</span><span class="p">):</span>  <span class="c1"># 如果已经进行过优化 为提高效率而跳过优化步骤</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;File </span><span class="si">%s</span><span class="s1"> is existed.&#39;</span> <span class="o">%</span> <span class="n">minimized_file</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ComplexFile</span><span class="p">(</span><span class="n">minimized_file</span><span class="p">)</span>
+
+        <span class="n">_job_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-Minimize&#39;</span> <span class="o">%</span> <span class="n">pdbid</span>
+        <span class="n">prepwizard_command</span> <span class="o">=</span> <span class="s1">&#39;prepwizard -f 3 -r 0.3 -propka_pH 7.0 -disulfides -s -j </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">_job_name</span>
+        <span class="k">if</span> <span class="n">side_chain</span><span class="p">:</span>
+            <span class="n">prepwizard_command</span> <span class="o">+=</span> <span class="s1">&#39; -fillsidechains&#39;</span>
+        <span class="k">if</span> <span class="n">missing_loop</span><span class="p">:</span>
+            <span class="n">prepwizard_command</span> <span class="o">+=</span> <span class="s1">&#39; -fillloops&#39;</span>
+        <span class="k">if</span> <span class="n">del_water</span><span class="p">:</span>
+            <span class="n">prepwizard_command</span> <span class="o">+=</span> <span class="s1">&#39; -watdist 0.0&#39;</span>
+
+        
+        <span class="n">prepwizard_command</span> <span class="o">+=</span> <span class="s1">&#39; </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span>    <span class="c1"># 将pdb文件传入prepwizard</span>
+        <span class="n">prepwizard_command</span> <span class="o">+=</span> <span class="s1">&#39; </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">minimized_file</span>    <span class="c1"># 将优化后的文件保存到minimized_file</span>
+        <span class="n">launch</span><span class="p">(</span><span class="n">prepwizard_command</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">minimized_file</span><span class="p">):</span>  
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> Crystal Minimization Process Failed.&#39;</span> <span class="o">%</span> <span class="n">pdbid</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ComplexFile</span><span class="p">(</span><span class="n">minimized_file</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="ComplexFile"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.ComplexFile">[文档]</a><span class="k">class</span> <span class="nc">ComplexFile</span><span class="p">(</span><span class="n">MaestroFile</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maestro单结构复合物文件类型</span>
+<span class="sd">    仅包含一个Entry</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">ligand</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lig_resnum</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ligand</span><span class="p">,</span> <span class="n">lig_resnum</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_get_mol_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ligname</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">lig_resnum</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">struc</span><span class="o">.</span><span class="n">_Molecule</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        获取结构中的配体所在Molecule object</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ligname : str</span>
+<span class="sd">            配体名称</span>
+<span class="sd">        lig_resnum : int</span>
+<span class="sd">            配体编号</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">residue</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">resnum</span> <span class="o">==</span> <span class="n">lig_resnum</span><span class="p">:</span>
+                <span class="n">molnum</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">molecule_number</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Exact match found: </span><span class="si">%s</span><span class="s1"> </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">pdbres</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">resnum</span><span class="p">))</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">molecule</span><span class="p">[</span><span class="n">molnum</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">res</span><span class="o">.</span><span class="n">pdbres</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="n">ligname</span><span class="p">:</span>
+                <span class="n">molnum</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">molecule_number</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Approximate match found: </span><span class="si">%s</span><span class="s1"> </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">pdbres</span><span class="p">,</span> <span class="n">res</span><span class="o">.</span><span class="n">resnum</span><span class="p">))</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">molecule</span><span class="p">[</span><span class="n">molnum</span><span class="p">]</span>
+            
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;No match found: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ligname</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_del_covalent_bond</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ligname</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        删除共价键</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ligname : str</span>
+<span class="sd">            配体名称</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">bonds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">bond</span>
+
+        <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="n">bonds</span><span class="p">:</span>
+            <span class="n">resname1</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">atom1</span><span class="o">.</span><span class="n">getResidue</span><span class="p">()</span><span class="o">.</span><span class="n">pdbres</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">resname2</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">atom2</span><span class="o">.</span><span class="n">getResidue</span><span class="p">()</span><span class="o">.</span><span class="n">pdbres</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">resname1</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ligname</span> <span class="ow">or</span> <span class="n">resname2</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">ligname</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">resname1</span> <span class="o">!=</span> <span class="n">resname2</span><span class="p">:</span>
+                    <span class="n">bond_to_del</span> <span class="o">=</span> <span class="n">bond</span>
+                
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">bond_to_del</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Can not delete covalent bonds automatically.&#39;</span><span class="p">)</span>
+                
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">deleteBond</span><span class="p">(</span><span class="n">bond_to_del</span><span class="o">.</span><span class="n">atom1</span><span class="p">,</span> <span class="n">bond_to_del</span><span class="o">.</span><span class="n">atom2</span><span class="p">)</span>
+        <span class="c1"># 共价键删除后 需要将结构覆写回文件</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="ComplexFile.get_lig_molnum"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.ComplexFile.get_lig_molnum">[文档]</a>    <span class="k">def</span> <span class="nf">get_lig_molnum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ligname</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lig_resnum</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        以ligname为KEY 查找Maestro文件中的Molecule Number</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ligname : str</span>
+<span class="sd">            配体小分子名称</span>
+<span class="sd">        lig_resnum : int</span>
+<span class="sd">            配体结构中的小分子编号</span>
+
+<span class="sd">        Return</span>
+<span class="sd">        ----------</span>
+<span class="sd">        str</span>
+<span class="sd">            Molecule Number</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">ligname</span> <span class="o">=</span> <span class="n">ligname</span> <span class="k">if</span> <span class="n">ligname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">ligid</span>
+        <span class="n">lig_resnum</span> <span class="o">=</span> <span class="n">lig_resnum</span> <span class="k">if</span> <span class="n">lig_resnum</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">lig_resnum</span>
+        <span class="k">assert</span> <span class="n">ligname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Ligand name is not specified.&#39;</span>
+        <span class="n">mol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_mol_obj</span><span class="p">(</span><span class="n">ligname</span><span class="p">,</span> <span class="n">lig_resnum</span><span class="p">)</span>
+
+        <span class="c1"># 判断该molecule是否仅包括小分子本身(是否存在共价连接) 自动移除共价连接</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mol</span><span class="o">.</span><span class="n">residue</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>  
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> in </span><span class="si">%s</span><span class="s1"> : A covalent bond may exist between the ligand and residue.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ligname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;An attempt will be made to remove the covalent bond automatically.&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_del_covalent_bond</span><span class="p">(</span><span class="n">ligname</span><span class="p">)</span>
+            <span class="n">mol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_mol_obj</span><span class="p">(</span><span class="n">ligname</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">mol</span><span class="o">.</span><span class="n">number</span></div>
+
+<div class="viewcode-block" id="ComplexFile.split"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.ComplexFile.split">[文档]</a>    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ligname</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">protein_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ligand_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">complex_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save_fmt</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;pdb&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        将Maestro文件分割为受体与配体</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ligname : str</span>
+<span class="sd">            配体小分子名称</span>
+<span class="sd">        protein_dir : str</span>
+<span class="sd">            受体文件保存路径</span>
+<span class="sd">        ligand_dir : str</span>
+<span class="sd">            配体文件保存路径</span>
+<span class="sd">        complex_dir : str</span>
+<span class="sd">            复合物文件保存路径</span>
+<span class="sd">        save_fmt : str</span>
+<span class="sd">            保存文件的格式 默认为pdb</span>
+
+<span class="sd">        Return</span>
+<span class="sd">        ----------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            分割后的文件(RecepFile, LigFile)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span>
+        <span class="n">pdbid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span>
+        <span class="n">ligname</span> <span class="o">=</span> <span class="n">ligname</span> <span class="k">if</span> <span class="n">ligname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">ligid</span>
+        <span class="k">assert</span> <span class="n">ligname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Ligand name is not specified.&#39;</span>
+        
+        <span class="n">protein_save_dir</span> <span class="o">=</span> <span class="n">protein_dir</span> <span class="k">if</span> <span class="n">protein_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">ligand_save_dir</span> <span class="o">=</span> <span class="n">ligand_dir</span> <span class="k">if</span> <span class="n">ligand_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">complex_save_dir</span> <span class="o">=</span> <span class="n">complex_dir</span> <span class="k">if</span> <span class="n">complex_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+
+        <span class="n">_residue_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">res</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">residue</span> <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">pdbres</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="n">ligname</span><span class="p">]</span>
+        <span class="n">_res_info</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">res</span><span class="o">.</span><span class="n">chain</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span> <span class="o">+</span> <span class="n">res</span><span class="o">.</span><span class="n">pdbres</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">_residue_list</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">_residue_list</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">_residue_list</span><span class="p">)</span><span class="si">}</span><span class="s1"> &quot;</span><span class="si">{</span><span class="n">ligname</span><span class="si">}</span><span class="s1">&quot; in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">_res_info</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;The First One is Selected.&#39;</span><span class="p">)</span>
+        <span class="n">_residue</span> <span class="o">=</span> <span class="n">_residue_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">complex_file</span> <span class="o">=</span> <span class="n">pvc</span><span class="o">.</span><span class="n">Complex</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">ligand_asl</span><span class="o">=</span><span class="n">_residue</span><span class="o">.</span><span class="n">getAsl</span><span class="p">(),</span> <span class="n">ligand_properties</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">property</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="n">save_fmt</span> <span class="o">=</span> <span class="n">save_fmt</span> <span class="k">if</span> <span class="n">save_fmt</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;pdb&#39;</span> <span class="k">else</span> <span class="s1">&#39;mae&#39;</span>
+        <span class="n">_lig_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ligand_save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">-lig-</span><span class="si">{</span><span class="n">ligname</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">save_fmt</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">_recep_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">protein_save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">-pro-</span><span class="si">{</span><span class="n">ligname</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">save_fmt</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">_complex_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">complex_save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">-com-</span><span class="si">{</span><span class="n">ligname</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">save_fmt</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">complex_file</span><span class="o">.</span><span class="n">writeLigand</span><span class="p">(</span><span class="n">_lig_file</span><span class="p">)</span>
+        <span class="n">complex_file</span><span class="o">.</span><span class="n">writeReceptor</span><span class="p">(</span><span class="n">_recep_file</span><span class="p">)</span> 
+        <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">_complex_file</span><span class="p">)</span>
+    
+        <span class="k">return</span> <span class="n">ReceptorFile</span><span class="p">(</span><span class="n">_recep_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ligid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lig_resnum</span><span class="p">),</span> <span class="n">LigandFile</span><span class="p">(</span><span class="n">_lig_file</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">-lig-</span><span class="si">{</span><span class="n">ligname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lig_resnum</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="ReceptorFile"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.ReceptorFile">[文档]</a><span class="k">class</span> <span class="nc">ReceptorFile</span><span class="p">(</span><span class="n">MaestroFile</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maestro受体文件类型</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">ligand</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lig_resnum</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ligand</span><span class="p">,</span> <span class="n">lig_resnum</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="LigandFile"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.LigandFile">[文档]</a><span class="k">class</span> <span class="nc">LigandFile</span><span class="p">(</span><span class="n">MaestroFile</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maestro配体文件类型</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">ligand</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lig_resnum</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ligand</span><span class="p">,</span> <span class="n">lig_resnum</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ligand_name</span> <span class="o">=</span> <span class="n">ligand</span> <span class="k">if</span> <span class="n">ligand</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span>
+    
+<div class="viewcode-block" id="LigandFile.calc_admet"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.LigandFile.calc_admet">[文档]</a>    <span class="k">def</span> <span class="nf">calc_admet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        计算化合物/配体的ADMET特征描述符</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span> <span class="o">+</span> <span class="s1">&#39;_ADMET&#39;</span>
+        <span class="n">admet_result_file</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;.mae&#39;</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">admet_result_file</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;File </span><span class="si">%s</span><span class="s1"> is existed.&#39;</span> <span class="o">%</span> <span class="n">admet_result_file</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">LigandFile</span><span class="p">(</span><span class="n">admet_result_file</span><span class="p">)</span>
+
+        <span class="n">launch</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;qikprop -outname </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;-out.mae&#39;</span><span class="p">,</span> <span class="n">admet_result_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1"> ADMET Calculating Failed&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">LigandFile</span><span class="p">(</span><span class="n">admet_result_file</span><span class="p">)</span></div></div>
+        
+        
+<div class="viewcode-block" id="DockResultFile"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.DockResultFile">[文档]</a><span class="k">class</span> <span class="nc">DockResultFile</span><span class="p">(</span><span class="n">MaestroFile</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maestro对接结果文件类型</span>
+<span class="sd">    仅含有2个Entry</span>
+<span class="sd">        * structure[0]: receptor</span>
+<span class="sd">        * structure[1]: ligand</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">ligand</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lig_resnum</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">docking_ligand</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">precision</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ligand</span><span class="p">,</span> <span class="n">lig_resnum</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">internal_ligand_name</span> <span class="o">=</span> <span class="n">ligand</span> <span class="k">if</span> <span class="n">ligand</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">internal_ligand_resnum</span> <span class="o">=</span> <span class="n">lig_resnum</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">docking_ligand_name</span> <span class="o">=</span> <span class="n">docking_ligand</span> <span class="k">if</span> <span class="n">docking_ligand</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">precision</span> <span class="o">=</span> <span class="n">precision</span> <span class="k">if</span> <span class="n">precision</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">4</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">merged_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ComplexFile</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        合并对接结果的受体与配体为一个复合物文件</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span>
+        <span class="n">_complex_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s1">-complex.mae&#39;</span>
+        <span class="n">_complex_st</span> <span class="o">=</span> <span class="n">st</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">st</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">copy_props</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>    
+        <span class="n">_complex_st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">_complex_file</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ComplexFile</span><span class="p">(</span><span class="n">_complex_file</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">docking_receptor_st</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        返回对接结果的受体结构</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">docking_ligand_st</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        返回对接结果的配体结构</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">property</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        返回对接结果的数据</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_docking_data</span><span class="p">()</span>
+
+<div class="viewcode-block" id="DockResultFile.get_receptor_file"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.DockResultFile.get_receptor_file">[文档]</a>    <span class="k">def</span> <span class="nf">get_receptor_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReceptorFile</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        获取对接结果中的受体文件</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">docking_recep_st</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">docking_receptor_st</span>
+        <span class="n">output_lig_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s1">_recep_posture.mae&#39;</span>
+        <span class="n">docking_recep_st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">output_lig_file</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ReceptorFile</span><span class="p">(</span><span class="n">output_lig_file</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="DockResultFile.get_ligand_file"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.DockResultFile.get_ligand_file">[文档]</a>    <span class="k">def</span> <span class="nf">get_ligand_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LigandFile</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        获取对接结果中的配体姿势文件</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">docking_lig_st</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">docking_ligand_st</span>
+        <span class="n">output_lig_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s1">_lig_posture.mae&#39;</span>
+        <span class="n">docking_lig_st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">output_lig_file</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">LigandFile</span><span class="p">(</span><span class="n">output_lig_file</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="DockResultFile.get_merged_file"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.DockResultFile.get_merged_file">[文档]</a>    <span class="k">def</span> <span class="nf">get_merged_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ComplexFile</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        获取对接结果的合并文件</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">merged_file</span></div>
+
+<div class="viewcode-block" id="DockResultFile.extract_docking_data"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.DockResultFile.extract_docking_data">[文档]</a>    <span class="k">def</span> <span class="nf">extract_docking_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        提取对接数据</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">lig_st</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">docking_ligand_st</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prop_dic</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prop_dic</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">prop_dic</span></div>
+
+<div class="viewcode-block" id="DockResultFile.calc_mmgbsa"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.DockResultFile.calc_mmgbsa">[文档]</a>    <span class="k">def</span> <span class="nf">calc_mmgbsa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ComplexFile</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        计算MM-GBSA结合能</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span>
+        <span class="n">mmgbsa_result_file</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;_mmgbsa.maegz&#39;</span>
+        <span class="n">job_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_mmgbsa&#39;</span>
+
+        <span class="c1"># 已计算则跳过计算过程</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">mmgbsa_result_file</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;File </span><span class="si">%s</span><span class="s1"> is existed.&#39;</span> <span class="o">%</span> <span class="n">mmgbsa_result_file</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ComplexFile</span><span class="p">(</span><span class="n">mmgbsa_result_file</span><span class="p">)</span>
+
+        <span class="n">launch</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;prime_mmgbsa -j </span><span class="si">{</span><span class="n">job_name</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">job_name</span><span class="si">}</span><span class="s1">-out.maegz&#39;</span><span class="p">,</span> <span class="n">mmgbsa_result_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1"> Prime MM-GB/SA Calculating Failed&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">ComplexFile</span><span class="p">(</span><span class="n">mmgbsa_result_file</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="GridFile"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.GridFile">[文档]</a><span class="k">class</span> <span class="nc">GridFile</span><span class="p">(</span><span class="n">BaseFile</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    网格文件类型(.zip)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ligand</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lig_resnum</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ligand</span> <span class="o">=</span> <span class="n">ligand</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lig_resnum</span> <span class="o">=</span> <span class="n">lig_resnum</span>
+        <span class="n">_pdbid_from_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdbid</span> <span class="o">=</span> <span class="n">_pdbid_from_file</span> <span class="k">if</span> <span class="n">check_pdb</span><span class="p">(</span><span class="n">_pdbid_from_file</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="c1"># 共结晶配体名称</span>
+        <span class="c1"># sample grid file name: 1FBY_glide-grid_9CR.mae</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">internal_ligand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_prefix</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="MultiInputFile"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile">[文档]</a><span class="k">class</span> <span class="nc">MultiInputFile</span><span class="p">(</span><span class="n">BaseFile</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    pyCADD受体列表输入文件</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">parse_</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        path : str</span>
+<span class="sd">            受体列表输入文件路径</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pairs_list</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdbid_list</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mappings</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">parse_</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parse_file</span><span class="p">()</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_parse_from_cfg</span><span class="p">(</span><span class="n">config_file</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        从配置文件中获取受体与配体的对应关系</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="kn">from</span> <span class="nn">pyCADD.utils.tool</span> <span class="kn">import</span> <span class="n">Myconfig</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="n">Myconfig</span><span class="p">()</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+        <span class="n">receptors</span> <span class="o">=</span> <span class="p">[</span><span class="n">receptor</span> <span class="k">for</span> <span class="n">receptor</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">sections</span><span class="p">()]</span>
+        <span class="n">pdbid_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">pairs_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">mappings</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_list</span> <span class="ow">in</span> <span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">receptor</span><span class="p">)</span> <span class="k">for</span> <span class="n">receptor</span> <span class="ow">in</span> <span class="n">receptors</span><span class="p">]:</span>
+            <span class="n">pdbid_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_list</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">receptor</span> <span class="ow">in</span> <span class="n">receptors</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">_item</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="n">receptor</span><span class="p">):</span>
+                <span class="n">ligs</span> <span class="o">=</span> <span class="n">_item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ligs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">pairs_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">_item</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ligs</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                    <span class="n">mappings</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;receptor&#39;</span><span class="p">:</span> <span class="n">receptor</span><span class="p">,</span> <span class="s1">&#39;pdb&#39;</span><span class="p">:</span> <span class="n">_item</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;ligand&#39;</span><span class="p">:</span> <span class="n">ligs</span><span class="p">[</span><span class="mi">0</span><span class="p">]})</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">lig</span> <span class="ow">in</span> <span class="n">ligs</span><span class="p">:</span>
+                        <span class="n">pairs_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">_item</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lig</span><span class="p">])</span>
+                        <span class="n">mappings</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;receptor&#39;</span><span class="p">:</span> <span class="n">receptor</span><span class="p">,</span> <span class="s1">&#39;pdb&#39;</span><span class="p">:</span> <span class="n">_item</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;ligand&#39;</span><span class="p">:</span> <span class="n">lig</span><span class="p">})</span>
+        
+        <span class="k">return</span> <span class="n">pdbid_list</span><span class="p">,</span> <span class="n">pairs_list</span><span class="p">,</span> <span class="n">mappings</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_parse_from_yaml</span><span class="p">(</span><span class="n">yaml_file</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        从yaml文件中获取受体与配体的对应关系</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="kn">import</span> <span class="nn">yaml</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">yaml_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">yaml_dict</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+
+        <span class="n">pdbid_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">pairs_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">mappings</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">receptor</span> <span class="ow">in</span> <span class="n">yaml_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">pdb</span><span class="p">,</span> <span class="n">ligs</span> <span class="ow">in</span> <span class="n">yaml_dict</span><span class="p">[</span><span class="n">receptor</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ligs</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">ligs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ligs</span><span class="p">]</span>
+                    
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ligs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">pairs_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">pdb</span><span class="p">,</span> <span class="n">ligs</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                    <span class="n">mappings</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;receptor&#39;</span><span class="p">:</span> <span class="n">receptor</span><span class="p">,</span> <span class="s1">&#39;pdb&#39;</span><span class="p">:</span> <span class="n">pdb</span><span class="p">,</span> <span class="s1">&#39;ligand&#39;</span><span class="p">:</span> <span class="n">ligs</span><span class="p">[</span><span class="mi">0</span><span class="p">]})</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">lig</span> <span class="ow">in</span> <span class="n">ligs</span><span class="p">:</span>
+                        <span class="n">pairs_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">pdb</span><span class="p">,</span> <span class="n">lig</span><span class="p">))</span>
+                        <span class="n">mappings</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;receptor&#39;</span><span class="p">:</span> <span class="n">receptor</span><span class="p">,</span> <span class="s1">&#39;pdb&#39;</span><span class="p">:</span> <span class="n">pdb</span><span class="p">,</span> <span class="s1">&#39;ligand&#39;</span><span class="p">:</span> <span class="n">lig</span><span class="p">})</span>
+                <span class="n">pdbid_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pdb</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pdbid_list</span><span class="p">,</span> <span class="n">pairs_list</span><span class="p">,</span> <span class="n">mappings</span>
+
+<div class="viewcode-block" id="MultiInputFile.read_from_config"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile.read_from_config">[文档]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">read_from_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;MultiInputFile&#39;</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        依据配置文件类型初始化</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config_file : str</span>
+<span class="sd">            配置文件路径</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">config_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">):</span>
+            <span class="n">input_file</span> <span class="o">=</span> <span class="n">MultiInputFile</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+            <span class="n">input_file</span><span class="o">.</span><span class="n">mappings</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">pdb</span><span class="p">,</span> <span class="n">lig</span> <span class="ow">in</span> <span class="n">input_file</span><span class="o">.</span><span class="n">pairs_list</span><span class="p">:</span>
+                <span class="n">input_file</span><span class="o">.</span><span class="n">mappings</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;receptor&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;pdb&#39;</span><span class="p">:</span> <span class="n">pdb</span><span class="p">,</span> <span class="s1">&#39;ligand&#39;</span><span class="p">:</span> <span class="n">lig</span><span class="p">})</span>
+            <span class="k">return</span> <span class="n">input_file</span>
+        <span class="k">if</span> <span class="n">config_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;ini&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">config_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;in&#39;</span><span class="p">):</span>
+            <span class="n">pdbid_list</span><span class="p">,</span> <span class="n">pairs_list</span><span class="p">,</span> <span class="n">mappings</span> <span class="o">=</span> <span class="n">MultiInputFile</span><span class="o">.</span><span class="n">_parse_from_cfg</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">config_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;yaml&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">config_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;yml&#39;</span><span class="p">):</span>
+            <span class="n">pdbid_list</span><span class="p">,</span> <span class="n">pairs_list</span><span class="p">,</span> <span class="n">mappings</span> <span class="o">=</span> <span class="n">MultiInputFile</span><span class="o">.</span><span class="n">_parse_from_yaml</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+            
+        <span class="n">_input_file</span> <span class="o">=</span> <span class="n">MultiInputFile</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">parse_</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">_input_file</span><span class="o">.</span><span class="n">pairs_list</span> <span class="o">=</span> <span class="n">pairs_list</span>
+        <span class="n">_input_file</span><span class="o">.</span><span class="n">pdbid_list</span> <span class="o">=</span> <span class="n">pdbid_list</span>
+        <span class="n">_input_file</span><span class="o">.</span><span class="n">ligand_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">ligid</span> <span class="k">for</span> <span class="n">pdbid</span><span class="p">,</span> <span class="n">ligid</span> <span class="ow">in</span> <span class="n">pairs_list</span><span class="p">]</span>
+        <span class="n">_input_file</span><span class="o">.</span><span class="n">mappings</span> <span class="o">=</span> <span class="n">mappings</span>
+        <span class="k">return</span> <span class="n">_input_file</span></div>
+
+<div class="viewcode-block" id="MultiInputFile.read"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile.read">[文档]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        读取输入文件</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : str</span>
+<span class="sd">            输入文件路径</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s1"> not found.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parse_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MultiInputFile.parse_file"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile.parse_file">[文档]</a>    <span class="k">def</span> <span class="nf">parse_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        解析受体输入文件</span>
+<span class="sd">        文件中含有多行的 逗号分隔的PDBID与配体ID</span>
+<span class="sd">        </span>
+<span class="sd">            example:</span>
+<span class="sd">                3A9E,REA</span>
+<span class="sd">                3KMZ,EQO</span>
+<span class="sd">                3KMR,EQN</span>
+<span class="sd">                4DQM,LUF</span>
+<span class="sd">                1DKF,BMS</span>
+<span class="sd">                5K13,6Q7</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : str</span>
+<span class="sd">            受体列表文件路径</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span> <span class="k">if</span> <span class="n">file_path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">file_path</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">raw_list</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">pairs_list</span> <span class="o">=</span> <span class="p">[(</span><span class="n">pdbid</span><span class="p">,</span> <span class="n">ligid</span><span class="p">)</span> <span class="k">for</span> <span class="n">pdbid</span><span class="p">,</span> <span class="n">ligid</span> <span class="ow">in</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">raw_list</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdbid_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">pdbid</span> <span class="k">for</span> <span class="n">pdbid</span><span class="p">,</span> <span class="n">ligid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pairs_list</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ligand_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">ligid</span> <span class="k">for</span> <span class="n">pdbid</span><span class="p">,</span> <span class="n">ligid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pairs_list</span><span class="p">]</span></div>
+    
+<div class="viewcode-block" id="MultiInputFile.get_pairs_list"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile.get_pairs_list">[文档]</a>    <span class="k">def</span> <span class="nf">get_pairs_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        获取受体信息列表</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pairs_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parse_file</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pairs_list</span></div>
+    
+<div class="viewcode-block" id="MultiInputFile.get_pdbid_list"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile.get_pdbid_list">[文档]</a>    <span class="k">def</span> <span class="nf">get_pdbid_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        获取受体信息列表中的PDBID列表</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdbid_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parse_file</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdbid_list</span></div>
+
+<div class="viewcode-block" id="MultiInputFile.get_ligand_list"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile.get_ligand_list">[文档]</a>    <span class="k">def</span> <span class="nf">get_ligand_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        获取受体信息列表中的配体列表</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ligand_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parse_file</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ligand_list</span></div>
+
+<div class="viewcode-block" id="MultiInputFile.get_pdbfile_path_list"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile.get_pdbfile_path_list">[文档]</a>    <span class="k">def</span> <span class="nf">get_pdbfile_path_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdb_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        获取受体信息列表中的PDB文件路径列表</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pdb_dir : str</span>
+<span class="sd">            PDB文件所在目录</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pdb_dir</span><span class="p">,</span> <span class="n">pdbid</span> <span class="o">+</span> <span class="s1">&#39;.pdb&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">pdbid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pdbid_list</span><span class="p">()]</span></div>
+        
+<div class="viewcode-block" id="MultiInputFile.get_gridfile_path_list"><a class="viewcode-back" href="../../../source/pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile.get_gridfile_path_list">[文档]</a>    <span class="k">def</span> <span class="nf">get_gridfile_path_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        获取受体信息列表中的Grid文件路径列表</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        grid_dir : str</span>
+<span class="sd">            Grid文件所在目录</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">grid_dir</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_glide_grid_</span><span class="si">%s</span><span class="s1">.zip&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pdbid</span><span class="p">,</span> <span class="n">ligid</span><span class="p">))</span> <span class="k">for</span> <span class="n">pdbid</span><span class="p">,</span> <span class="n">ligid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pairs_list</span><span class="p">()]</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2022, Yuhang.W.</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用了 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a>开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
