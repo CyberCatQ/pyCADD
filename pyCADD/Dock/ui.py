@@ -27,7 +27,8 @@ class UI_dock(UI):
         try:
             from pyCADD.Dock import Docker
         except ImportError:
-            os.system('run python3 -m pip install rich ConcurrentLogHandler 1>/dev/null 2>&1')
+            print('Initializing pyCADD for the first time running, please wait ... ')
+            os.system('run python3 -m pip install -U pyCADD 1>/dev/null 2>&1')
             from pyCADD.Dock import Docker
             
         docker = Docker()
