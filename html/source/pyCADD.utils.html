@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="搜索" href="../search.html" />
-    <link rel="prev" title="pyCADD.query package" href="pyCADD.query.html" /> 
+    <link rel="prev" title="pyCADD.VSW package" href="pyCADD.VSW.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -58,11 +58,11 @@
 <li class="toctree-l2 current"><a class="reference internal" href="pyCADD.html">pyCADD package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="pyCADD.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.Dance.html">pyCADD.Dance package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Demand.html">pyCADD.Demand package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Density.html">pyCADD.Density package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html">pyCADD.Dock package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.Dynamic.html">pyCADD.Dynamic package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Gauss.html">pyCADD.Gauss package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html">pyCADD.VSW package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.query.html">pyCADD.query package</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">pyCADD.utils package</a></li>
 </ul>
 </li>
@@ -185,6 +185,21 @@
 </section>
 <section id="module-pyCADD.utils.log">
 <span id="pycadd-utils-log-module"></span><h2>pyCADD.utils.log module<a class="headerlink" href="#module-pyCADD.utils.log" title="永久链接至标题"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.utils.log.ModifiedFileHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.utils.log.</span></span><span class="sig-name descname"><span class="pre">ModifiedFileHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'a'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxBytes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backupCount</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_gzip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">owner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chmod</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">umask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\n'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unicode_error_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ignore'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyCADD/utils/log.html#ModifiedFileHandler"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.utils.log.ModifiedFileHandler" title="永久链接至目标"></a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">concurrent_log_handler.ConcurrentRotatingFileHandler</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.utils.log.ModifiedFileHandler.emit">
+<span class="sig-name descname"><span class="pre">emit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyCADD/utils/log.html#ModifiedFileHandler.emit"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.utils.log.ModifiedFileHandler.emit" title="永久链接至目标"></a></dt>
+<dd><p>Emit a record.</p>
+<p>Override from parent class to handle file locking for the duration of rollover and write.
+This also does the formatting <em>before</em> locks are obtained, in case the format itself does
+logging calls from within. Rollover also occurs while the lock is held.</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="pyCADD.utils.log.get_logfile_name">
 <span class="sig-prename descclassname"><span class="pre">pyCADD.utils.log.</span></span><span class="sig-name descname"><span class="pre">get_logfile_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyCADD/utils/log.html#get_logfile_name"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.utils.log.get_logfile_name" title="永久链接至目标"></a></dt>
@@ -379,7 +394,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="pyCADD.query.html" class="btn btn-neutral float-left" title="pyCADD.query package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="pyCADD.VSW.html" class="btn btn-neutral float-left" title="pyCADD.VSW package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
     </div>
 
   <hr/>

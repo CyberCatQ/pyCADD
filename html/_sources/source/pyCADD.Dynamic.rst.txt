@@ -36,6 +36,14 @@ pyCADD.Dynamic.core module
    :undoc-members:
    :show-inheritance:
 
+pyCADD.Dynamic.template module
+------------------------------
+
+.. automodule:: pyCADD.Dynamic.template
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
