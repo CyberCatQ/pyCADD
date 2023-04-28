@@ -8,11 +8,11 @@ Subpackages
    :maxdepth: 4
 
    pyCADD.Dance
+   pyCADD.Demand
+   pyCADD.Density
    pyCADD.Dock
    pyCADD.Dynamic
-   pyCADD.Gauss
    pyCADD.VSW
-   pyCADD.query
    pyCADD.utils
 
 Module contents

@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="搜索" href="../search.html" />
-    <link rel="next" title="pyCADD.Gauss package" href="pyCADD.Gauss.html" />
+    <link rel="next" title="pyCADD.VSW package" href="pyCADD.VSW.html" />
     <link rel="prev" title="pyCADD.Dock package" href="pyCADD.Dock.html" /> 
 </head>
 
@@ -59,11 +59,11 @@
 <li class="toctree-l2 current"><a class="reference internal" href="pyCADD.html">pyCADD package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="pyCADD.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.Dance.html">pyCADD.Dance package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Demand.html">pyCADD.Demand package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Density.html">pyCADD.Density package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html">pyCADD.Dock package</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">pyCADD.Dynamic package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Gauss.html">pyCADD.Gauss package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html">pyCADD.VSW package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.query.html">pyCADD.query package</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.utils.html">pyCADD.utils package</a></li>
 </ul>
 </li>
@@ -108,381 +108,20 @@
 <section id="pycadd-dynamic-analysis-module">
 <h2>pyCADD.Dynamic.analysis module<a class="headerlink" href="#pycadd-dynamic-analysis-module" title="永久链接至标题"></a></h2>
 </section>
-<section id="module-pyCADD.Dynamic.cli">
-<span id="pycadd-dynamic-cli-module"></span><h2>pyCADD.Dynamic.cli module<a class="headerlink" href="#module-pyCADD.Dynamic.cli" title="永久链接至标题"></a></h2>
+<section id="pycadd-dynamic-cli-module">
+<h2>pyCADD.Dynamic.cli module<a class="headerlink" href="#pycadd-dynamic-cli-module" title="永久链接至标题"></a></h2>
 </section>
-<section id="module-pyCADD.Dynamic.common">
-<span id="pycadd-dynamic-common-module"></span><h2>pyCADD.Dynamic.common module<a class="headerlink" href="#module-pyCADD.Dynamic.common" title="永久链接至标题"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.common.</span></span><span class="sig-name descname"><span class="pre">Analyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">traj_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comsolvated_topfile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">com_topfile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">receptor_topfile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand_topfile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mdout_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Analyzer"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer" title="永久链接至目标"></a></dt>
-<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>MD模拟轨迹分析器</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.calc_hbond">
-<span class="sig-name descname"><span class="pre">calc_hbond</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">':*'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">135.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Analyzer.calc_hbond"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.calc_hbond" title="永久链接至目标"></a></dt>
-<dd><p>检测并追踪 Hbond 键长、键角</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mask</strong> (<em>str</em>) – 指定原子间的Amber mask 默认为自动识别 cutoff &lt; distance 的原子</p></li>
-<li><p><strong>options</strong> (<em>str</em>) – <dl class="simple">
-<dt>Hbond计算选项 默认为</dt><dd><p>avgout OUTPUTFILE 输出氢键平均信息文件
-printatomnum 打印原子序号
-nointramol 仅计算分子间氢键</p>
-</dd>
-</dl>
-</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.calc_rmsd">
-<span class="sig-name descname"><span class="pre">calc_rmsd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'&#64;CA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Analyzer.calc_rmsd"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.calc_rmsd" title="永久链接至目标"></a></dt>
-<dd><p>计算RMSD</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mask</strong> (<em>str</em>) – 计算RMSD的Amber mask</p></li>
-<li><p><strong>ref</strong> (<em>int</em>) – 参考轨迹索引号 默认第一帧0</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.calc_rmsf">
-<span class="sig-name descname"><span class="pre">calc_rmsf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'&#64;CA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'byres'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Analyzer.calc_rmsf"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.calc_rmsf" title="永久链接至目标"></a></dt>
-<dd><p>计算RMSF</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mask</strong> (<em>str</em>) – 计算RMSF的Amber mask</p></li>
-<li><p><strong>options</strong> (<em>str</em>) – RMSF计算选项 默认byres</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.creat_energy_inputfile">
-<span class="sig-name descname"><span class="pre">creat_energy_inputfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'free'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'entropy'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'decomp'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'pb/gbsa'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'gbsa'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Analyzer.creat_energy_inputfile"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.creat_energy_inputfile" title="永久链接至目标"></a></dt>
-<dd><p>创建能量计算任务输入文件</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>job_type</strong> (<em>str</em>) – 能量计算任务类型
-free : 自由能计算(MM-PB/GBSA)
-entropy : 熵计算(normal mode)
-decomp : 能量分解</p></li>
-<li><p><strong>method</strong> (<em>str</em>) – 计算方法
-pb/gbsa : MM-PB/GBSA
-gbsa : MM-GBSA only</p></li>
-<li><p><strong>start_frame</strong> (<em>int</em>) – 计算分析起始帧索引号</p></li>
-<li><p><strong>end_frame</strong> (<em>int</em>) – 计算分析结束帧索引号</p></li>
-<li><p><strong>interval</strong> (<em>int</em>) – 计算分析帧间隔 默认为10</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.extract_frame">
-<span class="sig-name descname"><span class="pre">extract_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Analyzer.extract_frame"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.extract_frame" title="永久链接至目标"></a></dt>
-<dd><p>提取指定帧
-帧索引开始于0 结束于最大帧数量-1</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><p><strong>frame</strong> (<em>int</em>) – 提取帧索引号</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.extract_frames">
-<span class="sig-name descname"><span class="pre">extract_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Analyzer.extract_frames"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.extract_frames" title="永久链接至目标"></a></dt>
-<dd><p>提取指定帧范围
-帧索引开始于0 结束于最大帧数量-1</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<em>int</em>) – 开始帧索引号</p></li>
-<li><p><strong>end</strong> (<em>int</em>) – 结束帧索引号</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.extract_lowest_energy_st">
-<span class="sig-name descname"><span class="pre">extract_lowest_energy_st</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Analyzer.extract_lowest_energy_st"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.extract_lowest_energy_st" title="永久链接至目标"></a></dt>
-<dd><p>提取最低能量结构</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.load_mdout">
-<span class="sig-name descname"><span class="pre">load_mdout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mdout_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Analyzer.load_mdout"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.load_mdout" title="永久链接至目标"></a></dt>
-<dd><p>加载MD模拟输出文件</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><p><strong>mdout_file_path</strong> (<em>str</em>) – MD模拟输出文件路径</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.load_topfile">
-<span class="sig-name descname"><span class="pre">load_topfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comsolvated_topfile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">com_topfile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">receptor_topfile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand_topfile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Analyzer.load_topfile"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.load_topfile" title="永久链接至目标"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.load_traj">
-<span class="sig-name descname"><span class="pre">load_traj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">traj_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Analyzer.load_traj"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.load_traj" title="永久链接至目标"></a></dt>
-<dd><p>加载轨迹文件</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>traj_file_path</strong> (<em>str</em>) – 轨迹文件路径</p></li>
-<li><p><strong>top_file_path</strong> (<em>str</em>) – 拓扑文件路径</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.run_energy_calc">
-<span class="sig-name descname"><span class="pre">run_energy_calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decom_output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">pyCADD.utils.common.BaseFile</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Analyzer.run_energy_calc"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.run_energy_calc" title="永久链接至目标"></a></dt>
-<dd><p>运行能量计算任务</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>output_file</strong> (<em>str</em>) – 输出文件路径</p></li>
-<li><p><strong>decom_output_file</strong> (<em>str</em>) – 能量分解输出文件路径(仅执行能量分解有效)</p></li>
-<li><p><strong>cpu_num</strong> (<em>int</em>) – 计算使用的CPU数量</p></li>
-<li><p><strong>input_file</strong> (<a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><em>BaseFile</em></a>) – 能量计算任务输入文件 默认为creat_energy_inputfile建立的文件</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.trace_angle">
-<span class="sig-name descname"><span class="pre">trace_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Analyzer.trace_angle"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.trace_angle" title="永久链接至目标"></a></dt>
-<dd><p>追踪指定原子之间的键角</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><p><strong>mask</strong> (<em>str</em>) – 指定原子Amber mask</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.trace_distance">
-<span class="sig-name descname"><span class="pre">trace_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Analyzer.trace_distance"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.trace_distance" title="永久链接至目标"></a></dt>
-<dd><p>追踪指定原子之间的距离</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><p><strong>mask</strong> (<em>str</em>) – 指定原子Amber mask</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.common.</span></span><span class="sig-name descname"><span class="pre">Processor</span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Processor"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor" title="永久链接至目标"></a></dt>
-<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>为分子动力学模拟执行预处理</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.cover_to_pdb">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cover_to_pdb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Processor.cover_to_pdb"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.cover_to_pdb" title="永久链接至目标"></a></dt>
-<dd><p>将mae结构文件转换为pdb格式</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><p><strong>file_path</strong> (<em>str</em>) – mae结构文件路径</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.leap_prepare">
-<span class="sig-name descname"><span class="pre">leap_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Processor.leap_prepare"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.leap_prepare" title="永久链接至目标"></a></dt>
-<dd><p>创建leap输入文件 并执行tleap命令</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><p><strong>prefix</strong> (<em>str</em>) – leap生成文件前缀 PDBID或其他 None则为当前日期</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.molecule_prepare">
-<span class="sig-name descname"><span class="pre">molecule_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'water'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Processor.molecule_prepare"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.molecule_prepare" title="永久链接至目标"></a></dt>
-<dd><p>为动力学模拟执行小分子结构预处理</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>molecule_file_path</strong> (<em>str</em>) – 分子结构文件路径</p></li>
-<li><p><strong>charge</strong> (<em>int</em>) – 电荷数 默认为0</p></li>
-<li><p><strong>multiplicity</strong> (<em>int</em>) – 自旋多重度 默认为1</p></li>
-<li><p><strong>cpu_num</strong> (<em>int</em>) – 计算核数 默认为CPU核数</p></li>
-<li><p><strong>solvent</strong> (<em>str</em>) – 计算RESP电荷时液相的溶剂 默认为water</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.protein_prepare">
-<span class="sig-name descname"><span class="pre">protein_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretein_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Processor.protein_prepare"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.protein_prepare" title="永久链接至目标"></a></dt>
-<dd><p>为动力学模拟执行蛋白质结构预处理</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><p><strong>pretein_file_path</strong> (<em>str</em>) – 蛋白质结构文件路径</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.set_comsolvate_file">
-<span class="sig-name descname"><span class="pre">set_comsolvate_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Processor.set_comsolvate_file"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.set_comsolvate_file" title="永久链接至目标"></a></dt>
-<dd><p>设定含水蛋白结构相关文件</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>file_path</strong> (<em>str</em>) – 文件路径</p></li>
-<li><p><strong>file_type</strong> (<em>str</em>) – 文件类型
-pdb: 含水蛋白结构文件(_comsolvate.pdb)
-top: 含水蛋白拓扑文件(_comsolvate.prmtop)
-crd: 含水蛋白坐标文件(_comsolvate.inpcrd)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Simulator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.common.</span></span><span class="sig-name descname"><span class="pre">Simulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dynamic.common.Processor" title="pyCADD.Dynamic.common.Processor"><span class="pre">pyCADD.Dynamic.common.Processor</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Simulator"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Simulator" title="永久链接至目标"></a></dt>
-<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Simulator.creat_input_file">
-<span class="sig-name descname"><span class="pre">creat_input_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.002</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Simulator.creat_input_file"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Simulator.creat_input_file" title="永久链接至目标"></a></dt>
-<dd><p>创建动力学模拟所需的各类输入文件</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>step_num</strong> (<em>int</em>) – 模拟步数</p></li>
-<li><p><strong>step_length</strong> (<em>float</em>) – 模拟步长</p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">提示</p>
-<p>模拟总时长 = step_num * step_length ps
-默认100ns</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Simulator.run_simulation">
-<span class="sig-name descname"><span class="pre">run_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cuda_device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Simulator.run_simulation"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Simulator.run_simulation" title="永久链接至目标"></a></dt>
-<dd><p>启动分子动力学模拟流程</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><p><strong>cuda_device</strong> (<em>int</em>) – GPU设备编号 默认为0</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Simulator.set_cuda_device">
-<span class="sig-name descname"><span class="pre">set_cuda_device</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cuda_device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Simulator.set_cuda_device"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Simulator.set_cuda_device" title="永久链接至目标"></a></dt>
-<dd><p>设定模拟使用的GPU设备</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><p><strong>cuda_device</strong> (<em>int</em>) – GPU设备编号</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Simulator.shwo_cuda_device">
-<span class="sig-name descname"><span class="pre">shwo_cuda_device</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/common.html#Simulator.shwo_cuda_device"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Simulator.shwo_cuda_device" title="永久链接至目标"></a></dt>
-<dd><p>显示GPU信息</p>
-</dd></dl>
-
-</dd></dl>
-
+<section id="pycadd-dynamic-common-module">
+<h2>pyCADD.Dynamic.common module<a class="headerlink" href="#pycadd-dynamic-common-module" title="永久链接至标题"></a></h2>
 </section>
-<section id="module-pyCADD.Dynamic.core">
-<span id="pycadd-dynamic-core-module"></span><h2>pyCADD.Dynamic.core module<a class="headerlink" href="#module-pyCADD.Dynamic.core" title="永久链接至标题"></a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.core.leap_prepare">
-<span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.core.</span></span><span class="sig-name descname"><span class="pre">leap_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">pyCADD.utils.common.BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">frcmod_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">pyCADD.utils.common.BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">protein_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">pyCADD.utils.common.BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/core.html#leap_prepare"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.core.leap_prepare" title="永久链接至目标"></a></dt>
-<dd><p>创建LEaP输入文件并执行tleap命令</p>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>prefix</strong> (<em>str</em>) – 生成文件的文件名前缀</p></li>
-<li><p><strong>ligand_file</strong> (<a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><em>BaseFile</em></a>) – 小分子文件</p></li>
-<li><p><strong>frcmod_file</strong> (<a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><em>BaseFile</em></a>) – Amber Parameters文件</p></li>
-<li><p><strong>protein_file</strong> (<a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><em>BaseFile</em></a>) – 蛋白质PDB文件</p></li>
-<li><p><strong>save_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – 保存路径 默认为当前目录</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.core.molecule_prepare">
-<span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.core.</span></span><span class="sig-name descname"><span class="pre">molecule_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ligand_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">pyCADD.utils.common.BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/core.html#molecule_prepare"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.core.molecule_prepare" title="永久链接至目标"></a></dt>
-<dd><dl class="simple">
-<dt>预处理小分子文件</dt><dd><p>高斯坐标优化与RESP2(0.5)电荷计算</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ligand_file</strong> (<a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><em>BaseFile</em></a>) – 小分子文件</p></li>
-<li><p><strong>cpu_num</strong> (<em>int</em><em>, </em><em>optional</em>) – CPU数量 默认为CPU总数</p></li>
-<li><p><strong>charge</strong> (<em>int</em><em>, </em><em>optional</em>) – 电荷数 默认为电荷数为0</p></li>
-<li><p><strong>multiplicity</strong> (<em>int</em><em>, </em><em>optional</em>) – 自旋多重度 默认为复数为1</p></li>
-<li><p><strong>solvent</strong> (<em>str</em><em>, </em><em>optional</em>) – 计算溶剂 默认为水</p></li>
-<li><p><strong>save_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – 保存路径 过程及结果文件保存至该目录 如为None则保存至当前目录</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pyCADD.Dynamic.core.protein_prepare">
-<span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.core.</span></span><span class="sig-name descname"><span class="pre">protein_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protein_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">pyCADD.utils.common.BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">pyCADD.utils.common.BaseFile</span></a></span></span><a class="reference internal" href="../_modules/pyCADD/Dynamic/core.html#protein_prepare"><span class="viewcode-link"><span class="pre">[源代码]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.core.protein_prepare" title="永久链接至目标"></a></dt>
-<dd><dl class="simple">
-<dt>预处理蛋白质PDB文件</dt><dd><p>PDB文件格式化 for Amber | 去除原生H原子 | 使用rudece添加H原子 | 再次格式化</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">参数</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>protein_file</strong> (<a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><em>BaseFile</em></a>) – 蛋白质PDB文件</p></li>
-<li><p><strong>save_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – 保存路径 过程及结果文件保存至该目录 如为None则保存至当前目录</p></li>
-</ul>
-</dd>
-<dt class="field-even">返回</dt>
-<dd class="field-even"><p>处理完成的蛋白质PDB文件</p>
-</dd>
-<dt class="field-odd">返回类型</dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
+<section id="pycadd-dynamic-core-module">
+<h2>pyCADD.Dynamic.core module<a class="headerlink" href="#pycadd-dynamic-core-module" title="永久链接至标题"></a></h2>
 </section>
-<section id="module-pyCADD.Dynamic">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyCADD.Dynamic" title="永久链接至标题"></a></h2>
+<section id="pycadd-dynamic-template-module">
+<h2>pyCADD.Dynamic.template module<a class="headerlink" href="#pycadd-dynamic-template-module" title="永久链接至标题"></a></h2>
+</section>
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="永久链接至标题"></a></h2>
 </section>
 </section>
 
@@ -491,7 +130,7 @@ crd: 含水蛋白坐标文件(_comsolvate.inpcrd)</p></li>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="pyCADD.Dock.html" class="btn btn-neutral float-left" title="pyCADD.Dock package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
-        <a href="pyCADD.Gauss.html" class="btn btn-neutral float-right" title="pyCADD.Gauss package" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="pyCADD.VSW.html" class="btn btn-neutral float-right" title="pyCADD.VSW package" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

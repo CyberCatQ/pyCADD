@@ -28,6 +28,14 @@ pyCADD.Dock.config module
    :undoc-members:
    :show-inheritance:
 
+pyCADD.Dock.console module
+--------------------------
+
+.. automodule:: pyCADD.Dock.console
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pyCADD.Dock.core module
 -----------------------
 
