@@ -4,6 +4,7 @@ import logging
 import requests
 import multiprocessing
 import functools
+from random import randint
 
 # For Schrodinger 2021-2 or newer release
 import importlib
@@ -53,6 +54,8 @@ def _multiprocssing_run(func, _iterable:Iterable, *args, job_name:str, num_paral
             logger.debug(f'Multiprocessing Warnning: {future.exception()}')
         else:
             returns.append(future.result())
+        # 避免同时更新进度条
+        # time.sleep(randint(1000, 3000) / 1000)
         progress.update(taskID, advance=1)
     '''
     def _error_handler(error:Exception):

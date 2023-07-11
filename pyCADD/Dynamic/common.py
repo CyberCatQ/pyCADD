@@ -69,18 +69,18 @@ class Processor:
         '''
         core._convert_mae_to_pdb(file_path)
 
-    def protein_prepare(self, pretein_file_path: str, keep_water: bool = False) -> None:
+    def protein_prepare(self, protein_file_path: str, keep_water: bool = False) -> None:
         '''
         为动力学模拟执行蛋白质结构预处理
 
         Parameters
         ----------
-        pretein_file_path : str
+        protein_file_path : str
             蛋白质结构文件路径
         keep_water : bool, optional
             是否保留输入结构中的水分子, 默认为 False
         '''
-        protein_file = BaseFile(pretein_file_path)
+        protein_file = BaseFile(protein_file_path)
         self.processed_profile = core.protein_prepare(
             protein_file, save_dir=PRO_RELATED_DIR, keep_water=keep_water)
         logger.info(

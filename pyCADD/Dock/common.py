@@ -195,11 +195,12 @@ class PDBFile(BaseFile):
         '''
         
         ligand_id = self.ligid if ligand_id is None else ligand_id
+        ligand_id = ligand_id.strip().upper()
         assert ligand_id is not None, 'Ligand ID is not specified.'
         _all_match_lig = [res for res in self.structure.residue if res.pdbres.strip() == ligand_id]
 
         if len(_all_match_lig) == 0:
-            raise ValueError('No ligand found in PDB file.')
+            raise ValueError(f'No ligand {ligand_id} found in PDB file.')
         elif len(_all_match_lig) == 1:
                 self.ligid = _all_match_lig[0].pdbres.strip()
                 self.lig_resnum = _all_match_lig[0].resnum
@@ -487,7 +488,9 @@ class ReceptorFile(MaestroFile):
     '''
     def __init__(self, path:str, ligand:str=None, lig_resnum:int=None) -> None:
         super().__init__(path, ligand, lig_resnum)
-        self.pdbid = self.pdbid if self.pdbid else self.file_name.split('-')[0]
+        _pdb_from_file = self.file_name.split('-')[0]
+        _pdb_from_file = _pdb_from_file if check_pdb(_pdb_from_file) else "Unspecified"
+        self.pdbid = self.pdbid if self.pdbid else _pdb_from_file
 
 class LigandFile(MaestroFile):
     '''
@@ -495,7 +498,9 @@ class LigandFile(MaestroFile):
     '''
     def __init__(self, path:str, ligand:str=None, lig_resnum:int=None) -> None:
         super().__init__(path, ligand, lig_resnum)
-        self.pdbid = self.pdbid if self.pdbid else self.file_name.split('-')[0]
+        _pdb_from_file = self.file_name.split('-')[0]
+        _pdb_from_file = _pdb_from_file if check_pdb(_pdb_from_file) else "Unspecified"
+        self.pdbid = self.pdbid if self.pdbid else _pdb_from_file
         self.ligand_name = ligand if ligand is not None else self.file_prefix
     
     def calc_admet(self, overwrite:bool=False):
@@ -636,14 +641,19 @@ class GridFile(BaseFile):
     '''
     def __init__(self, file_path: str, ligand:str=None, lig_resnum:int=None) -> None:
         super().__init__(file_path)
-        self.ligand = ligand
+        self.ligand = ligand if ligand is not None else "Unspecified"
         self.lig_resnum = lig_resnum
-        _pdbid_from_file = self.file_prefix.split('_')[0]
+        try:
+            _pdbid_from_file, _, internal_ligand = self.file_prefix.split('_')
+        except ValueError:
+            _pdbid_from_file = "Unspecified"
+            internal_ligand = "Unspecified"
         self.pdbid = _pdbid_from_file if check_pdb(_pdbid_from_file) else None
         # 共结晶配体名称
-        # sample grid file name: 1FBY_glide-grid_9CR.mae
-        self.internal_ligand = self.file_prefix.split('_')[2]
+        # sample grid file name: 1FBY_glide-grid_9CR.zip
+        self.internal_ligand = internal_ligand if internal_ligand is not None else "Unspecified"
 
+        
 class MultiInputFile(BaseFile):
     '''
     pyCADD受体列表输入文件

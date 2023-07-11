@@ -35,7 +35,7 @@ def minimize(pdbfile:PDBFile, side_chain:bool=True, missing_loop:bool=True, del_
     
 
     logger.debug('Prepare to minimize %s' % pdbfile.file_name)
-    # pdbid = pdbfile.pdbid if pdbfile.pdbid else 'unknown'
+    # pdbid = pdbfile.pdbid if pdbfile.pdbid else "Unspecified"
     ligand_id = pdbfile.ligid if pdbfile.ligid else None
     ligand_resnum = pdbfile.lig_resnum if pdbfile.lig_resnum else None
     
@@ -105,7 +105,7 @@ def grid_generate(complex_file:ComplexFile, gridbox_size:int=20, save_dir:str=No
         ligname = input('Ligand name is not specified in grid file. Please input the ligand name: ')
 
     lig_molnum = complex_file.get_lig_molnum(ligname, lig_resnum)
-    pdbid = complex_file.pdbid if complex_file.pdbid else 'unknown'
+    pdbid = complex_file.pdbid if complex_file.pdbid else "Unspecified"
     save_dir = save_dir if save_dir else os.getcwd()
     grid_file = os.path.join(save_dir, f'{pdbid}_glide-grid_{ligname}.zip')
     logger.debug(f'Prepare to generate grid file: {grid_file}')
@@ -171,7 +171,7 @@ def dock(grid_file:GridFile, lig_file:LigandFile, precision:str='SP', calc_rmsd:
     DockResultFile
         对接结果文件
     '''
-    pdbid = grid_file.pdbid if grid_file.pdbid else 'unknown'
+    pdbid = grid_file.pdbid if grid_file.pdbid is not None else "Unspecified"
     # 共结晶配体名称
     internal_ligand = grid_file.internal_ligand
     internal_ligand_resnum = grid_file.lig_resnum
@@ -226,7 +226,7 @@ def dock(grid_file:GridFile, lig_file:LigandFile, precision:str='SP', calc_rmsd:
         os.rename(output_file, dock_result_file)
     except Exception:
         #logger.debug(f'{pdbid}-{docking_ligand} Docking Failed')
-        raise RuntimeError(f'{pdbid}-{docking_ligand} Docking Failed')
+        raise RuntimeError(f'{pdbid}-{docking_ligand} Docking Failed. Check {job_name}.log for more information.')
 
     logger.debug(f'{pdbid}-{docking_ligand} Glide Docking Completed')
     logger.debug(f'Docking Result File: {dock_result_file} Saved.')
@@ -292,7 +292,7 @@ def calc_volume(recep_file:ReceptorFile, lig_file:LigandFile, overwrite:bool=Fal
     MaestroFile
         sitemap计算完成的文件
     '''
-    pdbid = recep_file.pdbid if recep_file.pdbid else 'unknown'
+    pdbid = recep_file.pdbid if recep_file.pdbid else "Unspecified"
     sitemap_result_file = '%s_sitemap_out.maegz' % pdbid
     logger.debug('Prepare to calculate volume of site in %s' % pdbid)
 

@@ -50,9 +50,13 @@ def extra_docking_data(dock_result_file:DockResultFile) -> dict:
     internal_ligand_name = dock_result_file.internal_ligand_name
     docking_ligand_name = dock_result_file.docking_ligand_name
     precision = dock_result_file.precision
-    
-    lig_st = dock_result_file.docking_ligand_st
-
+    try:
+        lig_st = dock_result_file.docking_ligand_st
+    except IndexError:
+        # logger.warning('DockResultFile may have ligand structure only.')
+        dock_result_file.ligand_only = True
+        lig_st = dock_result_file.docking_ligand_st
+        
     prop_dic = {}
 
     # 需要提取的Property 公共项
@@ -177,6 +181,9 @@ def save_ensemble_docking_data(data_list:list, precision:str='SP', configs:DataC
     configs : DataConfig
         数据提取项配置
     '''
+    if len(data_list) == 0:
+        raise ValueError('Data list is empty.')
+    
     save_dir = os.getcwd() if save_dir is None else save_dir
     property_config = DefaultDataConfig(precision) if configs is None else configs
     fields = property_config.properties

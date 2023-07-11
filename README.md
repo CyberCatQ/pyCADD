@@ -11,6 +11,20 @@ pyCADD
 * 支持CLI快速调用
 
 ## 更新日志
+* 1.6.5 (2023-04-28)
+  * 修复 Dock 开展 Ensemble Docking 完成时数据提取的BUG
+  * 调整了一些代码的位置便于后续维护
+  * 修复了一些其它 BUG
+  
+* 1.6.4 (2023-03-15)
+  * Dynamic 支持自动化准备和模拟Apo蛋白
+  * 为 Dynamic-Analyzer 添加了氢键lifetime分析功能
+  * MD后处理分析默认工作流移除了提取最低能量构象的功能
+  * 除非有log信息输出，否则 pyCADD 不再生成空log文件
+  * Gauss 模块更名为 Density 模块
+  * query 模块更名为 Demand 模块
+  * 一些 Bug 修复
+  
 * 1.6.3 (2022-10-27)
   * 修改了 Dock 模块的对接函数调用 不再使用Schrodinger任务管理层
     * 显著降低无意义时间损耗 提升 Ensemble Docking 速度
@@ -54,7 +68,7 @@ pyCADD
   
 ### Python Version  
 
-* 3.9 or Higher  
+* 3.8 or Higher  
 
 <a id='python-modules'></a>
 ### Python Modules  
@@ -82,9 +96,8 @@ pyCADD
 | -----------------  | -------- |
 |*Dock* | 自动执行PDB晶体获取、优化、格点文件生成、对接等命令 |
 |*Dance*    | 数据处理脚本集合  |  
-|*VSW*            | 自动化虚拟筛选 |
-|*query* | 自动化晶体信息查询与解析 |
-|*Gauss* | 自动编写高斯结构优化、单点能、TDDFT等计算任务输入文件并启动计算任务 |
+|*Demand* | 自动化晶体信息查询与解析 |
+|*Density* | 自动编写高斯结构优化、单点能、TDDFT等计算任务输入文件并启动计算任务 |
 |*Dynamic* | 自动化分子动力学模拟准备与运行 自动化分子动力学模拟后处理分析 |
 
 ## How to Use
@@ -105,8 +118,8 @@ pyCADD
 | CLI | Module |
 | ---- | ------ |
 | `pycadd-dock` | *Dock* |
-| `pycadd-query` | *query* |
-| `pycadd-gauss` | *Gauss* |
+| `pycadd-demand` | *Demand* |
+| `pycadd-density` | *Density* |
 | `pycadd-dynamic` | *Dynamic* |
 | `pycadd-dynamic analysis` | *Dynamic-Analyzer* |
 
@@ -129,5 +142,5 @@ pyCADD
 
 YH. W  
 School of Pharmaceutical Sciences, Xiamen University  
-Copyight © 2022 XMU   
-2022-10-27
+Copyight © 2023 XMU   
+2023-04-28
