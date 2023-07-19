@@ -26,7 +26,7 @@ def _env_check(env_value):
     try:
         env = os.environ[env_value]
     except KeyError:
-        env = None
+        env = ''
     return env
 
 SCHRODINGER = _env_check('SCHRODINGER')
@@ -58,15 +58,15 @@ class UI:
         self.amber_check = True
 
         if not self.schrodinger:
-            self.schrodinger = Text('Not installed', style='bold red')
+            self.schrodinger = Text('Not installed', style='bold red u')
             self.schrodinger_check = False
         
         if not self.gauss_dir:
-            self.gauss_dir = Text('Not installed', style='bold red')
+            self.gauss_dir = Text('Not installed', style='bold red u')
             self.gauss_check = False
         
         if not self.amber_dir:
-            self.amber_dir = Text('Not installed', style='bold red')
+            self.amber_dir = Text('Not installed', style='bold red u')
             self.amber_check = False
             
     @property

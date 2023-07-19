@@ -25,10 +25,8 @@ class BaseQueryCfg:
 				type
 				unit
 			}
-			pdbx_vrpt_summary{
-				PDB_resolution
-			}
 			rcsb_entry_info {
+       			resolution_combined
 				deposited_nonpolymer_entity_instance_count
 				deposited_polymer_entity_instance_count
 			}

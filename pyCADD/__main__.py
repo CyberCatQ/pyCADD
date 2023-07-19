@@ -52,7 +52,8 @@ def main():
         os.system('python -m pyCADD.Density')
     
     elif flag == '1':
-        os.system('python -m pyCADD.Demand')
-        
+        uniprot_id = input('Enter the Uniprot ID: ')
+        os.system(f'python -m pyCADD.Demand {uniprot_id}')
+
 if __name__ == '__main__':
     main()

@@ -35,11 +35,14 @@ def query_uniprot(uniprot_id:str, save_path:str=None):
     # with request.urlopen(req) as f:
     #     result = f.read().decode('utf-8')
     
-    req = requests.get(UNIPROT_URL + uniprot_id + '?format=json&fields=xref_pdb').text
+    req = requests.get(UNIPROT_URL + uniprot_id + '?format=json&fields=xref_pdb')
+    if req.status_code != 200:
+        raise ValueError(f'Uniprot ID: {uniprot_id} is not found.')
+    
     if save_path is not None:
         with open(save_path, 'w') as f:
             # f.write(result)
-            f.write(req)
+            f.write(req.text)
 
 def parse_uniport(uniprot_file_path):
     # df = pd.read_csv(uniprot_file_path, sep='\t', header=None, names=['ACC', 'PDB'])
@@ -48,7 +51,10 @@ def parse_uniport(uniprot_file_path):
         data = json.load(f)
     
     data = pd.DataFrame(data['uniProtKBCrossReferences'])
-    pdb_list = data['id'].to_list()
+    try:
+        pdb_list = data['id'].to_list()
+    except KeyError:
+        raise ValueError(f'Uniprot ID {os.path.basename(uniprot_file_path).split(".")[0]} has no PDB crystal data.')
     return pdb_list
 
 def query_pdb(pdb_list, save_path=None, quert_cfg=None):
@@ -101,6 +107,8 @@ class QueryClient:
             self.pdb_list = parse_uniport(os.path.join(self.uniprot_save_dir, self.uniprot_id + '.json'))
         save_path = os.path.join(self.pdb_save_dir, self.uniprot_id + '.json')
         self.data_dict = query_pdb(self.pdb_list, save_path, self.pdb_query_cfg)
+        if self.data_dict is None:
+            raise ValueError(f'Uniprot ID: {self.uniprot_id} has no PDB crystal data.')
         self._parse_json()
     
     def _parse_json(self):
@@ -111,7 +119,7 @@ class QueryClient:
             d = {}
             d['PDBID'] = dic_pdb['rcsb_id']  # PDB ID
             d['title'] = dic_pdb['struct']['title']  # 标题
-            d['resolution'] = dic_pdb['pdbx_vrpt_summary']['PDB_resolution']  # 分辨率
+            d['resolution'] = dic_pdb['rcsb_entry_info']['resolution_combined']  # 分辨率
             d['reference'] = dic_pdb['rcsb_primary_citation']['title']  # 参考文献
             d['authors'] = ''.join(i + ' ' for i in dic_pdb['rcsb_primary_citation']['rcsb_authors'])  # 作者
             d['DOI'] = dic_pdb['rcsb_primary_citation']['pdbx_database_id_DOI']  # DOI
@@ -169,7 +177,7 @@ class QueryClient:
                 self.apo.append(pdb['rcsb_id'])
                 continue
             if cutoff is not None:
-                resolution = pdb['pdbx_vrpt_summary']['PDB_resolution']
+                resolution = pdb['pdbx_vrpt_summary']['resolution_combined']
                 if resolution is None or float(resolution) > cutoff:
                     continue
                 
@@ -237,7 +245,6 @@ class QueryClient:
                     
             with open(path, 'w') as f:
                 yaml.dump({self.uniprot_id: self.output_data}, f)
-            return
 
         elif _format == 'csv':
             with open(path, 'w') as f:
@@ -252,4 +259,6 @@ class QueryClient:
                 f.write(f'[{self.uniprot_id}]\n')
                 for pdb, ligs in self.output_data.items():
                     f.write(f'{pdb}:{ligs}\n')
+        
+        logger.info(f'Results is saved to {path}.')
             
