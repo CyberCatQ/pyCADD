@@ -13,6 +13,13 @@ def cli_main():
     '''
     pass
 
+@cli_main.command(short_help='Download PDB file from RCSB.')
+@click.argument('pdb_id')
+@click.option('--save_dir', '-s', default=os.getcwd(), help='Directory to save the PDB file.')
+def download(pdb_id, save_dir):
+    from pyCADD.utils.tool import download_pdb
+    download_pdb(pdb_id, save_dir)
+
 @cli_main.command(short_help='Keep the singel chain that binding HET.')
 @click.argument('pdb_file_path')
 @click.option('--ligand', '-l', required=True, help='Resid of residue defined as Ligand.')

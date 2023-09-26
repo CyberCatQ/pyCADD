@@ -163,8 +163,7 @@ def analysis(y, sp, lp, rp, cp, ro, no_hbond, no_rmsd, no_rmsf, decomp, nmode, p
     Workflow:\n
         1. Calculate RMSD\n
         2. Calculate RMSF\n
-        3. Extract lowest energy structure\n
-        4. Calculate and trace hydrogen bonds\n
+        3. Calculate and trace distance and angle of hydrogen bonds\n
         [Optional]\n
         * Perform MM-GBSA energy decomposition\n
         * Calculate entropy with normal mode\n
