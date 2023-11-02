@@ -477,7 +477,8 @@ class HeatInput:
 
     def __init__(
             self, tgt_temperature: float = 300.0, heat_step: int = 9000,
-            total_step: int = 10000, step_length: float = 0.002) -> None:
+            total_step: int = 10000, step_length: float = 0.002, 
+            restraint_wt: float = None, restraintmask: str = None) -> None:
         """
         System Heating Config Constructor.
 
@@ -492,6 +493,10 @@ class HeatInput:
             Total steps of heating progress. Defaults to 10000.
         step_length: float, optional
             Length of each step. Defaults to 0.002.
+        restraint_wt: float, optional
+            Weight of the restraint. Defaults to None.
+        restraintmask: str, optional
+            Mask of the restraint. Defaults to None.
         """
         self.stage_1_dict = self.HEAT_TEMPLATE.copy()
         self.stage_1_dict.update({
@@ -510,6 +515,8 @@ class HeatInput:
         self.heat_step = heat_step
         self.total_step = total_step
         self.step_length = step_length
+        self.restraint_wt = restraint_wt
+        self.restraintmask = restraintmask
 
         self.manager = MultiConstructorManager()
 
@@ -540,7 +547,11 @@ class HeatInput:
 
     def _default_workflow(self) -> None:
         if self.manager.is_empty():
-            self.add_nvt()
+            if self.restraint_wt is not None and self.restraintmask is not None:
+                self.add_nvt(restraintmask=self.restraintmask,
+                             restraint_wt=self.restraint_wt)
+            else:
+                self.add_nvt()
             self.add_heat()
 
     def to_string(self) -> str:

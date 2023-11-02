@@ -340,6 +340,7 @@ class Processor:
         self, tgt_temp: float = 300.0,
         heat_step: int = 9000, total_step: int = 10000,
         step_length: float = 0.002, file_name: str = None,
+        restraint_wt: float = None, restraint_mask: str = None
     ) -> BaseFile:
         '''
         创建体系加热阶段输入文件
@@ -356,7 +357,11 @@ class Processor:
             步长, 默认0.002 ps
         file_name : str, optional
             输入文件名, 默认heat.in
-
+        restraint_wt : float, optional
+            约束力常数, 默认为None, 不使用约束
+        restraint_mask : str, optional
+            约束原子的Amber Mask, 启用restraint时必须指定.
+            
         Returns
         -------
         BaseFile
