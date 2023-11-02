@@ -235,6 +235,16 @@ class MultiConstructorManager:
     def __init__(self, constructor_list: list[BaseConstructor] = None) -> None:
         self.constructor_list = constructor_list if constructor_list is not None else []
 
+    @property
+    def _state_dict(self) -> dict:
+        _state_dict = dict()
+        if len(self.constructor_list) == 0:
+            return _state_dict
+        else:
+            for constructor in self.constructor_list:
+                _state_dict.update(constructor.get_state_dict())
+            return _state_dict
+    
     def is_empty(self) -> bool:
         return len(self.constructor_list) == 0
 
@@ -520,6 +530,13 @@ class HeatInput:
 
         self.manager = MultiConstructorManager()
 
+    @property
+    def _state_dict(self) -> dict:
+        return self.manager._state_dict
+    
+    def get_state_dict(self) -> dict:
+        return self._state_dict
+    
     def add_nvt(self, **kwargs) -> None:
         nvt_part = NVTInput(
             end_cfg=False,

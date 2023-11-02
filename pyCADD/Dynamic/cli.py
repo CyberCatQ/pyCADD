@@ -57,11 +57,11 @@ def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, par
     processor.add_minimize_process(process_name='stepB', restraint=True, restraint_mask=f"':{water_resnum_start}-{water_resnum_end}'")
     processor.add_minimize_process(process_name='stepC')
     processor.add_heat_process()
+    restraintmask = "'!(:WAT,Na+,Cl-,K+,K) & !@H= & !@H'"
+    for rest_wt in [4.0, 3.5, 3.0, 2.5, 2.0, 1.0, 0]:
+        processor.add_npt_process(total_step=5000, process_name=f'eq_npt_reswt{rest_wt}', restraint_wt=rest_wt, restraintmask=restraintmask)
     processor.add_npt_process(total_step=500000, process_name='eq_npt')
     processor.add_nvt_process(total_step=500000, process_name='eq_nvt')
-    restraintmask = "!(:WAT,Na+,Cl-,K+,K) & !@H= & !@H & !(@CA,C,N,O)"
-    for rest_wt in [4.0, 3.5, 3.0, 2.5, 2.0, 1.0, 0]:
-        processor.add_npt_process(total_step=500000, process_name=f'eq_npt_reswt{rest_wt}', restraint_wt=rest_wt, restraintmask=restraintmask, nstlim=5000)
     processor.add_npt_process(total_step=step_num, is_production=True, process_name='production')
     
     # Run simulation
@@ -112,12 +112,12 @@ def prepare(protein_file, molecule_file, charge, multiplicity, solvent, prefix, 
     processor.creat_minimize_input(restraint=True, restraint_mask=f"':{water_resnum_start}-{water_resnum_end}'", file_name="stepB.in")
     processor.creat_minimize_input(file_name="stepC.in")
     processor.creat_heat_input(file_name="heat.in")
+    # restraint md equilibration
+    restraintmask = "'!(:WAT,Na+,Cl-,K+,K) & !@H= & !@H'"
+    for rest_wt in [4.0, 3.5, 3.0, 2.5, 2.0, 1.0, 0]:
+        processor.creat_npt_input(total_step=5000, file_name=f"eq_npt_reswt{rest_wt}.in", restraint_wt=rest_wt, restraintmask=restraintmask)
     processor.creat_npt_input(total_step=500000, file_name="eq_npt.in")
     processor.creat_nvt_input(total_step=500000, file_name="eq_nvt.in")
-    # restraint md equilibration
-    restraintmask = "!(:WAT,Na+,Cl-,K+,K) & !@H= & !@H & !(@CA,C,N,O)"
-    for rest_wt in [4.0, 3.5, 3.0, 2.5, 2.0, 1.0, 0]:
-        processor.creat_npt_input(total_step=500000, file_name=f"eq_npt_reswt{rest_wt}.in", restraint_wt=rest_wt, restraintmask=restraintmask, nstlim=5000)
     processor.creat_npt_input(total_step=step_num, file_name="production.in")
 
 @main.command(short_help='Running molecular dynamics simulation with prepared files.')
@@ -138,10 +138,10 @@ def simulate(top_file, inpcrd_file, with_gpu):
     processor.add_process('input_file/stepB.in', 'stepB', 'minimize')
     processor.add_process('input_file/stepC.in', 'stepC', 'minimize')
     processor.add_process('input_file/heat.in', 'heat')
+    for rest_wt in [4.0, 3.5, 3.0, 2.5, 2.0, 1.0, 0]:
+        processor.add_process(f'input_file/eq_npt_reswt{rest_wt}.in', f'eq_npt_reswt{rest_wt}', 'npt')
     processor.add_process('input_file/eq_npt.in', 'eq_npt', 'npt')
     processor.add_process('input_file/eq_nvt.in', 'eq_nvt', 'nvt')
-    for rest_wt in [4.0, 3.5, 3.0, 2.5, 2.0, 1.0, 0]:
-        processor.add_process(f'input_file/eq_npt_reswt{rest_wt}.in', f'eq_npt_reswt{rest_wt}', 'npt', nstlim=5000)
     processor.add_process('input_file/production.in', 'production', 'npt')
     simulator = Simulator(processor)
     simulator.run_simulation(with_gpu)

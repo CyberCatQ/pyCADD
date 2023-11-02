@@ -331,8 +331,9 @@ class Processor:
 
         logger.info(
             f'Minimize process input file created for {file_name.split(".")[0]}.')
-        logger.info(
-            f'maxcyc: {maxcyc}, ncyc: {ncyc}, restraint: {restraint}, restraint mask: {restraint_mask}')
+        # logger.info(
+        #     f'maxcyc: {maxcyc}, ncyc: {ncyc}, restraint: {restraint}, restraint mask: {restraint_mask}')
+        logger.info(f"{constructor.get_state_dict()}")
 
         return BaseFile(file_path)
 
@@ -378,8 +379,9 @@ class Processor:
 
         logger.info(
             f'Heat process input file created for {file_name.split(".")[0]}.')
-        logger.info(
-            f'tgt_temp: {tgt_temp}, heat_step: {heat_step}, total_step: {total_step}')
+        # logger.info(
+        #     f'tgt_temp: {tgt_temp}, heat_step: {heat_step}, total_step: {total_step}')
+        logger.info(f"{constructor.get_state_dict()}")
 
         return BaseFile(file_path)
 
@@ -422,8 +424,9 @@ class Processor:
 
         logger.info(
             f'NVT process input file created for {file_name.split(".")[0]}.')
-        logger.info(
-            f'temp0: {temp0}, total_step: {total_step}, step_length: {step_length}, irest: {irest}, ntx: {ntx}')
+        # logger.info(
+        #     f'temp0: {temp0}, total_step: {total_step}, step_length: {step_length}, irest: {irest}, ntx: {ntx}')
+        logger.info(f"{constructor.get_state_dict()}")
 
         return BaseFile(file_path)
 
@@ -466,9 +469,10 @@ class Processor:
         constructor.save(file_path)
 
         logger.info(
-            f'NPT process input file created for {file_name.split(".")[0]}.')
-        logger.info(
-            f'temp0: {temp0}, total_step: {total_step}, step_length: {step_length}, irest: {irest}, ntx: {ntx}, taup: {taup}')
+            f'NPT process input file created for {file_name.split(".in")[0]}.')
+        # logger.info(
+        #     f'temp0: {temp0}, total_step: {total_step}, step_length: {step_length}, irest: {irest}, ntx: {ntx}, taup: {taup}')
+        logger.info(f"{constructor.get_state_dict()}")
 
         return BaseFile(file_path)
 
