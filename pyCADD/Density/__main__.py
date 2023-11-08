@@ -1,11 +1,12 @@
 import sys
-
+import argparse
 from pyCADD.Density.ui import UI_Gauss
 
 def main():
+    args = arg_parse()
     enter_text = '[bold]Enter the Code of Options'
-    if len(sys.argv) != 1:
-        original_st = sys.argv[1]
+    if args.original_st is not None:
+        original_st = args.original_st
     else:
         original_st = None
     ui_gauss = UI_Gauss(original_st=original_st)
@@ -18,6 +19,12 @@ def main():
         ui_gauss.run(flag)
         if flag not in '123':
             break
+        
+def arg_parse():
+    parser = argparse.ArgumentParser(description='pyCADD Density module for gaussian calculation')
+    parser.add_argument('original_st', nargs='?', help='The initial structure file.', default=None)
+    args = parser.parse_args()
+    return args
 
 if __name__ == '__main__':
     main()

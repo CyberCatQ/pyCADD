@@ -36,7 +36,7 @@ class UI_Gauss(UI):
         else:
             self.origin_st = original_st
         logger.debug('Origin file: %s' % self.origin_st)
-        self.create_panel(additional_info={ "origin" : 'Original structure file: [bright_cyan]%s[/]' % self.origin_st}, show_panel=False)
+        self.create_panel(additional_info={ "origin" : 'Initial structure file: [bright_cyan]%s[/]' % self.origin_st}, show_panel=False)
         
         self.gauss = Gauss(self.origin_st)
         self.create_panel(self.main_options, additional_info = {"file_type": 'File type: [bright_cyan]%s[/]' % self.gauss.file_type})
@@ -88,8 +88,12 @@ class UI_Gauss(UI):
         获取并检查原始结构文件路径
         '''
 
-        origin_st = self.get_input(
-            'Need an original structure for calculation.\nEnter the file path of molecule structure')
+        try:
+            origin_st = self.get_input(
+            'Need an initial structure for calculation.\nEnter the file path of molecule structure')
+        except KeyboardInterrupt:
+            print('\nCanceled by user.')
+            exit()
         if os.path.exists(origin_st):
             self.origin_st = origin_st
         else:
