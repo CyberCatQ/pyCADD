@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="构建Dock输入文件时的规范" href="input_file_fmt.html" />
+    <link rel="next" title="Dock User Guide" href="dock.html" />
     <link rel="prev" title="pyCADD Documentation" href="index.html" /> 
 </head>
 
@@ -48,30 +48,28 @@
 <li class="toctree-l2"><a class="reference internal" href="#id1">功能特性</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id2">更新日志</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#platform">Platform</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#required">Required</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#attention">！Attention</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#python-version">Python Version</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#python-modules">Python Modules</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#note">NOTE:</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#note">NOTE</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#additional-requirements">Additional Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#attention">！Attention</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#pycadd-function">pyCADD Function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-use">How to Use</a></li>
 </ul>
 </li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="input_file_fmt.html">构建Dock输入文件时的规范</a></li>
-</ul>
 <p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dock.html">Dock User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dance.html">Dance User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gauss.html">Gauss Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dynamic.html">Dynamic Quick User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="density.html">Density User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dynamic.html">Dynamic User Guide</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
@@ -186,29 +184,13 @@
 <li><p>Linux</p></li>
 </ul>
 </section>
-<section id="required">
-<h2>Required<a class="headerlink" href="#required" title="Permalink to this heading"></a></h2>
-<ul class="simple">
-<li><p><a class="reference external" href="https://www.schrodinger.com/">Schrodinger Suite</a>2020-3 或更高版本</p></li>
-<li><p><a class="reference external" href="http://ambermd.org/">AMBER</a> 18 或更高版本</p></li>
-<li><p><a class="reference external" href="http://gaussian.com/">Gaussian</a> 16.A01 或更高版本</p></li>
-<li><p><a class="reference external" href="http://sobereva.com/multiwfn/">Multiwfn</a> 3.7 或更高版本</p></li>
-<li><p><a class="reference external" href="https://openbabel.org/">OpenBabel</a> 2.4 或更高版本</p></li>
-<li><p>CUDA 9.0 或以上版本(Optional)</p></li>
-</ul>
-<section id="attention">
-<h3>！Attention<a class="headerlink" href="#attention" title="Permalink to this heading"></a></h3>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 不包含以上所需程序的安装与许可证 您需要自行获得授权并安装恰当</p></li>
-<li><p>使用本应用程序进行学术研究必须遵守以上所需各程序的相关文献引用规定</p></li>
-</ul>
-</section>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading"></a></h2>
 <section id="python-version">
 <h3>Python Version<a class="headerlink" href="#python-version" title="Permalink to this heading"></a></h3>
 <ul class="simple">
 <li><p>3.8 or Higher</p></li>
 </ul>
-<p><a id='python-modules'></a></p>
 </section>
 <section id="python-modules">
 <h3>Python Modules<a class="headerlink" href="#python-modules" title="Permalink to this heading"></a></h3>
@@ -225,23 +207,33 @@
 <li><p>scipy</p></li>
 </ul>
 <section id="note">
-<h4>NOTE:<a class="headerlink" href="#note" title="Permalink to this heading"></a></h4>
-<p>使用<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pyCADD</span></code>命令时 将自动安装所需的packages</p>
-<p>您也可以使用<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&lt;package&gt;</span></code>命令安装</p>
+<h4>NOTE<a class="headerlink" href="#note" title="Permalink to this heading"></a></h4>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pyCADD</span></code> 命令时 将自动安装所需的packages</p>
+<p>您也可以使用 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&lt;package&gt;</span></code> 命令安装</p>
 </section>
 </section>
+<section id="additional-requirements">
+<h3>Additional Requirements<a class="headerlink" href="#additional-requirements" title="Permalink to this heading"></a></h3>
+<p>pyCADD的不同模块需要安装不同的软件来完成自动化工作流。如您仅需要使用其中的部分功能, 可根据您的需求仅安装相应的软件。<br />当模块缺少必要软件时，您可能会在控制台看到相应的提示信息。</p>
+<p>| Module   |  Software   | Version |
+| —————–  | ——– | ——– |
+| Dock     | <a class="reference external" href="https://www.schrodinger.com/">Schrodinger Suite</a> | 2020-3 or newer |
+| Dynamic  | <a class="reference external" href="http://ambermd.org/">AMBER</a> | 18 or newer |
+| Density &amp; Dynamic | <a class="reference external" href="http://gaussian.com/">Gaussian</a> | 16.A01 or newer |
+| Dynamic | <a class="reference external" href="http://sobereva.com/multiwfn/">Multiwfn</a> |3.7 or newer |
+| Dynamic | <a class="reference external" href="https://openbabel.org/">OpenBabel</a>  | 2.4 or newer |
+| Dynamic | <a class="reference external" href="https://developer.nvidia.com/cuda-zone">CUDA</a> | 9.0 or newer(optional) |</p>
 </section>
-<section id="pycadd-function">
-<h2>pyCADD Function<a class="headerlink" href="#pycadd-function" title="Permalink to this heading"></a></h2>
-<p>|        Name        | Function |
-| —————–  | ——– |
-|<em>Dock</em> | 自动执行PDB晶体获取、优化、格点文件生成、对接等命令 |
-|<em>Dance</em>    | 数据处理脚本集合  |<br />|<em>Demand</em> | 自动化晶体信息查询与解析 |
-|<em>Density</em> | 自动编写高斯结构优化、单点能、TDDFT等计算任务输入文件并启动计算任务 |
-|<em>Dynamic</em> | 自动化分子动力学模拟准备与运行 自动化分子动力学模拟后处理分析 |</p>
+<section id="attention">
+<h3>！Attention<a class="headerlink" href="#attention" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 不包含以上所需程序的安装与许可证 您需要自行获得授权并安装恰当</p></li>
+<li><p>使用本应用程序进行学术研究必须遵守以上所需各程序的相关文献引用规定</p></li>
+</ul>
 </section>
-<section id="how-to-use">
-<h2>How to Use<a class="headerlink" href="#how-to-use" title="Permalink to this heading"></a></h2>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code>已发布至PyPI</p>
 <p>使用命令</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">pyCADD</span>
@@ -257,18 +249,31 @@
 | <code class="docutils literal notranslate"><span class="pre">pycadd-density</span></code> | <em>Density</em> |
 | <code class="docutils literal notranslate"><span class="pre">pycadd-dynamic</span></code> | <em>Dynamic</em> |
 | <code class="docutils literal notranslate"><span class="pre">pycadd-dynamic</span> <span class="pre">analysis</span></code> | <em>Dynamic-Analyzer</em> |</p>
-<p>使用如</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pycadd</span><span class="o">-</span><span class="n">dock</span> <span class="o">--</span><span class="n">help</span>
-<span class="n">pycadd</span><span class="o">-</span><span class="n">dynamic</span> <span class="o">--</span><span class="n">help</span>
-<span class="n">pycadd</span><span class="o">-</span><span class="n">dock</span> <span class="n">ensemble</span><span class="o">-</span><span class="n">dock</span> <span class="o">--</span><span class="n">help</span>
+</section>
+<section id="pycadd-function">
+<h2>pyCADD Function<a class="headerlink" href="#pycadd-function" title="Permalink to this heading"></a></h2>
+<p>|        Name        | Function |
+| —————–  | ——– |
+|<em>Dock</em> | 自动执行PDB晶体获取、优化、格点文件生成、对接等命令 |
+|<em>Dance</em>    | 数据处理脚本集合 |<br />|<em>Demand</em> | 自动化晶体信息查询与解析 |
+|<em>Density</em> | 自动编写高斯结构优化、单点能、TDDFT等计算任务输入文件并启动计算任务 |
+|<em>Dynamic</em> | 自动化 AMBER MD模拟准备与运行 自动化MD模拟后处理分析 |</p>
+</section>
+<section id="how-to-use">
+<h2>How to Use<a class="headerlink" href="#how-to-use" title="Permalink to this heading"></a></h2>
+<p>请参阅<a class="reference external" href="https://cybercatq.github.io/pyCADD">文档</a>中的各模块使用指南。</p>
+<p>或使用</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-dock<span class="w"> </span>--help
+pycadd-dynamic<span class="w"> </span>--help
+pycadd-dock<span class="w"> </span>ensemble-dock<span class="w"> </span>--help
 </pre></div>
 </div>
-<p>样式的命令来获取各模块的更多帮助信息。</p>
-<p>各模块使用指南及更多帮助信息, 请参阅<a class="reference external" href="https://cybercatq.github.io/pyCADD">API文档</a>。</p>
+<p>样式的命令来获取各模块的更多帮助信息。
+各模块使用指南及更多帮助信息, 请参阅<a class="reference external" href="https://cybercatq.github.io/pyCADD">API文档</a>。</p>
 <hr class="docutils" />
-<p><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 完全基于开发者自身实际需求开发, 更多其他功能及模块的使用教程尚未撰写, 请参阅<a class="reference external" href="https://cybercatq.github.io/pyCADD">API文档</a>。<br />如果您有任何问题或建议, 请在<a class="reference external" href="https://github.com/CyberCatQ/pyCADD">项目主页</a>提交Issue。</p>
+<p><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 完全基于开发者自身实际需求开发, 更多其他功能及模块的使用教程尚未完全撰写, 但具有详尽注释。可参阅<a class="reference external" href="https://cybercatq.github.io/pyCADD">文档</a>API部分及注释。<br />如果您有任何问题或建议, 请在<a class="reference external" href="https://github.com/CyberCatQ/pyCADD">项目主页</a>提交Issue。<br />如果任何模块对您有帮助，欢迎为此项目点亮星星。</p>
 <p>此脚本仅限于学习和批评使用, 请勿用作其他用途。<br />源码仅包含中文注释。</p>
-<p>YH. W<br />School of Pharmaceutical Sciences, Xiamen University<br />Copyight © 2023 XMU<br />2023-04-28</p>
+<p>YH. W<br />School of Pharmaceutical Sciences, Xiamen University<br />Copyight © 2023 XMU<br />2023-11-08</p>
 </section>
 </section>
 
@@ -277,7 +282,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="index.html" class="btn btn-neutral float-left" title="pyCADD Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="input_file_fmt.html" class="btn btn-neutral float-right" title="构建Dock输入文件时的规范" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="dock.html" class="btn btn-neutral float-right" title="Dock User Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

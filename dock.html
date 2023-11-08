@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dock Quick Start &mdash; pyCADD 1.6.5 documentation</title>
+  <title>Dock User Guide &mdash; pyCADD 1.6.5 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Dance User Guide" href="dance.html" />
-    <link rel="prev" title="构建Dock输入文件时的规范" href="input_file_fmt.html" /> 
+    <link rel="prev" title="pyCADD" href="README.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,19 +46,19 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="README.html">pyCADD</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="input_file_fmt.html">构建Dock输入文件时的规范</a></li>
-</ul>
 <p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Dock Quick Start</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#docking-of-many-to-one-function">Docking of Many-to-One Function</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#docking-of-one-to-many-function">Docking of One-to-Many Function</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Dock User Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#docking-of-many-to-one">Docking of Many-to-One</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#docking-of-one-to-many-many-to-many">Docking of One-to-Many &amp; Many-to-many</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dock">为系综对接构建Dock输入文件的示例</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#note">Note</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="dance.html">Dance User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="density.html">Density User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamic.html">Dynamic Quick User Guide</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
@@ -80,7 +80,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Dock Quick Start</li>
+      <li class="breadcrumb-item active">Dock User Guide</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/dock.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -90,21 +90,34 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="dock-quick-start">
-<h1>Dock Quick Start<a class="headerlink" href="#dock-quick-start" title="Permalink to this heading"></a></h1>
+  <section id="dock-user-guide">
+<h1>Dock User Guide<a class="headerlink" href="#dock-user-guide" title="Permalink to this heading"></a></h1>
+<p>Dock 模块是通过串联分子对接软件 python API 来实现各类分子设计与评估功能、筛选等工作流的自动化模块。<br />目前, Dock 仅针对 Schrodinger Suites 进行开发，并计划在未来添加更多主流分子对接软件的支持。</p>
 <p><strong>注意</strong></p>
 <ul class="simple">
 <li><p>由于Schrodinger Suite使用了闭源环境提供Python API调用, 使用 <code class="docutils literal notranslate"><span class="pre">Dock</span></code> 模块相关功能(包括CLI命令)脚本时, 应该保证您正处于由 Schrodinger 建立的虚拟环境中，并在该环境中安装包括 <code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 在内所有需要的<a class="reference external" href="#python-modules">Python Modules</a></p></li>
-<li><p>要使用Schrodinger内部脚本创建虚拟环境, 请参阅 <a class="reference external" href="https://content.schrodinger.com/Docs/r2022-1/python_api/intro.html#general-python-information">如何建立Schrodinger Python Virtual Env</a></p></li>
-<li><p>在Schrodinger内部环境中安装额外的python packages, 请使用<code class="docutils literal notranslate"><span class="pre">run</span> <span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&lt;package&gt;</span></code>命令或参阅<a class="reference external" href="https://www.schrodinger.com/pythonapi/">Schrodinger Python API 文档</a></p></li>
+<li><p>使用</p></li>
 </ul>
-<section id="docking-of-many-to-one-function">
-<h2>Docking of Many-to-One Function<a class="headerlink" href="#docking-of-many-to-one-function" title="Permalink to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$SCHRODINGER/run schrodinger_virtualenv.py schrodinger.ve
+source schrodinger.ve/bin/activate
+</pre></div>
+</div>
+<p>命令可在当前目录下创建名为<code class="docutils literal notranslate"><span class="pre">schrodinger.ve</span></code>的虚拟环境并激活。<br />更多信息请参阅 <a class="reference external" href="https://content.schrodinger.com/Docs/r2022-1/python_api/intro.html#per-user-virtual-environments-for-installing-additional-modules">如何建立Schrodinger Python Virtual Env</a></p>
+<ul class="simple">
+<li><p>然后，您还需要在Schrodinger内部环境中使用</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">pycadd</span> <span class="o">-</span><span class="n">U</span>
+</pre></div>
+</div>
+<p>来将 <code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 安装到虚拟环境中。</p>
+<section id="docking-of-many-to-one">
+<h2>Docking of Many-to-One<a class="headerlink" href="#docking-of-many-to-one" title="Permalink to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> UI 的 <code class="docutils literal notranslate"><span class="pre">1.</span> <span class="pre">Dock</span> <span class="pre">Mode</span></code> 提供了将一个或多个配体对接于单个受体结构的功能<br />运行 <code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 选择模式1并使用功能6 提供包含一个多个配体的单一 <code class="docutils literal notranslate"><span class="pre">.mae</span></code> 或 <code class="docutils literal notranslate"><span class="pre">.maegz</span></code> 的文件路径即可</p>
 </section>
-<section id="docking-of-one-to-many-function">
-<h2>Docking of One-to-Many Function<a class="headerlink" href="#docking-of-one-to-many-function" title="Permalink to this heading"></a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 的 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">ensemble-dock</span></code> 接口提供了高性能多核并行集合式对接计算及数据处理<br />请确保当前工作目录 (Current Working Directory) 在您想要保存项目文件的目录中, 并在目录中额外准备：</p>
+<section id="docking-of-one-to-many-many-to-many">
+<h2>Docking of One-to-Many &amp; Many-to-many<a class="headerlink" href="#docking-of-one-to-many-many-to-many" title="Permalink to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 的 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">ensemble-dock</span></code> 提供了高性能多核并行系综对接(Ensemble Docking)计算及数据处理接口。</p>
+<p>请确保当前工作目录 (Current Working Directory) 在您想要保存项目文件的目录中, 并在目录中额外准备：</p>
 <ul class="simple">
 <li><p>一个分行列出的, 受体蛋白所属PDB ID的列表文本文件 *<em>.txt</em> 或 *<em>.csv</em></p></li>
 <li><p>需要对接的外源配体 <strong>单一3D结构文件</strong> *<em>.pdb</em>  *<em>.mae</em> 或其他Schrodinger支持的格式 (可选)</p></li>
@@ -117,12 +130,12 @@
 </div>
 <p>以及一个准备就绪的化合物库文件(其中含有若干个结构) library_file.mae</p>
 <p>然后 您可以通过命令</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pycadd</span><span class="o">-</span><span class="n">dock</span> <span class="n">ensemble</span><span class="o">-</span><span class="n">dock</span> <span class="n">example</span><span class="o">.</span><span class="n">txt</span> <span class="n">library_file</span><span class="o">.</span><span class="n">mae</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-dock<span class="w"> </span>ensemble-dock<span class="w"> </span>example.txt<span class="w"> </span>library_file.mae
 </pre></div>
 </div>
-<p>启动 Ensemble Docking。</p>
+<p>启动 Ensemble Docking。更多支持的输入文件格式请参阅 <a class="reference external" href="#%E4%B8%BA%E7%B3%BB%E7%BB%BC%E5%AF%B9%E6%8E%A5%E6%9E%84%E5%BB%BADock%E8%BE%93%E5%85%A5%E6%96%87%E4%BB%B6%E7%9A%84%E7%A4%BA%E4%BE%8B">为系综对接构建Dock输入文件的示例</a></p>
 <p>使用</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pycadd</span><span class="o">-</span><span class="n">dock</span> <span class="n">ensemble</span><span class="o">-</span><span class="n">dock</span> <span class="o">--</span><span class="n">help</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-dock<span class="w"> </span>ensemble-dock<span class="w"> </span>--help
 </pre></div>
 </div>
 <p>以获取更多帮助信息。</p>
@@ -131,8 +144,62 @@
 <li><p>脚本将自动识别文本文件中每一行的PDB ID并自行批量下载</p></li>
 <li><p>应用程序默认使用系统最大核心数量的 75% 进行集合式对接工作 通过设置 <code class="docutils literal notranslate"><span class="pre">-n/--parallel</span> <span class="pre">&lt;NUM&gt;</span></code> 参数来指定使用的核心数量</p></li>
 <li><p>如您需要执行晶体共结晶配体的回顾性对接(Self-Docking), 请添加参数 <code class="docutils literal notranslate"><span class="pre">--redock</span></code></p></li>
-<li><p>所有集合式对接工作完成后, 将自动提取重要的对接结果数据, 并保存在 <code class="docutils literal notranslate"><span class="pre">result</span></code> 目录下的 <code class="docutils literal notranslate"><span class="pre">_DOCK_FINAL_RESULTS.csv</span></code>字样的文件中, 且将产生汇总矩阵文件<code class="docutils literal notranslate"><span class="pre">matrix.csv</span></code></p></li>
+<li><p>所有集合式对接工作完成后, 将自动提取重要的对接结果数据, 并保存在 <code class="docutils literal notranslate"><span class="pre">result</span></code> 目录下的 <code class="docutils literal notranslate"><span class="pre">_DOCK_FINAL_RESULTS.csv</span></code>字样的文件中, 且将产生汇总矩阵文件<code class="docutils literal notranslate"><span class="pre">matrix.csv</span></code>，该文件可直接用于<code class="docutils literal notranslate"><span class="pre">Dance</span></code>模块中。</p></li>
 </ul>
+</section>
+<section id="dock">
+<h2>为系综对接构建Dock输入文件的示例<a class="headerlink" href="#dock" title="Permalink to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">ensemble-dock</span></code> 支持三种输入文件格式：</p>
+<ul class="simple">
+<li><p>csv</p></li>
+<li><p>ini | in</p></li>
+<li><p>yaml | yml</p></li>
+</ul>
+<section id="note">
+<h3>Note<a class="headerlink" href="#note" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>通过 <code class="docutils literal notranslate"><span class="pre">csv</span></code> 构建Dock输入文件，可以满足 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">ensemble-dock</span></code> 的需要，但由于其不含有受体通用名称 (如RXRα) , 在调用 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">quick-report</span></code> 时，可能会报错，请改用另外两种格式。</p></li>
+<li><p>通过 <code class="docutils literal notranslate"><span class="pre">ini</span></code> 构建Dock输入文件时，由于ini文件类型的特性，同一PDB ID不能出现在同一受体下中两次或以上。因此, 如果晶体含有多个共结晶配体，且需要分别计算，请将所有共结晶配体名称赋值于同一PDB ID下，并以英文逗号分隔。</p></li>
+<li><p>通过 <code class="docutils literal notranslate"><span class="pre">yaml</span></code> 构建Dock输入文件是推荐格式，可以满足所有情况下的需求，但需要注意：</p>
+<ul>
+<li><p>由于yaml语法要求，英文 <code class="docutils literal notranslate"><span class="pre">&quot;:&quot;</span></code> 后需要有一空格</p></li>
+<li><p>yaml语法要求同一Section中的内容 应该具有相同的缩进，类似于python</p></li>
+<li><p>yaml可以为同一晶体指定多个共结晶配体, 通过多行分割，并在每一行以 <code class="docutils literal notranslate"><span class="pre">&quot;-&quot;</span></code> 分割</p></li>
+<li><p>当共结晶配体名称仅由数字组成时，使用引号将其包裹(e.g ‘056’)</p></li>
+</ul>
+</li>
+</ul>
+<p>以下是三种格式的示例：<br /><em>csv</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="n">XJ7</span><span class="p">,</span><span class="n">DHT</span>
+<span class="mi">1</span><span class="n">XQ3</span><span class="p">,</span><span class="n">R18</span>
+<span class="mi">2</span><span class="n">AM9</span><span class="p">,</span><span class="n">TES</span>
+<span class="mi">2</span><span class="n">AM9</span><span class="p">,</span><span class="n">DTT</span>
+<span class="mi">2</span><span class="n">YLP</span><span class="p">,</span><span class="n">TES</span>
+<span class="mi">2</span><span class="n">YLP</span><span class="p">,</span><span class="mi">056</span>
+</pre></div>
+</div>
+<p><em>ini | in</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">P10275</span><span class="p">]</span>
+    <span class="mi">1</span><span class="n">XJ7</span><span class="p">:</span> <span class="n">DHT</span>
+    <span class="mi">1</span><span class="n">XQ3</span><span class="p">:</span> <span class="n">R18</span>
+    <span class="mi">2</span><span class="n">AM9</span><span class="p">:</span> <span class="n">TES</span><span class="p">,</span><span class="n">DTT</span>
+    <span class="mi">2</span><span class="n">YLP</span><span class="p">:</span> <span class="n">TES</span><span class="p">,</span><span class="mi">056</span>
+</pre></div>
+</div>
+<p><em>yaml | yml</em></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">P10275</span><span class="p">:</span>
+    <span class="mi">1</span><span class="n">XJ7</span><span class="p">:</span> <span class="n">DHT</span>
+    <span class="mi">1</span><span class="n">XQ3</span><span class="p">:</span> 
+    <span class="o">-</span> <span class="n">R18</span>
+    <span class="mi">2</span><span class="n">AM9</span><span class="p">:</span> 
+    <span class="o">-</span> <span class="n">TES</span>
+    <span class="o">-</span> <span class="n">DTT</span>
+    <span class="mi">2</span><span class="n">YLP</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">TES</span>
+    <span class="o">-</span> <span class="s1">&#39;056&#39;</span>
+</pre></div>
+</div>
+</section>
 </section>
 </section>
 
@@ -140,7 +207,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="input_file_fmt.html" class="btn btn-neutral float-left" title="构建Dock输入文件时的规范" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="README.html" class="btn btn-neutral float-left" title="pyCADD" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="dance.html" class="btn btn-neutral float-right" title="Dance User Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

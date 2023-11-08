@@ -43,15 +43,11 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../README.html">pyCADD</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../input_file_fmt.html">构建Dock输入文件时的规范</a></li>
-</ul>
 <p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dock.html">Dock User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../dance.html">Dance User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../density.html">Density User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../dynamic.html">Dynamic Quick User Guide</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
@@ -109,7 +105,23 @@
 
 <span class="n">ANALYSIS_RESULT_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CWD</span><span class="p">,</span> <span class="s1">&#39;md_analysis&#39;</span><span class="p">)</span>
 
-
+<div class="viewcode-block" id="find_amber"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.find_amber">[docs]</a><span class="k">def</span> <span class="nf">find_amber</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Check if AMBER is installed.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">amberhome</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;AMBERHOME&#39;</span><span class="p">)</span>
+    <span class="n">_sander</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span><span class="s1">&#39;which sander&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+    <span class="n">_pmemd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span><span class="s1">&#39;which pmemd.cuda&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+    <span class="n">_cpptraj</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span><span class="s1">&#39;which cpptraj&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">amberhome</span><span class="p">,</span> <span class="n">_sander</span><span class="p">,</span> <span class="n">_pmemd</span><span class="p">,</span> <span class="n">_cpptraj</span><span class="p">]):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">pytraj</span> <span class="k">as</span> <span class="nn">pt</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+    
 <div class="viewcode-block" id="Processor"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor">[docs]</a><span class="k">class</span> <span class="nc">Processor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    为分子动力学模拟执行预处理</span>

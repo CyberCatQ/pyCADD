@@ -1,10 +1,10 @@
-## Dynamic Quick User Guide
+# Dynamic User Guide
 
 pyCADD.Dynamic 模块是为分子动力学模拟的自动化准备与运行而开发的功能模块，目的是为了让研究者专注在分子动力学模拟结果以及少数关键参数上，而无需关心和学习分子动力学模拟准备与执行的具体代码和流程或管道，以期能够提高学术问题的研究效率。
 
 pyCADD提供了Python包调用和CLI(命令行工具)调用两种方式，其中CLI调用方式更加方便，但是Python包调用方式更加灵活。
 
-### 文件准备
+## 文件准备
 Dynamic模块只需要最少的必要输入和几个关键参数调节即可快速开始模拟过程。
 
 要快速执行蛋白-小分子相互作用的分子动力学模拟，首先，您需要准备好一个开展模拟的蛋白结构文件 `protein_file` ，以及一个需要模拟的小分子文件 `molecule_file`, 2个文件都必须是PDB格式(`.pdb`)。
@@ -14,15 +14,16 @@ Dynamic模块只需要最少的必要输入和几个关键参数调节即可快�
 * 如果使用 pyCADD.Dock 模块进行过分子对接，则可在 `protein` 及 `ligand` 目录下找到已经拆分好的蛋白和配体小分子的PDB格式结构文件。
 
 
-### Python 包调用 Dynamic 模块
+## Python 包调用 Dynamic 模块
 
 首先 从模块中导入结构预处理器 `Processor` 及实施分子动力学模拟的模拟器 `Simulator`, 然后创建一个预处理器实例 `processor`
 
 ```python
+# 如果AMBER 或 Ambertools安装不正确，导入时将收到额外提示
 from pyCADD.Dynamic import Processor, Simulator
 processor = Processor()     # 实例化的同时，将在当前目录创建所有必要的文件夹
 ```
-#### 蛋白结构准备
+### 蛋白结构准备
 使用processor的protein_prepare()方法 对蛋白结构文件进行自动预处理工作。
 ```python
 processor.protein_prepare(protein_file)
@@ -34,7 +35,7 @@ processor.protein_prepare(protein_file)
 
 所有此步骤的过程文件保存在`protein`目录中。
 
-#### 小分子结构准备
+### 小分子结构准备
 
 使用processor的molecule_prepare()方法 对小分子结构文件进行自动预处理工作。
 ```python
@@ -53,7 +54,7 @@ processor.molecule_prepare(molecule_file, charge=0, multiplicity=1)
 4. parmchk2 (需要AmberTools) 生成Amber模拟模型参数文件`.frcmod`
 所有此步骤的过程文件保存在`molecule`目录中。
 
-#### Amber 模拟前准备 - LEaP
+### Amber 模拟前准备 - LEaP
 在蛋白与小分子都准备就绪后，使用LEaP来完成最终的模拟准备文件生成。
 为了方便识别生成文件，选择一个任意名称作为生成文件前缀名 `prefix` ，这通常可以是PDBID或配体小分子名等。
 ```python
@@ -69,7 +70,7 @@ processor.leap_prepare(prefix)
 
 现在，如果没有产生预料之外的错误，预处理阶段已经完成。
 
-#### 创建输入文件执行模拟
+### 创建输入文件执行模拟
 为了开始模拟阶段，首先 创建模拟器实例`simulator`，它需要此前的预处理器实例`processor`来完成构造工作。
 ```python
 # 如果您需要不执行准备阶段直接进行模拟，可以构建一个新的Processor实例
@@ -104,7 +105,7 @@ simulator.run_simulation()
 
 进程将阻塞至模拟完成。
 
-### CLI 调用 Dynamic 模块
+## CLI 调用 Dynamic 模块进行MD模拟
 
 使用命令
 ```bash
@@ -125,3 +126,89 @@ pycadd-dynamic --charge -1 --multiplicity 1 --prefix 1FBY --parallel 48 --with-g
 pycadd-dynamic --help
 ```
 获取参数设定的更多信息。
+
+## 模拟结果分析
+
+Dynamic 的 `Analyzer` 类提供了一些常规的自动化分析工具，用于分析Amber MD模拟结果并快速导出分析数据用于绘制图表。
+
+### CLI快速分析
+使用 `pycadd-dynamic analysis` 命令可以快速开展常规的轨迹分析，并将结果保存至 `analysis` 目录中。分析轨迹需要提供必要的拓扑及轨迹文件。
+```bash
+pycadd-dynamic analysis -y TRAJ_FILE -ro OUTPUT_FILE -sp SOL_COM_TOP_FILE -cp COM_TOP_FILE -lp LIG_TOP_FILE -rp PRO_TOP_FILE [--no-hbond] [--no-rmsd] [--no-rmsf] [-h/--help]
+```
+* `-y` 指定AMBER模拟的轨迹文件，通常为 `.nc` `.mdcrd` `.crd` 格式
+* `-ro` 指定分析结果输出的文本文件(`.out`)，该文件中应该包含模拟过程每一帧的状态信息
+* `-sp` 指定溶剂复合物拓扑文件, 如`*_comsolvate.prmtop`
+* `-cp` 指定复合物拓扑文件, 如`*_com.prmtop`
+* `-lp` 指定配体拓扑文件, 如`*_lig.prmtop`
+* `-rp` 指定蛋白拓扑文件, 如`*_pro.prmtop`
+* `-h/--help` 查看帮助信息
+
+默认工作流(WORKFLOW)将进行以下分析：
+1. 计算模拟体系中蛋白 **alpha C** 的RMSD
+2. 计算模拟体系中蛋白各**残基的RMSF(基于alpha C)**
+3. 统计模拟过程的氢键数量、键长、键角等信息，及模拟过程的氢键存续(Lifetime)
+
+如果默认可以通过以下参数来跳过分析过程：
+* `--no-hbond` 不进行氢键分析
+* `--no-rmsd` 不进行RMSD分析
+* `--no-rmsf` 不进行RMSF分析
+
+### python 包调用 Analyzer 分析工具
+除了使用CLI中固定的工作流进行快速分析外，也可以从 pyCADD.Dynamic 中导入 `Analyzer` 类并在python中定制化分析过程。
+```python
+# 如果AMBER 或 Ambertools安装不正确，导入时将收到额外提示
+from pyCADD.Dynamic import Analyzer
+```
+
+同样，分析需要提供必要的输出、拓扑及轨迹文件路径。
+```python
+traj_file = 'traj.nc'
+output_file = 'md.out'
+sol_com_top_file = '*_comsolvate.prmtop'
+com_top_file = '*_com.prmtop'
+lig_top_file = '*_lig.prmtop'
+pro_top_file = '*_pro.prmtop'
+```
+
+然后，创建分析器实例来开展分析工作。
+```python
+analyzer = Analyzer(
+    traj_file_path = traj_file,
+    mdout_file_path = output_file,
+    comsolvated_topfile_path = sol_com_top_file,
+    com_topfile_path = com_top_file,
+    ligand_topfile_path = lig_top_file,
+    receptor_topfile_path = pro_top_file
+)
+```
+
+#### RMSD & RMSF 分析
+```python
+# 默认以αC计算RMSD与RMSF 也可以通过Amber MASK格式指定其他原子
+# 默认参考帧ref为0帧（即第一帧）
+analyzer.calc_rmsd(mask='@CA', ref=0)
+analyzer.calc_rmsf(mask='@CA', ref=0)
+```
+
+#### 氢键分析
+分析器将检测并追踪模拟全过程中指定条件下的氢键（默认为包括蛋白大分子间及蛋白-配体小分子间的全部氢键），然后统计氢键的数量、键长、键角等信息，及模拟过程的氢键存续(Lifetime)。
+```python
+# 默认分析所有可能存在的氢键
+analyzer.calc_hbond(
+    mask = ':*',
+    distance = 3.0,
+    angle = 135.0,
+    solvent_donor=None,
+    solvent_acceptor=None，
+    options=None
+)
+```
+* mask: 指定搜索氢键的原子组范围，使用Amber MASK格式，如`:1-10`表示分析第1-10号残基原子间的氢键，默认为`:*`表示分析所有可能存在的氢键，但不包括溶剂分子
+* distance: 指定氢键分析的键长阈值，默认为3.0Å，仅统计重原子间距离小于 `distance` 的氢键
+* angle: 指定氢键分析的键角阈值，默认为135.0°，仅统计 A-H-D 键角小于 `angle` 的氢键
+* solvent_donor: 指定溶剂中的供体原子Amber MASK，如':WAT@N'，默认None
+* solvent_acceptor: 指定溶剂中的受体原子Amber MASK, 如':WAT@O'，默认None。若 `solvent_donor` 与 `solvent_acceptor`不为None时，将搜索溶剂与溶质间的氢键，默认仅搜索溶质间的氢键
+* options: 其他将被传递到cpptraj的参数，默认为 `avgout HBOND_RESULTS.dat printatomnum nointramol`，参阅`cpptraj`文档获取更多帮助
+
+所有分析结果可在当前目录下的`analysis`中找到。

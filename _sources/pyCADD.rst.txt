@@ -20,5 +20,5 @@ Module contents
 
 .. automodule:: pyCADD
    :members:
-   :undoc-members: 
+   :undoc-members:
    :show-inheritance:

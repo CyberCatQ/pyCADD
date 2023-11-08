@@ -14,17 +14,11 @@ pyCADD Documentation
 
 .. toctree::
    :maxdepth: 2
-   :caption: Dock Module input file format 
-
-   input_file_fmt.md
-
-.. toctree::
-   :maxdepth: 2
    :caption: Module User Guide
    
    dock.md
    dance.md
-   gauss.md
+   density.md
    dynamic.md
 
 .. toctree::

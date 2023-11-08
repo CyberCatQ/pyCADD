@@ -4,14 +4,6 @@ pyCADD.utils package
 Submodules
 ----------
 
-pyCADD.utils.cheminformatics module
------------------------------------
-
-.. automodule:: pyCADD.utils.cheminformatics
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pyCADD.utils.common module
 --------------------------
 

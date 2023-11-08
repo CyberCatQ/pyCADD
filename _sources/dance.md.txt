@@ -1,4 +1,6 @@
 ## Dance User Guide
+Dance 是一个针对 Dock 模块中由 ensemble docking 产生的对接分数矩阵，进行数据预处理、建模与评估的功能模块。  
+庞大的对接分数矩阵可以通过Dance模块快速进行数据清洗、划分并用于机器学习建模过程。
 
 ### 数据准备 Data preparation
 数据预处理部分。

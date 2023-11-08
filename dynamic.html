@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dynamic Quick User Guide &mdash; pyCADD 1.6.5 documentation</title>
+  <title>Dynamic User Guide &mdash; pyCADD 1.6.5 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="pyCADD" href="modules.html" />
-    <link rel="prev" title="Gauss Quick Start" href="gauss.html" /> 
+    <link rel="prev" title="Density User Guide" href="density.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,16 +46,12 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="README.html">pyCADD</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="input_file_fmt.html">构建Dock输入文件时的规范</a></li>
-</ul>
 <p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dock.html">Dock User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dance.html">Dance User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gauss.html">Gauss Quick Start</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Dynamic Quick User Guide</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="density.html">Density User Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Dynamic User Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#id1">文件准备</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#python-dynamic">Python 包调用 Dynamic 模块</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id2">蛋白结构准备</a></li>
@@ -64,7 +60,16 @@
 <li class="toctree-l3"><a class="reference internal" href="#id4">创建输入文件执行模拟</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#cli-dynamic">CLI 调用 Dynamic 模块</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cli-dynamic-md">CLI 调用 Dynamic 模块进行MD模拟</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">模拟结果分析</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cli">CLI快速分析</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-analyzer">python 包调用 Analyzer 分析工具</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#rmsd-rmsf">RMSD &amp; RMSF 分析</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">氢键分析</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -87,7 +92,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Dynamic Quick User Guide</li>
+      <li class="breadcrumb-item active">Dynamic User Guide</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/dynamic.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -97,8 +102,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="dynamic-quick-user-guide">
-<h1>Dynamic Quick User Guide<a class="headerlink" href="#dynamic-quick-user-guide" title="Permalink to this heading"></a></h1>
+  <section id="dynamic-user-guide">
+<h1>Dynamic User Guide<a class="headerlink" href="#dynamic-user-guide" title="Permalink to this heading"></a></h1>
 <p>pyCADD.Dynamic 模块是为分子动力学模拟的自动化准备与运行而开发的功能模块，目的是为了让研究者专注在分子动力学模拟结果以及少数关键参数上，而无需关心和学习分子动力学模拟准备与执行的具体代码和流程或管道，以期能够提高学术问题的研究效率。</p>
 <p>pyCADD提供了Python包调用和CLI(命令行工具)调用两种方式，其中CLI调用方式更加方便，但是Python包调用方式更加灵活。</p>
 <section id="id1">
@@ -115,7 +120,8 @@
 <section id="python-dynamic">
 <h2>Python 包调用 Dynamic 模块<a class="headerlink" href="#python-dynamic" title="Permalink to this heading"></a></h2>
 <p>首先 从模块中导入结构预处理器 <code class="docutils literal notranslate"><span class="pre">Processor</span></code> 及实施分子动力学模拟的模拟器 <code class="docutils literal notranslate"><span class="pre">Simulator</span></code>, 然后创建一个预处理器实例 <code class="docutils literal notranslate"><span class="pre">processor</span></code></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyCADD.Dynamic</span> <span class="kn">import</span> <span class="n">Processor</span><span class="p">,</span> <span class="n">Simulator</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 如果AMBER 或 Ambertools安装不正确，导入时将收到额外提示</span>
+<span class="kn">from</span> <span class="nn">pyCADD.Dynamic</span> <span class="kn">import</span> <span class="n">Processor</span><span class="p">,</span> <span class="n">Simulator</span>
 <span class="n">processor</span> <span class="o">=</span> <span class="n">Processor</span><span class="p">()</span>     <span class="c1"># 实例化的同时，将在当前目录创建所有必要的文件夹</span>
 </pre></div>
 </div>
@@ -206,8 +212,8 @@
 <p>进程将阻塞至模拟完成。</p>
 </section>
 </section>
-<section id="cli-dynamic">
-<h2>CLI 调用 Dynamic 模块<a class="headerlink" href="#cli-dynamic" title="Permalink to this heading"></a></h2>
+<section id="cli-dynamic-md">
+<h2>CLI 调用 Dynamic 模块进行MD模拟<a class="headerlink" href="#cli-dynamic-md" title="Permalink to this heading"></a></h2>
 <p>使用命令</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-dynamic<span class="w"> </span><span class="o">[</span>option<span class="o">]</span><span class="w"> </span>protein_file<span class="w"> </span>molecule_file
 </pre></div>
@@ -227,13 +233,106 @@ pycadd-dynamic<span class="w"> </span>--charge<span class="w"> </span>-1<span cl
 </div>
 <p>获取参数设定的更多信息。</p>
 </section>
+<section id="id5">
+<h2>模拟结果分析<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h2>
+<p>Dynamic 的 <code class="docutils literal notranslate"><span class="pre">Analyzer</span></code> 类提供了一些常规的自动化分析工具，用于分析Amber MD模拟结果并快速导出分析数据用于绘制图表。</p>
+<section id="cli">
+<h3>CLI快速分析<a class="headerlink" href="#cli" title="Permalink to this heading"></a></h3>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">pycadd-dynamic</span> <span class="pre">analysis</span></code> 命令可以快速开展常规的轨迹分析，并将结果保存至 <code class="docutils literal notranslate"><span class="pre">analysis</span></code> 目录中。分析轨迹需要提供必要的拓扑及轨迹文件。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-dynamic<span class="w"> </span>analysis<span class="w"> </span>-y<span class="w"> </span>TRAJ_FILE<span class="w"> </span>-ro<span class="w"> </span>OUTPUT_FILE<span class="w"> </span>-sp<span class="w"> </span>SOL_COM_TOP_FILE<span class="w"> </span>-cp<span class="w"> </span>COM_TOP_FILE<span class="w"> </span>-lp<span class="w"> </span>LIG_TOP_FILE<span class="w"> </span>-rp<span class="w"> </span>PRO_TOP_FILE<span class="w"> </span><span class="o">[</span>--no-hbond<span class="o">]</span><span class="w"> </span><span class="o">[</span>--no-rmsd<span class="o">]</span><span class="w"> </span><span class="o">[</span>--no-rmsf<span class="o">]</span><span class="w"> </span><span class="o">[</span>-h/--help<span class="o">]</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-y</span></code> 指定AMBER模拟的轨迹文件，通常为 <code class="docutils literal notranslate"><span class="pre">.nc</span></code> <code class="docutils literal notranslate"><span class="pre">.mdcrd</span></code> <code class="docutils literal notranslate"><span class="pre">.crd</span></code> 格式</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-ro</span></code> 指定分析结果输出的文本文件(<code class="docutils literal notranslate"><span class="pre">.out</span></code>)，该文件中应该包含模拟过程每一帧的状态信息</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-sp</span></code> 指定溶剂复合物拓扑文件, 如<code class="docutils literal notranslate"><span class="pre">*_comsolvate.prmtop</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-cp</span></code> 指定复合物拓扑文件, 如<code class="docutils literal notranslate"><span class="pre">*_com.prmtop</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-lp</span></code> 指定配体拓扑文件, 如<code class="docutils literal notranslate"><span class="pre">*_lig.prmtop</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-rp</span></code> 指定蛋白拓扑文件, 如<code class="docutils literal notranslate"><span class="pre">*_pro.prmtop</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-h/--help</span></code> 查看帮助信息</p></li>
+</ul>
+<p>默认工作流(WORKFLOW)将进行以下分析：</p>
+<ol class="simple">
+<li><p>计算模拟体系中蛋白 <strong>alpha C</strong> 的RMSD</p></li>
+<li><p>计算模拟体系中蛋白各<strong>残基的RMSF(基于alpha C)</strong></p></li>
+<li><p>统计模拟过程的氢键数量、键长、键角等信息，及模拟过程的氢键存续(Lifetime)</p></li>
+</ol>
+<p>如果默认可以通过以下参数来跳过分析过程：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-hbond</span></code> 不进行氢键分析</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-rmsd</span></code> 不进行RMSD分析</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--no-rmsf</span></code> 不进行RMSF分析</p></li>
+</ul>
+</section>
+<section id="python-analyzer">
+<h3>python 包调用 Analyzer 分析工具<a class="headerlink" href="#python-analyzer" title="Permalink to this heading"></a></h3>
+<p>除了使用CLI中固定的工作流进行快速分析外，也可以从 pyCADD.Dynamic 中导入 <code class="docutils literal notranslate"><span class="pre">Analyzer</span></code> 类并在python中定制化分析过程。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 如果AMBER 或 Ambertools安装不正确，导入时将收到额外提示</span>
+<span class="kn">from</span> <span class="nn">pyCADD.Dynamic</span> <span class="kn">import</span> <span class="n">Analyzer</span>
+</pre></div>
+</div>
+<p>同样，分析需要提供必要的输出、拓扑及轨迹文件路径。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">traj_file</span> <span class="o">=</span> <span class="s1">&#39;traj.nc&#39;</span>
+<span class="n">output_file</span> <span class="o">=</span> <span class="s1">&#39;md.out&#39;</span>
+<span class="n">sol_com_top_file</span> <span class="o">=</span> <span class="s1">&#39;*_comsolvate.prmtop&#39;</span>
+<span class="n">com_top_file</span> <span class="o">=</span> <span class="s1">&#39;*_com.prmtop&#39;</span>
+<span class="n">lig_top_file</span> <span class="o">=</span> <span class="s1">&#39;*_lig.prmtop&#39;</span>
+<span class="n">pro_top_file</span> <span class="o">=</span> <span class="s1">&#39;*_pro.prmtop&#39;</span>
+</pre></div>
+</div>
+<p>然后，创建分析器实例来开展分析工作。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">analyzer</span> <span class="o">=</span> <span class="n">Analyzer</span><span class="p">(</span>
+    <span class="n">traj_file_path</span> <span class="o">=</span> <span class="n">traj_file</span><span class="p">,</span>
+    <span class="n">mdout_file_path</span> <span class="o">=</span> <span class="n">output_file</span><span class="p">,</span>
+    <span class="n">comsolvated_topfile_path</span> <span class="o">=</span> <span class="n">sol_com_top_file</span><span class="p">,</span>
+    <span class="n">com_topfile_path</span> <span class="o">=</span> <span class="n">com_top_file</span><span class="p">,</span>
+    <span class="n">ligand_topfile_path</span> <span class="o">=</span> <span class="n">lig_top_file</span><span class="p">,</span>
+    <span class="n">receptor_topfile_path</span> <span class="o">=</span> <span class="n">pro_top_file</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<section id="rmsd-rmsf">
+<h4>RMSD &amp; RMSF 分析<a class="headerlink" href="#rmsd-rmsf" title="Permalink to this heading"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 默认以αC计算RMSD与RMSF 也可以通过Amber MASK格式指定其他原子</span>
+<span class="c1"># 默认参考帧ref为0帧（即第一帧）</span>
+<span class="n">analyzer</span><span class="o">.</span><span class="n">calc_rmsd</span><span class="p">(</span><span class="n">mask</span><span class="o">=</span><span class="s1">&#39;@CA&#39;</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">analyzer</span><span class="o">.</span><span class="n">calc_rmsf</span><span class="p">(</span><span class="n">mask</span><span class="o">=</span><span class="s1">&#39;@CA&#39;</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h4>氢键分析<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h4>
+<p>分析器将检测并追踪模拟全过程中指定条件下的氢键（默认为包括蛋白大分子间及蛋白-配体小分子间的全部氢键），然后统计氢键的数量、键长、键角等信息，及模拟过程的氢键存续(Lifetime)。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span># 默认分析所有可能存在的氢键
+analyzer.calc_hbond(
+    mask = &#39;:*&#39;,
+    distance = 3.0,
+    angle = 135.0,
+    solvent_donor=None,
+    solvent_acceptor=None，
+    options=None
+)
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>mask: 指定搜索氢键的原子组范围，使用Amber MASK格式，如<code class="docutils literal notranslate"><span class="pre">:1-10</span></code>表示分析第1-10号残基原子间的氢键，默认为<code class="docutils literal notranslate"><span class="pre">:*</span></code>表示分析所有可能存在的氢键，但不包括溶剂分子</p></li>
+<li><p>distance: 指定氢键分析的键长阈值，默认为3.0Å，仅统计重原子间距离小于 <code class="docutils literal notranslate"><span class="pre">distance</span></code> 的氢键</p></li>
+<li><p>angle: 指定氢键分析的键角阈值，默认为135.0°，仅统计 A-H-D 键角小于 <code class="docutils literal notranslate"><span class="pre">angle</span></code> 的氢键</p></li>
+<li><p>solvent_donor: 指定溶剂中的供体原子Amber MASK，如’:WAT&#64;N’，默认None</p></li>
+<li><p>solvent_acceptor: 指定溶剂中的受体原子Amber MASK, 如’:WAT&#64;O’，默认None。若 <code class="docutils literal notranslate"><span class="pre">solvent_donor</span></code> 与 <code class="docutils literal notranslate"><span class="pre">solvent_acceptor</span></code>不为None时，将搜索溶剂与溶质间的氢键，默认仅搜索溶质间的氢键</p></li>
+<li><p>options: 其他将被传递到cpptraj的参数，默认为 <code class="docutils literal notranslate"><span class="pre">avgout</span> <span class="pre">HBOND_RESULTS.dat</span> <span class="pre">printatomnum</span> <span class="pre">nointramol</span></code>，参阅<code class="docutils literal notranslate"><span class="pre">cpptraj</span></code>文档获取更多帮助</p></li>
+</ul>
+<p>所有分析结果可在当前目录下的<code class="docutils literal notranslate"><span class="pre">analysis</span></code>中找到。</p>
+</section>
+</section>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="gauss.html" class="btn btn-neutral float-left" title="Gauss Quick Start" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="density.html" class="btn btn-neutral float-left" title="Density User Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="modules.html" class="btn btn-neutral float-right" title="pyCADD" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

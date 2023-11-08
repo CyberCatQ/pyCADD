@@ -43,15 +43,11 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../README.html">pyCADD</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../input_file_fmt.html">构建Dock输入文件时的规范</a></li>
-</ul>
 <p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dock.html">Dock User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../dance.html">Dance User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../density.html">Density User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../dynamic.html">Dynamic Quick User Guide</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
@@ -122,7 +118,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">origin_st</span> <span class="o">=</span> <span class="n">original_st</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Origin file: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin_st</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">(</span><span class="n">additional_info</span><span class="o">=</span><span class="p">{</span> <span class="s2">&quot;origin&quot;</span> <span class="p">:</span> <span class="s1">&#39;Original structure file: [bright_cyan]</span><span class="si">%s</span><span class="s1">[/]&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin_st</span><span class="p">},</span> <span class="n">show_panel</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">(</span><span class="n">additional_info</span><span class="o">=</span><span class="p">{</span> <span class="s2">&quot;origin&quot;</span> <span class="p">:</span> <span class="s1">&#39;Initial structure file: [bright_cyan]</span><span class="si">%s</span><span class="s1">[/]&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin_st</span><span class="p">},</span> <span class="n">show_panel</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">gauss</span> <span class="o">=</span> <span class="n">Gauss</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">origin_st</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main_options</span><span class="p">,</span> <span class="n">additional_info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file_type&quot;</span><span class="p">:</span> <span class="s1">&#39;File type: [bright_cyan]</span><span class="si">%s</span><span class="s1">[/]&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">gauss</span><span class="o">.</span><span class="n">file_type</span><span class="p">})</span>
@@ -174,8 +170,12 @@
 <span class="sd">        获取并检查原始结构文件路径</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="n">origin_st</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_input</span><span class="p">(</span>
-            <span class="s1">&#39;Need an original structure for calculation.</span><span class="se">\n</span><span class="s1">Enter the file path of molecule structure&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">origin_st</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_input</span><span class="p">(</span>
+            <span class="s1">&#39;Need an initial structure for calculation.</span><span class="se">\n</span><span class="s1">Enter the file path of molecule structure&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Canceled by user.&#39;</span><span class="p">)</span>
+            <span class="n">exit</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">origin_st</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">origin_st</span> <span class="o">=</span> <span class="n">origin_st</span>
         <span class="k">else</span><span class="p">:</span>
