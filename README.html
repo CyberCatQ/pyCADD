@@ -215,15 +215,47 @@
 <section id="additional-requirements">
 <h3>Additional Requirements<a class="headerlink" href="#additional-requirements" title="Permalink to this heading"></a></h3>
 <p>pyCADD的不同模块需要安装不同的软件来完成自动化工作流。如您仅需要使用其中的部分功能, 可根据您的需求仅安装相应的软件。<br />当模块缺少必要软件时，您可能会在控制台看到相应的提示信息。</p>
-<p>| Module   |  Software   | Version |
-| —————–  | ——– | ——– |
-| Dock     | <a class="reference external" href="https://www.schrodinger.com/">Schrodinger Suite</a> | 2020-3 or newer |
-| Dynamic  | <a class="reference external" href="http://ambermd.org/">AMBER</a> | 18 or newer |
-| Density &amp; Dynamic | <a class="reference external" href="http://gaussian.com/">Gaussian</a> | 16.A01 or newer |
-| Dynamic | <a class="reference external" href="http://sobereva.com/multiwfn/">Multiwfn</a> |3.7 or newer |
-| Dynamic | <a class="reference external" href="https://openbabel.org/">OpenBabel</a>  | 2.4 or newer |
-| Dynamic | <a class="reference external" href="https://developer.nvidia.com/cuda-zone">CUDA</a> | 9.0 or newer(optional) |</p>
-</section>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Module</th>
+<th>Software</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dock</td>
+<td><a href="https://www.schrodinger.com/">Schrodinger Suite</a></td>
+<td>2020-3 or newer</td>
+</tr>
+<tr>
+<td>Dynamic</td>
+<td><a href="http://ambermd.org/">AMBER</a></td>
+<td>18 or newer</td>
+</tr>
+<tr>
+<td>Density &amp; Dynamic</td>
+<td><a href="http://gaussian.com/">Gaussian</a></td>
+<td>16.A01 or newer</td>
+</tr>
+<tr>
+<td>Dynamic</td>
+<td><a href="http://sobereva.com/multiwfn/">Multiwfn</a></td>
+<td>3.7 or newer</td>
+</tr>
+<tr>
+<td>Dynamic</td>
+<td><a href="https://openbabel.org/">OpenBabel</a></td>
+<td>2.4 or newer</td>
+</tr>
+<tr>
+<td>Dynamic</td>
+<td><a href="https://developer.nvidia.com/cuda-zone">CUDA</a></td>
+<td>9.0 or newer(optional)</td>
+</tr>
+</tbody>
+</table></section>
 <section id="attention">
 <h3>！Attention<a class="headerlink" href="#attention" title="Permalink to this heading"></a></h3>
 <ul class="simple">
@@ -242,23 +274,68 @@
 <p>即可安装 <code class="docutils literal notranslate"><span class="pre">pyCADD</span></code></p>
 <p>随后 您可以使用命令 <code class="docutils literal notranslate"><span class="pre">pycadd</span></code> 或 <code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 来启动应用程序<br /><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 提供一个用户友好的界面使您能够轻易使用需要的功能, 请自行尝试。</p>
 <p>为了便于从命令行快速调用pyCADD的模块，还提供了以下CLI接口：</p>
-<p>| CLI | Module |
-| —- | —— |
-| <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span></code> | <em>Dock</em> |
-| <code class="docutils literal notranslate"><span class="pre">pycadd-demand</span></code> | <em>Demand</em> |
-| <code class="docutils literal notranslate"><span class="pre">pycadd-density</span></code> | <em>Density</em> |
-| <code class="docutils literal notranslate"><span class="pre">pycadd-dynamic</span></code> | <em>Dynamic</em> |
-| <code class="docutils literal notranslate"><span class="pre">pycadd-dynamic</span> <span class="pre">analysis</span></code> | <em>Dynamic-Analyzer</em> |</p>
-</section>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>CLI</th>
+<th>Module</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pycadd-dock</code></td>
+<td><em>Dock</em></td>
+</tr>
+<tr>
+<td><code>pycadd-demand</code></td>
+<td><em>Demand</em></td>
+</tr>
+<tr>
+<td><code>pycadd-density</code></td>
+<td><em>Density</em></td>
+</tr>
+<tr>
+<td><code>pycadd-dynamic</code></td>
+<td><em>Dynamic</em></td>
+</tr>
+<tr>
+<td><code>pycadd-dynamic analysis</code></td>
+<td><em>Dynamic-Analyzer</em></td>
+</tr>
+</tbody>
+</table></section>
 <section id="pycadd-function">
 <h2>pyCADD Function<a class="headerlink" href="#pycadd-function" title="Permalink to this heading"></a></h2>
-<p>|        Name        | Function |
-| —————–  | ——– |
-|<em>Dock</em> | 自动执行PDB晶体获取、优化、格点文件生成、对接等命令 |
-|<em>Dance</em>    | 数据处理脚本集合 |<br />|<em>Demand</em> | 自动化晶体信息查询与解析 |
-|<em>Density</em> | 自动编写高斯结构优化、单点能、TDDFT等计算任务输入文件并启动计算任务 |
-|<em>Dynamic</em> | 自动化 AMBER MD模拟准备与运行 自动化MD模拟后处理分析 |</p>
-</section>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Name</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>Dock</em></td>
+<td>自动执行PDB晶体获取、优化、格点文件生成、对接等命令</td>
+</tr>
+<tr>
+<td><em>Dance</em></td>
+<td>数据处理脚本集合</td>
+</tr>
+<tr>
+<td><em>Demand</em></td>
+<td>自动化晶体信息查询与解析</td>
+</tr>
+<tr>
+<td><em>Density</em></td>
+<td>自动编写高斯结构优化、单点能、TDDFT等计算任务输入文件并启动计算任务</td>
+</tr>
+<tr>
+<td><em>Dynamic</em></td>
+<td>自动化 AMBER MD模拟准备与运行 自动化MD模拟后处理分析</td>
+</tr>
+</tbody>
+</table></section>
 <section id="how-to-use">
 <h2>How to Use<a class="headerlink" href="#how-to-use" title="Permalink to this heading"></a></h2>
 <p>请参阅<a class="reference external" href="https://cybercatq.github.io/pyCADD">文档</a>中的各模块使用指南。</p>
