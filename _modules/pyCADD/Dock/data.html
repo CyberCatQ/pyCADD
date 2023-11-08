@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Dock.data &mdash; pyCADD 1.6.5 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=08abc459"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyCADD
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">README</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">pyCADD</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dance.html">Dance User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dynamic.html">Dynamic Quick User Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pyCADD</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyCADD</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyCADD.Dock.data</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyCADD.Dock.data</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">xlsxwriter</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">from</span> <span class="nn">rdkit.Chem</span> <span class="kn">import</span> <span class="n">rdDepictor</span><span class="p">,</span> <span class="n">PandasTools</span><span class="p">,</span> <span class="n">MolToSmiles</span><span class="p">,</span> <span class="n">Draw</span><span class="p">,</span> <span class="n">MolFromSmiles</span>
+<span class="n">rdDepictor</span><span class="o">.</span><span class="n">SetPreferCoordGen</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">pyCADD.Dock.common</span> <span class="kn">import</span> <span class="n">DockResultFile</span><span class="p">,</span> <span class="n">LigandFile</span><span class="p">,</span> <span class="n">MultiInputFile</span>
+<span class="kn">from</span> <span class="nn">pyCADD.Dock.config</span> <span class="kn">import</span> <span class="n">DefaultDataConfig</span><span class="p">,</span> <span class="n">DataConfig</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_save_data</span><span class="p">(</span><span class="n">output_file</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span><span class="nb">list</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    储存数据为csv</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    output_file : str</span>
+<span class="sd">        输出文件路径</span>
+<span class="sd">    data_dic : dict</span>
+<span class="sd">        数据内容 {property : data}</span>
+<span class="sd">    fields : List[str]</span>
+<span class="sd">        数据提取项配置</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;UTF-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="n">fields</span><span class="p">,</span> <span class="n">extrasaction</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>            <span class="c1"># 写入标头</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">writerows</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>          <span class="c1"># 写入数据 自动匹配标头列</span>
+
+<div class="viewcode-block" id="extra_docking_data"><a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.data.extra_docking_data">[docs]</a><span class="k">def</span> <span class="nf">extra_docking_data</span><span class="p">(</span><span class="n">dock_result_file</span><span class="p">:</span><span class="n">DockResultFile</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    从对接或计算完成的Maestro文件中提取一般数据或配体文件</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dock_result_file : DockResultFile</span>
+<span class="sd">        对接完成的文件</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dict</span>
+<span class="sd">        数据Properties : Values</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Prepare to extract data from file </span><span class="si">{</span><span class="n">dock_result_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">pdbid</span> <span class="o">=</span> <span class="n">dock_result_file</span><span class="o">.</span><span class="n">pdbid</span>
+    <span class="n">internal_ligand_name</span> <span class="o">=</span> <span class="n">dock_result_file</span><span class="o">.</span><span class="n">internal_ligand_name</span>
+    <span class="n">docking_ligand_name</span> <span class="o">=</span> <span class="n">dock_result_file</span><span class="o">.</span><span class="n">docking_ligand_name</span>
+    <span class="n">precision</span> <span class="o">=</span> <span class="n">dock_result_file</span><span class="o">.</span><span class="n">precision</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">lig_st</span> <span class="o">=</span> <span class="n">dock_result_file</span><span class="o">.</span><span class="n">docking_ligand_st</span>
+    <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+        <span class="c1"># logger.warning(&#39;DockResultFile may have ligand structure only.&#39;)</span>
+        <span class="n">dock_result_file</span><span class="o">.</span><span class="n">ligand_only</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">lig_st</span> <span class="o">=</span> <span class="n">dock_result_file</span><span class="o">.</span><span class="n">docking_ligand_st</span>
+        
+    <span class="n">prop_dic</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># 需要提取的Property 公共项</span>
+    <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;PDB&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdbid</span>
+    <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;Ligand&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">docking_ligand_name</span>
+    <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;Original&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">internal_ligand_name</span>
+    <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;Docking_Score&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;r_i_docking_score&#39;</span><span class="p">]</span>  <span class="c1"># 对接分数</span>
+    <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;rotatable_bonds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;i_i_glide_rotatable_bonds&#39;</span><span class="p">]</span>
+    <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;ligand_efficiency&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;r_i_glide_ligand_efficiency&#39;</span><span class="p">]</span>
+    <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;evdw&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;r_i_glide_evdw&#39;</span><span class="p">]</span>
+    <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;ecoul&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;r_i_glide_ecoul&#39;</span><span class="p">]</span>
+    <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;r_i_glide_energy&#39;</span><span class="p">]</span>
+    <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;einternal&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;r_i_glide_einternal&#39;</span><span class="p">]</span>
+    <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;emodel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;r_i_glide_emodel&#39;</span><span class="p">]</span>
+    <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;precision&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">precision</span>
+
+    <span class="c1"># 其他属性</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">prop_dic</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="c1"># rmsd项</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;rmsd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;r_i_glide_rmsd_to_input&#39;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="c1"># MMGBSA结合能项</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;MMGBSA_dG_Bind&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;r_psp_MMGBSA_dG_Bind&#39;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="c1"># 活性标签</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;activity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;b_user_Activity&#39;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="c1"># SP精度特有项</span>
+    <span class="k">if</span> <span class="n">precision</span> <span class="o">==</span> <span class="s1">&#39;SP&#39;</span><span class="p">:</span>
+        <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;lipo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;r_i_glide_lipo&#39;</span><span class="p">]</span>
+        <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;hbond&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;r_i_glide_hbond&#39;</span><span class="p">]</span>
+        <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;metal&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;r_i_glide_metal&#39;</span><span class="p">]</span>
+        <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;rewards&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;r_i_glide_rewards&#39;</span><span class="p">]</span>
+        <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;erotb&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;r_i_glide_erotb&#39;</span><span class="p">]</span>
+        <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;esite&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;r_i_glide_esite&#39;</span><span class="p">]</span>
+    <span class="c1">#XP精度特有项</span>
+    <span class="k">elif</span> <span class="n">precision</span> <span class="o">==</span> <span class="s1">&#39;XP&#39;</span><span class="p">:</span>
+        <span class="n">prop_dic</span><span class="p">[</span><span class="s1">&#39;XP_Hbond&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lig_st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;r_glide_XP_HBond&#39;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">prop_dic</span></div>
+
+<div class="viewcode-block" id="save_docking_data"><a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.data.save_docking_data">[docs]</a><span class="k">def</span> <span class="nf">save_docking_data</span><span class="p">(</span><span class="n">dock_result_file</span><span class="p">:</span><span class="n">DockResultFile</span><span class="p">,</span> <span class="n">configs</span><span class="p">:</span><span class="n">DataConfig</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    储存一般数据为csv</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data_dic : dict</span>
+<span class="sd">        数据内容 {property : data}</span>
+<span class="sd">    configs : DataConfig</span>
+<span class="sd">        数据提取项配置</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">data_dic</span> <span class="o">=</span> <span class="n">extra_docking_data</span><span class="p">(</span><span class="n">dock_result_file</span><span class="p">)</span>
+    <span class="n">pdbid</span> <span class="o">=</span> <span class="n">data_dic</span><span class="p">[</span><span class="s1">&#39;PDB&#39;</span><span class="p">]</span>
+    <span class="n">ligand_name</span> <span class="o">=</span> <span class="n">data_dic</span><span class="p">[</span><span class="s1">&#39;Ligand&#39;</span><span class="p">]</span>
+    <span class="n">precision</span> <span class="o">=</span> <span class="n">data_dic</span><span class="p">[</span><span class="s1">&#39;precision&#39;</span><span class="p">]</span>
+
+    <span class="n">property_config</span> <span class="o">=</span> <span class="n">DefaultDataConfig</span><span class="p">(</span><span class="n">precision</span><span class="p">)</span> <span class="k">if</span> <span class="n">configs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">configs</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="n">property_config</span><span class="o">.</span><span class="n">properties</span>
+
+    <span class="n">output_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">ligand_name</span><span class="si">}</span><span class="s1">_FINAL_RESULTS.csv&#39;</span>
+    <span class="n">_save_data</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="p">[</span><span class="n">data_dic</span><span class="p">],</span> <span class="n">fields</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1"> Data Saved.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">pdbid</span><span class="p">,</span> <span class="n">ligand_name</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">output_file</span></div>
+
+<div class="viewcode-block" id="save_redocking_data"><a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.data.save_redocking_data">[docs]</a><span class="k">def</span> <span class="nf">save_redocking_data</span><span class="p">(</span><span class="n">data_list</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span> <span class="n">precision</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;SP&#39;</span><span class="p">,</span> <span class="n">configs</span><span class="p">:</span><span class="n">DataConfig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    储存回顾性Ensemble Docking对接数据</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data_list : list</span>
+<span class="sd">        回顾性Ensemble Docking对接数据</span>
+<span class="sd">    precision : str</span>
+<span class="sd">        对接精度</span>
+<span class="sd">    configs : DataConfig</span>
+<span class="sd">        数据提取项配置</span>
+<span class="sd">    save_dir : str</span>
+<span class="sd">        储存目录</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="k">if</span> <span class="n">save_dir</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">save_dir</span>
+    <span class="n">property_config</span> <span class="o">=</span> <span class="n">DefaultDataConfig</span><span class="p">(</span><span class="n">precision</span><span class="p">)</span> <span class="k">if</span> <span class="n">configs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">configs</span>
+    <span class="c1"># fields = property_config.properties</span>
+    <span class="n">reference_results_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="s1">&#39;ENSEMBLE_DOCKING_RESULTS_REF.csv&#39;</span><span class="p">)</span>
+
+    <span class="n">redock_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data_list</span><span class="p">)</span>
+    <span class="c1"># redock的内源配体默认为阳性</span>
+    <span class="n">redock_df</span><span class="p">[</span><span class="s1">&#39;activity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">redock_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">reference_results_file_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># Docking Score矩阵生成</span>
+    <span class="n">ligand_df_group</span> <span class="o">=</span> <span class="n">redock_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Ligand&#39;</span><span class="p">)</span>
+    <span class="n">total_redock_data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">total_rmsd_data</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">ligand_name</span><span class="p">,</span> <span class="n">ligand_df</span> <span class="ow">in</span> <span class="n">ligand_df_group</span><span class="p">:</span>
+        <span class="n">total_redock_data</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;Ligand&#39;</span><span class="p">:</span> <span class="n">ligand_name</span><span class="p">,</span> <span class="o">**</span><span class="n">ligand_df</span><span class="p">[[</span><span class="s1">&#39;PDB&#39;</span><span class="p">,</span> <span class="s1">&#39;Docking_Score&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;PDB&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="s1">&#39;Docking_Score&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()})</span>
+        <span class="n">total_rmsd_data</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;Ligand&#39;</span><span class="p">:</span> <span class="n">ligand_name</span><span class="p">,</span> <span class="o">**</span><span class="n">ligand_df</span><span class="p">[[</span><span class="s1">&#39;PDB&#39;</span><span class="p">,</span> <span class="s1">&#39;rmsd&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;PDB&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="s1">&#39;rmsd&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()})</span>
+
+    <span class="n">docking_score_matrix_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">total_redock_data</span><span class="p">)</span>
+    <span class="n">rmsd_matrix_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">total_rmsd_data</span><span class="p">)</span>
+    <span class="n">docking_score_matrix_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="s1">&#39;reference_matrix.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">rmsd_matrix_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="s1">&#39;reference_rmsd_matrix.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="save_ensemble_docking_data"><a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.data.save_ensemble_docking_data">[docs]</a><span class="k">def</span> <span class="nf">save_ensemble_docking_data</span><span class="p">(</span><span class="n">data_list</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span> <span class="n">precision</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;SP&#39;</span><span class="p">,</span> <span class="n">configs</span><span class="p">:</span><span class="n">DataConfig</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    分类储存Ensemble Docking对接数据</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data_list : list</span>
+<span class="sd">        Ensemble Docking对接数据列表</span>
+<span class="sd">    precision : str</span>
+<span class="sd">        对接精度</span>
+<span class="sd">    configs : DataConfig</span>
+<span class="sd">        数据提取项配置</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Data list is empty.&#39;</span><span class="p">)</span>
+    
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="k">if</span> <span class="n">save_dir</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">save_dir</span>
+    <span class="n">property_config</span> <span class="o">=</span> <span class="n">DefaultDataConfig</span><span class="p">(</span><span class="n">precision</span><span class="p">)</span> <span class="k">if</span> <span class="n">configs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">configs</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="n">property_config</span><span class="o">.</span><span class="n">properties</span>
+    <span class="n">final_results_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="s1">&#39;ENSEMBLE_DOCKING_RESULTS.csv&#39;</span><span class="p">)</span>
+    <span class="n">total_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data_list</span><span class="p">)</span>
+    <span class="n">total_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">final_results_file_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># 分类储存</span>
+    <span class="n">total_df_group</span> <span class="o">=</span> <span class="n">total_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;PDB&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">pdbid</span><span class="p">,</span> <span class="n">pdb_df</span> <span class="ow">in</span> <span class="n">total_df_group</span><span class="p">:</span>
+        <span class="n">pdb_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">pdb_df</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">fields</span><span class="p">)</span>
+        <span class="n">pdb_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">_ENSEMBLE_DOCKING_RESULTS.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+    <span class="c1"># Docking Score矩阵生成</span>
+    <span class="n">ligand_df_group</span> <span class="o">=</span> <span class="n">total_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Ligand&#39;</span><span class="p">)</span>
+    <span class="n">total_ligand_data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ligand_name</span><span class="p">,</span> <span class="n">ligand_df</span> <span class="ow">in</span> <span class="n">ligand_df_group</span><span class="p">:</span>
+        <span class="n">total_ligand_data</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;Ligand&#39;</span><span class="p">:</span> <span class="n">ligand_name</span><span class="p">,</span> <span class="o">**</span><span class="n">ligand_df</span><span class="p">[[</span><span class="s1">&#39;PDB&#39;</span><span class="p">,</span> <span class="s1">&#39;Docking_Score&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;PDB&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="s1">&#39;Docking_Score&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()})</span>
+    <span class="n">matrix_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">total_ligand_data</span><span class="p">)</span>
+    <span class="n">matrix_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="s1">&#39;matrix.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="extra_admet_data"><a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.data.extra_admet_data">[docs]</a><span class="k">def</span> <span class="nf">extra_admet_data</span><span class="p">(</span><span class="n">admet_file</span><span class="p">:</span><span class="n">LigandFile</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    提取ADMET数据</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    admet_file : LigandFile</span>
+<span class="sd">        要提取的ADMET计算结果文件</span>
+
+<span class="sd">    Return</span>
+<span class="sd">    ----------</span>
+<span class="sd">    List[dict]</span>
+<span class="sd">        数据Properties : Values</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Prepare to extract ADMET data from file </span><span class="si">{</span><span class="n">admet_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">admet_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">st</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">admet_file</span><span class="o">.</span><span class="n">st_reader</span><span class="p">):</span>
+        <span class="n">curr_prop_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">curr_prop_dict</span><span class="p">[</span><span class="s1">&#39;Title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="s1">&#39;s_m_title&#39;</span><span class="p">]</span>
+        <span class="n">curr_prop_dict</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="k">for</span> <span class="n">_key</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">property</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="c1"># Qikprop生成的分子描述符键名</span>
+            <span class="n">_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^[ri]_qp_.+&#39;</span><span class="p">,</span> <span class="n">_key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_match</span><span class="p">:</span>
+                <span class="n">curr_prop_dict</span><span class="p">[</span><span class="n">_match</span><span class="o">.</span><span class="n">group</span><span class="p">()]</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">property</span><span class="p">[</span><span class="n">_key</span><span class="p">]</span>
+        <span class="n">admet_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curr_prop_dict</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">admet_list</span></div>
+
+<div class="viewcode-block" id="save_admet_data"><a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.data.save_admet_data">[docs]</a><span class="k">def</span> <span class="nf">save_admet_data</span><span class="p">(</span><span class="n">admet_file</span><span class="p">:</span><span class="n">LigandFile</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    保存ADMET数据文件</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    admet_file : LigandFile</span>
+<span class="sd">        要保存的ADMET计算结果文件</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">data_list</span> <span class="o">=</span> <span class="n">extra_admet_data</span><span class="p">(</span><span class="n">admet_file</span><span class="p">)</span>
+    <span class="n">admet_property</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">output_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">admet_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s1">_ADMET_RESULT.csv&#39;</span>
+
+    <span class="n">_save_data</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="n">data_list</span><span class="p">,</span> <span class="n">admet_property</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ADMET data </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s1"> saved.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output_file</span></div>
+
+<div class="viewcode-block" id="Reporter"><a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.data.Reporter">[docs]</a><span class="k">class</span> <span class="nc">Reporter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Quick Report 数据报告器</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputfile</span><span class="p">:</span><span class="n">MultiInputFile</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputfile</span> <span class="o">=</span> <span class="n">inputfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mappings</span> <span class="o">=</span> <span class="n">inputfile</span><span class="o">.</span><span class="n">mappings</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mappings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Please Check the input file format.&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output_columns</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;Receptor&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;PDB&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Reference_Ligand&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Structure&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Docking_Score&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;rmsd&#39;</span>
+        <span class="p">]</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_smiles</span><span class="p">(</span><span class="n">st_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        获取SMILES</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="kn">from</span> <span class="nn">schrodinger.structure</span> <span class="kn">import</span> <span class="n">StructureReader</span>
+        <span class="kn">from</span> <span class="nn">schrodinger</span> <span class="kn">import</span> <span class="n">adapter</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">st_path</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">st_path</span><span class="si">}</span><span class="s1"> not exists.&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">_st</span> <span class="o">=</span> <span class="n">StructureReader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">st_path</span><span class="p">)</span>
+        <span class="n">_mol</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="n">to_rdkit</span><span class="p">(</span><span class="n">_st</span><span class="p">)</span>
+        <span class="n">_smiles</span> <span class="o">=</span> <span class="n">MolToSmiles</span><span class="p">(</span><span class="n">_mol</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_smiles</span>
+
+    <span class="k">def</span> <span class="nf">_generate_img</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataframe</span><span class="p">,</span> <span class="n">ligand_col</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">ligand_save_dir</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        为参考数据生成结构图</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataframe : pd.DataFrame</span>
+<span class="sd">            参考数据</span>
+<span class="sd">        ligand_col : str</span>
+<span class="sd">            参考数据中的Ligand列名</span>
+<span class="sd">        ligand_save_dir : str</span>
+<span class="sd">            参考结构结构保存路径</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        
+        <span class="n">_smiles_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ligand_name</span> <span class="ow">in</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">ligand_col</span><span class="p">]:</span>
+            <span class="n">st_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ligand_save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ligand_name</span><span class="si">}</span><span class="s1">.mae&#39;</span><span class="p">)</span>
+            <span class="n">_smiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_smiles</span><span class="p">(</span><span class="n">st_path</span><span class="p">)</span>
+            <span class="n">_smiles_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">ligand_col</span><span class="p">:</span> <span class="n">ligand_name</span><span class="p">,</span> <span class="s1">&#39;SMILES&#39;</span><span class="p">:</span> <span class="n">_smiles</span><span class="p">})</span>
+        <span class="n">smiles_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">_smiles_list</span><span class="p">)</span>
+        <span class="n">PandasTools</span><span class="o">.</span><span class="n">AddMoleculeColumnToFrame</span><span class="p">(</span><span class="n">smiles_df</span><span class="p">,</span> <span class="s1">&#39;SMILES&#39;</span><span class="p">,</span> <span class="s1">&#39;Structure&#39;</span><span class="p">)</span>
+        <span class="n">smiles_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;SMILES&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">dataframe</span> <span class="o">=</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">smiles_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">ligand_col</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+        <span class="n">dataframe</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_columns</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">dataframe</span>
+
+    <span class="k">def</span> <span class="nf">_get_ligand_info_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ligand_file_path</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">ligand_file_path</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ligand_file_path</span><span class="si">}</span><span class="s1"> not exists.&#39;</span><span class="p">)</span>
+        <span class="n">ligand_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">ligand_file_path</span><span class="p">)</span>
+        <span class="n">ligand_smiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_smiles</span><span class="p">(</span><span class="n">ligand_file_path</span><span class="p">)</span>
+        <span class="n">ligand_mol</span> <span class="o">=</span> <span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">ligand_smiles</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;ligand_name&#39;</span> <span class="p">:</span> <span class="n">ligand_file_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="s1">&#39;ligand_smiles&#39;</span> <span class="p">:</span> <span class="n">ligand_smiles</span><span class="p">,</span>
+            <span class="s1">&#39;ligand_mol&#39;</span> <span class="p">:</span> <span class="n">ligand_mol</span>
+            <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_set_column_fmt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_worksheet</span><span class="p">,</span> <span class="n">column_fmt</span><span class="p">):</span>
+        <span class="n">output_worksheet</span><span class="o">.</span><span class="n">set_column</span><span class="p">(</span><span class="s1">&#39;A:B&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">cell_format</span><span class="o">=</span><span class="n">column_fmt</span><span class="p">)</span>
+        <span class="n">output_worksheet</span><span class="o">.</span><span class="n">set_column</span><span class="p">(</span><span class="s1">&#39;C:C&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">cell_format</span><span class="o">=</span><span class="n">column_fmt</span><span class="p">)</span>
+        <span class="n">output_worksheet</span><span class="o">.</span><span class="n">set_column</span><span class="p">(</span><span class="s1">&#39;D:D&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">20.91</span><span class="p">,</span> <span class="n">cell_format</span><span class="o">=</span><span class="n">column_fmt</span><span class="p">)</span>
+        <span class="n">output_worksheet</span><span class="o">.</span><span class="n">set_column</span><span class="p">(</span><span class="s1">&#39;E:E&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">cell_format</span><span class="o">=</span><span class="n">column_fmt</span><span class="p">)</span>
+        <span class="n">output_worksheet</span><span class="o">.</span><span class="n">set_column</span><span class="p">(</span><span class="s1">&#39;F:F&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">10.63</span><span class="p">,</span> <span class="n">cell_format</span><span class="o">=</span><span class="n">column_fmt</span><span class="p">)</span>
+        <span class="n">output_worksheet</span><span class="o">.</span><span class="n">set_column</span><span class="p">(</span><span class="s1">&#39;G:G&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">cell_format</span><span class="o">=</span><span class="n">column_fmt</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_row_fmt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_worksheet</span><span class="p">):</span>
+        <span class="n">output_worksheet</span><span class="o">.</span><span class="n">set_row</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+        <span class="n">output_worksheet</span><span class="o">.</span><span class="n">set_row</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+        <span class="n">output_worksheet</span><span class="o">.</span><span class="n">set_row</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_fmt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_workbook</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        获取excel 样式</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">base_fmt_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;font_name&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;等线&#39;</span><span class="p">,</span> <span class="s1">&#39;font_color&#39;</span><span class="p">:</span> <span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="s1">&#39;align&#39;</span><span class="p">:</span> <span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="s1">&#39;valign&#39;</span><span class="p">:</span> <span class="s1">&#39;vcenter&#39;</span><span class="p">}</span>
+
+        <span class="n">title_fmt</span> <span class="o">=</span> <span class="n">output_workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">({</span><span class="o">**</span><span class="n">base_fmt_dict</span><span class="p">,</span> <span class="s1">&#39;bold&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;font_size&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="s1">&#39;bottom&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">})</span>
+        <span class="n">subtitle_fmt</span> <span class="o">=</span> <span class="n">output_workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">({</span><span class="o">**</span><span class="n">base_fmt_dict</span><span class="p">,</span> <span class="s1">&#39;bold&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;font_size&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s1">&#39;top&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;bottom&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+        <span class="n">center_fmt</span> <span class="o">=</span> <span class="n">output_workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">({</span><span class="o">**</span><span class="n">base_fmt_dict</span><span class="p">,</span> <span class="s1">&#39;num_format&#39;</span><span class="p">:</span> <span class="s1">&#39;0.0000&#39;</span><span class="p">,</span> <span class="s1">&#39;font_size&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">})</span>
+        <span class="n">column_fmt</span> <span class="o">=</span> <span class="n">output_workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">({</span><span class="o">**</span><span class="n">base_fmt_dict</span><span class="p">,</span> <span class="s1">&#39;font_size&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">})</span>
+        <span class="n">bold_fmt</span> <span class="o">=</span> <span class="n">output_workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">({</span><span class="o">**</span><span class="n">base_fmt_dict</span><span class="p">,</span> <span class="s1">&#39;bold&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;font_size&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">})</span>
+        <span class="n">highlight_fmt</span> <span class="o">=</span> <span class="n">output_workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">({</span><span class="o">**</span><span class="n">base_fmt_dict</span><span class="p">,</span> <span class="s1">&#39;font_size&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s1">&#39;num_format&#39;</span><span class="p">:</span> <span class="s1">&#39;0.0000&#39;</span><span class="p">,</span> <span class="s1">&#39;fg_color&#39;</span><span class="p">:</span> <span class="s1">&#39;green&#39;</span><span class="p">})</span>
+        <span class="n">endline_fmt</span> <span class="o">=</span> <span class="n">output_workbook</span><span class="o">.</span><span class="n">add_format</span><span class="p">({</span><span class="o">**</span><span class="n">base_fmt_dict</span><span class="p">,</span> <span class="s1">&#39;font_size&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s1">&#39;top&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">title_fmt</span><span class="p">,</span><span class="n">subtitle_fmt</span><span class="p">,</span><span class="n">center_fmt</span><span class="p">,</span><span class="n">column_fmt</span><span class="p">,</span><span class="n">bold_fmt</span><span class="p">,</span><span class="n">highlight_fmt</span><span class="p">,</span><span class="n">endline_fmt</span>
+    
+    <span class="k">def</span> <span class="nf">_get_template_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        获取模板数据</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">template_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mappings</span><span class="p">)</span>
+        <span class="n">template_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Receptor&#39;</span><span class="p">,</span> <span class="s1">&#39;PDB&#39;</span><span class="p">,</span> <span class="s1">&#39;Ligand&#39;</span><span class="p">]</span>
+        <span class="n">template_df</span> <span class="o">=</span> <span class="n">template_df</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+        <span class="n">template_df</span><span class="p">[</span><span class="s1">&#39;Reference_Ligand&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">template_df</span><span class="p">[</span><span class="s1">&#39;PDB&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;-lig-&#39;</span> <span class="o">+</span> <span class="n">template_df</span><span class="p">[</span><span class="s1">&#39;Ligand&#39;</span><span class="p">]</span>
+        <span class="n">template_df</span> <span class="o">=</span> <span class="n">template_df</span><span class="p">[[</span><span class="s1">&#39;Receptor&#39;</span><span class="p">,</span> <span class="s1">&#39;PDB&#39;</span><span class="p">,</span> <span class="s1">&#39;Reference_Ligand&#39;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">template_df</span>
+
+    <span class="k">def</span> <span class="nf">_get_redock_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refefence_datalist</span><span class="p">):</span>
+        <span class="n">_redock_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">_redock_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">refefence_datalist</span><span class="p">)</span>
+        <span class="n">redock_df_group</span> <span class="o">=</span> <span class="n">_redock_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;PDB&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_pdb</span><span class="p">,</span> <span class="n">pdb_df</span> <span class="ow">in</span> <span class="n">redock_df_group</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">pdb_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Ligand&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;PDB&#39;</span><span class="p">]):</span>
+                    <span class="n">_redock_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[[</span><span class="s1">&#39;PDB&#39;</span><span class="p">,</span> <span class="s1">&#39;Ligand&#39;</span><span class="p">,</span> <span class="s1">&#39;Docking_Score&#39;</span><span class="p">,</span> <span class="s1">&#39;rmsd&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+        <span class="n">redock_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">_redock_data</span><span class="p">)</span>
+        <span class="n">redock_df</span><span class="p">[</span><span class="s1">&#39;Reference_Ligand&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">redock_df</span><span class="p">[</span><span class="s1">&#39;Ligand&#39;</span><span class="p">]</span>
+        <span class="n">redock_df</span> <span class="o">=</span> <span class="n">redock_df</span><span class="p">[[</span><span class="s1">&#39;PDB&#39;</span><span class="p">,</span> <span class="s1">&#39;Reference_Ligand&#39;</span><span class="p">,</span> <span class="s1">&#39;Docking_Score&#39;</span><span class="p">,</span> <span class="s1">&#39;rmsd&#39;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">redock_df</span>
+
+    <span class="k">def</span> <span class="nf">_mol_to_img</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ligand_mol</span><span class="p">):</span>
+        <span class="n">_imgdata</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+        <span class="n">_img</span> <span class="o">=</span> <span class="n">Draw</span><span class="o">.</span><span class="n">MolToImage</span><span class="p">(</span><span class="n">ligand_mol</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span>
+        <span class="n">_img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">_imgdata</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;PNG&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_imgdata</span>
+
+<div class="viewcode-block" id="Reporter.generate_report"><a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.data.Reporter.generate_report">[docs]</a>    <span class="k">def</span> <span class="nf">generate_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">refefence_datalist</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span> <span class="n">dock_datalist</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span> <span class="n">ligand_save_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;./ligands/&#39;</span><span class="p">,</span> <span class="n">report_save_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;./result/&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        为每个Ligand生成对接报告</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mappings : list</span>
+<span class="sd">            原始输入文件的映射关系</span>
+<span class="sd">        refefence_datalist : list[dict]</span>
+<span class="sd">            参考数据列表</span>
+<span class="sd">        dock_datalist : list[dict]</span>
+<span class="sd">            对接数据列表</span>
+<span class="sd">        ligand_save_dir : str</span>
+<span class="sd">            Ligand文件保存目录(用于读取结构)</span>
+<span class="sd">        report_save_dir : str</span>
+<span class="sd">            报告xlsx保存目录</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># 创建报告模板</span>
+        <span class="n">template_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_template_df</span><span class="p">()</span>
+
+        <span class="c1"># 处理参考数据</span>
+        <span class="n">redock_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_redock_df</span><span class="p">(</span><span class="n">refefence_datalist</span><span class="p">)</span>
+        
+        <span class="n">final_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">template_df</span><span class="p">,</span> <span class="n">redock_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;PDB&#39;</span><span class="p">,</span> <span class="s1">&#39;Reference_Ligand&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+        <span class="n">final_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">report_save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;reference_data.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">final_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_img</span><span class="p">(</span><span class="n">final_df</span><span class="p">,</span> <span class="s1">&#39;Reference_Ligand&#39;</span><span class="p">,</span> <span class="n">ligand_save_dir</span><span class="p">)</span>
+
+        <span class="c1"># 处理对接数据</span>
+        <span class="n">dock_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dock_datalist</span><span class="p">)</span>
+        <span class="n">ligand_df_group</span> <span class="o">=</span> <span class="n">dock_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Ligand&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ligand_df_group</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;No docking data found.&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ligand_df_group</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Too many docking data found.&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Continue?[y/n]&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span>
+                <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">_ligand</span><span class="p">,</span> <span class="n">ligand_df</span> <span class="ow">in</span> <span class="n">ligand_df_group</span><span class="p">:</span>
+            
+            <span class="n">info_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ligand_info_dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ligand_save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_ligand</span><span class="si">}</span><span class="s1">.mae&#39;</span><span class="p">))</span>
+            <span class="n">ligand_df</span><span class="p">[</span><span class="s1">&#39;Reference_Ligand&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ligand_df</span><span class="p">[</span><span class="s1">&#39;PDB&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;-lig-&#39;</span> <span class="o">+</span> <span class="n">ligand_df</span><span class="p">[</span><span class="s1">&#39;Original&#39;</span><span class="p">]</span>
+            <span class="n">ligand_df</span> <span class="o">=</span> <span class="n">ligand_df</span><span class="p">[[</span><span class="s1">&#39;Reference_Ligand&#39;</span><span class="p">,</span> <span class="s1">&#39;Docking_Score&#39;</span><span class="p">]]</span>
+            <span class="n">ligand_df</span><span class="p">[</span><span class="n">_ligand</span><span class="p">]</span> <span class="o">=</span> <span class="n">ligand_df</span><span class="p">[</span><span class="s1">&#39;Docking_Score&#39;</span><span class="p">]</span>
+            <span class="n">ligand_df</span> <span class="o">=</span> <span class="n">ligand_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Docking_Score&#39;</span><span class="p">])</span>
+            <span class="n">_report_df</span> <span class="o">=</span> <span class="n">final_df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">ligand_df</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;Reference_Ligand&#39;</span><span class="p">)</span>
+
+            <span class="n">info_dict</span><span class="p">[</span><span class="s1">&#39;higher_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_report_df</span><span class="p">[</span><span class="n">_report_df</span><span class="p">[</span><span class="n">_ligand</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">_report_df</span><span class="p">[</span><span class="s1">&#39;Docking_Score&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">info_dict</span><span class="p">[</span><span class="s1">&#39;lower_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_report_df</span><span class="p">[</span><span class="n">_report_df</span><span class="p">[</span><span class="n">_ligand</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">_report_df</span><span class="p">[</span><span class="s1">&#39;Docking_Score&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">info_dict</span><span class="p">[</span><span class="s1">&#39;best_pdb&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_report_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">_report_df</span><span class="p">[</span><span class="n">_ligand</span><span class="p">]</span><span class="o">.</span><span class="n">idxmin</span><span class="p">(),</span> <span class="s1">&#39;PDB&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_xlsx</span><span class="p">(</span><span class="n">_report_df</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">report_save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">_ligand</span><span class="si">}</span><span class="s1">_report.xlsx&#39;</span><span class="p">),</span> <span class="n">info_dict</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_write_xlsx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataframe</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">info_dict</span><span class="p">:</span><span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        将含有结构图的dataframe写入文件</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataframe : pd.DataFrame</span>
+<span class="sd">            含有结构图的dataframe</span>
+<span class="sd">        file_path : str</span>
+<span class="sd">            要写入的文件路径</span>
+<span class="sd">        info_dict : dict</span>
+<span class="sd">            其他报告信息</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">info_dict</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">info_dict</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">info_dict</span>
+
+        <span class="k">with</span> <span class="n">xlsxwriter</span><span class="o">.</span><span class="n">Workbook</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">output_workbook</span><span class="p">:</span>
+            <span class="n">output_worksheet</span> <span class="o">=</span> <span class="n">output_workbook</span><span class="o">.</span><span class="n">add_worksheet</span><span class="p">()</span>
+            <span class="n">title_fmt</span><span class="p">,</span> <span class="n">subtitle_fmt</span><span class="p">,</span> <span class="n">center_fmt</span><span class="p">,</span> <span class="n">column_fmt</span><span class="p">,</span> <span class="n">bold_fmt</span><span class="p">,</span> <span class="n">highlight_fmt</span><span class="p">,</span> <span class="n">endline_fmt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_fmt</span><span class="p">(</span><span class="n">output_workbook</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_column_fmt</span><span class="p">(</span><span class="n">output_worksheet</span><span class="p">,</span> <span class="n">column_fmt</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_row_fmt</span><span class="p">(</span><span class="n">output_worksheet</span><span class="p">)</span>
+
+            <span class="n">ligand_name</span> <span class="o">=</span> <span class="n">info_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ligand_name&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="s1">&#39;Unknown&#39;</span>
+            <span class="n">ligand_mol</span> <span class="o">=</span> <span class="n">info_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ligand_mol&#39;</span><span class="p">)</span>
+
+            <span class="c1"># 标题</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ligand_name</span><span class="si">}</span><span class="s1"> Docking Score Report&#39;</span>
+            <span class="n">output_worksheet</span><span class="o">.</span><span class="n">merge_range</span><span class="p">(</span><span class="s1">&#39;A1:G1&#39;</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">title_fmt</span><span class="p">)</span>
+
+            <span class="c1"># 对优于参考和劣于参考进行计数</span>
+            <span class="n">output_worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;A2&#39;</span><span class="p">,</span> <span class="n">info_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;higher_count&#39;</span><span class="p">))</span>
+            <span class="n">output_worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;B2&#39;</span><span class="p">,</span> <span class="s1">&#39;Higher&#39;</span><span class="p">,</span> <span class="n">bold_fmt</span><span class="p">)</span>
+            <span class="n">output_worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;A3&#39;</span><span class="p">,</span> <span class="n">info_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lower_count&#39;</span><span class="p">))</span>
+            <span class="n">output_worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;B3&#39;</span><span class="p">,</span> <span class="s1">&#39;Lower&#39;</span><span class="p">,</span> <span class="n">bold_fmt</span><span class="p">)</span>
+
+            <span class="c1"># 当前配体名</span>
+            <span class="n">output_worksheet</span><span class="o">.</span><span class="n">merge_range</span><span class="p">(</span><span class="s1">&#39;C2:C3&#39;</span><span class="p">,</span> <span class="n">ligand_name</span><span class="p">,</span> <span class="n">center_fmt</span><span class="p">)</span>
+            <span class="c1"># 当前配体结构图</span>
+            <span class="n">_imgdata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mol_to_img</span><span class="p">(</span><span class="n">ligand_mol</span><span class="p">)</span>
+            <span class="n">output_worksheet</span><span class="o">.</span><span class="n">merge_range</span><span class="p">(</span><span class="s1">&#39;D2:E3&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">center_fmt</span><span class="p">)</span>
+            <span class="n">output_worksheet</span><span class="o">.</span><span class="n">insert_image</span><span class="p">(</span><span class="s1">&#39;D2&#39;</span><span class="p">,</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;image_data&#39;</span><span class="p">:</span> <span class="n">_imgdata</span><span class="p">,</span> <span class="s1">&#39;x_offset&#39;</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span> <span class="s1">&#39;y_offset&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">})</span>
+
+            <span class="c1"># 对接得分最佳的靶点</span>
+            <span class="n">output_worksheet</span><span class="o">.</span><span class="n">merge_range</span><span class="p">(</span><span class="s1">&#39;F2:F3&#39;</span><span class="p">,</span> <span class="s1">&#39;Best Target&#39;</span><span class="p">,</span> <span class="n">bold_fmt</span><span class="p">)</span>
+            <span class="n">output_worksheet</span><span class="o">.</span><span class="n">merge_range</span><span class="p">(</span><span class="s1">&#39;G2:G3&#39;</span><span class="p">,</span> <span class="n">info_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;best_pdb&#39;</span><span class="p">),</span> <span class="n">center_fmt</span><span class="p">)</span>
+            
+            <span class="c1"># 写入表头</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="c1"># output_columns = self._output_columns + cols[-1]</span>
+            <span class="n">output_worksheet</span><span class="o">.</span><span class="n">write_row</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">subtitle_fmt</span><span class="p">)</span>
+            <span class="c1"># output_worksheet.write_row(3, 1, data=cols[1:], cell_format=subtitle_fmt)</span>
+
+            <span class="c1"># 写入数据</span>
+            <span class="n">dataframe</span> <span class="o">=</span> <span class="n">dataframe</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Receptor&#39;</span><span class="p">,</span> <span class="s1">&#39;PDB&#39;</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dataframe</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()):</span>
+                <span class="n">output_worksheet</span><span class="o">.</span><span class="n">set_row</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="mi">114</span><span class="p">,</span> <span class="n">center_fmt</span><span class="p">)</span>
+
+                <span class="n">output_worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Receptor&#39;</span><span class="p">])</span>
+                <span class="n">output_worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;PDB&#39;</span><span class="p">])</span>
+                <span class="n">output_worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Reference_Ligand&#39;</span><span class="p">])</span>
+                <span class="c1"># 结构图</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">imgdata</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+                    <span class="n">img</span> <span class="o">=</span> <span class="n">Draw</span><span class="o">.</span><span class="n">MolToImage</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;Structure&#39;</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">))</span>
+                    <span class="n">img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">imgdata</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;PNG&#39;</span><span class="p">)</span>
+                    <span class="n">output_worksheet</span><span class="o">.</span><span class="n">insert_image</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;f&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;image_data&#39;</span><span class="p">:</span> <span class="n">imgdata</span><span class="p">,</span> <span class="s1">&#39;y_offset&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;x_offset&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                
+                <span class="c1"># 参考对接得分</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">output_worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Docking_Score&#39;</span><span class="p">],</span> <span class="n">center_fmt</span><span class="p">)</span>
+                    <span class="n">output_worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;rmsd&#39;</span><span class="p">],</span> <span class="n">center_fmt</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                
+                <span class="c1"># 对接得分</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">&lt;=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;Docking_Score&#39;</span><span class="p">]:</span>
+                        <span class="n">output_worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="n">highlight_fmt</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">output_worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="n">cols</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="n">center_fmt</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+            <span class="c1"># 末尾行横线</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">):</span>
+                <span class="n">output_worksheet</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataframe</span><span class="p">)</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">endline_fmt</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Yuhang Wu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

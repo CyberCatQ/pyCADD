@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Dynamic.core &mdash; pyCADD 1.6.5 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=08abc459"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyCADD
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">README</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">pyCADD</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dance.html">Dance User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dynamic.html">Dynamic Quick User Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pyCADD</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyCADD</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyCADD.Dynamic.core</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyCADD.Dynamic.core</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">pyCADD.Dynamic.template</span> <span class="kn">import</span> <span class="n">LeapInput</span>
+<span class="kn">from</span> <span class="nn">pyCADD.Density.base</span> <span class="kn">import</span> <span class="n">Gauss</span>
+<span class="kn">from</span> <span class="nn">pyCADD.utils.common</span> <span class="kn">import</span> <span class="n">BaseFile</span>
+<span class="kn">from</span> <span class="nn">pyCADD.utils.tool</span> <span class="kn">import</span> <span class="n">_get_progress</span><span class="p">,</span> <span class="n">makedirs_from_list</span><span class="p">,</span> <span class="n">timeit</span>
+
+<span class="n">CWD</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+<span class="n">CPU_NUM</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="ow">or</span> <span class="mi">2</span>
+<span class="n">PMEMD</span> <span class="o">=</span> <span class="s1">&#39;pmemd.cuda&#39;</span>
+<span class="n">SANDER</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;mpirun -np </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">CPU_NUM</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="si">}</span><span class="s1"> sander.MPI&#39;</span>
+
+<span class="n">SCRIPT_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+<span class="n">TEMPLATE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SCRIPT_DIR</span><span class="p">,</span> <span class="s1">&#39;template&#39;</span><span class="p">)</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_system_call</span><span class="p">(</span><span class="n">cmd</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    系统命令调用</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cmd : str</span>
+<span class="sd">        命令行</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">return_code</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">return_code</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;System call failed: </span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="kc">None</span>
+
+
+<span class="k">def</span> <span class="nf">_convert_mae_to_pdb</span><span class="p">(</span><span class="n">mae_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    转换MAE文件为PDB文件</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mae_file_path : str</span>
+<span class="sd">        mae文件路径</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">script_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SCRIPT_DIR</span><span class="p">,</span> <span class="s1">&#39;mae2pdb.sh&#39;</span><span class="p">)</span>
+    <span class="n">_system_call</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">script_path</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">mae_file_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_creat_file_from_template</span><span class="p">(</span><span class="n">template_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwarg</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    从模板文件中读取模板信息</span>
+<span class="sd">    并替换为指定内容 从而创建定制文件</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">template_file_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="n">output_file_text</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">kwarg</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">output_file_text</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_atom_lines</span><span class="p">(</span><span class="n">mol2file</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    从mol2文件中获取原子行信息</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mol2file : str</span>
+<span class="sd">        mol2文件路径</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        原子行信息列表 </span>
+<span class="sd">        [</span>
+<span class="sd">            [原子序号, 原子名, x, y, z, 原子类型, 残基序号, 残基名, 电荷量],</span>
+<span class="sd">            ...</span>
+<span class="sd">        ]</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">mol2file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+    <span class="n">start_idx</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;@&lt;TRIPOS&gt;ATOM&#39;</span><span class="p">)</span>
+    <span class="n">end_idx</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;@&lt;TRIPOS&gt;BOND&#39;</span><span class="p">)</span>
+    <span class="n">atom_lines</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">start_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">atom_lines</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_merge_charge</span><span class="p">(</span><span class="n">charge_mol2</span><span class="p">,</span> <span class="n">origin_mol2</span><span class="p">,</span> <span class="n">output_mol2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    合并mol2原始坐标与计算得到的电荷量</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    charge_mol2 : str</span>
+<span class="sd">        计算得到电荷量的mol2文件路径(原子顺序需与origin_mol2一致)</span>
+<span class="sd">    origin_mol2 : str</span>
+<span class="sd">        原始mol2文件路径</span>
+<span class="sd">    output_mol2 : str</span>
+<span class="sd">        合并后的mol2文件路径</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">mol2_line_fmt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:&gt;7}</span><span class="s2"> </span><span class="si">{:&lt;10}</span><span class="s2"> </span><span class="si">{:&gt;10}</span><span class="s2"> </span><span class="si">{:&gt;10}</span><span class="s2"> </span><span class="si">{:&gt;10}</span><span class="s2"> </span><span class="si">{:&lt;5}</span><span class="s2"> </span><span class="si">{:&gt;4}</span><span class="s2"> </span><span class="si">{:&lt;7}</span><span class="s2"> </span><span class="si">{:&gt;10}</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="n">ori_atom_lines</span> <span class="o">=</span> <span class="n">_get_atom_lines</span><span class="p">(</span><span class="n">origin_mol2</span><span class="p">)</span>
+    <span class="n">chg_atom_lines</span> <span class="o">=</span> <span class="n">_get_atom_lines</span><span class="p">(</span><span class="n">charge_mol2</span><span class="p">)</span>
+    <span class="n">result_lines</span> <span class="o">=</span> <span class="n">ori_atom_lines</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">result_lines</span><span class="p">):</span>
+        <span class="n">result_lines</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="n">chg_atom_lines</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">8</span><span class="p">]</span>
+    <span class="n">result_lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">mol2_line_fmt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">line</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">result_lines</span><span class="p">]</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">origin_mol2</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">atom_start_idx</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;@&lt;TRIPOS&gt;ATOM</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">atom_end_idx</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;@&lt;TRIPOS&gt;BOND</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_mol2</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">lines</span><span class="p">[:</span><span class="n">atom_start_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">result_lines</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">atom_end_idx</span><span class="p">:])</span>
+
+
+<div class="viewcode-block" id="protein_prepare"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.protein_prepare">[docs]</a><span class="k">def</span> <span class="nf">protein_prepare</span><span class="p">(</span><span class="n">protein_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">keep_water</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseFile</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    预处理蛋白质PDB文件</span>
+<span class="sd">        PDB文件格式化 for Amber | 去除原生H原子 | 使用rudece添加H原子 | 再次格式化</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    protein_file : BaseFile</span>
+<span class="sd">        蛋白质PDB文件</span>
+<span class="sd">    save_dir : str, optional</span>
+<span class="sd">        保存路径 过程及结果文件保存至该目录 如为None则保存至当前目录</span>
+<span class="sd">    keep_water : bool, optional</span>
+<span class="sd">        是否保留输入结构中的水分子, 默认为 False</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        处理完成的蛋白质PDB文件</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="k">if</span> <span class="n">save_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CWD</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">protein_file</span><span class="o">.</span><span class="n">file_path</span>
+    <span class="n">file_prefix</span> <span class="o">=</span> <span class="n">protein_file</span><span class="o">.</span><span class="n">file_prefix</span>
+
+    <span class="n">dry_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">file_prefix</span> <span class="o">+</span> <span class="s1">&#39;_dry.pdb&#39;</span><span class="p">)</span>
+    <span class="n">noH_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">file_prefix</span> <span class="o">+</span> <span class="s1">&#39;_noH.pdb&#39;</span><span class="p">)</span>
+    <span class="n">leap_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">file_prefix</span> <span class="o">+</span> <span class="s1">&#39;_leap.pdb&#39;</span><span class="p">)</span>
+
+    <span class="c1"># 去除水分子</span>
+    <span class="n">_system_call</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;pdb4amber -i </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s1"> -o </span><span class="si">{</span><span class="n">dry_file_path</span><span class="si">}</span><span class="s1"> -p --dry --add-missing-atoms &#39;</span><span class="p">)</span>
+    <span class="c1"># 去除原生H原子</span>
+    <span class="n">_system_call</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;pdb4amber -i </span><span class="si">{</span><span class="n">dry_file_path</span><span class="si">}</span><span class="s1"> -o </span><span class="si">{</span><span class="n">noH_file_path</span><span class="si">}</span><span class="s1"> -y&#39;</span><span class="p">)</span>
+    <span class="c1"># 重新格式化</span>
+    <span class="n">_system_call</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;pdb4amber -i </span><span class="si">{</span><span class="n">noH_file_path</span><span class="si">}</span><span class="s1"> -o </span><span class="si">{</span><span class="n">leap_file_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">keep_water</span><span class="p">:</span>
+        <span class="n">_system_call</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;pdb4amber -i </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s1"> -o tmp.pdb&#39;</span><span class="p">)</span>
+        <span class="n">_system_call</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;cat tmp.pdb | grep &quot;HOH&quot; &gt; water.pdb&#39;</span><span class="p">)</span>
+        <span class="n">_system_call</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;cat </span><span class="si">{</span><span class="n">leap_file_path</span><span class="si">}</span><span class="s1"> | grep -v &quot;END&quot; &gt; tmp.pdb &amp;&amp; </span><span class="se">\</span>
+<span class="s1">            cat water.pdb | sed &quot;s/HOH/WAT/&quot; &gt;&gt; tmp.pdb &amp;&amp; </span><span class="se">\</span>
+<span class="s1">            echo END &gt;&gt; tmp.pdb&#39;</span><span class="p">)</span>
+        <span class="n">_system_call</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;pdb4amber -i tmp.pdb -o </span><span class="si">{</span><span class="n">leap_file_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">_system_call</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;rm tmp.pdb water.pdb&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">leap_file_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="molecule_prepare_resp2"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.molecule_prepare_resp2">[docs]</a><span class="k">def</span> <span class="nf">molecule_prepare_resp2</span><span class="p">(</span>
+        <span class="n">ligand_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span>
+        <span class="n">cpu_num</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">charge</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">multiplicity</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">solvent</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">keep_origin_cood</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    预处理小分子文件</span>
+<span class="sd">        高斯坐标优化与RESP2(0.5)电荷计算</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ligand_file : BaseFile</span>
+<span class="sd">        小分子文件</span>
+<span class="sd">    cpu_num : int, optional</span>
+<span class="sd">        CPU数量 默认为CPU总数</span>
+<span class="sd">    charge : int, optional</span>
+<span class="sd">        电荷数 默认为电荷数为0</span>
+<span class="sd">    multiplicity : int, optional</span>
+<span class="sd">        自旋多重度 默认为复数为1</span>
+<span class="sd">    solvent : str, optional</span>
+<span class="sd">        计算溶剂 默认为水</span>
+<span class="sd">    save_dir : str, optional</span>
+<span class="sd">        保存路径 过程及结果文件保存至该目录 如为None则保存至当前目录</span>
+<span class="sd">    overwrite : bool, optional</span>
+<span class="sd">        是否覆盖已存在文件 默认为False</span>
+<span class="sd">    keep_origin_cood : bool, optional</span>
+<span class="sd">        是否在输出结构中保留原始坐标 而不使用高斯结构优化的坐标 默认为False</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BaseFile, BaseFile</span>
+<span class="sd">        已计算电荷的mol2文件, frcmod文件</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="k">if</span> <span class="n">save_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CWD</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">ligand_file</span><span class="o">.</span><span class="n">file_path</span>
+    <span class="n">file_prefix</span> <span class="o">=</span> <span class="n">ligand_file</span><span class="o">.</span><span class="n">file_prefix</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">save_dir</span><span class="p">)</span>
+
+    <span class="n">cpu_num</span> <span class="o">=</span> <span class="n">cpu_num</span> <span class="k">if</span> <span class="n">cpu_num</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CPU_NUM</span>
+    <span class="n">charge</span> <span class="o">=</span> <span class="n">charge</span> <span class="k">if</span> <span class="n">charge</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="n">multiplicity</span> <span class="o">=</span> <span class="n">multiplicity</span> <span class="k">if</span> <span class="n">multiplicity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span>
+    <span class="n">solvent</span> <span class="o">=</span> <span class="n">solvent</span> <span class="k">if</span> <span class="n">solvent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;water&#39;</span>
+    <span class="n">script_resp2_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SCRIPT_DIR</span><span class="p">,</span> <span class="s1">&#39;RESP2.sh&#39;</span><span class="p">)</span>
+
+    <span class="c1"># 参数生成过程文件</span>
+    <span class="n">pqr_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">file_prefix</span> <span class="o">+</span> <span class="s1">&#39;.pqr&#39;</span><span class="p">)</span>
+    <span class="n">mol2_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">file_prefix</span> <span class="o">+</span> <span class="s1">&#39;.mol2&#39;</span><span class="p">)</span>
+    <span class="n">frcmod_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">file_prefix</span> <span class="o">+</span> <span class="s1">&#39;.frcmod&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">mol2_file_path</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+        <span class="n">_system_call</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;parmchk2 -i </span><span class="si">{</span><span class="n">mol2_file_path</span><span class="si">}</span><span class="s1"> -f mol2 -o </span><span class="si">{</span><span class="n">frcmod_file_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">CWD</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">mol2_file_path</span><span class="p">),</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">frcmod_file_path</span><span class="p">)</span>
+
+    <span class="n">Gauss</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">set_system</span><span class="p">(</span><span class="n">cpu_num</span><span class="p">,</span> <span class="s1">&#39;16GB&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span><span class="s1">&#39;which obabel&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Openbabel may not be installed.&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Optimizing ligand structure...&#39;</span><span class="p">)</span>
+    <span class="c1"># 高斯坐标优化与RESP2电荷计算</span>
+    <span class="c1"># 完成时 生成.pqr文件</span>
+    <span class="n">_system_call</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;chmod 777 </span><span class="si">{</span><span class="n">script_resp2_path</span><span class="si">}</span><span class="s1"> &amp;&amp; </span><span class="si">{</span><span class="n">script_resp2_path</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">charge</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">multiplicity</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">solvent</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Openbabel格式转换 pqr -&gt; mol2 电荷信息传递至mol2文件</span>
+    <span class="n">_system_call</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;obabel -ipqr </span><span class="si">{</span><span class="n">pqr_file_path</span><span class="si">}</span><span class="s1"> -omol2 -O tmp.mol2&#39;</span><span class="p">)</span>
+    <span class="c1"># Openbabel生成的mol2文件无法被parmchk2直接使用 需要antechamber转换</span>
+    <span class="c1"># mol2文件带有RESP2电荷信息 但坐标已经高斯优化而改变</span>
+    <span class="n">_system_call</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;antechamber -fi mol2 -i tmp.mol2 -fo mol2 -o </span><span class="si">{</span><span class="n">mol2_file_path</span><span class="si">}</span><span class="s1"> &amp;&amp; rm tmp.mol2&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">keep_origin_cood</span><span class="p">:</span>
+        <span class="c1"># 维持对接结果的坐标 并将RESP2电荷信息合并至mol2文件</span>
+        <span class="n">origin_file</span> <span class="o">=</span> <span class="n">ligand_file</span><span class="o">.</span><span class="n">file_path</span>
+        <span class="n">file_ext</span> <span class="o">=</span> <span class="n">ligand_file</span><span class="o">.</span><span class="n">file_ext</span>
+
+        <span class="k">if</span> <span class="n">file_ext</span> <span class="o">==</span> <span class="s1">&#39;pdb&#39;</span><span class="p">:</span>
+            <span class="n">_system_call</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;pdb4amber -i </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s1"> -o origin.pdb&#39;</span><span class="p">)</span>
+            <span class="n">_system_call</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;antechamber -fi pdb -i origin.pdb -fo mol2 -o origin.mol2 &amp;&amp; rm origin.pdb&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_system_call</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;antechamber -fi </span><span class="si">{</span><span class="n">file_ext</span><span class="si">}</span><span class="s1"> -i </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s1"> -fo mol2 -o origin.mol2&#39;</span><span class="p">)</span>
+        <span class="n">_merge_charge</span><span class="p">(</span><span class="n">mol2_file_path</span><span class="p">,</span> <span class="s1">&#39;origin.mol2&#39;</span><span class="p">,</span> <span class="n">mol2_file_path</span><span class="p">)</span>
+
+    <span class="c1"># 生成Amber Gaff Force Filed Parameters文件</span>
+    <span class="n">_system_call</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;parmchk2 -i </span><span class="si">{</span><span class="n">mol2_file_path</span><span class="si">}</span><span class="s1"> -f mol2 -o </span><span class="si">{</span><span class="n">frcmod_file_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">CWD</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">mol2_file_path</span><span class="p">),</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">frcmod_file_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="molecule_prepare_bcc"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.molecule_prepare_bcc">[docs]</a><span class="k">def</span> <span class="nf">molecule_prepare_bcc</span><span class="p">(</span>
+        <span class="n">ligand_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span>
+        <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    使用AM1-BCC快速计算原子电荷 并完成配体预处理</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ligand_file : BaseFile</span>
+<span class="sd">        小分子文件</span>
+<span class="sd">    charge : int</span>
+<span class="sd">        电荷数</span>
+<span class="sd">    save_dir : str, optional</span>
+<span class="sd">        保存路径 过程及结果文件保存至该目录 如为None则保存至当前目录</span>
+<span class="sd">    overwrite : bool, optional</span>
+<span class="sd">        是否覆盖已存在的mol2结果文件 默认为False</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="k">if</span> <span class="n">save_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CWD</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">ligand_file</span><span class="o">.</span><span class="n">file_path</span>
+    <span class="n">file_prefix</span> <span class="o">=</span> <span class="n">ligand_file</span><span class="o">.</span><span class="n">file_prefix</span>
+
+    <span class="c1"># 参数生成过程文件</span>
+    <span class="n">mol2_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">file_prefix</span> <span class="o">+</span> <span class="s1">&#39;.mol2&#39;</span><span class="p">)</span>
+    <span class="n">frcmod_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">file_prefix</span> <span class="o">+</span> <span class="s1">&#39;.frcmod&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">mol2_file_path</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+        <span class="n">_system_call</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;parmchk2 -i </span><span class="si">{</span><span class="n">mol2_file_path</span><span class="si">}</span><span class="s1"> -f mol2 -o </span><span class="si">{</span><span class="n">frcmod_file_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">mol2_file_path</span><span class="p">),</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">frcmod_file_path</span><span class="p">)</span>
+
+    <span class="n">_system_call</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;pdb4amber -i </span><span class="si">{</span><span class="n">ligand_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s1"> -o tmp.pdb&#39;</span>
+    <span class="p">)</span>
+
+    <span class="n">_system_call</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;antechamber -fi pdb -i tmp.pdb -fo mol2 -o </span><span class="si">{</span><span class="n">mol2_file_path</span><span class="si">}</span><span class="s1"> -c bcc -nc </span><span class="si">{</span><span class="n">charge</span><span class="si">}</span><span class="s1"> &amp;&amp; rm tmp.pdb&#39;</span>
+    <span class="p">)</span>
+
+    <span class="n">_system_call</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;parmchk2 -i </span><span class="si">{</span><span class="n">mol2_file_path</span><span class="si">}</span><span class="s1"> -f mol2 -o </span><span class="si">{</span><span class="n">frcmod_file_path</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">mol2_file_path</span><span class="p">),</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">frcmod_file_path</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_creat_leap_inputfile</span><span class="p">(</span>
+        <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">protein_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">ligand_file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">frcmod_file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">box_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">12.0</span><span class="p">,</span>
+        <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseFile</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    创建LEaP输入文件</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    prefix : str</span>
+<span class="sd">        文件名前缀</span>
+<span class="sd">    ligand_file_path : str</span>
+<span class="sd">        小分子文件路径</span>
+<span class="sd">    frcmod_file_path : str</span>
+<span class="sd">        Amber Parameters文件路径</span>
+<span class="sd">    protein_file_path : str</span>
+<span class="sd">        蛋白质PDB文件路径</span>
+<span class="sd">    save_dir : str, optional</span>
+<span class="sd">        保存路径</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="k">if</span> <span class="n">save_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CWD</span>
+
+    <span class="c1"># tamplete_file_path = os.path.join(TEMPLATE_DIR, &#39;leap_template.in&#39;)</span>
+    <span class="n">input_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;_leap.in&#39;</span><span class="p">)</span>
+
+    <span class="n">input_file</span> <span class="o">=</span> <span class="n">LeapInput</span><span class="p">(</span>
+        <span class="n">protein_file_path</span><span class="o">=</span><span class="n">protein_file_path</span><span class="p">,</span>
+        <span class="n">ligand_file_path</span><span class="o">=</span><span class="n">ligand_file_path</span><span class="p">,</span>
+        <span class="n">frcmod_file_path</span><span class="o">=</span><span class="n">frcmod_file_path</span><span class="p">,</span>
+        <span class="n">file_prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span>
+        <span class="n">box_size</span><span class="o">=</span><span class="n">box_size</span>
+    <span class="p">)</span>
+    <span class="n">input_file</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="leap_prepare"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.leap_prepare">[docs]</a><span class="k">def</span> <span class="nf">leap_prepare</span><span class="p">(</span><span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ligand_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">frcmod_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">protein_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">box_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">12.0</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    创建LEaP输入文件并执行tleap命令</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    prefix : str</span>
+<span class="sd">        生成文件的文件名前缀</span>
+<span class="sd">    ligand_file : BaseFile</span>
+<span class="sd">        小分子文件</span>
+<span class="sd">    frcmod_file : BaseFile</span>
+<span class="sd">        Amber Parameters文件</span>
+<span class="sd">    protein_file : BaseFile</span>
+<span class="sd">        蛋白质PDB文件</span>
+<span class="sd">    box_size : float, optional</span>
+<span class="sd">        水箱大小 默认为12.0 Angstrom</span>
+<span class="sd">    save_dir : str, optional</span>
+<span class="sd">        保存路径 默认为当前目录</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">ligand_file_path</span> <span class="o">=</span> <span class="n">ligand_file</span><span class="o">.</span><span class="n">file_path</span>
+    <span class="n">frcmod_file_path</span> <span class="o">=</span> <span class="n">frcmod_file</span><span class="o">.</span><span class="n">file_path</span>
+    <span class="n">protein_file_path</span> <span class="o">=</span> <span class="n">protein_file</span><span class="o">.</span><span class="n">file_path</span>
+
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="k">if</span> <span class="n">save_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CWD</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">save_dir</span><span class="p">)</span>
+
+    <span class="n">leap_inputfile</span> <span class="o">=</span> <span class="n">_creat_leap_inputfile</span><span class="p">(</span>
+        <span class="n">prefix</span><span class="p">,</span> <span class="n">ligand_file_path</span><span class="o">=</span><span class="n">ligand_file_path</span><span class="p">,</span> <span class="n">frcmod_file_path</span><span class="o">=</span><span class="n">frcmod_file_path</span><span class="p">,</span> <span class="n">protein_file_path</span><span class="o">=</span><span class="n">protein_file_path</span><span class="p">,</span> <span class="n">box_size</span><span class="o">=</span><span class="n">box_size</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">)</span>
+    <span class="c1"># 调用tleap命令</span>
+    <span class="n">_system_call</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;tleap -f </span><span class="si">{</span><span class="n">leap_inputfile</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># 生成水箱复合物PDB文件</span>
+    <span class="n">comsolvate_topfile_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">save_dir</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;_comsolvate.prmtop&#39;</span><span class="p">)</span>
+    <span class="n">comsolvate_crdfile_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">save_dir</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;_comsolvate.inpcrd&#39;</span><span class="p">)</span>
+    <span class="n">comsolvate_pdbfile_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">save_dir</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;_comsolvate.pdb&#39;</span><span class="p">)</span>
+    <span class="n">_system_call</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;ambpdb -p </span><span class="si">{</span><span class="n">comsolvate_topfile_path</span><span class="si">}</span><span class="s1"> &lt; </span><span class="si">{</span><span class="n">comsolvate_crdfile_path</span><span class="si">}</span><span class="s1"> &gt; </span><span class="si">{</span><span class="n">comsolvate_pdbfile_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">CWD</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="leap_prepare_for_apo"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.leap_prepare_for_apo">[docs]</a><span class="k">def</span> <span class="nf">leap_prepare_for_apo</span><span class="p">(</span><span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">protein_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">box_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">12.0</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    创建Apo晶体的LEaP输入文件并执行tleap命令</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    prefix : str</span>
+<span class="sd">        生成文件的文件名前缀</span>
+<span class="sd">    protein_file : BaseFile</span>
+<span class="sd">        蛋白质PDB文件</span>
+<span class="sd">    box_size : float, optional</span>
+<span class="sd">        水箱大小 默认为12.0 Angstrom</span>
+<span class="sd">    save_dir : str, optional</span>
+<span class="sd">        保存路径 默认为当前目录</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">protein_file_path</span> <span class="o">=</span> <span class="n">protein_file</span><span class="o">.</span><span class="n">file_path</span>
+
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="k">if</span> <span class="n">save_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CWD</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">save_dir</span><span class="p">)</span>
+
+    <span class="n">leap_inputfile</span> <span class="o">=</span> <span class="n">_creat_leap_inputfile</span><span class="p">(</span>
+        <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span> <span class="n">protein_file_path</span><span class="o">=</span><span class="n">protein_file_path</span><span class="p">,</span> <span class="n">box_size</span><span class="o">=</span><span class="n">box_size</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">)</span>
+    <span class="c1"># 调用tleap命令</span>
+    <span class="n">_system_call</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;tleap -f </span><span class="si">{</span><span class="n">leap_inputfile</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># 生成水箱复合物PDB文件</span>
+    <span class="n">comsolvate_topfile_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">save_dir</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;_comsolvate.prmtop&#39;</span><span class="p">)</span>
+    <span class="n">comsolvate_crdfile_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">save_dir</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;_comsolvate.inpcrd&#39;</span><span class="p">)</span>
+    <span class="n">comsolvate_pdbfile_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">save_dir</span><span class="p">,</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;_comsolvate.pdb&#39;</span><span class="p">)</span>
+    <span class="n">_system_call</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;ambpdb -p </span><span class="si">{</span><span class="n">comsolvate_topfile_path</span><span class="si">}</span><span class="s1"> &lt; </span><span class="si">{</span><span class="n">comsolvate_crdfile_path</span><span class="si">}</span><span class="s1"> &gt; </span><span class="si">{</span><span class="n">comsolvate_pdbfile_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">CWD</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_water_resnum</span><span class="p">(</span><span class="n">comsolvate_pdbfile</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    获取水箱复合物的全部水分子Residue Number</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    comsolvate_pdbfile : BaseFile</span>
+<span class="sd">        水箱复合物PDB文件</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -----------</span>
+<span class="sd">    list</span>
+<span class="sd">        水分子Residue Number列表</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span>
+        <span class="s2">&quot;cat </span><span class="si">%s</span><span class="s2"> | grep WAT -w | awk &#39;{print $5}&#39;&quot;</span> <span class="o">%</span> <span class="n">comsolvate_pdbfile</span><span class="o">.</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_trace_progress</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    追踪分子动力学模拟进程</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    output_file_path : str</span>
+<span class="sd">        分子动力学模拟过程的输出文件路径</span>
+<span class="sd">    step : int, optional</span>
+<span class="sd">        模拟步数 默认为50000000</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">progress</span><span class="p">,</span> <span class="n">taskID</span> <span class="o">=</span> <span class="n">_get_progress</span><span class="p">(</span>
+        <span class="s1">&#39;Molecule Dynamics Simulation&#39;</span><span class="p">,</span> <span class="s1">&#39;bold cyan&#39;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="n">step</span><span class="p">)</span>
+    <span class="n">progress</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">progress</span><span class="o">.</span><span class="n">start_task</span><span class="p">(</span><span class="n">taskID</span><span class="p">)</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">progress</span><span class="o">.</span><span class="n">finished</span><span class="p">:</span>
+        <span class="n">_current</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;tail -n 10 </span><span class="si">{</span><span class="n">output_file_path</span><span class="si">}</span><span class="s1"> | grep NSTEP&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">_finished</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;tail -n 20 </span><span class="si">{</span><span class="n">output_file_path</span><span class="si">}</span><span class="s1"> | grep Final&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">_current</span><span class="p">:</span>
+            <span class="n">current_step</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\d+&#39;</span><span class="p">,</span> <span class="n">_current</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">taskID</span><span class="p">,</span> <span class="n">completed</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">current_step</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">_finished</span><span class="p">:</span>
+            <span class="n">progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">taskID</span><span class="p">,</span> <span class="n">completed</span><span class="o">=</span><span class="n">step</span><span class="p">)</span>
+            <span class="k">break</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">progress</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_get_input_config</span><span class="p">(</span><span class="n">input_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    获取分子动力学模拟过程的输入文件配置</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    input_file : str</span>
+<span class="sd">        分子动力学模拟过程的输入文件路径</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -----------</span>
+<span class="sd">    dict</span>
+<span class="sd">        分子动力学模拟过程的输入文件配置</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">output_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">type_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;&amp;(.*?)\n&#39;</span>
+    <span class="n">config_pattern</span> <span class="o">=</span> <span class="s2">&quot;(?&lt;=&amp;</span><span class="si">{_type}</span><span class="se">\n</span><span class="s2">).*&quot;</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+    <span class="n">config_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">])</span>
+    <span class="n">config_list</span> <span class="o">=</span> <span class="n">config_str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">config_list</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">config</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">or</span> <span class="n">config</span> <span class="o">==</span> <span class="s1">&#39;END&#39;</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">_type</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">type_pattern</span><span class="p">,</span> <span class="n">config</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">_config_list</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">config_pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">_type</span><span class="o">=</span><span class="n">_type</span><span class="p">),</span> <span class="n">config</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">S</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">config_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;_index&quot;</span><span class="p">:</span> <span class="n">index</span><span class="p">,</span> <span class="s2">&quot;_type&quot;</span><span class="p">:</span> <span class="n">_type</span><span class="p">}</span>
+        <span class="n">config_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span> <span class="n">v</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">_config_list</span><span class="p">]}</span>
+        <span class="p">)</span>
+        <span class="n">output_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output_list</span>
+
+
+<div class="viewcode-block" id="BaseProcess"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.BaseProcess">[docs]</a><span class="k">class</span> <span class="nc">BaseProcess</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="n">input_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_name</span> <span class="o">=</span> <span class="n">process_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span> <span class="o">=</span> <span class="n">_get_input_config</span><span class="p">(</span><span class="n">input_file</span><span class="o">.</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BaseProcess.run"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.BaseProcess.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+
+
+<div class="viewcode-block" id="MDProcess"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess">[docs]</a><span class="k">class</span> <span class="nc">MDProcess</span><span class="p">(</span><span class="n">BaseProcess</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">process_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control_cfg</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">cfg</span> <span class="k">for</span> <span class="n">cfg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span> <span class="k">if</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;cntrl&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_minimize</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;imin&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_restrained</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ntr&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_production</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;nstlim&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;maxcyc&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dt&#39;</span><span class="p">))</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_minimize</span> <span class="k">else</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">toplogy_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inpcrd_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdout_file_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdcrd_file_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdrst_file_path</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="MDProcess.run"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">toplogy_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">inpcrd_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">reference_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">BaseFile</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">nohup</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;MDProcess&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Run MD process.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        save_dir : str, optional</span>
+<span class="sd">            Save directory. Default is CWD.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toplogy_file</span> <span class="o">=</span> <span class="n">toplogy_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inpcrd_file</span> <span class="o">=</span> <span class="n">inpcrd_file</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="k">if</span> <span class="n">save_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CWD</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdout_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">save_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_name</span> <span class="o">+</span> <span class="s1">&#39;.out&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdcrd_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">save_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_name</span> <span class="o">+</span> <span class="s1">&#39;.nc&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdrst_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">save_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_name</span> <span class="o">+</span> <span class="s1">&#39;.rst&#39;</span><span class="p">)</span>
+        <span class="n">simulation_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span> <span class="o">/</span> <span class="mi">1000</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_minimize</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Simulation total steps: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">total_step</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Simulation step size: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">step_size</span><span class="si">}</span><span class="s1"> ps&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Simulation total time: </span><span class="si">{</span><span class="n">simulation_time</span><span class="si">}</span><span class="s1"> ns&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">PMEMD</span><span class="si">}</span><span class="s2"> -O&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -i </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -o </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mdout_file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -c </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">inpcrd_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -p </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">toplogy_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -r </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mdrst_file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_minimize</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -x </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mdcrd_file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">reference_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -ref </span><span class="si">{</span><span class="n">reference_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="n">nohup</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;nohup </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="si">}</span><span class="s1"> &gt; /dev/null 2&gt;&amp;1 &amp;&#39;</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Process </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">process_name</span><span class="si">}</span><span class="s1"> running command: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Running process </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">process_name</span><span class="si">}</span><span class="s1"> ...&#39;</span><span class="p">)</span>
+        <span class="n">_system_call</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nohup</span><span class="p">:</span>
+            <span class="n">_trace_progress</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mdout_file_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_step</span><span class="p">)</span>
+        <span class="c1"># try:</span>
+        <span class="c1">#     _system_call(self.cmd)</span>
+        <span class="c1">#     if nohup:</span>
+        <span class="c1">#         _trace_progress(self.mdout_file_path, self.total_step)</span>
+        <span class="c1"># except RuntimeError:</span>
+        <span class="c1">#     logger.warning(</span>
+        <span class="c1">#     &#39;GPU version of PMEMD failed, trying CPU version sander.MPI ...&#39;)</span>
+        <span class="c1">#     cmd_cpu = self.cmd.replace(PMEMD, SANDER)</span>
+        <span class="c1">#     logger.info(f&#39;Using CMD: {cmd_cpu}&#39;)</span>
+        <span class="c1">#     _system_call(cmd_cpu)</span>
+        <span class="c1">#     if not self.is_minimize:</span>
+        <span class="c1">#         _trace_progress(self.mdout_file_path, self.total_step)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Process </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">process_name</span><span class="si">}</span><span class="s2"> finished.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div></div>
+
+
+<div class="viewcode-block" id="MinimizeProcess"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MinimizeProcess">[docs]</a><span class="k">class</span> <span class="nc">MinimizeProcess</span><span class="p">(</span><span class="n">MDProcess</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">process_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NPTProcess"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.NPTProcess">[docs]</a><span class="k">class</span> <span class="nc">NPTProcess</span><span class="p">(</span><span class="n">MDProcess</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">is_production</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">process_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_production</span> <span class="o">=</span> <span class="n">is_production</span></div>
+
+
+<div class="viewcode-block" id="NVTProcess"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.NVTProcess">[docs]</a><span class="k">class</span> <span class="nc">NVTProcess</span><span class="p">(</span><span class="n">MDProcess</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">is_production</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">process_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_production</span> <span class="o">=</span> <span class="n">is_production</span></div>
+
+
+<span class="nd">@timeit</span>
+<span class="k">def</span> <span class="nf">_run_simulation</span><span class="p">(</span>
+        <span class="n">comsolvate_topfile</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span>
+        <span class="n">comsolvate_crdfile</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span>
+        <span class="n">process_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+        <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    执行分子动力学模拟工作流</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="k">if</span> <span class="n">save_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CWD</span>
+
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">process</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">process_list</span><span class="p">):</span>
+
+        <span class="n">process_output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">process_name</span><span class="p">)</span>
+        <span class="n">inpcrd_file</span> <span class="o">=</span> <span class="n">comsolvate_crdfile</span> <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">BaseFile</span><span class="p">(</span>
+            <span class="n">finished_process</span><span class="o">.</span><span class="n">mdrst_file_path</span><span class="p">)</span>
+        <span class="n">reference_file</span> <span class="o">=</span> <span class="n">inpcrd_file</span> <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">is_restrained</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">nohup</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">is_production</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="n">finished_process</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="n">toplogy_file</span><span class="o">=</span><span class="n">comsolvate_topfile</span><span class="p">,</span>
+            <span class="n">inpcrd_file</span><span class="o">=</span><span class="n">inpcrd_file</span><span class="p">,</span>
+            <span class="n">save_dir</span><span class="o">=</span><span class="n">process_output_dir</span><span class="p">,</span>
+            <span class="n">reference_file</span><span class="o">=</span><span class="n">reference_file</span><span class="p">,</span>
+            <span class="n">nohup</span><span class="o">=</span><span class="n">nohup</span>
+        <span class="p">)</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># step_a_dir = os.path.join(save_dir, &#39;step_a&#39;)</span>
+    <span class="c1"># step_b_dir = os.path.join(save_dir, &#39;step_b&#39;)</span>
+    <span class="c1"># step_c_dir = os.path.join(save_dir, &#39;step_c&#39;)</span>
+    <span class="c1"># step_nvt_dir = os.path.join(save_dir, &#39;step_nvt&#39;)</span>
+    <span class="c1"># step_npt_dir = os.path.join(save_dir, &#39;step_npt&#39;)</span>
+
+    <span class="c1"># nvt_cfg = _get_input_config(step_nvt_inputfile.file_path)</span>
+    <span class="c1"># npt_cfg = _get_input_config(step_npt_inputfile.file_path)</span>
+
+    <span class="c1"># step_num = int(npt_cfg[&#39;nstlim&#39;])</span>
+    <span class="c1"># step_size = float(npt_cfg[&#39;dt&#39;])</span>
+    <span class="c1"># simulate_time = step_num * step_size / 1000</span>
+
+    <span class="c1"># logger.info(f&#39;Simulate steps: {step_num}&#39;)</span>
+    <span class="c1"># logger.info(f&#39;Simulate step size: {step_size}&#39;)</span>
+    <span class="c1"># logger.info(f&#39;Simulate time: {simulate_time} ns&#39;)</span>
+
+    <span class="c1"># makedirs_from_list(</span>
+    <span class="c1">#     [</span>
+    <span class="c1">#         step_a_dir,</span>
+    <span class="c1">#         step_b_dir,</span>
+    <span class="c1">#         step_c_dir,</span>
+    <span class="c1">#         step_nvt_dir,</span>
+    <span class="c1">#         step_npt_dir</span>
+    <span class="c1">#     ]</span>
+    <span class="c1"># )</span>
+
+    <span class="c1"># step_a_outfile = os.path.join(step_a_dir, &#39;step_a.out&#39;)</span>
+    <span class="c1"># step_b_outfile = os.path.join(step_b_dir, &#39;step_b.out&#39;)</span>
+    <span class="c1"># step_c_outfile = os.path.join(step_c_dir, &#39;step_c.out&#39;)</span>
+    <span class="c1"># step_nvt_outfile = os.path.join(step_nvt_dir, &#39;step_nvt.out&#39;)</span>
+    <span class="c1"># step_npt_outfile = os.path.join(step_npt_dir, &#39;step_npt.out&#39;)</span>
+
+    <span class="c1"># step_a_rstfile = os.path.join(step_a_dir, &#39;step_a.rst&#39;)</span>
+    <span class="c1"># step_b_rstfile = os.path.join(step_b_dir, &#39;step_b.rst&#39;)</span>
+    <span class="c1"># step_c_rstfile = os.path.join(step_c_dir, &#39;step_c.rst&#39;)</span>
+    <span class="c1"># step_nvt_rstfile = os.path.join(step_nvt_dir, &#39;step_nvt.rst&#39;)</span>
+    <span class="c1"># step_npt_rstfile = os.path.join(step_npt_dir, &#39;step_npt.rst&#39;)</span>
+
+    <span class="c1"># step_nvt_crdfile = os.path.join(step_nvt_dir, &#39;step_nvt.crd&#39;)</span>
+    <span class="c1"># step_npt_crdfile = os.path.join(step_npt_dir, &#39;step_npt.crd&#39;)</span>
+
+    <span class="c1"># # Get more information from AMBER USER PROFILE</span>
+    <span class="c1"># step_a_cmd = f&#39;{PMEMD} -O &#39;</span>
+    <span class="c1"># step_a_cmd += f&#39;-i {step_a_inputfile.file_path} &#39;</span>
+    <span class="c1"># step_a_cmd += f&#39;-o {step_a_outfile} &#39;</span>
+    <span class="c1"># step_a_cmd += f&#39;-c {comsolvate_crdfile.file_path} -p {comsolvate_topfile.file_path} &#39;</span>
+    <span class="c1"># step_a_cmd += f&#39;-r {step_a_rstfile} &#39;</span>
+    <span class="c1"># step_a_cmd += f&#39;-ref {comsolvate_crdfile.file_path}&#39;</span>
+
+    <span class="c1"># step_b_cmd = f&#39;{PMEMD} -O &#39;</span>
+    <span class="c1"># step_b_cmd += f&#39;-i {step_b_inputfile.file_path} &#39;</span>
+    <span class="c1"># step_b_cmd += f&#39;-o {step_b_outfile} &#39;</span>
+    <span class="c1"># step_b_cmd += f&#39;-c {step_a_rstfile} -p {comsolvate_topfile.file_path} &#39;</span>
+    <span class="c1"># step_b_cmd += f&#39;-r {step_b_rstfile} &#39;</span>
+    <span class="c1"># step_b_cmd += f&#39;-ref {step_a_rstfile}&#39;</span>
+
+    <span class="c1"># step_c_cmd = f&#39;{PMEMD} -O &#39;</span>
+    <span class="c1"># step_c_cmd += f&#39;-i {step_c_inputfile.file_path} &#39;</span>
+    <span class="c1"># step_c_cmd += f&#39;-o {step_c_outfile} &#39;</span>
+    <span class="c1"># step_c_cmd += f&#39;-c {step_b_rstfile} -p {comsolvate_topfile.file_path} &#39;</span>
+    <span class="c1"># step_c_cmd += f&#39;-r {step_c_rstfile} &#39;</span>
+
+    <span class="c1"># step_nvt_cmd = f&#39;{PMEMD} -O &#39;</span>
+    <span class="c1"># step_nvt_cmd += f&#39;-i {step_nvt_inputfile.file_path} &#39;</span>
+    <span class="c1"># step_nvt_cmd += f&#39;-o {step_nvt_outfile} &#39;</span>
+    <span class="c1"># step_nvt_cmd += f&#39;-c {step_c_rstfile} -p {comsolvate_topfile.file_path} &#39;</span>
+    <span class="c1"># step_nvt_cmd += f&#39;-r {step_nvt_rstfile} &#39;</span>
+    <span class="c1"># step_nvt_cmd += f&#39;-x {step_nvt_crdfile}&#39;</span>
+
+    <span class="c1"># step_nvt_cmd_cpu = f&#39;{SANDER} -O &#39;</span>
+    <span class="c1"># step_nvt_cmd_cpu += f&#39;-i {step_nvt_inputfile.file_path} &#39;</span>
+    <span class="c1"># step_nvt_cmd_cpu += f&#39;-o {step_nvt_outfile} &#39;</span>
+    <span class="c1"># step_nvt_cmd_cpu += f&#39;-c {step_c_rstfile} -p {comsolvate_topfile.file_path} &#39;</span>
+    <span class="c1"># step_nvt_cmd_cpu += f&#39;-r {step_nvt_rstfile} &#39;</span>
+    <span class="c1"># step_nvt_cmd_cpu += f&#39;-x {step_nvt_crdfile}&#39;</span>
+
+    <span class="c1"># step_npt_cmd = f&#39;nohup {PMEMD} -O &#39;</span>
+    <span class="c1"># step_npt_cmd += f&#39;-i {step_npt_inputfile.file_path} &#39;</span>
+    <span class="c1"># step_npt_cmd += f&#39;-o {step_npt_outfile} &#39;</span>
+    <span class="c1"># step_npt_cmd += f&#39;-c {step_nvt_rstfile} -p {comsolvate_topfile.file_path} &#39;</span>
+    <span class="c1"># step_npt_cmd += f&#39;-r {step_npt_rstfile} &#39;</span>
+    <span class="c1"># step_npt_cmd += f&#39;-x {step_npt_crdfile} &gt; /dev/null 2&gt;&amp;1 &amp;&#39;</span>
+
+    <span class="c1"># logger.info(&#39;Running Minimize Progress A...&#39;)</span>
+    <span class="c1"># _system_call(step_a_cmd)</span>
+    <span class="c1"># logger.info(&#39;Running Minimize Progress B...&#39;)</span>
+    <span class="c1"># _system_call(step_b_cmd)</span>
+    <span class="c1"># logger.info(&#39;Running Minimize Progress C...&#39;)</span>
+    <span class="c1"># _system_call(step_c_cmd)</span>
+    <span class="c1"># logger.info(&#39;Running 100ps Heating Progress...&#39;)</span>
+
+    <span class="c1"># try:</span>
+    <span class="c1">#     _system_call(step_nvt_cmd)</span>
+    <span class="c1"># except RuntimeError:</span>
+    <span class="c1">#     logger.warning(</span>
+    <span class="c1">#         &#39;GPU version of PMEMD failed, trying CPU version sander.MPI ...&#39;)</span>
+    <span class="c1">#     logger.info(f&#39;Using CMD: {SANDER}&#39;)</span>
+    <span class="c1">#     _system_call(step_nvt_cmd_cpu)</span>
+    <span class="c1">#     _trace_progress(step_nvt_outfile, 50000)</span>
+
+    <span class="c1"># logger.info(f&#39;Running {simulate_time} ns Molecular Dynamics Simulation...&#39;)</span>
+    <span class="c1"># _system_call(step_npt_cmd)</span>
+    <span class="c1"># _trace_progress(step_npt_outfile, step_num)</span>
+
+    <span class="c1"># logger.info(&#39;Simulation Finished.&#39;)</span>
+
+
+<span class="k">def</span> <span class="nf">_creat_energy_inputfile</span><span class="p">(</span><span class="n">job_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">startframe</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">endframe</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">interval</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">decomp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseFile</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    创建能量计算相关输入文件</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    job_type : str</span>
+<span class="sd">        能量计算类型，可选值为：</span>
+<span class="sd">        &#39;pb/gb&#39;: 同时进行MM-PB/GBSA自由能计算</span>
+<span class="sd">        &#39;gb&#39;: 进行MM-GBSA自由能计算</span>
+<span class="sd">        &#39;nmode&#39;: 进行 Normal Mode 熵变计算</span>
+<span class="sd">    startframe : int</span>
+<span class="sd">        计算分析起始帧</span>
+<span class="sd">    endframe : int</span>
+<span class="sd">        计算分析结束帧</span>
+<span class="sd">    interval : int</span>
+<span class="sd">        计算分析帧间隔</span>
+<span class="sd">    decomp : bool, optional</span>
+<span class="sd">        是否进行能量分解计算 默认为False</span>
+<span class="sd">    save_dir : str, optional</span>
+<span class="sd">        计算结果保存目录 默认为当前目录</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    BaseFile</span>
+<span class="sd">        能量计算输入文件</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="k">if</span> <span class="n">save_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CWD</span>
+
+    <span class="k">if</span> <span class="n">job_type</span> <span class="o">==</span> <span class="s1">&#39;pb/gb&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">decomp</span><span class="p">:</span>
+            <span class="n">template_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TEMPLATE_DIR</span><span class="p">,</span> <span class="s1">&#39;mmpb_gbsa_decom.in&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">template_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TEMPLATE_DIR</span><span class="p">,</span> <span class="s1">&#39;mmpb_gbsa_only.in&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">job_type</span> <span class="o">==</span> <span class="s1">&#39;gb&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">decomp</span><span class="p">:</span>
+            <span class="n">template_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TEMPLATE_DIR</span><span class="p">,</span> <span class="s1">&#39;mmgbsa_decom.in&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">template_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TEMPLATE_DIR</span><span class="p">,</span> <span class="s1">&#39;mmgbsa_only.in&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">job_type</span> <span class="o">==</span> <span class="s1">&#39;nmode&#39;</span><span class="p">:</span>
+        <span class="n">template_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TEMPLATE_DIR</span><span class="p">,</span> <span class="s1">&#39;nmode.in&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid job_type: </span><span class="si">{</span><span class="n">job_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">output_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">template_file</span><span class="p">))</span>
+    <span class="n">input_file</span> <span class="o">=</span> <span class="n">_creat_file_from_template</span><span class="p">(</span>
+        <span class="n">template_file</span><span class="p">,</span>
+        <span class="n">output_file</span><span class="p">,</span>
+        <span class="n">startframe</span><span class="o">=</span><span class="n">startframe</span><span class="p">,</span>
+        <span class="n">endframe</span><span class="o">=</span><span class="n">endframe</span><span class="p">,</span>
+        <span class="n">interval</span><span class="o">=</span><span class="n">interval</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">input_file</span>
+
+
+<span class="nd">@timeit</span>
+<span class="k">def</span> <span class="nf">_run_energy_calculation</span><span class="p">(</span>
+    <span class="n">input_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">comsolvate_topfile</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">com_topfile</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span>
+    <span class="n">receptor_topfile</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">ligand_topfile</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">traj_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span>
+    <span class="n">output_filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">decom_output_filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cpu_num</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+    <span class="n">cpu_num</span> <span class="o">=</span> <span class="n">cpu_num</span> <span class="k">if</span> <span class="n">cpu_num</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CPU_NUM</span>
+    <span class="n">energy_cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;mpirun -np </span><span class="si">{</span><span class="n">cpu_num</span><span class="si">}</span><span class="s1"> MMPBSA.py.MPI -O &#39;</span>
+    <span class="n">energy_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;-i </span><span class="si">{</span><span class="n">input_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s1"> &#39;</span>
+    <span class="n">energy_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;-sp </span><span class="si">{</span><span class="n">comsolvate_topfile</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s1"> &#39;</span>
+    <span class="n">energy_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;-cp </span><span class="si">{</span><span class="n">com_topfile</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s1"> &#39;</span>
+    <span class="n">energy_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;-rp </span><span class="si">{</span><span class="n">receptor_topfile</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s1"> &#39;</span>
+    <span class="n">energy_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;-lp </span><span class="si">{</span><span class="n">ligand_topfile</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s1"> &#39;</span>
+    <span class="n">energy_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;-y </span><span class="si">{</span><span class="n">traj_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s1"> &#39;</span>
+
+    <span class="k">if</span> <span class="n">output_filepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">energy_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;-o </span><span class="si">{</span><span class="n">output_filepath</span><span class="si">}</span><span class="s1"> &#39;</span>
+    <span class="k">if</span> <span class="n">decom_output_filepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">energy_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;-do </span><span class="si">{</span><span class="n">decom_output_filepath</span><span class="si">}</span><span class="s1"> &#39;</span>
+
+    <span class="n">energy_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;&gt; </span><span class="si">{</span><span class="n">input_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s1">.log &#39;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Running Energy Calculation...&#39;</span><span class="p">)</span>
+    <span class="n">_system_call</span><span class="p">(</span><span class="n">energy_cmd</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Energy Calculation Finished.&#39;</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Yuhang Wu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

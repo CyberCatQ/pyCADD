@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD &mdash; pyCADD 1.6.5 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=08abc459"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="构建Dock输入文件时的规范" href="input_file_fmt.html" />
+    <link rel="prev" title="pyCADD Documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pyCADD
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">README</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pyCADD</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">功能特性</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">更新日志</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#platform">Platform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#required">Required</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#attention">！Attention</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-version">Python Version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-modules">Python Modules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#note">NOTE:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pycadd-function">pyCADD Function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-use">How to Use</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dance.html">Dance User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dynamic.html">Dynamic Quick User Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">pyCADD</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyCADD</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">pyCADD</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/README.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pycadd">
+<h1>pyCADD<a class="headerlink" href="#pycadd" title="Permalink to this heading"></a></h1>
+<section id="id1">
+<h2>功能特性<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>自动化调用Schrodinger Python API执行晶体准备、格点文件生成与对接、MMGBSA结合能计算等功能</p></li>
+<li><p>调用多核并行计算 实现集合式对接与结果提取、数据分析</p></li>
+<li><p>调用Gaussian、Multiwfn计算、分析配体分子结构优化、单点能、RESP(2)电荷</p></li>
+<li><p>AMBER分子动力学模拟准备、运行和MD轨迹的基本分析</p></li>
+<li><p>用户界面友好</p></li>
+<li><p>支持CLI快速调用</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>更新日志<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>1.6.5 (2023-04-28)</p>
+<ul>
+<li><p>修复 Dock 开展 Ensemble Docking 完成时数据提取的BUG</p></li>
+<li><p>调整了一些代码的位置便于后续维护</p></li>
+<li><p>修复了一些其它 BUG</p></li>
+</ul>
+</li>
+<li><p>1.6.4 (2023-03-15)</p>
+<ul>
+<li><p>Dynamic 支持自动化准备和模拟Apo蛋白</p></li>
+<li><p>为 Dynamic-Analyzer 添加了氢键lifetime分析功能</p></li>
+<li><p>MD后处理分析默认工作流移除了提取最低能量构象的功能</p></li>
+<li><p>除非有log信息输出，否则 pyCADD 不再生成空log文件</p></li>
+<li><p>Gauss 模块更名为 Density 模块</p></li>
+<li><p>query 模块更名为 Demand 模块</p></li>
+<li><p>一些 Bug 修复</p></li>
+</ul>
+</li>
+<li><p>1.6.3 (2022-10-27)</p>
+<ul>
+<li><p>修改了 Dock 模块的对接函数调用 不再使用Schrodinger任务管理层</p>
+<ul>
+<li><p>显著降低无意义时间损耗 提升 Ensemble Docking 速度</p></li>
+<li><p>完全减除任务管理层perl的长期内存占用 避免后期速度下降</p></li>
+<li><p>完全保障了 CPU 100%时间满载运行对接任务</p></li>
+</ul>
+</li>
+<li><p>修改 Dock 的默认的结果文件生成为仅输出配体结构</p>
+<ul>
+<li><p>显著减少对接结果文件体积</p></li>
+</ul>
+</li>
+<li><p>修复了Dynamic Analysis模块的BUG</p>
+<ul>
+<li><p>现在以重原子间距离计算氢键键长</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>1.6.2 (2022-07-21)</p>
+<ul>
+<li><p>修复了 Dynamic-Analyzer 的一些BUG</p></li>
+<li><p>修复了 python wheel build 的一些BUG</p></li>
+<li><p>更新了API文档</p></li>
+</ul>
+</li>
+<li><p>1.6.1 (2022-07-14)</p>
+<ul>
+<li><p>添加了 Dynamic 模块的MD后处理工具 Analyzer</p></li>
+<li><p>为 Dynamic-Analyzer 添加了CLI接口 pycadd-mdanalysis</p></li>
+<li><p>为 Dance 添加了新的统计方法 标准富集因子NEF</p></li>
+</ul>
+</li>
+<li><p>1.6.0 (2022-07-07)</p>
+<ul>
+<li><p>分子动力学模块 Dynamic 开发完成</p></li>
+<li><p>添加了Dynamic的CLI接口</p></li>
+<li><p>为项目文档增加了 Dynamic 的 User Guide</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="platform">
+<h2>Platform<a class="headerlink" href="#platform" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Linux</p></li>
+</ul>
+</section>
+<section id="required">
+<h2>Required<a class="headerlink" href="#required" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.schrodinger.com/">Schrodinger Suite</a>2020-3 或更高版本</p></li>
+<li><p><a class="reference external" href="http://ambermd.org/">AMBER</a> 18 或更高版本</p></li>
+<li><p><a class="reference external" href="http://gaussian.com/">Gaussian</a> 16.A01 或更高版本</p></li>
+<li><p><a class="reference external" href="http://sobereva.com/multiwfn/">Multiwfn</a> 3.7 或更高版本</p></li>
+<li><p><a class="reference external" href="https://openbabel.org/">OpenBabel</a> 2.4 或更高版本</p></li>
+<li><p>CUDA 9.0 或以上版本(Optional)</p></li>
+</ul>
+<section id="attention">
+<h3>！Attention<a class="headerlink" href="#attention" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 不包含以上所需程序的安装与许可证 您需要自行获得授权并安装恰当</p></li>
+<li><p>使用本应用程序进行学术研究必须遵守以上所需各程序的相关文献引用规定</p></li>
+</ul>
+</section>
+<section id="python-version">
+<h3>Python Version<a class="headerlink" href="#python-version" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>3.8 or Higher</p></li>
+</ul>
+<p><a id='python-modules'></a></p>
+</section>
+<section id="python-modules">
+<h3>Python Modules<a class="headerlink" href="#python-modules" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>pandas</p></li>
+<li><p>numpy</p></li>
+<li><p>rich</p></li>
+<li><p>concurrent_log_handler</p></li>
+<li><p>scikit-learn</p></li>
+<li><p>seaborn</p></li>
+<li><p>xlsxwriter</p></li>
+<li><p>pyyaml</p></li>
+<li><p>click</p></li>
+<li><p>scipy</p></li>
+</ul>
+<section id="note">
+<h4>NOTE:<a class="headerlink" href="#note" title="Permalink to this heading"></a></h4>
+<p>使用<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">pyCADD</span></code>命令时 将自动安装所需的packages</p>
+<p>您也可以使用<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&lt;package&gt;</span></code>命令安装</p>
+</section>
+</section>
+</section>
+<section id="pycadd-function">
+<h2>pyCADD Function<a class="headerlink" href="#pycadd-function" title="Permalink to this heading"></a></h2>
+<p>|        Name        | Function |
+| —————–  | ——– |
+|<em>Dock</em> | 自动执行PDB晶体获取、优化、格点文件生成、对接等命令 |
+|<em>Dance</em>    | 数据处理脚本集合  |<br />|<em>Demand</em> | 自动化晶体信息查询与解析 |
+|<em>Density</em> | 自动编写高斯结构优化、单点能、TDDFT等计算任务输入文件并启动计算任务 |
+|<em>Dynamic</em> | 自动化分子动力学模拟准备与运行 自动化分子动力学模拟后处理分析 |</p>
+</section>
+<section id="how-to-use">
+<h2>How to Use<a class="headerlink" href="#how-to-use" title="Permalink to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code>已发布至PyPI</p>
+<p>使用命令</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">pyCADD</span>
+</pre></div>
+</div>
+<p>即可安装 <code class="docutils literal notranslate"><span class="pre">pyCADD</span></code></p>
+<p>随后 您可以使用命令 <code class="docutils literal notranslate"><span class="pre">pycadd</span></code> 或 <code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 来启动应用程序<br /><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 提供一个用户友好的界面使您能够轻易使用需要的功能, 请自行尝试。</p>
+<p>为了便于从命令行快速调用pyCADD的模块，还提供了以下CLI接口：</p>
+<p>| CLI | Module |
+| —- | —— |
+| <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span></code> | <em>Dock</em> |
+| <code class="docutils literal notranslate"><span class="pre">pycadd-demand</span></code> | <em>Demand</em> |
+| <code class="docutils literal notranslate"><span class="pre">pycadd-density</span></code> | <em>Density</em> |
+| <code class="docutils literal notranslate"><span class="pre">pycadd-dynamic</span></code> | <em>Dynamic</em> |
+| <code class="docutils literal notranslate"><span class="pre">pycadd-dynamic</span> <span class="pre">analysis</span></code> | <em>Dynamic-Analyzer</em> |</p>
+<p>使用如</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pycadd</span><span class="o">-</span><span class="n">dock</span> <span class="o">--</span><span class="n">help</span>
+<span class="n">pycadd</span><span class="o">-</span><span class="n">dynamic</span> <span class="o">--</span><span class="n">help</span>
+<span class="n">pycadd</span><span class="o">-</span><span class="n">dock</span> <span class="n">ensemble</span><span class="o">-</span><span class="n">dock</span> <span class="o">--</span><span class="n">help</span>
+</pre></div>
+</div>
+<p>样式的命令来获取各模块的更多帮助信息。</p>
+<p>各模块使用指南及更多帮助信息, 请参阅<a class="reference external" href="https://cybercatq.github.io/pyCADD">API文档</a>。</p>
+<hr class="docutils" />
+<p><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 完全基于开发者自身实际需求开发, 更多其他功能及模块的使用教程尚未撰写, 请参阅<a class="reference external" href="https://cybercatq.github.io/pyCADD">API文档</a>。<br />如果您有任何问题或建议, 请在<a class="reference external" href="https://github.com/CyberCatQ/pyCADD">项目主页</a>提交Issue。</p>
+<p>此脚本仅限于学习和批评使用, 请勿用作其他用途。<br />源码仅包含中文注释。</p>
+<p>YH. W<br />School of Pharmaceutical Sciences, Xiamen University<br />Copyight © 2023 XMU<br />2023-04-28</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="pyCADD Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="input_file_fmt.html" class="btn btn-neutral float-right" title="构建Dock输入文件时的规范" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Yuhang Wu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

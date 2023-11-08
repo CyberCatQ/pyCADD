@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Dock.config &mdash; pyCADD 1.6.5 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=08abc459"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyCADD
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">README</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">pyCADD</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dance.html">Dance User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dynamic.html">Dynamic Quick User Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pyCADD</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyCADD</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyCADD.Dock.config</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyCADD.Dock.config</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span>
+
+<span class="n">GLIDE_FORCEFIELD</span> <span class="o">=</span> <span class="s1">&#39;OPLS3e&#39;</span>
+
+<div class="viewcode-block" id="BaseConfig"><a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.config.BaseConfig">[docs]</a><span class="k">class</span> <span class="nc">BaseConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    配置项基类</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="DefaultDataConfig"><a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.config.DefaultDataConfig">[docs]</a><span class="k">class</span> <span class="nc">DefaultDataConfig</span><span class="p">(</span><span class="n">BaseConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    提取数据配置项</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precision</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;SP&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_prop_XP</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;PDB&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;Ligand&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;Original&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;Docking_Score&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;MMGBSA_dG_Bind&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;rmsd&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;precision&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;Site_Score&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;Volume&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ligand_efficiency&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;XP_Hbond&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;rotatable_bonds&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;ecoul&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;evdw&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;emodel&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;energy&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;einternal&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;activity&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_prop_SP</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;PDB&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;Ligand&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;Original&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;Docking_Score&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;MMGBSA_dG_Bind&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;rmsd&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;precision&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;Site_Score&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;Volume&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;ligand_efficiency&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;rotatable_bonds&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;ecoul&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;evdw&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;emodel&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;energy&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;einternal&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;lipo&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;hbond&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;metal&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;rewards&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;erotb&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;esite&#39;</span><span class="p">,</span> 
+            <span class="s1">&#39;activity&#39;</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">precision</span> <span class="o">==</span> <span class="s1">&#39;XP&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">properties</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_prop_XP</span>
+        <span class="k">elif</span> <span class="n">precision</span> <span class="o">==</span> <span class="s1">&#39;SP&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">properties</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_prop_SP</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Precision must be XP or SP&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataConfig"><a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.config.DataConfig">[docs]</a><span class="k">class</span> <span class="nc">DataConfig</span><span class="p">(</span><span class="n">DefaultDataConfig</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">properties</span><span class="p">:</span><span class="nb">list</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">precision</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">properties</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">properties</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">properties</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Yuhang Wu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
