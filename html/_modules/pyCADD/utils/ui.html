@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="zh-CN" >
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD.utils.ui &mdash; pyCADD  文档</title>
+  <title>pyCADD.utils.ui &mdash; pyCADD 1.6.5 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/translations.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=08abc459"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../../_static/js/theme.js"></script>
-    <link rel="index" title="索引" href="../../../genindex.html" />
-    <link rel="search" title="搜索" href="../../../search.html" /> 
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -25,30 +25,38 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> pyCADD
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyCADD
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="在文档中搜索" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+              <p class="caption" role="heading"><span class="caption-text">README</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">pyCADD</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../input_file_fmt.html">构建Dock输入文件时的规范</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dock.html">Dock Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dance.html">Dance User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/gauss.html">Gauss Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dynamic.html">Dynamic Quick User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dance.html">Dance User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dynamic.html">Dynamic Quick User Guide</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">pyCADD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pyCADD</a></li>
 </ul>
 
         </div>
@@ -64,9 +72,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../index.html">模块代码</a> &raquo;</li>
-      <li>pyCADD.utils.ui</li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyCADD.utils.ui</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -75,7 +83,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>pyCADD.utils.ui 源代码</h1><div class="highlight"><pre>
+  <h1>Source code for pyCADD.utils.ui</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">platform</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
@@ -104,7 +112,7 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">env_value</span><span class="p">]</span>
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="n">env</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="k">return</span> <span class="n">env</span>
 
 <span class="n">SCHRODINGER</span> <span class="o">=</span> <span class="n">_env_check</span><span class="p">(</span><span class="s1">&#39;SCHRODINGER&#39;</span><span class="p">)</span>
@@ -112,8 +120,8 @@
 <span class="n">GAUSS</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span><span class="s1">&#39;which g16&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
 
-<div class="viewcode-block" id="UI"><a class="viewcode-back" href="../../../source/pyCADD.utils.html#pyCADD.utils.ui.UI">[文档]</a><span class="k">class</span> <span class="nc">UI</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="UI"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.ui.UI">[docs]</a><span class="k">class</span> <span class="nc">UI</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    pyCADD程序用户交互界面(user interface)</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
@@ -126,7 +134,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">schrodinger</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">SCHRODINGER</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;u i&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gauss_dir</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">GAUSS</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;u i&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">amber_dir</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">AMBER</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;u i&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cpu_count</span> <span class="o">=</span> <span class="n">NUM_PARALLEL</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cpu</span> <span class="o">=</span> <span class="n">NUM_PARALLEL</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_additional_info_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_info_index</span> <span class="o">=</span> <span class="mi">0</span>
@@ -136,32 +144,32 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">amber_check</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">schrodinger</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">schrodinger</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Not installed&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;bold red&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">schrodinger</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Not installed&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;bold red u&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">schrodinger_check</span> <span class="o">=</span> <span class="kc">False</span>
         
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gauss_dir</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">gauss_dir</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Not installed&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;bold red&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gauss_dir</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Not installed&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;bold red u&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">gauss_check</span> <span class="o">=</span> <span class="kc">False</span>
         
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">amber_dir</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">amber_dir</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Not installed&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;bold red&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">amber_dir</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Not installed&#39;</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">&#39;bold red u&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">amber_check</span> <span class="o">=</span> <span class="kc">False</span>
             
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        程序标题样式</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="n">Text</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span>
             <span class="p">(</span><span class="s1">&#39;pyCADD&#39;</span><span class="p">,</span> <span class="s1">&#39;bold medium_spring_green&#39;</span><span class="p">),</span> 
             <span class="s1">&#39; -- A &#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Python Package&#39;</span><span class="p">,</span> <span class="s1">&#39;bold yellow&#39;</span><span class="p">),</span> 
-            <span class="s1">&#39; For &#39;</span><span class="p">,</span> 
-            <span class="p">(</span><span class="s1">&#39;Computer-aid Drug Design&#39;</span><span class="p">,</span> <span class="s1">&#39;bold cyan&#39;</span><span class="p">)</span>
+            <span class="s1">&#39; for &#39;</span><span class="p">,</span> 
+            <span class="p">(</span><span class="s1">&#39;Computer-aided Drug Design&#39;</span><span class="p">,</span> <span class="s1">&#39;bold cyan&#39;</span><span class="p">)</span>
             <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">basic_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        基础信息</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="n">Text</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span>
@@ -174,7 +182,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">version_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        版本信息</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="n">Text</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span>
@@ -187,7 +195,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">system_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        系统基本信息</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="n">Text</span><span class="o">.</span><span class="n">assemble</span><span class="p">(</span>
@@ -197,7 +205,7 @@
             <span class="s1">&#39;Current date: &#39;</span><span class="p">,</span> 
             <span class="p">(</span><span class="n">now</span><span class="p">,</span> <span class="s1">&#39;bold blue&#39;</span><span class="p">),</span>
             <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Parallel threads: &#39;</span><span class="p">,</span> 
-            <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cpu_count</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;bold blue&#39;</span><span class="p">),</span> 
+            <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cpu</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;bold blue&#39;</span><span class="p">),</span> 
             <span class="s1">&#39; Python Version: &#39;</span><span class="p">,(</span><span class="n">platform</span><span class="o">.</span><span class="n">python_version</span><span class="p">(),</span> <span class="s1">&#39;bold blue&#39;</span><span class="p">),</span>
             <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Schrodinger: &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">schrodinger</span><span class="p">,</span>
             <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Gaussian: &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gauss_dir</span><span class="p">,</span>
@@ -209,8 +217,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_info_index</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info_index</span>
 
-<div class="viewcode-block" id="UI.create_panel"><a class="viewcode-back" href="../../../source/pyCADD.utils.html#pyCADD.utils.ui.UI.create_panel">[文档]</a>    <span class="k">def</span> <span class="nf">create_panel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">additional_info</span><span class="p">:</span><span class="s1">&#39;str | dict&#39;</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Analysis Options&#39;</span><span class="p">,</span> <span class="n">show_panel</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="UI.create_panel"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.ui.UI.create_panel">[docs]</a>    <span class="k">def</span> <span class="nf">create_panel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">additional_info</span><span class="p">:</span><span class="s1">&#39;str | dict&#39;</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Analysis Options&#39;</span><span class="p">,</span> <span class="n">show_panel</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        建立并渲染UI</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -283,20 +291,20 @@
         <span class="k">if</span> <span class="n">show_panel</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">panel</span><span class="p">)</span></div>
     
-<div class="viewcode-block" id="UI.get_input"><a class="viewcode-back" href="../../../source/pyCADD.utils.html#pyCADD.utils.ui.UI.get_input">[文档]</a>    <span class="k">def</span> <span class="nf">get_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span><span class="nb">list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_default</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_choices</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="UI.get_input"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.ui.UI.get_input">[docs]</a>    <span class="k">def</span> <span class="nf">get_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span><span class="nb">list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_default</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_choices</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        读取输入指令 返回flag</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="n">Prompt</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">choices</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">show_choices</span><span class="o">=</span><span class="n">show_choices</span><span class="p">,</span> <span class="n">show_default</span><span class="o">=</span><span class="n">show_default</span><span class="p">)</span></div>
     
-<div class="viewcode-block" id="UI.get_confirm"><a class="viewcode-back" href="../../../source/pyCADD.utils.html#pyCADD.utils.ui.UI.get_confirm">[文档]</a>    <span class="k">def</span> <span class="nf">get_confirm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="UI.get_confirm"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.ui.UI.get_confirm">[docs]</a>    <span class="k">def</span> <span class="nf">get_confirm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        读取输入指令 返回确认值</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="n">Confirm</span><span class="o">.</span><span class="n">ask</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span></div>
     
-<div class="viewcode-block" id="UI.clear_info"><a class="viewcode-back" href="../../../source/pyCADD.utils.html#pyCADD.utils.ui.UI.clear_info">[文档]</a>    <span class="k">def</span> <span class="nf">clear_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="UI.clear_info"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.ui.UI.clear_info">[docs]</a>    <span class="k">def</span> <span class="nf">clear_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        清空额外信息内容</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">additional_info</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span></div></div>
@@ -309,12 +317,12 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; 版权所有 2022, Yuhang.W.</p>
+    <p>&#169; Copyright 2023, Yuhang Wu.</p>
   </div>
 
-  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用了 
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
-    由 <a href="https://readthedocs.org">Read the Docs</a>开发.
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

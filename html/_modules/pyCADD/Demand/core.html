@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="zh-CN" >
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD.Demand.core &mdash; pyCADD  文档</title>
+  <title>pyCADD.Demand.core &mdash; pyCADD 1.6.5 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/translations.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=08abc459"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../../_static/js/theme.js"></script>
-    <link rel="index" title="索引" href="../../../genindex.html" />
-    <link rel="search" title="搜索" href="../../../search.html" /> 
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -25,11 +25,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> pyCADD
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyCADD
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="在文档中搜索" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -41,18 +45,18 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../input_file_fmt.html">构建Dock输入文件时的规范</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dock.html">Dock Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dance.html">Dance User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/gauss.html">Gauss Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dynamic.html">Dynamic Quick User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dance.html">Dance User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dynamic.html">Dynamic Quick User Guide</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">pyCADD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pyCADD</a></li>
 </ul>
 
         </div>
@@ -68,9 +72,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../index.html">模块代码</a> &raquo;</li>
-      <li>pyCADD.Demand.core</li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyCADD.Demand.core</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -79,7 +83,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>pyCADD.Demand.core 源代码</h1><div class="highlight"><pre>
+  <h1>Source code for pyCADD.Demand.core</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -102,7 +106,7 @@
 <span class="n">UNIPROT_URL</span> <span class="o">=</span> <span class="s1">&#39;https://rest.uniprot.org/uniprotkb/&#39;</span>
 <span class="n">PDB_URL</span> <span class="o">=</span> <span class="s1">&#39;https://data.rcsb.org/graphql?query=&#39;</span>
 
-<div class="viewcode-block" id="query_uniprot"><a class="viewcode-back" href="../../../source/pyCADD.Demand.html#pyCADD.Demand.core.query_uniprot">[文档]</a><span class="k">def</span> <span class="nf">query_uniprot</span><span class="p">(</span><span class="n">uniprot_id</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">save_path</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="query_uniprot"><a class="viewcode-back" href="../../../pyCADD.Demand.html#pyCADD.Demand.core.query_uniprot">[docs]</a><span class="k">def</span> <span class="nf">query_uniprot</span><span class="p">(</span><span class="n">uniprot_id</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">save_path</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
     <span class="c1"># params = {</span>
     <span class="c1"># &#39;from&#39;: &#39;ACC+ID&#39;,</span>
@@ -117,23 +121,29 @@
     <span class="c1"># with request.urlopen(req) as f:</span>
     <span class="c1">#     result = f.read().decode(&#39;utf-8&#39;)</span>
     
-    <span class="n">req</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">UNIPROT_URL</span> <span class="o">+</span> <span class="n">uniprot_id</span> <span class="o">+</span> <span class="s1">&#39;?format=json&amp;fields=xref_pdb&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+    <span class="n">req</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">UNIPROT_URL</span> <span class="o">+</span> <span class="n">uniprot_id</span> <span class="o">+</span> <span class="s1">&#39;?format=json&amp;fields=xref_pdb&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">req</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Uniprot ID: </span><span class="si">{</span><span class="n">uniprot_id</span><span class="si">}</span><span class="s1"> is not found.&#39;</span><span class="p">)</span>
+    
     <span class="k">if</span> <span class="n">save_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="c1"># f.write(result)</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">req</span><span class="p">)</span></div>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">text</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="parse_uniport"><a class="viewcode-back" href="../../../source/pyCADD.Demand.html#pyCADD.Demand.core.parse_uniport">[文档]</a><span class="k">def</span> <span class="nf">parse_uniport</span><span class="p">(</span><span class="n">uniprot_file_path</span><span class="p">):</span>
+<div class="viewcode-block" id="parse_uniport"><a class="viewcode-back" href="../../../pyCADD.Demand.html#pyCADD.Demand.core.parse_uniport">[docs]</a><span class="k">def</span> <span class="nf">parse_uniport</span><span class="p">(</span><span class="n">uniprot_file_path</span><span class="p">):</span>
     <span class="c1"># df = pd.read_csv(uniprot_file_path, sep=&#39;\t&#39;, header=None, names=[&#39;ACC&#39;, &#39;PDB&#39;])</span>
     <span class="c1"># pdb_list = list(df.loc[1:, &#39;PDB&#39;].to_numpy())</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">uniprot_file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     
     <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;uniProtKBCrossReferences&#39;</span><span class="p">])</span>
-    <span class="n">pdb_list</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">pdb_list</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Uniprot ID </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">uniprot_file_path</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1"> has no PDB crystal data.&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">pdb_list</span></div>
 
-<div class="viewcode-block" id="query_pdb"><a class="viewcode-back" href="../../../source/pyCADD.Demand.html#pyCADD.Demand.core.query_pdb">[文档]</a><span class="k">def</span> <span class="nf">query_pdb</span><span class="p">(</span><span class="n">pdb_list</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">quert_cfg</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="query_pdb"><a class="viewcode-back" href="../../../pyCADD.Demand.html#pyCADD.Demand.core.query_pdb">[docs]</a><span class="k">def</span> <span class="nf">query_pdb</span><span class="p">(</span><span class="n">pdb_list</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">quert_cfg</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
     <span class="n">query_cfg</span> <span class="o">=</span> <span class="n">BaseQueryCfg</span><span class="p">(</span><span class="n">pdb_list</span><span class="p">)</span> <span class="k">if</span> <span class="n">quert_cfg</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">quert_cfg</span><span class="p">(</span><span class="n">pdb_list</span><span class="p">)</span>
     <span class="n">query</span> <span class="o">=</span> <span class="n">query_cfg</span><span class="o">.</span><span class="n">get_query</span><span class="p">()</span>
@@ -147,7 +157,7 @@
 
     <span class="k">return</span> <span class="n">data_json</span></div>
 
-<div class="viewcode-block" id="QueryClient"><a class="viewcode-back" href="../../../source/pyCADD.Demand.html#pyCADD.Demand.core.QueryClient">[文档]</a><span class="k">class</span> <span class="nc">QueryClient</span><span class="p">:</span>
+<div class="viewcode-block" id="QueryClient"><a class="viewcode-back" href="../../../pyCADD.Demand.html#pyCADD.Demand.core.QueryClient">[docs]</a><span class="k">class</span> <span class="nc">QueryClient</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uniprot_id</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">uniprot_id</span> <span class="o">=</span> <span class="n">uniprot_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pdb_list</span> <span class="o">=</span> <span class="kc">None</span>
@@ -167,10 +177,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">pdb_save_dir</span>
         <span class="p">])</span>
 
-<div class="viewcode-block" id="QueryClient.get_apo"><a class="viewcode-back" href="../../../source/pyCADD.Demand.html#pyCADD.Demand.core.QueryClient.get_apo">[文档]</a>    <span class="k">def</span> <span class="nf">get_apo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="QueryClient.get_apo"><a class="viewcode-back" href="../../../pyCADD.Demand.html#pyCADD.Demand.core.QueryClient.get_apo">[docs]</a>    <span class="k">def</span> <span class="nf">get_apo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">apo</span></div>
     
-<div class="viewcode-block" id="QueryClient.get_mutations"><a class="viewcode-back" href="../../../source/pyCADD.Demand.html#pyCADD.Demand.core.QueryClient.get_mutations">[文档]</a>    <span class="k">def</span> <span class="nf">get_mutations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="QueryClient.get_mutations"><a class="viewcode-back" href="../../../pyCADD.Demand.html#pyCADD.Demand.core.QueryClient.get_mutations">[docs]</a>    <span class="k">def</span> <span class="nf">get_mutations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutation_pdb</span></div>
     
     <span class="k">def</span> <span class="nf">_query_uniprot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -183,6 +193,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">pdb_list</span> <span class="o">=</span> <span class="n">parse_uniport</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uniprot_save_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniprot_id</span> <span class="o">+</span> <span class="s1">&#39;.json&#39;</span><span class="p">))</span>
         <span class="n">save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdb_save_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniprot_id</span> <span class="o">+</span> <span class="s1">&#39;.json&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span> <span class="o">=</span> <span class="n">query_pdb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdb_list</span><span class="p">,</span> <span class="n">save_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdb_query_cfg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Uniprot ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uniprot_id</span><span class="si">}</span><span class="s1"> has no PDB crystal data.&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parse_json</span><span class="p">()</span>
     
     <span class="k">def</span> <span class="nf">_parse_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -193,7 +205,7 @@
             <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">d</span><span class="p">[</span><span class="s1">&#39;PDBID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dic_pdb</span><span class="p">[</span><span class="s1">&#39;rcsb_id&#39;</span><span class="p">]</span>  <span class="c1"># PDB ID</span>
             <span class="n">d</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dic_pdb</span><span class="p">[</span><span class="s1">&#39;struct&#39;</span><span class="p">][</span><span class="s1">&#39;title&#39;</span><span class="p">]</span>  <span class="c1"># 标题</span>
-            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;resolution&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dic_pdb</span><span class="p">[</span><span class="s1">&#39;pdbx_vrpt_summary&#39;</span><span class="p">][</span><span class="s1">&#39;PDB_resolution&#39;</span><span class="p">]</span>  <span class="c1"># 分辨率</span>
+            <span class="n">d</span><span class="p">[</span><span class="s1">&#39;resolution&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dic_pdb</span><span class="p">[</span><span class="s1">&#39;rcsb_entry_info&#39;</span><span class="p">][</span><span class="s1">&#39;resolution_combined&#39;</span><span class="p">]</span>  <span class="c1"># 分辨率</span>
             <span class="n">d</span><span class="p">[</span><span class="s1">&#39;reference&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dic_pdb</span><span class="p">[</span><span class="s1">&#39;rcsb_primary_citation&#39;</span><span class="p">][</span><span class="s1">&#39;title&#39;</span><span class="p">]</span>  <span class="c1"># 参考文献</span>
             <span class="n">d</span><span class="p">[</span><span class="s1">&#39;authors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">dic_pdb</span><span class="p">[</span><span class="s1">&#39;rcsb_primary_citation&#39;</span><span class="p">][</span><span class="s1">&#39;rcsb_authors&#39;</span><span class="p">])</span>  <span class="c1"># 作者</span>
             <span class="n">d</span><span class="p">[</span><span class="s1">&#39;DOI&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dic_pdb</span><span class="p">[</span><span class="s1">&#39;rcsb_primary_citation&#39;</span><span class="p">][</span><span class="s1">&#39;pdbx_database_id_DOI&#39;</span><span class="p">]</span>  <span class="c1"># DOI</span>
@@ -222,8 +234,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pdb_data</span> <span class="o">=</span> <span class="n">parse_data</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">parse_data</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdb_save_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniprot_id</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         
-<div class="viewcode-block" id="QueryClient.clean_pdb_data"><a class="viewcode-back" href="../../../source/pyCADD.Demand.html#pyCADD.Demand.core.QueryClient.clean_pdb_data">[文档]</a>    <span class="k">def</span> <span class="nf">clean_pdb_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">del_mutations</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">del_ignore_lig</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="QueryClient.clean_pdb_data"><a class="viewcode-back" href="../../../pyCADD.Demand.html#pyCADD.Demand.core.QueryClient.clean_pdb_data">[docs]</a>    <span class="k">def</span> <span class="nf">clean_pdb_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">del_mutations</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">del_ignore_lig</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        清洗 pdb 数据:</span>
 <span class="sd">            * 去除Apo晶体   </span>
 <span class="sd">            * 去除配体未结合于目标链的晶体</span>
@@ -251,7 +263,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">apo</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pdb</span><span class="p">[</span><span class="s1">&#39;rcsb_id&#39;</span><span class="p">])</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="n">cutoff</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">resolution</span> <span class="o">=</span> <span class="n">pdb</span><span class="p">[</span><span class="s1">&#39;pdbx_vrpt_summary&#39;</span><span class="p">][</span><span class="s1">&#39;PDB_resolution&#39;</span><span class="p">]</span>
+                <span class="n">resolution</span> <span class="o">=</span> <span class="n">pdb</span><span class="p">[</span><span class="s1">&#39;pdbx_vrpt_summary&#39;</span><span class="p">][</span><span class="s1">&#39;resolution_combined&#39;</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">resolution</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">cutoff</span><span class="p">:</span>
                     <span class="k">continue</span>
                 
@@ -281,8 +293,8 @@
         
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_data</span></div>
     
-<div class="viewcode-block" id="QueryClient.get_mutation_pdb"><a class="viewcode-back" href="../../../source/pyCADD.Demand.html#pyCADD.Demand.core.QueryClient.get_mutation_pdb">[文档]</a>    <span class="k">def</span> <span class="nf">get_mutation_pdb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="QueryClient.get_mutation_pdb"><a class="viewcode-back" href="../../../pyCADD.Demand.html#pyCADD.Demand.core.QueryClient.get_mutation_pdb">[docs]</a>    <span class="k">def</span> <span class="nf">get_mutation_pdb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        识别突变晶体</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">mutations</span> <span class="o">=</span> <span class="p">[]</span>
@@ -297,8 +309,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mutation_pdb</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">mutations</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mutation_pdb</span></div>
 
-<div class="viewcode-block" id="QueryClient.save"><a class="viewcode-back" href="../../../source/pyCADD.Demand.html#pyCADD.Demand.core.QueryClient.save">[文档]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">_format</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="QueryClient.save"><a class="viewcode-back" href="../../../pyCADD.Demand.html#pyCADD.Demand.core.QueryClient.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">_format</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        保存结果</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="n">_format</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -319,7 +331,6 @@
                     
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">uniprot_id</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_data</span><span class="p">},</span> <span class="n">f</span><span class="p">)</span>
-            <span class="k">return</span>
 
         <span class="k">elif</span> <span class="n">_format</span> <span class="o">==</span> <span class="s1">&#39;csv&#39;</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -333,7 +344,9 @@
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">uniprot_id</span><span class="si">}</span><span class="s1">]</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">pdb</span><span class="p">,</span> <span class="n">ligs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdb</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">ligs</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdb</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">ligs</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Results is saved to </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span></div></div>
             
 </pre></div>
 
@@ -344,12 +357,12 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; 版权所有 2022, Yuhang.W.</p>
+    <p>&#169; Copyright 2023, Yuhang Wu.</p>
   </div>
 
-  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用了 
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
-    由 <a href="https://readthedocs.org">Read the Docs</a>开发.
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

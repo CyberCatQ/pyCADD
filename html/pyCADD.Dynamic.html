@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Dynamic package &mdash; pyCADD 1.6.5 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=08abc459"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pyCADD.VSW package" href="pyCADD.VSW.html" />
+    <link rel="prev" title="pyCADD.Dock package" href="pyCADD.Dock.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pyCADD
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">README</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="README.html">pyCADD</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dance.html">Dance User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dynamic.html">Dynamic Quick User Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">pyCADD</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pyCADD.html">pyCADD package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pyCADD.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dance.html">pyCADD.Dance package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Demand.html">pyCADD.Demand package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Density.html">pyCADD.Density package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html">pyCADD.Dock package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">pyCADD.Dynamic package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html">pyCADD.VSW package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.utils.html">pyCADD.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pyCADD.html#module-pyCADD">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyCADD</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pyCADD</a></li>
+          <li class="breadcrumb-item"><a href="pyCADD.html">pyCADD package</a></li>
+      <li class="breadcrumb-item active">pyCADD.Dynamic package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pyCADD.Dynamic.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pycadd-dynamic-package">
+<h1>pyCADD.Dynamic package<a class="headerlink" href="#pycadd-dynamic-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="pycadd-dynamic-analysis-module">
+<h2>pyCADD.Dynamic.analysis module<a class="headerlink" href="#pycadd-dynamic-analysis-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-pyCADD.Dynamic.cli">
+<span id="pycadd-dynamic-cli-module"></span><h2>pyCADD.Dynamic.cli module<a class="headerlink" href="#module-pyCADD.Dynamic.cli" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-pyCADD.Dynamic.common">
+<span id="pycadd-dynamic-common-module"></span><h2>pyCADD.Dynamic.common module<a class="headerlink" href="#module-pyCADD.Dynamic.common" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.common.</span></span><span class="sig-name descname"><span class="pre">Analyzer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">traj_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comsolvated_topfile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">com_topfile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">receptor_topfile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand_topfile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mdout_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Analyzer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>MD模拟轨迹分析器</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.calc_hbond">
+<span class="sig-name descname"><span class="pre">calc_hbond</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">':*'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">135.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Analyzer.calc_hbond"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.calc_hbond" title="Permalink to this definition"></a></dt>
+<dd><p>检测并追踪 Hbond 键长、键角</p>
+<section id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>mask<span class="classifier">str</span></dt><dd><p>指定原子间的Amber mask 默认为自动识别 cutoff &lt; distance 的原子</p>
+</dd>
+<dt>options<span class="classifier">str</span></dt><dd><dl class="simple">
+<dt>Hbond计算选项 默认为</dt><dd><p>avgout OUTPUTFILE 输出氢键平均信息文件   
+printatomnum 打印原子序号   
+nointramol 仅计算分子间氢键</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.calc_rmsd">
+<span class="sig-name descname"><span class="pre">calc_rmsd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'&#64;CA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Analyzer.calc_rmsd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.calc_rmsd" title="Permalink to this definition"></a></dt>
+<dd><p>计算RMSD</p>
+<section id="id1">
+<h3>Parameters<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>mask<span class="classifier">str</span></dt><dd><p>计算RMSD的Amber mask</p>
+</dd>
+<dt>ref<span class="classifier">int</span></dt><dd><p>参考轨迹索引号 默认第一帧0</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.calc_rmsf">
+<span class="sig-name descname"><span class="pre">calc_rmsf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'&#64;CA'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'byres'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Analyzer.calc_rmsf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.calc_rmsf" title="Permalink to this definition"></a></dt>
+<dd><p>计算RMSF</p>
+<section id="id2">
+<h3>Parameters<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>mask<span class="classifier">str</span></dt><dd><p>计算RMSF的Amber mask</p>
+</dd>
+<dt>options<span class="classifier">str</span></dt><dd><p>RMSF计算选项 默认byres</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.creat_energy_inputfile">
+<span class="sig-name descname"><span class="pre">creat_energy_inputfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'free'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'entropy'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'decomp'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'pb/gbsa'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'gbsa'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Analyzer.creat_energy_inputfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.creat_energy_inputfile" title="Permalink to this definition"></a></dt>
+<dd><p>创建能量计算任务输入文件</p>
+<section id="id3">
+<h3>Parameters<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>job_type<span class="classifier">str</span></dt><dd><p>能量计算任务类型
+free : 自由能计算(MM-PB/GBSA)
+entropy : 熵计算(normal mode)
+decomp : 能量分解</p>
+</dd>
+<dt>method<span class="classifier">str</span></dt><dd><p>计算方法
+pb/gbsa : MM-PB/GBSA
+gbsa : MM-GBSA only</p>
+</dd>
+<dt>start_frame<span class="classifier">int</span></dt><dd><p>计算分析起始帧索引号</p>
+</dd>
+<dt>end_frame<span class="classifier">int</span></dt><dd><p>计算分析结束帧索引号</p>
+</dd>
+<dt>interval<span class="classifier">int</span></dt><dd><p>计算分析帧间隔 默认为10</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.extract_frame">
+<span class="sig-name descname"><span class="pre">extract_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Analyzer.extract_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.extract_frame" title="Permalink to this definition"></a></dt>
+<dd><p>提取指定帧
+帧索引开始于0 结束于最大帧数量-1</p>
+<section id="id4">
+<h3>Parameters<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>frame<span class="classifier">int</span></dt><dd><p>提取帧索引号</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.extract_frames">
+<span class="sig-name descname"><span class="pre">extract_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Analyzer.extract_frames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.extract_frames" title="Permalink to this definition"></a></dt>
+<dd><p>提取指定帧范围
+帧索引开始于0 结束于最大帧数量-1</p>
+<section id="id5">
+<h3>Parameters<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>start<span class="classifier">int</span></dt><dd><p>开始帧索引号</p>
+</dd>
+<dt>end<span class="classifier">int</span></dt><dd><p>结束帧索引号</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.extract_lowest_energy_st">
+<span class="sig-name descname"><span class="pre">extract_lowest_energy_st</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Analyzer.extract_lowest_energy_st"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.extract_lowest_energy_st" title="Permalink to this definition"></a></dt>
+<dd><p>提取最低能量结构</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.load_mdout">
+<span class="sig-name descname"><span class="pre">load_mdout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mdout_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Analyzer.load_mdout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.load_mdout" title="Permalink to this definition"></a></dt>
+<dd><p>加载MD模拟输出文件</p>
+<section id="id6">
+<h3>Parameters<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>mdout_file_path<span class="classifier">str</span></dt><dd><p>MD模拟输出文件路径</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.load_topfile">
+<span class="sig-name descname"><span class="pre">load_topfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">comsolvated_topfile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">com_topfile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">receptor_topfile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand_topfile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Analyzer.load_topfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.load_topfile" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.load_traj">
+<span class="sig-name descname"><span class="pre">load_traj</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">traj_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Analyzer.load_traj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.load_traj" title="Permalink to this definition"></a></dt>
+<dd><p>加载轨迹文件</p>
+<section id="id7">
+<h3>Parameters<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>traj_file_path<span class="classifier">str</span></dt><dd><p>轨迹文件路径</p>
+</dd>
+<dt>top_file_path<span class="classifier">str</span></dt><dd><p>拓扑文件路径</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.run_energy_calc">
+<span class="sig-name descname"><span class="pre">run_energy_calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decom_output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Analyzer.run_energy_calc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.run_energy_calc" title="Permalink to this definition"></a></dt>
+<dd><p>运行能量计算任务</p>
+<section id="id8">
+<h3>Parameters<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>output_file<span class="classifier">str</span></dt><dd><p>输出文件路径</p>
+</dd>
+<dt>decom_output_file<span class="classifier">str</span></dt><dd><p>能量分解输出文件路径(仅执行能量分解有效)</p>
+</dd>
+<dt>cpu_num<span class="classifier">int</span></dt><dd><p>计算使用的CPU数量</p>
+</dd>
+<dt>input_file<span class="classifier">BaseFile</span></dt><dd><p>能量计算任务输入文件 默认为creat_energy_inputfile建立的文件</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.trace_angle">
+<span class="sig-name descname"><span class="pre">trace_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Analyzer.trace_angle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.trace_angle" title="Permalink to this definition"></a></dt>
+<dd><p>追踪指定原子之间的键角</p>
+<section id="id9">
+<h3>Parameters<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>mask<span class="classifier">str</span></dt><dd><p>指定原子Amber mask</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Analyzer.trace_distance">
+<span class="sig-name descname"><span class="pre">trace_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Analyzer.trace_distance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Analyzer.trace_distance" title="Permalink to this definition"></a></dt>
+<dd><p>追踪指定原子之间的距离</p>
+<section id="id10">
+<h3>Parameters<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>mask<span class="classifier">str</span></dt><dd><p>指定原子Amber mask</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.common.</span></span><span class="sig-name descname"><span class="pre">Processor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">apo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>为分子动力学模拟执行预处理</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.add_heat_process">
+<span class="sig-name descname"><span class="pre">add_heat_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tgt_temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heat_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">9000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.002</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'heat'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor.add_heat_process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.add_heat_process" title="Permalink to this definition"></a></dt>
+<dd><p>在工作流中添加加热步骤</p>
+<section id="id11">
+<h3>Parameters<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>tgt_temp<span class="classifier">float</span></dt><dd><p>加热目标温度(K), 默认300.0K</p>
+</dd>
+<dt>heat_step<span class="classifier">int, optional</span></dt><dd><p>加热步数, 默认9000</p>
+</dd>
+<dt>total_step<span class="classifier">int, optional</span></dt><dd><p>总加热阶段步数, 默认10000</p>
+</dd>
+<dt>step_length<span class="classifier">float, optional</span></dt><dd><p>步长, 默认0.002 ps</p>
+</dd>
+<dt>process_name<span class="classifier">str, optional</span></dt><dd><p>工作流步骤名称, 默认为heat</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.add_minimize_process">
+<span class="sig-name descname"><span class="pre">add_minimize_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">maxcyc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncyc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'minimize'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restraint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restraint_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor.add_minimize_process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.add_minimize_process" title="Permalink to this definition"></a></dt>
+<dd><p>在工作流中添加能量最小化步骤</p>
+<section id="id12">
+<h3>Parameters<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>maxcyc<span class="classifier">int, optional</span></dt><dd><p>最大迭代次数, 默认10000</p>
+</dd>
+<dt>ncyc<span class="classifier">int, optional</span></dt><dd><p>前ncyc步使用最速下降法, 之后使用共轭梯度法, 默认5000</p>
+</dd>
+<dt>process_name<span class="classifier">str, optional</span></dt><dd><p>工作流步骤名称, 默认为minimize.</p>
+</dd>
+<dt>restraint<span class="classifier">bool, optional</span></dt><dd><p>是否添加约束, 默认为False.</p>
+</dd>
+<dt>restraint_mask<span class="classifier">str, optional</span></dt><dd><p>约束原子的Amber Mask, 启用restraint时必须指定.</p>
+</dd>
+<dt><a href="#id13"><span class="problematic" id="id14">**</span></a>kwargs<span class="classifier">dict</span></dt><dd><p>其他参数, 传入到Minimize InputFile中</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.add_npt_process">
+<span class="sig-name descname"><span class="pre">add_npt_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.002</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'npt'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_production</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor.add_npt_process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.add_npt_process" title="Permalink to this definition"></a></dt>
+<dd><p>在工作流中添加NPT步骤</p>
+<section id="id15">
+<h3>Parameters<a class="headerlink" href="#id15" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>step_num<span class="classifier">int, optional</span></dt><dd><p>步数, 默认50000000, 100ns</p>
+</dd>
+<dt>step_length<span class="classifier">float, optional</span></dt><dd><p>步长, 默认0.002 ps</p>
+</dd>
+<dt>process_name<span class="classifier">str, optional</span></dt><dd><p>工作流步骤名称, 默认为npt</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.add_nvt_process">
+<span class="sig-name descname"><span class="pre">add_nvt_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.002</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'nvt'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_production</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor.add_nvt_process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.add_nvt_process" title="Permalink to this definition"></a></dt>
+<dd><p>在工作流中添加NVT步骤</p>
+<section id="id16">
+<h3>Parameters<a class="headerlink" href="#id16" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>total_step<span class="classifier">int, optional</span></dt><dd><p>MD步骤步数, 默认50000000</p>
+</dd>
+<dt>step_length<span class="classifier">float, optional</span></dt><dd><p>MD步骤步长, 默认0.002</p>
+</dd>
+<dt>process_name<span class="classifier">str, optional</span></dt><dd><p>工作流步骤名称, 默认为nvt</p>
+</dd>
+<dt>is_production<span class="classifier">bool, optional</span></dt><dd><p>该NVT步骤是否为生产步骤, 默认为False</p>
+</dd>
+<dt><a href="#id17"><span class="problematic" id="id18">**</span></a>kwargs<span class="classifier">dict</span></dt><dd><p>其他参数, 传入到NVT InputFile中</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.add_process">
+<span class="sig-name descname"><span class="pre">add_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dynamic.core.MDProcess" title="pyCADD.Dynamic.core.MDProcess"><span class="pre">MDProcess</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor.add_process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.add_process" title="Permalink to this definition"></a></dt>
+<dd><p>在工作流中添加单个步骤(Minimize, NVT, NPT, etc.)</p>
+<section id="id19">
+<h3>Parameters<a class="headerlink" href="#id19" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>input_file<span class="classifier">BaseFile | str</span></dt><dd><p>MD步骤输入文件(或路径)</p>
+</dd>
+<dt>process_name<span class="classifier">str, optional</span></dt><dd><p>工作流步骤名称, 默认为输入文件名</p>
+</dd>
+<dt>_type<span class="classifier">str, optional</span></dt><dd><p>工作流步骤类型, 默认为None, 可选值为minimize, nvt, npt</p>
+</dd>
+<dt>_obj<span class="classifier">MDProcess, optional</span></dt><dd><p>工作流步骤对象, 默认为None, 可选值为MinimizeProcess, NVTProcess, NPTProcess, 优先级高于_type</p>
+</dd>
+<dt><a href="#id20"><span class="problematic" id="id21">**</span></a>kwargs<span class="classifier">dict</span></dt><dd><p>其他参数, 写入输入文件并赋值至MDProcess属性中</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.cover_to_pdb">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cover_to_pdb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor.cover_to_pdb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.cover_to_pdb" title="Permalink to this definition"></a></dt>
+<dd><p>将mae结构文件转换为pdb格式</p>
+<section id="id22">
+<h3>Parameters<a class="headerlink" href="#id22" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>file_path<span class="classifier">str</span></dt><dd><p>mae结构文件路径</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.creat_heat_input">
+<span class="sig-name descname"><span class="pre">creat_heat_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tgt_temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heat_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">9000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.002</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restraint_wt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restraint_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor.creat_heat_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.creat_heat_input" title="Permalink to this definition"></a></dt>
+<dd><p>创建体系加热阶段输入文件</p>
+<section id="id23">
+<h3>Parameters<a class="headerlink" href="#id23" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>tgt_temp<span class="classifier">float, optional</span></dt><dd><p>目标温度, 默认300.0</p>
+</dd>
+<dt>heat_step<span class="classifier">int, optional</span></dt><dd><p>加热步数, 默认9000</p>
+</dd>
+<dt>total_step<span class="classifier">int, optional</span></dt><dd><p>总步数, 默认10000</p>
+</dd>
+<dt>step_length<span class="classifier">float, optional</span></dt><dd><p>步长, 默认0.002 ps</p>
+</dd>
+<dt>file_name<span class="classifier">str, optional</span></dt><dd><p>输入文件名, 默认heat.in</p>
+</dd>
+<dt>restraint_wt<span class="classifier">float, optional</span></dt><dd><p>约束力常数, 默认为None, 不使用约束</p>
+</dd>
+<dt>restraint_mask<span class="classifier">str, optional</span></dt><dd><p>约束原子的Amber Mask, 启用restraint时必须指定.</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>BaseFile</dt><dd><p>加热阶段输入文件对象</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.creat_minimize_input">
+<span class="sig-name descname"><span class="pre">creat_minimize_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">maxcyc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncyc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restraint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restraint_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restraint_wt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor.creat_minimize_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.creat_minimize_input" title="Permalink to this definition"></a></dt>
+<dd><p>创建能量最小化阶段输入文件</p>
+<section id="id24">
+<h3>Parameters<a class="headerlink" href="#id24" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>maxcyc<span class="classifier">int, optional</span></dt><dd><p>最大迭代次数, 默认10000</p>
+</dd>
+<dt>ncyc<span class="classifier">int, optional</span></dt><dd><p>前ncyc步使用最速下降法, 之后使用共轭梯度法, 默认5000</p>
+</dd>
+<dt>cut<span class="classifier">float, optional</span></dt><dd><p>非势能截断距离, 默认8.0</p>
+</dd>
+<dt>restraint<span class="classifier">bool, optional</span></dt><dd><p>是否使用约束, 默认False</p>
+</dd>
+<dt>restraint_mask<span class="classifier">str, optional</span></dt><dd><p>约束原子的Amber Mask, 启用restraint时必须指定.</p>
+</dd>
+<dt>restraint_wt<span class="classifier">float, optional</span></dt><dd><p>约束力常数, 默认2.0.</p>
+</dd>
+<dt>file_name<span class="classifier">str, optional</span></dt><dd><p>输入文件名, 默认minimize.in</p>
+</dd>
+<dt><a href="#id25"><span class="problematic" id="id26">**</span></a>kwargs<span class="classifier">dict</span></dt><dd><p>其他参数, 传入到InputFile中</p>
+</dd>
+</dl>
+</section>
+<section id="id27">
+<h3>Returns<a class="headerlink" href="#id27" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>BaseFile</dt><dd><p>能量最小化输入文件对象</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.creat_npt_input">
+<span class="sig-name descname"><span class="pre">creat_npt_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temp0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.002</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">irest</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor.creat_npt_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.creat_npt_input" title="Permalink to this definition"></a></dt>
+<dd><p>创建NPT阶段输入文件</p>
+<section id="id28">
+<h3>Parameters<a class="headerlink" href="#id28" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>temp0<span class="classifier">float, optional</span></dt><dd><p>初始温度, 默认300.0</p>
+</dd>
+<dt>total_step<span class="classifier">int, optional</span></dt><dd><p>总步数, 默认50000000, 100ns</p>
+</dd>
+<dt>step_length<span class="classifier">float, optional</span></dt><dd><p>步长, 默认0.002 ps</p>
+</dd>
+<dt>irest<span class="classifier">int, optional</span></dt><dd><p>重启标志, 默认1</p>
+</dd>
+<dt>ntx<span class="classifier">int, optional</span></dt><dd><p>坐标文件输入标志, 默认5</p>
+</dd>
+<dt>taup<span class="classifier">float, optional</span></dt><dd><p>压强控制时间, 默认2.0 ps</p>
+</dd>
+<dt>file_name<span class="classifier">str, optional</span></dt><dd><p>输入文件名, 默认npt.in</p>
+</dd>
+</dl>
+</section>
+<section id="id29">
+<h3>Returns<a class="headerlink" href="#id29" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>BaseFile</dt><dd><p>NPT阶段输入文件对象</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.creat_nvt_input">
+<span class="sig-name descname"><span class="pre">creat_nvt_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temp0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">500000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.002</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">irest</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ntx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor.creat_nvt_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.creat_nvt_input" title="Permalink to this definition"></a></dt>
+<dd><p>创建NVT阶段输入文件</p>
+<section id="id30">
+<h3>Parameters<a class="headerlink" href="#id30" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>temp0<span class="classifier">float, optional</span></dt><dd><p>初始温度, 默认300.0</p>
+</dd>
+<dt>total_step<span class="classifier">int, optional</span></dt><dd><p>总步数, 默认500000, 1ns</p>
+</dd>
+<dt>step_length<span class="classifier">float, optional</span></dt><dd><p>步长, 默认0.002 ps</p>
+</dd>
+<dt>file_name<span class="classifier">str, optional</span></dt><dd><p>输入文件名, 默认nvt.in</p>
+</dd>
+<dt>irest<span class="classifier">int, optional</span></dt><dd><p>重启标志, 默认1</p>
+</dd>
+<dt>ntx<span class="classifier">int, optional</span></dt><dd><p>坐标文件输入标志, 默认5</p>
+</dd>
+<dt><a href="#id31"><span class="problematic" id="id32">**</span></a>kwargs<span class="classifier">dict</span></dt><dd><p>其他参数, 传入到NVT InputFile中</p>
+</dd>
+</dl>
+</section>
+<section id="id33">
+<h3>Returns<a class="headerlink" href="#id33" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>BaseFile</dt><dd><p>NVT阶段输入文件对象</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.get_water_resnum">
+<span class="sig-name descname"><span class="pre">get_water_resnum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor.get_water_resnum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.get_water_resnum" title="Permalink to this definition"></a></dt>
+<dd><p>获取溶剂化文件中的水分子Residue Number列表</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.leap_prepare">
+<span class="sig-name descname"><span class="pre">leap_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor.leap_prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.leap_prepare" title="Permalink to this definition"></a></dt>
+<dd><p>创建leap输入文件 并执行tleap命令</p>
+<section id="id34">
+<h3>Parameters<a class="headerlink" href="#id34" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>prefix<span class="classifier">str</span></dt><dd><p>leap生成文件前缀 PDBID或其他 None则为当前日期</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.load_frcmod_file">
+<span class="sig-name descname"><span class="pre">load_frcmod_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor.load_frcmod_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.load_frcmod_file" title="Permalink to this definition"></a></dt>
+<dd><p>为Processor载入其他方法生成的配体分子参数frcmod文件</p>
+<section id="id35">
+<h3>Parameters<a class="headerlink" href="#id35" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>file_path<span class="classifier">str</span></dt><dd><p>.frcmod 文件路径</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.load_processed_molfile">
+<span class="sig-name descname"><span class="pre">load_processed_molfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molfile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor.load_processed_molfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.load_processed_molfile" title="Permalink to this definition"></a></dt>
+<dd><p>为Processor载入其他方法生成的配体分子文件</p>
+<section id="id36">
+<h3>Parameters<a class="headerlink" href="#id36" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>molfile_path<span class="classifier">str</span></dt><dd><p>文件路径</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.load_processed_profile">
+<span class="sig-name descname"><span class="pre">load_processed_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor.load_processed_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.load_processed_profile" title="Permalink to this definition"></a></dt>
+<dd><p>为Processor载入其他方法生成的蛋白结构文件</p>
+<section id="id37">
+<h3>Parameters<a class="headerlink" href="#id37" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>profile_path<span class="classifier">str</span></dt><dd><p>文件路径</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.molecule_prepare">
+<span class="sig-name descname"><span class="pre">molecule_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">molecule_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'water'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'resp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_origin_cood</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor.molecule_prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.molecule_prepare" title="Permalink to this definition"></a></dt>
+<dd><p>为动力学模拟执行小分子结构预处理</p>
+<section id="id38">
+<h3>Parameters<a class="headerlink" href="#id38" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>molecule_file_path<span class="classifier">str</span></dt><dd><p>分子结构文件路径</p>
+</dd>
+<dt>charge<span class="classifier">int</span></dt><dd><p>电荷数 默认为0</p>
+</dd>
+<dt>multiplicity<span class="classifier">int</span></dt><dd><p>自旋多重度 默认为1</p>
+</dd>
+<dt>cpu_num<span class="classifier">int</span></dt><dd><p>计算核数 默认为CPU核数</p>
+</dd>
+<dt>solvent<span class="classifier">str</span></dt><dd><p>计算RESP电荷时液相的溶剂 默认为water</p>
+</dd>
+<dt>overwrite<span class="classifier">bool</span></dt><dd><p>是否覆盖已存在的文件 默认为False</p>
+</dd>
+<dt>method<span class="classifier">str</span></dt><dd><p>计算方法 默认为resp电荷
+option: resp, bcc</p>
+</dd>
+<dt>keep_origin_cood<span class="classifier">bool, optional</span></dt><dd><p>是否在输出结构中保留原始坐标(计算RESP时) 
+而不使用高斯结构优化的坐标 默认为False</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.protein_prepare">
+<span class="sig-name descname"><span class="pre">protein_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protein_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_water</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor.protein_prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.protein_prepare" title="Permalink to this definition"></a></dt>
+<dd><p>为动力学模拟执行蛋白质结构预处理</p>
+<section id="id39">
+<h3>Parameters<a class="headerlink" href="#id39" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>protein_file_path<span class="classifier">str</span></dt><dd><p>蛋白质结构文件路径</p>
+</dd>
+<dt>keep_water<span class="classifier">bool, optional</span></dt><dd><p>是否保留输入结构中的水分子, 默认为 False</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Processor.set_comsolvate_file">
+<span class="sig-name descname"><span class="pre">set_comsolvate_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Processor.set_comsolvate_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Processor.set_comsolvate_file" title="Permalink to this definition"></a></dt>
+<dd><p>设定含水蛋白结构相关文件</p>
+<section id="id40">
+<h3>Parameters<a class="headerlink" href="#id40" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>file_path<span class="classifier">str</span></dt><dd><p>文件路径</p>
+</dd>
+<dt>file_type<span class="classifier">str</span></dt><dd><p>文件类型
+pdb: 含水蛋白结构文件(_comsolvate.pdb)
+top: 含水蛋白拓扑文件(_comsolvate.prmtop)
+crd: 含水蛋白坐标文件(_comsolvate.inpcrd)</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Simulator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.common.</span></span><span class="sig-name descname"><span class="pre">Simulator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dynamic.common.Processor" title="pyCADD.Dynamic.common.Processor"><span class="pre">Processor</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Simulator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Simulator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Simulator.run_simulation">
+<span class="sig-name descname"><span class="pre">run_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cuda_device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Simulator.run_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Simulator.run_simulation" title="Permalink to this definition"></a></dt>
+<dd><p>启动分子动力学模拟流程</p>
+<section id="id41">
+<h3>Parameters<a class="headerlink" href="#id41" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>cuda_device<span class="classifier">int</span></dt><dd><p>GPU设备编号 默认为0</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Simulator.set_cuda_device">
+<span class="sig-name descname"><span class="pre">set_cuda_device</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cuda_device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Simulator.set_cuda_device"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Simulator.set_cuda_device" title="Permalink to this definition"></a></dt>
+<dd><p>设定模拟使用的GPU设备</p>
+<section id="id42">
+<h3>Parameters<a class="headerlink" href="#id42" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>cuda_device<span class="classifier">int</span></dt><dd><p>GPU设备编号</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.common.Simulator.shwo_cuda_device">
+<span class="sig-name descname"><span class="pre">shwo_cuda_device</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/common.html#Simulator.shwo_cuda_device"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.common.Simulator.shwo_cuda_device" title="Permalink to this definition"></a></dt>
+<dd><p>显示GPU信息</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.Dynamic.core">
+<span id="pycadd-dynamic-core-module"></span><h2>pyCADD.Dynamic.core module<a class="headerlink" href="#module-pyCADD.Dynamic.core" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.core.BaseProcess">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.core.</span></span><span class="sig-name descname"><span class="pre">BaseProcess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/core.html#BaseProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.core.BaseProcess" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.core.BaseProcess.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/core.html#BaseProcess.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.core.BaseProcess.run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.core.MDProcess">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.core.</span></span><span class="sig-name descname"><span class="pre">MDProcess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/core.html#MDProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.core.MDProcess" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyCADD.Dynamic.core.BaseProcess" title="pyCADD.Dynamic.core.BaseProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseProcess</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.core.MDProcess.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">toplogy_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">inpcrd_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nohup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dynamic.core.MDProcess" title="pyCADD.Dynamic.core.MDProcess"><span class="pre">MDProcess</span></a></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/core.html#MDProcess.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.core.MDProcess.run" title="Permalink to this definition"></a></dt>
+<dd><p>Run MD process.</p>
+<section id="id43">
+<h3>Parameters<a class="headerlink" href="#id43" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>save_dir<span class="classifier">str, optional</span></dt><dd><p>Save directory. Default is CWD.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.core.MinimizeProcess">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.core.</span></span><span class="sig-name descname"><span class="pre">MinimizeProcess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/core.html#MinimizeProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.core.MinimizeProcess" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyCADD.Dynamic.core.MDProcess" title="pyCADD.Dynamic.core.MDProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">MDProcess</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.core.NPTProcess">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.core.</span></span><span class="sig-name descname"><span class="pre">NPTProcess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_production</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/core.html#NPTProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.core.NPTProcess" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyCADD.Dynamic.core.MDProcess" title="pyCADD.Dynamic.core.MDProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">MDProcess</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.core.NVTProcess">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.core.</span></span><span class="sig-name descname"><span class="pre">NVTProcess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_production</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/core.html#NVTProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.core.NVTProcess" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyCADD.Dynamic.core.MDProcess" title="pyCADD.Dynamic.core.MDProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">MDProcess</span></code></a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.core.leap_prepare">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.core.</span></span><span class="sig-name descname"><span class="pre">leap_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">frcmod_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">protein_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/core.html#leap_prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.core.leap_prepare" title="Permalink to this definition"></a></dt>
+<dd><p>创建LEaP输入文件并执行tleap命令</p>
+<section id="id44">
+<h3>Parameters<a class="headerlink" href="#id44" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>prefix<span class="classifier">str</span></dt><dd><p>生成文件的文件名前缀</p>
+</dd>
+<dt>ligand_file<span class="classifier">BaseFile</span></dt><dd><p>小分子文件</p>
+</dd>
+<dt>frcmod_file<span class="classifier">BaseFile</span></dt><dd><p>Amber Parameters文件</p>
+</dd>
+<dt>protein_file<span class="classifier">BaseFile</span></dt><dd><p>蛋白质PDB文件</p>
+</dd>
+<dt>box_size<span class="classifier">float, optional</span></dt><dd><p>水箱大小 默认为12.0 Angstrom</p>
+</dd>
+<dt>save_dir<span class="classifier">str, optional</span></dt><dd><p>保存路径 默认为当前目录</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.core.leap_prepare_for_apo">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.core.</span></span><span class="sig-name descname"><span class="pre">leap_prepare_for_apo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protein_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/core.html#leap_prepare_for_apo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.core.leap_prepare_for_apo" title="Permalink to this definition"></a></dt>
+<dd><p>创建Apo晶体的LEaP输入文件并执行tleap命令</p>
+<section id="id45">
+<h3>Parameters<a class="headerlink" href="#id45" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>prefix<span class="classifier">str</span></dt><dd><p>生成文件的文件名前缀</p>
+</dd>
+<dt>protein_file<span class="classifier">BaseFile</span></dt><dd><p>蛋白质PDB文件</p>
+</dd>
+<dt>box_size<span class="classifier">float, optional</span></dt><dd><p>水箱大小 默认为12.0 Angstrom</p>
+</dd>
+<dt>save_dir<span class="classifier">str, optional</span></dt><dd><p>保存路径 默认为当前目录</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.core.molecule_prepare_bcc">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.core.</span></span><span class="sig-name descname"><span class="pre">molecule_prepare_bcc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ligand_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/core.html#molecule_prepare_bcc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.core.molecule_prepare_bcc" title="Permalink to this definition"></a></dt>
+<dd><p>使用AM1-BCC快速计算原子电荷 并完成配体预处理</p>
+<section id="id46">
+<h3>Parameters<a class="headerlink" href="#id46" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>ligand_file<span class="classifier">BaseFile</span></dt><dd><p>小分子文件</p>
+</dd>
+<dt>charge<span class="classifier">int</span></dt><dd><p>电荷数</p>
+</dd>
+<dt>save_dir<span class="classifier">str, optional</span></dt><dd><p>保存路径 过程及结果文件保存至该目录 如为None则保存至当前目录</p>
+</dd>
+<dt>overwrite<span class="classifier">bool, optional</span></dt><dd><p>是否覆盖已存在的mol2结果文件 默认为False</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.core.molecule_prepare_resp2">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.core.</span></span><span class="sig-name descname"><span class="pre">molecule_prepare_resp2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ligand_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_origin_cood</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/core.html#molecule_prepare_resp2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.core.molecule_prepare_resp2" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>预处理小分子文件</dt><dd><p>高斯坐标优化与RESP2(0.5)电荷计算</p>
+</dd>
+</dl>
+<section id="id47">
+<h3>Parameters<a class="headerlink" href="#id47" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>ligand_file<span class="classifier">BaseFile</span></dt><dd><p>小分子文件</p>
+</dd>
+<dt>cpu_num<span class="classifier">int, optional</span></dt><dd><p>CPU数量 默认为CPU总数</p>
+</dd>
+<dt>charge<span class="classifier">int, optional</span></dt><dd><p>电荷数 默认为电荷数为0</p>
+</dd>
+<dt>multiplicity<span class="classifier">int, optional</span></dt><dd><p>自旋多重度 默认为复数为1</p>
+</dd>
+<dt>solvent<span class="classifier">str, optional</span></dt><dd><p>计算溶剂 默认为水</p>
+</dd>
+<dt>save_dir<span class="classifier">str, optional</span></dt><dd><p>保存路径 过程及结果文件保存至该目录 如为None则保存至当前目录</p>
+</dd>
+<dt>overwrite<span class="classifier">bool, optional</span></dt><dd><p>是否覆盖已存在文件 默认为False</p>
+</dd>
+<dt>keep_origin_cood<span class="classifier">bool, optional</span></dt><dd><p>是否在输出结构中保留原始坐标 而不使用高斯结构优化的坐标 默认为False</p>
+</dd>
+</dl>
+</section>
+<section id="id48">
+<h3>Returns<a class="headerlink" href="#id48" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>BaseFile, BaseFile</dt><dd><p>已计算电荷的mol2文件, frcmod文件</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.core.protein_prepare">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.core.</span></span><span class="sig-name descname"><span class="pre">protein_prepare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protein_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_water</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile" title="pyCADD.utils.common.BaseFile"><span class="pre">BaseFile</span></a></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/core.html#protein_prepare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.core.protein_prepare" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>预处理蛋白质PDB文件</dt><dd><p>PDB文件格式化 for Amber | 去除原生H原子 | 使用rudece添加H原子 | 再次格式化</p>
+</dd>
+</dl>
+<section id="id49">
+<h3>Parameters<a class="headerlink" href="#id49" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>protein_file<span class="classifier">BaseFile</span></dt><dd><p>蛋白质PDB文件</p>
+</dd>
+<dt>save_dir<span class="classifier">str, optional</span></dt><dd><p>保存路径 过程及结果文件保存至该目录 如为None则保存至当前目录</p>
+</dd>
+<dt>keep_water<span class="classifier">bool, optional</span></dt><dd><p>是否保留输入结构中的水分子, 默认为 False</p>
+</dd>
+</dl>
+</section>
+<section id="id50">
+<h3>Returns<a class="headerlink" href="#id50" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>str</dt><dd><p>处理完成的蛋白质PDB文件</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.Dynamic.template">
+<span id="pycadd-dynamic-template-module"></span><h2>pyCADD.Dynamic.template module<a class="headerlink" href="#module-pyCADD.Dynamic.template" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.AnalysisConstructor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.template.</span></span><span class="sig-name descname"><span class="pre">AnalysisConstructor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'general'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'gb'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'pb'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'decomp'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'nmode'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#AnalysisConstructor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.AnalysisConstructor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyCADD.Dynamic.template.BaseConstructor" title="pyCADD.Dynamic.template.BaseConstructor"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseConstructor</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.AnalysisConstructor.to_string">
+<span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#AnalysisConstructor.to_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.AnalysisConstructor.to_string" title="Permalink to this definition"></a></dt>
+<dd><p>Return the current state with formated template as a string.</p>
+<section id="id51">
+<h3>Returns<a class="headerlink" href="#id51" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>str</dt><dd><p>Formated template as a string.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.BaseConstructor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.template.</span></span><span class="sig-name descname"><span class="pre">BaseConstructor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#BaseConstructor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.BaseConstructor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.BaseConstructor.add_attr">
+<span class="sig-name descname"><span class="pre">add_attr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#BaseConstructor.add_attr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.BaseConstructor.add_attr" title="Permalink to this definition"></a></dt>
+<dd><p>Add attributes to the constructor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.BaseConstructor.del_attr">
+<span class="sig-name descname"><span class="pre">del_attr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#BaseConstructor.del_attr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.BaseConstructor.del_attr" title="Permalink to this definition"></a></dt>
+<dd><p>Delete the attribute from the current state.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.BaseConstructor.get_attr">
+<span class="sig-name descname"><span class="pre">get_attr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#BaseConstructor.get_attr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.BaseConstructor.get_attr" title="Permalink to this definition"></a></dt>
+<dd><p>Get the value of the attribute.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.BaseConstructor.get_state_dict">
+<span class="sig-name descname"><span class="pre">get_state_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#BaseConstructor.get_state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.BaseConstructor.get_state_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Return the current state of the constructor as a dict.</p>
+<section id="id52">
+<h3>Returns<a class="headerlink" href="#id52" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>dict</dt><dd><p>Current state of the constructor.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.BaseConstructor.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#BaseConstructor.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.BaseConstructor.save" title="Permalink to this definition"></a></dt>
+<dd><p>Save the current state as a file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.BaseConstructor.set_attr">
+<span class="sig-name descname"><span class="pre">set_attr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#BaseConstructor.set_attr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.BaseConstructor.set_attr" title="Permalink to this definition"></a></dt>
+<dd><p>Set the value of the attribute.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.BaseConstructor.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#BaseConstructor.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.BaseConstructor.to_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Return the current state as a dict with current state.</p>
+<section id="id53">
+<h3>Returns<a class="headerlink" href="#id53" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>dict</dt><dd><p>Current state as a dict.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.BaseConstructor.to_str">
+<span class="sig-name descname"><span class="pre">to_str</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#BaseConstructor.to_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.BaseConstructor.to_str" title="Permalink to this definition"></a></dt>
+<dd><p>Same as to_string().</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.BaseConstructor.to_string">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#BaseConstructor.to_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.BaseConstructor.to_string" title="Permalink to this definition"></a></dt>
+<dd><p>Return the current state with formated template as a string.</p>
+<section id="id54">
+<h3>Returns<a class="headerlink" href="#id54" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>str</dt><dd><p>Formated template as a string.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.HeatInput">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.template.</span></span><span class="sig-name descname"><span class="pre">HeatInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tgt_temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heat_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">9000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.002</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restraint_wt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restraintmask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#HeatInput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.HeatInput" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.HeatInput.HEAT_TEMPLATE">
+<span class="sig-name descname"><span class="pre">HEAT_TEMPLATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'ISTEP1':</span> <span class="pre">0,</span> <span class="pre">'ISTEP2':</span> <span class="pre">9000,</span> <span class="pre">'TYPE':</span> <span class="pre">&quot;'TEMP0'&quot;,</span> <span class="pre">'VALUE1':</span> <span class="pre">0.0,</span> <span class="pre">'VALUE2':</span> <span class="pre">300.0}</span></em><a class="headerlink" href="#pyCADD.Dynamic.template.HeatInput.HEAT_TEMPLATE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.HeatInput.add_heat">
+<span class="sig-name descname"><span class="pre">add_heat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#HeatInput.add_heat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.HeatInput.add_heat" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.HeatInput.add_nvt">
+<span class="sig-name descname"><span class="pre">add_nvt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#HeatInput.add_nvt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.HeatInput.add_nvt" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.HeatInput.get_state_dict">
+<span class="sig-name descname"><span class="pre">get_state_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#HeatInput.get_state_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.HeatInput.get_state_dict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.HeatInput.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#HeatInput.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.HeatInput.save" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.HeatInput.to_string">
+<span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#HeatInput.to_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.HeatInput.to_string" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.LeapConstructor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.template.</span></span><span class="sig-name descname"><span class="pre">LeapConstructor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#LeapConstructor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.LeapConstructor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyCADD.Dynamic.template.BaseConstructor" title="pyCADD.Dynamic.template.BaseConstructor"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseConstructor</span></code></a></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.LeapConstructor.base_template">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">base_template</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pyCADD.Dynamic.template.LeapConstructor.base_template" title="Permalink to this definition"></a></dt>
+<dd><p>Return the base template of the LEaP file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.LeapConstructor.to_string">
+<span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#LeapConstructor.to_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.LeapConstructor.to_string" title="Permalink to this definition"></a></dt>
+<dd><p>Return the current state with formated template as a string.</p>
+<section id="id55">
+<h3>Returns<a class="headerlink" href="#id55" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>str</dt><dd><p>Formated template as a string.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.LeapInput">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.template.</span></span><span class="sig-name descname"><span class="pre">LeapInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protein_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frcmod_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'TIP3PBOX'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_ions_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Na+'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#LeapInput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.LeapInput" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyCADD.Dynamic.template.LeapConstructor" title="pyCADD.Dynamic.template.LeapConstructor"><code class="xref py py-class docutils literal notranslate"><span class="pre">LeapConstructor</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.MMGBSAInput">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.template.</span></span><span class="sig-name descname"><span class="pre">MMGBSAInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#MMGBSAInput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.MMGBSAInput" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.MMGBSAInput.add_decomp">
+<span class="sig-name descname"><span class="pre">add_decomp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#MMGBSAInput.add_decomp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.MMGBSAInput.add_decomp" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.MMGBSAInput.add_gb">
+<span class="sig-name descname"><span class="pre">add_gb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#MMGBSAInput.add_gb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.MMGBSAInput.add_gb" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.MMGBSAInput.add_general">
+<span class="sig-name descname"><span class="pre">add_general</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#MMGBSAInput.add_general"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.MMGBSAInput.add_general" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.MMGBSAInput.add_nmode">
+<span class="sig-name descname"><span class="pre">add_nmode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#MMGBSAInput.add_nmode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.MMGBSAInput.add_nmode" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.MMGBSAInput.add_pb">
+<span class="sig-name descname"><span class="pre">add_pb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#MMGBSAInput.add_pb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.MMGBSAInput.add_pb" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.MMGBSAInput.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#MMGBSAInput.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.MMGBSAInput.save" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.MMGBSAInput.to_string">
+<span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#MMGBSAInput.to_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.MMGBSAInput.to_string" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.MinimizeInput">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.template.</span></span><span class="sig-name descname"><span class="pre">MinimizeInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#MinimizeInput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.MinimizeInput" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyCADD.Dynamic.template.SimulationConstructor" title="pyCADD.Dynamic.template.SimulationConstructor"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimulationConstructor</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.MultiConstructorManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.template.</span></span><span class="sig-name descname"><span class="pre">MultiConstructorManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constructor_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#MultiConstructorManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.MultiConstructorManager" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.MultiConstructorManager.add_constructor">
+<span class="sig-name descname"><span class="pre">add_constructor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constructor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dynamic.template.BaseConstructor" title="pyCADD.Dynamic.template.BaseConstructor"><span class="pre">BaseConstructor</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#MultiConstructorManager.add_constructor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.MultiConstructorManager.add_constructor" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.MultiConstructorManager.del_constructor">
+<span class="sig-name descname"><span class="pre">del_constructor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constructor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dynamic.template.BaseConstructor" title="pyCADD.Dynamic.template.BaseConstructor"><span class="pre">BaseConstructor</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#MultiConstructorManager.del_constructor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.MultiConstructorManager.del_constructor" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.MultiConstructorManager.is_empty">
+<span class="sig-name descname"><span class="pre">is_empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#MultiConstructorManager.is_empty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.MultiConstructorManager.is_empty" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.MultiConstructorManager.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#MultiConstructorManager.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.MultiConstructorManager.save" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.MultiConstructorManager.to_string">
+<span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#MultiConstructorManager.to_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.MultiConstructorManager.to_string" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.NPTInput">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.template.</span></span><span class="sig-name descname"><span class="pre">NPTInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">end_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#NPTInput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.NPTInput" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyCADD.Dynamic.template.SimulationConstructor" title="pyCADD.Dynamic.template.SimulationConstructor"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimulationConstructor</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.NVTInput">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.template.</span></span><span class="sig-name descname"><span class="pre">NVTInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">end_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#NVTInput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.NVTInput" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyCADD.Dynamic.template.SimulationConstructor" title="pyCADD.Dynamic.template.SimulationConstructor"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimulationConstructor</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.RestrainedMinimizeInput">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.template.</span></span><span class="sig-name descname"><span class="pre">RestrainedMinimizeInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">restraintmask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restraint_wt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#RestrainedMinimizeInput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.RestrainedMinimizeInput" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyCADD.Dynamic.template.SimulationConstructor" title="pyCADD.Dynamic.template.SimulationConstructor"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimulationConstructor</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.SimulationConstructor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dynamic.template.</span></span><span class="sig-name descname"><span class="pre">SimulationConstructor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'cntrl'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'wt'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#SimulationConstructor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.SimulationConstructor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pyCADD.Dynamic.template.BaseConstructor" title="pyCADD.Dynamic.template.BaseConstructor"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseConstructor</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dynamic.template.SimulationConstructor.to_string">
+<span class="sig-name descname"><span class="pre">to_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Dynamic/template.html#SimulationConstructor.to_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dynamic.template.SimulationConstructor.to_string" title="Permalink to this definition"></a></dt>
+<dd><p>Return the current state with formated template as a string.</p>
+<section id="id56">
+<h3>Returns<a class="headerlink" href="#id56" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>str</dt><dd><p>Formated template as a string.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.Dynamic">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyCADD.Dynamic" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pyCADD.Dock.html" class="btn btn-neutral float-left" title="pyCADD.Dock package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pyCADD.VSW.html" class="btn btn-neutral float-right" title="pyCADD.VSW package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Yuhang Wu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

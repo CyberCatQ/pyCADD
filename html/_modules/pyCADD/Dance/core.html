@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="zh-CN" >
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD.Dance.core &mdash; pyCADD  文档</title>
+  <title>pyCADD.Dance.core &mdash; pyCADD 1.6.5 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/translations.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=08abc459"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../../_static/js/theme.js"></script>
-    <link rel="index" title="索引" href="../../../genindex.html" />
-    <link rel="search" title="搜索" href="../../../search.html" /> 
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -25,30 +25,38 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> pyCADD
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyCADD
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="在文档中搜索" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+              <p class="caption" role="heading"><span class="caption-text">README</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">pyCADD</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../input_file_fmt.html">构建Dock输入文件时的规范</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dock.html">Dock Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dance.html">Dance User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/gauss.html">Gauss Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dynamic.html">Dynamic Quick User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dance.html">Dance User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dynamic.html">Dynamic Quick User Guide</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">pyCADD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pyCADD</a></li>
 </ul>
 
         </div>
@@ -64,9 +72,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../index.html">模块代码</a> &raquo;</li>
-      <li>pyCADD.Dance.core</li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyCADD.Dance.core</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -75,7 +83,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>pyCADD.Dance.core 源代码</h1><div class="highlight"><pre>
+  <h1>Source code for pyCADD.Dance.core</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
@@ -88,8 +96,8 @@
                                      <span class="n">RepeatedStratifiedKFold</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="hyperparam_tuning"><a class="viewcode-back" href="../../../source/pyCADD.Dance.html#pyCADD.Dance.core.hyperparam_tuning">[文档]</a><span class="k">def</span> <span class="nf">hyperparam_tuning</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">param_gird</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">scoring</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;roc_auc&#39;</span><span class="p">,</span> <span class="n">cv</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;grid&#39;</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="hyperparam_tuning"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.core.hyperparam_tuning">[docs]</a><span class="k">def</span> <span class="nf">hyperparam_tuning</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">param_gird</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">scoring</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;roc_auc&#39;</span><span class="p">,</span> <span class="n">cv</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;grid&#39;</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    超参数调优</span>
 
 <span class="sd">    Parameters</span>
@@ -112,6 +120,7 @@
 <span class="sd">        调优方法</span>
 <span class="sd">        * grid: 网格搜索</span>
 <span class="sd">        * random: 随机搜索</span>
+<span class="sd">        </span>
 <span class="sd">    save_dir : str | None</span>
 <span class="sd">        参数文件保存路径 为None则不保存</span>
 <span class="sd">    model_name : str</span>
@@ -148,7 +157,7 @@
 
 
 <span class="k">def</span> <span class="nf">_score</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_train</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">X_test</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y_train</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">y_test</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">score_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    模型评估</span>
 
 <span class="sd">    Parameters</span>
@@ -174,6 +183,7 @@
 <span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="c1"># 适用于sklearn模型与Consensus模型</span>
+    <span class="c1"># 相同模型连续fit 不会记录历史模型权重等信息 而是直接覆盖 故不需要重新初始化模型</span>
     <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
 
     <span class="c1"># 概率预测</span>
@@ -187,8 +197,8 @@
     <span class="k">return</span> <span class="n">train_score</span><span class="p">,</span> <span class="n">test_score</span>
 
 
-<div class="viewcode-block" id="calc_scp_score"><a class="viewcode-back" href="../../../source/pyCADD.Dance.html#pyCADD.Dance.core.calc_scp_score">[文档]</a><span class="k">def</span> <span class="nf">calc_scp_score</span><span class="p">(</span><span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y_true</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">score_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">roc_auc_score</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="calc_scp_score"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.core.calc_scp_score">[docs]</a><span class="k">def</span> <span class="nf">calc_scp_score</span><span class="p">(</span><span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y_true</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">score_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">roc_auc_score</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    获取单构象Performance计算ROC-AUC值</span>
 
 <span class="sd">    Parameters</span>
@@ -225,7 +235,7 @@
 
 
 <span class="k">def</span> <span class="nf">_get_cv_scp_score</span><span class="p">(</span><span class="n">splits</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">score_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">roc_auc_score</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    在交叉测试cv中报告每一次cv的测试集部分的评分结果集</span>
 
 <span class="sd">    Parameters</span>
@@ -259,7 +269,7 @@
 
 
 <span class="k">def</span> <span class="nf">_get_splits</span><span class="p">(</span><span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">n_repeats</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">k_folds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    创建数据索引 </span>
 <span class="sd">    即训练集与测试/验证集的索引号 用于多重交叉验证</span>
 
@@ -287,7 +297,7 @@
 
 
 <span class="k">def</span> <span class="nf">_repeat_cross_validation</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">splits</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">score_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    对模型实施多重交叉验证</span>
 
 <span class="sd">    Parameters</span>
@@ -330,12 +340,12 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; 版权所有 2022, Yuhang.W.</p>
+    <p>&#169; Copyright 2023, Yuhang Wu.</p>
   </div>
 
-  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用了 
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
-    由 <a href="https://readthedocs.org">Read the Docs</a>开发.
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

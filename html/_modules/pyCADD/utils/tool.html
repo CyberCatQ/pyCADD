@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="zh-CN" >
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD.utils.tool &mdash; pyCADD  文档</title>
+  <title>pyCADD.utils.tool &mdash; pyCADD 1.6.5 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/translations.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=08abc459"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../../_static/js/theme.js"></script>
-    <link rel="index" title="索引" href="../../../genindex.html" />
-    <link rel="search" title="搜索" href="../../../search.html" /> 
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -25,30 +25,38 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> pyCADD
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyCADD
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="在文档中搜索" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+              <p class="caption" role="heading"><span class="caption-text">README</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">pyCADD</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../input_file_fmt.html">构建Dock输入文件时的规范</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dock.html">Dock Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dance.html">Dance User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/gauss.html">Gauss Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dynamic.html">Dynamic Quick User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dance.html">Dance User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dynamic.html">Dynamic Quick User Guide</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">pyCADD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pyCADD</a></li>
 </ul>
 
         </div>
@@ -64,9 +72,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../index.html">模块代码</a> &raquo;</li>
-      <li>pyCADD.utils.tool</li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyCADD.utils.tool</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -75,13 +83,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>pyCADD.utils.tool 源代码</h1><div class="highlight"><pre>
+  <h1>Source code for pyCADD.utils.tool</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
 <span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">randint</span>
 
 <span class="c1"># For Schrodinger 2021-2 or newer release</span>
 <span class="kn">import</span> <span class="nn">importlib</span>
@@ -93,12 +102,13 @@
 <span class="kn">from</span> <span class="nn">configparser</span> <span class="kn">import</span> <span class="n">ConfigParser</span>
 <span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Thread</span>
 <span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">ProcessPoolExecutor</span><span class="p">,</span> <span class="n">Future</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Manager</span><span class="p">,</span> <span class="n">Pool</span>
 
 <span class="n">NUM_PARALLEL</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">//</span> <span class="mi">4</span> <span class="o">*</span> <span class="mi">3</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">_multiprocssing_run</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">_iterable</span><span class="p">:</span><span class="n">Iterable</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">job_name</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">num_parallel</span><span class="p">:</span><span class="nb">int</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    多进程运行函数 并自动生成进度条</span>
 
 <span class="sd">    Parameters</span>
@@ -123,15 +133,17 @@
     <span class="n">progress</span><span class="p">,</span> <span class="n">taskID</span> <span class="o">=</span> <span class="n">_get_progress</span><span class="p">(</span><span class="n">job_name</span><span class="p">,</span> <span class="s1">&#39;bold cyan&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">_iterable</span><span class="p">))</span>
     <span class="n">returns</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">def</span> <span class="nf">success_handler</span><span class="p">(</span><span class="n">future</span><span class="p">:</span><span class="n">Future</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        处理完成的任务(成功/失败)</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="n">future</span><span class="o">.</span><span class="n">exception</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Multiprocessing Warnning: </span><span class="si">{</span><span class="n">future</span><span class="o">.</span><span class="n">exception</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">returns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">())</span>
+        <span class="c1"># 避免同时更新进度条</span>
+        <span class="c1"># time.sleep(randint(1000, 3000) / 1000)</span>
         <span class="n">progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">taskID</span><span class="p">,</span> <span class="n">advance</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    def _error_handler(error:Exception):</span>
 <span class="sd">        </span>
 <span class="sd">        异常处理函数</span>
@@ -165,14 +177,14 @@
     <span class="n">progress</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">returns</span>
  
-<div class="viewcode-block" id="get_lib_dir"><a class="viewcode-back" href="../../../source/pyCADD.utils.html#pyCADD.utils.tool.get_lib_dir">[文档]</a><span class="k">def</span> <span class="nf">get_lib_dir</span><span class="p">():</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="get_lib_dir"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.get_lib_dir">[docs]</a><span class="k">def</span> <span class="nf">get_lib_dir</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    获取pyCADD库所在的Absolute PATH</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span></div>
 
-<div class="viewcode-block" id="download_pdb"><a class="viewcode-back" href="../../../source/pyCADD.utils.html#pyCADD.utils.tool.download_pdb">[文档]</a><span class="k">def</span> <span class="nf">download_pdb</span><span class="p">(</span><span class="n">pdbid</span><span class="p">,</span> <span class="n">download_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="download_pdb"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.download_pdb">[docs]</a><span class="k">def</span> <span class="nf">download_pdb</span><span class="p">(</span><span class="n">pdbid</span><span class="p">,</span> <span class="n">download_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    从RCSB服务器下载PDB文件</span>
 
 <span class="sd">    Parameters</span>
@@ -202,8 +214,8 @@
     
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.pdb downloaded.&#39;</span> <span class="o">%</span> <span class="n">pdbid</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="download_pdb_list"><a class="viewcode-back" href="../../../source/pyCADD.utils.html#pyCADD.utils.tool.download_pdb_list">[文档]</a><span class="k">def</span> <span class="nf">download_pdb_list</span><span class="p">(</span><span class="n">pdblist</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span> <span class="n">download_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="download_pdb_list"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.download_pdb_list">[docs]</a><span class="k">def</span> <span class="nf">download_pdb_list</span><span class="p">(</span><span class="n">pdblist</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span> <span class="n">download_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    多线程下载PDB ID列表中的所有PDB文件</span>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -224,8 +236,8 @@
     <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
         <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="makedirs_from_list"><a class="viewcode-back" href="../../../source/pyCADD.utils.html#pyCADD.utils.tool.makedirs_from_list">[文档]</a><span class="k">def</span> <span class="nf">makedirs_from_list</span><span class="p">(</span><span class="n">path_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="makedirs_from_list"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.makedirs_from_list">[docs]</a><span class="k">def</span> <span class="nf">makedirs_from_list</span><span class="p">(</span><span class="n">path_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    输入包含多个PATH的列表 尝试创建列表中的所有目录</span>
 
 <span class="sd">    Parameters</span>
@@ -237,7 +249,7 @@
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 <span class="k">def</span> <span class="nf">_get_progress</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">total</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    创建Rich进度条</span>
 
 <span class="sd">    Parameters</span>
@@ -271,8 +283,8 @@
     <span class="k">return</span> <span class="n">progress</span><span class="p">,</span> <span class="n">task</span>
 
 <span class="c1"># 废弃</span>
-<div class="viewcode-block" id="check_file_update_progress"><a class="viewcode-back" href="../../../source/pyCADD.utils.html#pyCADD.utils.tool.check_file_update_progress">[文档]</a><span class="k">def</span> <span class="nf">check_file_update_progress</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">progress</span><span class="p">:</span><span class="n">Progress</span><span class="p">,</span> <span class="n">task_ID</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">time_sleep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="check_file_update_progress"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.check_file_update_progress">[docs]</a><span class="k">def</span> <span class="nf">check_file_update_progress</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">progress</span><span class="p">:</span><span class="n">Progress</span><span class="p">,</span> <span class="n">task_ID</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">time_sleep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    定时检查文件是否存在 已存在则更新进度条</span>
 
 <span class="sd">    Parameters</span>
@@ -294,19 +306,19 @@
     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Myconfig"><a class="viewcode-back" href="../../../source/pyCADD.utils.html#pyCADD.utils.tool.Myconfig">[文档]</a><span class="k">class</span> <span class="nc">Myconfig</span><span class="p">(</span><span class="n">ConfigParser</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="Myconfig"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.Myconfig">[docs]</a><span class="k">class</span> <span class="nc">Myconfig</span><span class="p">(</span><span class="n">ConfigParser</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    重写以解决配置读取大小写修改问题</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">ConfigParser</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="n">defaults</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Myconfig.optionxform"><a class="viewcode-back" href="../../../source/pyCADD.utils.html#pyCADD.utils.tool.Myconfig.optionxform">[文档]</a>    <span class="k">def</span> <span class="nf">optionxform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optionstr</span><span class="p">):</span>
+<div class="viewcode-block" id="Myconfig.optionxform"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.Myconfig.optionxform">[docs]</a>    <span class="k">def</span> <span class="nf">optionxform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optionstr</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">optionstr</span></div></div>
 
-<div class="viewcode-block" id="get_config"><a class="viewcode-back" href="../../../source/pyCADD.utils.html#pyCADD.utils.tool.get_config">[文档]</a><span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Myconfig</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="get_config"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.get_config">[docs]</a><span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Myconfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    读取配置文件</span>
 
 <span class="sd">    Parameters</span>
@@ -323,8 +335,8 @@
     <span class="n">config</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">config</span></div>
 
-<div class="viewcode-block" id="timeit"><a class="viewcode-back" href="../../../source/pyCADD.utils.html#pyCADD.utils.tool.timeit">[文档]</a><span class="k">def</span> <span class="nf">timeit</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="timeit"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.timeit">[docs]</a><span class="k">def</span> <span class="nf">timeit</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    计时装饰器</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
@@ -333,10 +345,10 @@
         <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;Start: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">start</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="sa">f</span><span class="s1">&#39;Start: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">start</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;End: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">end</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Duration: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H:%M:%S&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="sa">f</span><span class="s1">&#39;End: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">end</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Duration: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H:%M:%S&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
     <span class="k">return</span> <span class="n">wrapper</span></div>
 </pre></div>
@@ -348,12 +360,12 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; 版权所有 2022, Yuhang.W.</p>
+    <p>&#169; Copyright 2023, Yuhang Wu.</p>
   </div>
 
-  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用了 
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
-    由 <a href="https://readthedocs.org">Read the Docs</a>开发.
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

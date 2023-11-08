@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="zh-CN" >
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD.Density.base &mdash; pyCADD  文档</title>
+  <title>pyCADD.Density.base &mdash; pyCADD 1.6.5 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/translations.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=08abc459"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../../_static/js/theme.js"></script>
-    <link rel="index" title="索引" href="../../../genindex.html" />
-    <link rel="search" title="搜索" href="../../../search.html" /> 
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -25,11 +25,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> pyCADD
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyCADD
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="在文档中搜索" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -41,18 +45,18 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../input_file_fmt.html">构建Dock输入文件时的规范</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dock.html">Dock Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dance.html">Dance User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/gauss.html">Gauss Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dynamic.html">Dynamic Quick User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dance.html">Dance User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dynamic.html">Dynamic Quick User Guide</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">pyCADD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pyCADD</a></li>
 </ul>
 
         </div>
@@ -68,9 +72,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../index.html">模块代码</a> &raquo;</li>
-      <li>pyCADD.Density.base</li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyCADD.Density.base</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -79,15 +83,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>pyCADD.Density.base 源代码</h1><div class="highlight"><pre>
+  <h1>Source code for pyCADD.Density.base</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">pyCADD.Density</span> <span class="kn">import</span> <span class="n">core</span>
 
-<div class="viewcode-block" id="Gauss"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.base.Gauss">[文档]</a><span class="k">class</span> <span class="nc">Gauss</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="Gauss"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss">[docs]</a><span class="k">class</span> <span class="nc">Gauss</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Gaussian 计算调用模块</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
@@ -111,7 +115,7 @@
     <span class="nd">@classmethod</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">system_info</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        当前系统计算资源信息</span>
 <span class="sd">        </span>
 <span class="sd">        Return</span>
@@ -121,8 +125,8 @@
         <span class="bp">cls</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">mem</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">_get_system_info</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">gauss</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">mem</span>
     
-<div class="viewcode-block" id="Gauss.read_origin_st"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.base.Gauss.read_origin_st">[文档]</a>    <span class="k">def</span> <span class="nf">read_origin_st</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="Gauss.read_origin_st"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.read_origin_st">[docs]</a>    <span class="k">def</span> <span class="nf">read_origin_st</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        读取原始结构文件名与格式信息</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
@@ -142,9 +146,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">file_type</span> <span class="o">=</span> <span class="s1">&#39;Other&#39;</span></div>
 
-<div class="viewcode-block" id="Gauss.set_system"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.base.Gauss.set_system">[文档]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Gauss.set_system"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.set_system">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">set_system</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cpu_count</span><span class="p">,</span> <span class="n">mem</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        计算资源设定</span>
 
 <span class="sd">        Parameters</span>
@@ -157,51 +161,51 @@
         <span class="n">core</span><span class="o">.</span><span class="n">system_default</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">gauss</span><span class="p">,</span> <span class="n">cpu_count</span><span class="p">,</span> <span class="n">mem</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;CPU &amp; Memory usage has been changed.&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Gauss.set_charge"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.base.Gauss.set_charge">[文档]</a>    <span class="k">def</span> <span class="nf">set_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">charge</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="Gauss.set_charge"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.set_charge">[docs]</a>    <span class="k">def</span> <span class="nf">set_charge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">charge</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        设定电荷量</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">charge</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Charge has been set to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Gauss.set_multiplicity"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.base.Gauss.set_multiplicity">[文档]</a>    <span class="k">def</span> <span class="nf">set_multiplicity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spin_multi</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="Gauss.set_multiplicity"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.set_multiplicity">[docs]</a>    <span class="k">def</span> <span class="nf">set_multiplicity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spin_multi</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        设定自旋多重度</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">spin_multi</span> <span class="o">=</span> <span class="n">spin_multi</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Spin multiplicity has been set to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_multi</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Gauss.set_DFT"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.base.Gauss.set_DFT">[文档]</a>    <span class="k">def</span> <span class="nf">set_DFT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dft</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="Gauss.set_DFT"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.set_DFT">[docs]</a>    <span class="k">def</span> <span class="nf">set_DFT</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dft</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        设定泛函数</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dft</span> <span class="o">=</span> <span class="n">dft</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;DFT has been set to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">dft</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Gauss.set_basis_set"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.base.Gauss.set_basis_set">[文档]</a>    <span class="k">def</span> <span class="nf">set_basis_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basis_set</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="Gauss.set_basis_set"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.set_basis_set">[docs]</a>    <span class="k">def</span> <span class="nf">set_basis_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">basis_set</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        设定基组</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span> <span class="o">=</span> <span class="n">basis_set</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Basis set has been set to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">)</span></div>
     
-<div class="viewcode-block" id="Gauss.set_solvent"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.base.Gauss.set_solvent">[文档]</a>    <span class="k">def</span> <span class="nf">set_solvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solvent</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="Gauss.set_solvent"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.set_solvent">[docs]</a>    <span class="k">def</span> <span class="nf">set_solvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solvent</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        设定PCM模型溶剂</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">solvent</span> <span class="o">=</span> <span class="n">solvent</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;PCM solvent has been set to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">solvent</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">_print_current_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        显示当前设定状态</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Current structure file: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">st_path</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Current Setting: Charge = </span><span class="si">%s</span><span class="s1">  Multiplicity = </span><span class="si">%s</span><span class="s1">  DFT = </span><span class="si">%s</span><span class="s1">  Basis_set = </span><span class="si">%s</span><span class="s1"> Solvent = </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_multi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dft</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">basis_set</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">solvent</span><span class="p">))</span>
         
-<div class="viewcode-block" id="Gauss.create_inputfile"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.base.Gauss.create_inputfile">[文档]</a>    <span class="k">def</span> <span class="nf">create_inputfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_name</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">loose</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="Gauss.create_inputfile"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.create_inputfile">[docs]</a>    <span class="k">def</span> <span class="nf">create_inputfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_name</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">loose</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        创建当前设定状态下的输入文件</span>
 <span class="sd">        Parameter</span>
 <span class="sd">        ---------</span>
@@ -244,8 +248,8 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span></div>
     
-<div class="viewcode-block" id="Gauss.get_mo_info"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.base.Gauss.get_mo_info">[文档]</a>    <span class="k">def</span> <span class="nf">get_mo_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="Gauss.get_mo_info"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.get_mo_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_mo_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        获取HOMO/LUMO分子轨道信息</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">info_dict</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">get_mo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fchk_file</span><span class="p">)</span>
@@ -259,8 +263,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">lumo_energy</span> <span class="o">=</span> <span class="n">lumo_dict</span><span class="p">[</span><span class="s1">&#39;energy&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gap</span> <span class="o">=</span> <span class="n">gap_value</span></div>
 
-<div class="viewcode-block" id="Gauss.extract_cube"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.base.Gauss.extract_cube">[文档]</a>    <span class="k">def</span> <span class="nf">extract_cube</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mo</span><span class="p">:</span><span class="nb">int</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="Gauss.extract_cube"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.extract_cube">[docs]</a>    <span class="k">def</span> <span class="nf">extract_cube</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mo</span><span class="p">:</span><span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        提取分子轨道cube格点文件</span>
 
 <span class="sd">        Parameters</span>
@@ -273,8 +277,8 @@
         <span class="n">cube_file</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">cube_file_generate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fchk_file</span><span class="p">,</span> <span class="n">mo</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;MO </span><span class="si">%s</span><span class="s1"> cube file </span><span class="si">%s</span><span class="s1"> created.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">mo</span><span class="p">,</span> <span class="n">cube_file</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Gauss.run"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.base.Gauss.run">[文档]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="Gauss.run"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        启动任务</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Curren job: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">job</span><span class="p">)</span>
@@ -310,12 +314,12 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; 版权所有 2022, Yuhang.W.</p>
+    <p>&#169; Copyright 2023, Yuhang Wu.</p>
   </div>
 
-  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用了 
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
-    由 <a href="https://readthedocs.org">Read the Docs</a>开发.
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Density package &mdash; pyCADD 1.6.5 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=08abc459"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pyCADD.Dock package" href="pyCADD.Dock.html" />
+    <link rel="prev" title="pyCADD.Demand package" href="pyCADD.Demand.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pyCADD
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">README</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="README.html">pyCADD</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dance.html">Dance User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dynamic.html">Dynamic Quick User Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">pyCADD</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pyCADD.html">pyCADD package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="pyCADD.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dance.html">pyCADD.Dance package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Demand.html">pyCADD.Demand package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">pyCADD.Density package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html">pyCADD.Dock package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dynamic.html">pyCADD.Dynamic package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html">pyCADD.VSW package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.utils.html">pyCADD.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pyCADD.html#module-pyCADD">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyCADD</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">pyCADD</a></li>
+          <li class="breadcrumb-item"><a href="pyCADD.html">pyCADD package</a></li>
+      <li class="breadcrumb-item active">pyCADD.Density package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pyCADD.Density.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pycadd-density-package">
+<h1>pyCADD.Density package<a class="headerlink" href="#pycadd-density-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-pyCADD.Density.base">
+<span id="pycadd-density-base-module"></span><h2>pyCADD.Density.base module<a class="headerlink" href="#module-pyCADD.Density.base" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Density.base.</span></span><span class="sig-name descname"><span class="pre">Gauss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">st_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Gaussian 计算调用模块</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.create_inputfile">
+<span class="sig-name descname"><span class="pre">create_inputfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">job_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.create_inputfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.create_inputfile" title="Permalink to this definition"></a></dt>
+<dd><p>创建当前设定状态下的输入文件
+Parameter
+———
+job_name : str</p>
+<blockquote>
+<div><dl class="simple">
+<dt>任务名</dt><dd><ul class="simple">
+<li><p>opt 结构优化</p></li>
+<li><p>energy 单点能量计算</p></li>
+<li><p>absorb 激发态激发能(吸收)</p></li>
+<li><p>emission 激发态发射能</p></li>
+</ul>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>loose<span class="classifier">bool</span></dt><dd><p>是否提高优化任务中的收敛限 更快收敛</p>
+</dd>
+</dl>
+<section id="return">
+<h3>Return<a class="headerlink" href="#return" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>str</dt><dd><p>创建的高斯输入文件名称</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.extract_cube">
+<span class="sig-name descname"><span class="pre">extract_cube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.extract_cube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.extract_cube" title="Permalink to this definition"></a></dt>
+<dd><p>提取分子轨道cube格点文件</p>
+<section id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>mo<span class="classifier">int</span></dt><dd><p>分子轨道(MO)编号</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.gauss">
+<em class="property"><span class="pre">class</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gauss</span></span><a class="headerlink" href="#pyCADD.Density.base.Gauss.gauss" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.get_mo_info">
+<span class="sig-name descname"><span class="pre">get_mo_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.get_mo_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.get_mo_info" title="Permalink to this definition"></a></dt>
+<dd><p>获取HOMO/LUMO分子轨道信息</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.read_origin_st">
+<span class="sig-name descname"><span class="pre">read_origin_st</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.read_origin_st"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.read_origin_st" title="Permalink to this definition"></a></dt>
+<dd><p>读取原始结构文件名与格式信息</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.run" title="Permalink to this definition"></a></dt>
+<dd><p>启动任务</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.set_DFT">
+<span class="sig-name descname"><span class="pre">set_DFT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.set_DFT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.set_DFT" title="Permalink to this definition"></a></dt>
+<dd><p>设定泛函数</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.set_basis_set">
+<span class="sig-name descname"><span class="pre">set_basis_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.set_basis_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.set_basis_set" title="Permalink to this definition"></a></dt>
+<dd><p>设定基组</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.set_charge">
+<span class="sig-name descname"><span class="pre">set_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.set_charge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.set_charge" title="Permalink to this definition"></a></dt>
+<dd><p>设定电荷量</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.set_multiplicity">
+<span class="sig-name descname"><span class="pre">set_multiplicity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spin_multi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.set_multiplicity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.set_multiplicity" title="Permalink to this definition"></a></dt>
+<dd><p>设定自旋多重度</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.set_solvent">
+<span class="sig-name descname"><span class="pre">set_solvent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.set_solvent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.set_solvent" title="Permalink to this definition"></a></dt>
+<dd><p>设定PCM模型溶剂</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.set_system">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_system</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cpu_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mem</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.set_system"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.set_system" title="Permalink to this definition"></a></dt>
+<dd><p>计算资源设定</p>
+<section id="id1">
+<h3>Parameters<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>cpu_count<span class="classifier">int</span></dt><dd><p>计算使用核心数量</p>
+</dd>
+<dt>mem<span class="classifier">str</span></dt><dd><p>计算使用内存大小</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.system_info">
+<em class="property"><span class="pre">class</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">system_info</span></span><a class="headerlink" href="#pyCADD.Density.base.Gauss.system_info" title="Permalink to this definition"></a></dt>
+<dd><p>当前系统计算资源信息</p>
+<section id="id2">
+<h3>Return<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<p>cpu(s), memory</p>
+</section>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.Density.core">
+<span id="pycadd-density-core-module"></span><h2>pyCADD.Density.core module<a class="headerlink" href="#module-pyCADD.Density.core" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Density.core.Daemon">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Density.core.</span></span><span class="sig-name descname"><span class="pre">Daemon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cmd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pidfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/tmp/daemon.pid'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stdin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/dev/null'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stdout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/dev/null'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/dev/null'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/core.html#Daemon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.core.Daemon" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.core.Daemon.daemonize">
+<span class="sig-name descname"><span class="pre">daemonize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/core.html#Daemon.daemonize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.core.Daemon.daemonize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.core.Daemon.restart">
+<span class="sig-name descname"><span class="pre">restart</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/core.html#Daemon.restart"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.core.Daemon.restart" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.core.Daemon.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/core.html#Daemon.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.core.Daemon.run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.core.Daemon.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/core.html#Daemon.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.core.Daemon.start" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.core.Daemon.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/core.html#Daemon.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.core.Daemon.stop" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Density.core.cube_file_generate">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Density.core.</span></span><span class="sig-name descname"><span class="pre">cube_file_generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fchk_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/core.html#cube_file_generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.core.cube_file_generate" title="Permalink to this definition"></a></dt>
+<dd><p>生成分子轨道cube Grid文件</p>
+<section id="id3">
+<h3>Parameters<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>fchk_file<span class="classifier">str</span></dt><dd><p>高斯计算检查点文件(非二进制)</p>
+</dd>
+<dt>mo<span class="classifier">int</span></dt><dd><p>分子轨道(MO)编号</p>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h3>Return<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>str</dt><dd><p>生成的Grid文件名</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Density.core.generate_energy">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Density.core.</span></span><span class="sig-name descname"><span class="pre">generate_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">original_st</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'B3LYP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'6-31g*'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'water'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/core.html#generate_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.core.generate_energy" title="Permalink to this definition"></a></dt>
+<dd><p>生成Gaussian单点能计算输入文件</p>
+<section id="id5">
+<h3>Parameters<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>original_st<span class="classifier">str</span></dt><dd><p>原始分子结构文件路径</p>
+</dd>
+<dt>charge<span class="classifier">int </span></dt><dd><p>电荷量</p>
+</dd>
+<dt>multiplicity<span class="classifier">int </span></dt><dd><p>自旋多重度</p>
+</dd>
+<dt>dft<span class="classifier">str</span></dt><dd><p>泛函数</p>
+</dd>
+<dt>basis_set<span class="classifier">str</span></dt><dd><p>基组</p>
+</dd>
+<dt>solvent<span class="classifier">str</span></dt><dd><p>PCM模型溶剂</p>
+</dd>
+</dl>
+</section>
+<section id="id6">
+<h3>Return<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>str</dt><dd><p>生成的输入文件名称</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Density.core.generate_fchk">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Density.core.</span></span><span class="sig-name descname"><span class="pre">generate_fchk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chk_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/core.html#generate_fchk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.core.generate_fchk" title="Permalink to this definition"></a></dt>
+<dd><p>生成fchk文件</p>
+<section id="id7">
+<h3>Return<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>str</dt><dd><p>生成的fchk文件</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Density.core.generate_opt">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Density.core.</span></span><span class="sig-name descname"><span class="pre">generate_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">original_st</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'B3LYP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'6-31g*'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'water'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/core.html#generate_opt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.core.generate_opt" title="Permalink to this definition"></a></dt>
+<dd><p>生成Gaussian结构优化输入文件</p>
+<section id="id8">
+<h3>Parameters<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>original_st<span class="classifier">str</span></dt><dd><p>原始分子结构文件路径</p>
+</dd>
+<dt>charge<span class="classifier">int </span></dt><dd><p>电荷量</p>
+</dd>
+<dt>multiplicity<span class="classifier">int </span></dt><dd><p>自旋多重度</p>
+</dd>
+<dt>dft<span class="classifier">str</span></dt><dd><p>泛函数</p>
+</dd>
+<dt>basis_set<span class="classifier">str</span></dt><dd><p>基组</p>
+</dd>
+<dt>solvent<span class="classifier">str</span></dt><dd><p>PCM模型溶剂</p>
+</dd>
+<dt>loose<span class="classifier">bool</span></dt><dd><p>是否提高优化任务中的收敛限 更快收敛</p>
+</dd>
+<dt>td<span class="classifier">bool</span></dt><dd><p>是否为激发态结构优化计算(计算荧光/磷光发射能用)</p>
+</dd>
+<dt>freq<span class="classifier">bool</span></dt><dd><p>是否计算频率</p>
+</dd>
+</dl>
+</section>
+<section id="id9">
+<h3>Return<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>str</dt><dd><p>生成的输入文件名称</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Density.core.get_gaussian">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Density.core.</span></span><span class="sig-name descname"><span class="pre">get_gaussian</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/core.html#get_gaussian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.core.get_gaussian" title="Permalink to this definition"></a></dt>
+<dd><p>获取高斯可执行文件路径
+Return
+———
+str</p>
+<blockquote>
+<div><p>高斯可执行文件路径</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Density.core.get_mo">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Density.core.</span></span><span class="sig-name descname"><span class="pre">get_mo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fchk_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/core.html#get_mo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.core.get_mo" title="Permalink to this definition"></a></dt>
+<dd><p>获取HOMO/LUMO分子轨道信息</p>
+<section id="id10">
+<h3>Parameters<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>fchk_file<span class="classifier">str</span></dt><dd><p>高斯计算检查点文件(非二进制)</p>
+</dd>
+</dl>
+</section>
+<section id="id11">
+<h3>Return<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h3>
+<dl>
+<dt>dict[str, dict]</dt><dd><p>HOMO, LUMO分子轨道相关信息, gap值</p>
+<p>{
+‘homo’:</p>
+<blockquote>
+<div><p>{‘index’: homo_index, 
+‘energy’: homo_energy},</p>
+</div></blockquote>
+<dl class="simple">
+<dt>‘lumo’: </dt><dd><p>{‘index’: lumo_index, 
+‘energy’: lumo_energy},</p>
+</dd>
+</dl>
+<p>‘gap’: gap value
+}</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Density.core.system_default">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Density.core.</span></span><span class="sig-name descname"><span class="pre">system_default</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gauss_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/core.html#system_default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.core.system_default" title="Permalink to this definition"></a></dt>
+<dd><p>修改系统计算资源占用设定</p>
+<section id="id12">
+<h3>Parameters<a class="headerlink" href="#id12" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>gauss_path<span class="classifier">str</span></dt><dd><p>高斯可执行文件路径</p>
+</dd>
+<dt>cpu_count<span class="classifier">int </span></dt><dd><p>CPU核心使用数量</p>
+</dd>
+<dt>memory<span class="classifier">str</span></dt><dd><p>内存占用大小(MB/GB)</p>
+</dd>
+</dl>
+</section>
+<section id="id13">
+<h3>Return<a class="headerlink" href="#id13" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>str</dt><dd><p>Gaussian 可执行文件路径</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.Density.ui">
+<span id="pycadd-density-ui-module"></span><h2>pyCADD.Density.ui module<a class="headerlink" href="#module-pyCADD.Density.ui" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Density.ui.UI_Gauss">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Density.ui.</span></span><span class="sig-name descname"><span class="pre">UI_Gauss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">menu_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Gaussian</span> <span class="pre">Calculate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_st</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/ui.html#UI_Gauss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.ui.UI_Gauss" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.ui.UI" title="pyCADD.utils.ui.UI"><code class="xref py py-class docutils literal notranslate"><span class="pre">UI</span></code></a></p>
+<p>Gauss 计算脚本UI</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Density.ui.UI_Gauss.cpu_count">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cpu_count</span></span><a class="headerlink" href="#pyCADD.Density.ui.UI_Gauss.cpu_count" title="Permalink to this definition"></a></dt>
+<dd><p>CPU核心数量</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Density.ui.UI_Gauss.mem">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mem</span></span><a class="headerlink" href="#pyCADD.Density.ui.UI_Gauss.mem" title="Permalink to this definition"></a></dt>
+<dd><p>内存大小</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.ui.UI_Gauss.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flag</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/ui.html#UI_Gauss.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.ui.UI_Gauss.run" title="Permalink to this definition"></a></dt>
+<dd><p>业务逻辑</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.ui.UI_Gauss.set_system">
+<span class="sig-name descname"><span class="pre">set_system</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/ui.html#UI_Gauss.set_system"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.ui.UI_Gauss.set_system" title="Permalink to this definition"></a></dt>
+<dd><p>设定计算核心数量与内存大小</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.Density">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyCADD.Density" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pyCADD.Demand.html" class="btn btn-neutral float-left" title="pyCADD.Demand package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pyCADD.Dock.html" class="btn btn-neutral float-right" title="pyCADD.Dock package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Yuhang Wu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

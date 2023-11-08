@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="zh-CN" >
+<html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD.Density.core &mdash; pyCADD  文档</title>
+  <title>pyCADD.Density.core &mdash; pyCADD 1.6.5 documentation</title>
       <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/translations.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=08abc459"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="../../../_static/js/theme.js"></script>
-    <link rel="index" title="索引" href="../../../genindex.html" />
-    <link rel="search" title="搜索" href="../../../search.html" /> 
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -25,11 +25,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../../index.html" class="icon icon-home"> pyCADD
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyCADD
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="在文档中搜索" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -41,18 +45,18 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/input_file_fmt.html">构建Dock输入文件时的规范</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../input_file_fmt.html">构建Dock输入文件时的规范</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dock.html">Dock Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dance.html">Dance User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/gauss.html">Gauss Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/dynamic.html">Dynamic Quick User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dance.html">Dance User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gauss.html">Gauss Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dynamic.html">Dynamic Quick User Guide</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/modules.html">pyCADD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">pyCADD</a></li>
 </ul>
 
         </div>
@@ -68,9 +72,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../../index.html">模块代码</a> &raquo;</li>
-      <li>pyCADD.Density.core</li>
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyCADD.Density.core</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -79,7 +83,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>pyCADD.Density.core 源代码</h1><div class="highlight"><pre>
+  <h1>Source code for pyCADD.Density.core</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">atexit</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -93,8 +97,8 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">RATIO</span> <span class="o">=</span> <span class="mf">27.2114313131</span>
 
-<div class="viewcode-block" id="generate_opt"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.core.generate_opt">[文档]</a><span class="k">def</span> <span class="nf">generate_opt</span><span class="p">(</span><span class="n">original_st</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dft</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;B3LYP&#39;</span><span class="p">,</span> <span class="n">basis_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;6-31g*&#39;</span><span class="p">,</span> <span class="n">solvent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;water&#39;</span><span class="p">,</span> <span class="n">loose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">correct</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">td</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">freq</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="generate_opt"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.core.generate_opt">[docs]</a><span class="k">def</span> <span class="nf">generate_opt</span><span class="p">(</span><span class="n">original_st</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dft</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;B3LYP&#39;</span><span class="p">,</span> <span class="n">basis_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;6-31g*&#39;</span><span class="p">,</span> <span class="n">solvent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;water&#39;</span><span class="p">,</span> <span class="n">loose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">correct</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">td</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">freq</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    生成Gaussian结构优化输入文件</span>
 
 <span class="sd">    Parameters</span>
@@ -177,13 +181,13 @@
                                     <span class="n">dft</span><span class="p">,</span> <span class="n">basis_set</span><span class="p">,</span> <span class="n">correct_cofig</span><span class="p">,</span> <span class="n">TD</span><span class="p">,</span> <span class="n">scrf</span><span class="p">,</span> <span class="n">freq_kw</span><span class="p">)</span>
 
     <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">    cat &lt;&lt; EOF &gt; </span><span class="si">%s</span><span class="s1"></span>
-<span class="si">%s</span><span class="s1">=</span><span class="si">%s</span><span class="s1"></span>
-<span class="si">%s</span><span class="s1"></span>
+<span class="s1">    cat &lt;&lt; EOF &gt; </span><span class="si">%s</span>
+<span class="si">%s</span><span class="s1">=</span><span class="si">%s</span>
+<span class="si">%s</span>
 
 <span class="si">%s</span><span class="s1"> optimize</span>
 
-<span class="s1">  </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"></span>
+<span class="s1">  </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span>
 <span class="s1">EOF</span>
 <span class="s1">&#39;&#39;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">opt_file</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="si">%c</span><span class="s2">hk&quot;</span><span class="p">,</span> <span class="n">chk_file</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="n">molname</span> <span class="o">+</span> <span class="n">td_suffix</span><span class="p">,</span> <span class="n">charge</span><span class="p">,</span> <span class="n">multiplicity</span><span class="p">))</span>
 
@@ -193,8 +197,8 @@
     <span class="k">return</span> <span class="n">opt_file</span><span class="p">,</span> <span class="n">chk_file</span></div>
 
 
-<div class="viewcode-block" id="generate_energy"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.core.generate_energy">[文档]</a><span class="k">def</span> <span class="nf">generate_energy</span><span class="p">(</span><span class="n">original_st</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dft</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;B3LYP&#39;</span><span class="p">,</span> <span class="n">basis_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;6-31g*&#39;</span><span class="p">,</span> <span class="n">solvent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;water&#39;</span><span class="p">,</span> <span class="n">correct</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">td</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="generate_energy"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.core.generate_energy">[docs]</a><span class="k">def</span> <span class="nf">generate_energy</span><span class="p">(</span><span class="n">original_st</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dft</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;B3LYP&#39;</span><span class="p">,</span> <span class="n">basis_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;6-31g*&#39;</span><span class="p">,</span> <span class="n">solvent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;water&#39;</span><span class="p">,</span> <span class="n">correct</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">td</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    生成Gaussian单点能计算输入文件</span>
 
 <span class="sd">    Parameters</span>
@@ -260,13 +264,13 @@
     <span class="n">keyword</span> <span class="o">=</span> <span class="s1">&#39;# </span><span class="si">%s</span><span class="s1">/</span><span class="si">%s%s%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dft</span><span class="p">,</span> <span class="n">basis_set</span><span class="p">,</span> <span class="n">correct_cofig</span><span class="p">,</span> <span class="n">TD</span><span class="p">,</span> <span class="n">scrf</span><span class="p">)</span>
 
     <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">    cat &lt;&lt; EOF &gt; </span><span class="si">%s</span><span class="s1"></span>
-<span class="si">%s</span><span class="s1">=</span><span class="si">%s</span><span class="s1"></span>
-<span class="si">%s</span><span class="s1"></span>
+<span class="s1">    cat &lt;&lt; EOF &gt; </span><span class="si">%s</span>
+<span class="si">%s</span><span class="s1">=</span><span class="si">%s</span>
+<span class="si">%s</span>
 
 <span class="si">%s</span><span class="s1"> Single Point Energy</span>
 
-<span class="s1">  </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"></span>
+<span class="s1">  </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span>
 <span class="s1">EOF</span>
 <span class="s1">&#39;&#39;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">energy_file</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;</span><span class="si">%c</span><span class="s2">hk&quot;</span><span class="p">,</span> <span class="n">chk_file</span><span class="p">,</span> <span class="n">keyword</span><span class="p">,</span> <span class="n">molname</span> <span class="o">+</span> <span class="n">td_suffix</span><span class="p">,</span> <span class="n">charge</span><span class="p">,</span> <span class="n">multiplicity</span><span class="p">))</span>
 
@@ -276,8 +280,8 @@
     <span class="k">return</span> <span class="n">energy_file</span><span class="p">,</span> <span class="n">chk_file</span></div>
 
 
-<div class="viewcode-block" id="get_gaussian"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.core.get_gaussian">[文档]</a><span class="k">def</span> <span class="nf">get_gaussian</span><span class="p">():</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="get_gaussian"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.core.get_gaussian">[docs]</a><span class="k">def</span> <span class="nf">get_gaussian</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    获取高斯可执行文件路径</span>
 <span class="sd">    Return</span>
 <span class="sd">    ---------</span>
@@ -299,8 +303,8 @@
     <span class="k">return</span> <span class="n">gaussian</span></div>
 
 
-<div class="viewcode-block" id="system_default"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.core.system_default">[文档]</a><span class="k">def</span> <span class="nf">system_default</span><span class="p">(</span><span class="n">gauss_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cpu_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">memory</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="system_default"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.core.system_default">[docs]</a><span class="k">def</span> <span class="nf">system_default</span><span class="p">(</span><span class="n">gauss_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cpu_count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">memory</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    修改系统计算资源占用设定</span>
 
 <span class="sd">    Parameters</span>
@@ -326,8 +330,8 @@
                  <span class="p">(</span><span class="n">cpu_count</span><span class="p">,</span> <span class="n">memory</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="generate_fchk"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.core.generate_fchk">[文档]</a><span class="k">def</span> <span class="nf">generate_fchk</span><span class="p">(</span><span class="n">chk_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="generate_fchk"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.core.generate_fchk">[docs]</a><span class="k">def</span> <span class="nf">generate_fchk</span><span class="p">(</span><span class="n">chk_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    生成fchk文件</span>
 
 <span class="sd">    Return</span>
@@ -341,7 +345,7 @@
     <span class="k">return</span> <span class="n">fchk_file</span></div>
 
 <span class="k">def</span> <span class="nf">_check_gauss_finished</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    检查高斯计算任务是否结束</span>
 
 <span class="sd">    Parameter</span>
@@ -361,7 +365,7 @@
         <span class="k">return</span> <span class="kc">False</span>
 
 <span class="k">def</span> <span class="nf">_get_system_info</span><span class="p">(</span><span class="n">gauss_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    读取当前高斯计算资源文件设定</span>
 
 <span class="sd">    Parameter</span>
@@ -385,8 +389,8 @@
     <span class="k">return</span> <span class="n">cpu_info</span><span class="p">[</span><span class="mi">4</span><span class="p">:],</span> <span class="n">mem_info</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
 
 
-<div class="viewcode-block" id="get_mo"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.core.get_mo">[文档]</a><span class="k">def</span> <span class="nf">get_mo</span><span class="p">(</span><span class="n">fchk_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="get_mo"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.core.get_mo">[docs]</a><span class="k">def</span> <span class="nf">get_mo</span><span class="p">(</span><span class="n">fchk_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    获取HOMO/LUMO分子轨道信息</span>
 
 <span class="sd">    Parameters</span>
@@ -436,8 +440,8 @@
     <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;homo&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="n">homo_index</span><span class="p">,</span> <span class="s1">&#39;energy&#39;</span><span class="p">:</span> <span class="n">homo_energy</span><span class="p">},</span> <span class="s1">&#39;lumo&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;index&#39;</span><span class="p">:</span> <span class="n">lumo_index</span><span class="p">,</span> <span class="s1">&#39;energy&#39;</span><span class="p">:</span> <span class="n">lumo_energy</span><span class="p">},</span> <span class="s1">&#39;gap&#39;</span><span class="p">:</span> <span class="n">gap</span><span class="p">}</span></div>
 
 
-<div class="viewcode-block" id="cube_file_generate"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.core.cube_file_generate">[文档]</a><span class="k">def</span> <span class="nf">cube_file_generate</span><span class="p">(</span><span class="n">fchk_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mo</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="cube_file_generate"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.core.cube_file_generate">[docs]</a><span class="k">def</span> <span class="nf">cube_file_generate</span><span class="p">(</span><span class="n">fchk_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mo</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    生成分子轨道cube Grid文件</span>
 
 <span class="sd">    Parameters</span>
@@ -472,7 +476,7 @@
 
     <span class="k">return</span> <span class="s1">&#39;orb&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">mo</span><span class="p">)</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.cub&#39;</span></div>
 
-<div class="viewcode-block" id="Daemon"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.core.Daemon">[文档]</a><span class="k">class</span> <span class="nc">Daemon</span><span class="p">:</span>
+<div class="viewcode-block" id="Daemon"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.core.Daemon">[docs]</a><span class="k">class</span> <span class="nc">Daemon</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">pidfile</span><span class="o">=</span><span class="s1">&#39;/tmp/daemon.pid&#39;</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="s1">&#39;/dev/null&#39;</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="s1">&#39;/dev/null&#39;</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="s1">&#39;/dev/null&#39;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stdin</span> <span class="o">=</span> <span class="n">stdin</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">stdout</span>
@@ -480,7 +484,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pidfile</span> <span class="o">=</span> <span class="n">pidfile</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="n">cmd</span>
 
-<div class="viewcode-block" id="Daemon.daemonize"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.core.Daemon.daemonize">[文档]</a>    <span class="k">def</span> <span class="nf">daemonize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Daemon.daemonize"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.core.Daemon.daemonize">[docs]</a>    <span class="k">def</span> <span class="nf">daemonize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pidfile</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Already running.&#39;</span><span class="p">)</span>
         <span class="n">pid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fork</span><span class="p">()</span>
@@ -508,7 +512,7 @@
         <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
 
         <span class="c1"># Replace file descriptors for stdin, stdout, and stderr</span>
-        <span class="sd">&#39;&#39;&#39;        </span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;        </span>
 <span class="sd">        with open(self.stdin, &#39;rb&#39;, 0) as f:</span>
 <span class="sd">            os.dup2(f.fileno(), sys.stdin.fileno())</span>
 <span class="sd">        with open(self.stdout, &#39;ab&#39;, 0) as f:</span>
@@ -531,7 +535,7 @@
     <span class="k">def</span> <span class="nf">__sigterm_handler</span><span class="p">(</span><span class="n">signo</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Daemon.start"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.core.Daemon.start">[文档]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Daemon.start"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.core.Daemon.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">daemonize</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -540,7 +544,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Daemon.stop"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.core.Daemon.stop">[文档]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Daemon.stop"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.core.Daemon.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pidfile</span><span class="p">):</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pidfile</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -552,11 +556,11 @@
             <span class="k">if</span> <span class="s1">&#39;No such process&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pidfile</span><span class="p">):</span> 
                 <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pidfile</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Daemon.restart"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.core.Daemon.restart">[文档]</a>    <span class="k">def</span> <span class="nf">restart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Daemon.restart"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.core.Daemon.restart">[docs]</a>    <span class="k">def</span> <span class="nf">restart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Daemon.run"><a class="viewcode-back" href="../../../source/pyCADD.Density.html#pyCADD.Density.core.Daemon.run">[文档]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Daemon.run"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.core.Daemon.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bufsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div></div>
 </pre></div>
 
@@ -567,12 +571,12 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; 版权所有 2022, Yuhang.W.</p>
+    <p>&#169; Copyright 2023, Yuhang Wu.</p>
   </div>
 
-  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用了 
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
-    由 <a href="https://readthedocs.org">Read the Docs</a>开发.
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
    
 
 </footer>
