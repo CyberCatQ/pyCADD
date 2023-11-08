@@ -23,7 +23,23 @@ MD_RESULT_DIR = os.path.join(CWD, 'md_result')
 
 ANALYSIS_RESULT_DIR = os.path.join(CWD, 'md_analysis')
 
-
+def find_amber():
+    '''
+    Check if AMBER is installed.
+    '''
+    amberhome = os.environ.get('AMBERHOME')
+    _sander = os.path.exists(os.popen('which sander').read())
+    _pmemd = os.path.exists(os.popen('which pmemd.cuda').read())
+    _cpptraj = os.path.exists(os.popen('which cpptraj').read())
+    if not all([amberhome, _sander, _pmemd, _cpptraj]):
+        return False
+    try:
+        import pytraj as pt
+    except ImportError:
+        return False
+    else:
+        return True
+    
 class Processor:
     '''
     为分子动力学模拟执行预处理
