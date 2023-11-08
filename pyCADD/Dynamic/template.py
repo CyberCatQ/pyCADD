@@ -232,7 +232,7 @@ class AnalysisConstructor(BaseConstructor):
 
 
 class MultiConstructorManager:
-    def __init__(self, constructor_list: list[BaseConstructor] = None) -> None:
+    def __init__(self, constructor_list: list = None) -> None:
         self.constructor_list = constructor_list if constructor_list is not None else []
 
     @property

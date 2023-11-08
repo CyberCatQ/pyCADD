@@ -45,7 +45,7 @@ def gen_input_file(recep_list:list, lig_file:str, jobname:str=''):
     生成vsw输入文件
 
     Parameters
-    ---------
+    ----------
     recep_list : list
         将要作为受体进行VSW的所有受体(PDBID, 配体ID)组成的列表
     lig_file : str

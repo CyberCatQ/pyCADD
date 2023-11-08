@@ -492,7 +492,7 @@ def _trace_progress(output_file_path: str, step: int):
     progress.stop()
 
 
-def _get_input_config(input_file: str) -> list[dict]:
+def _get_input_config(input_file: str) -> list:
     '''
     获取分子动力学模拟过程的输入文件配置
 
@@ -650,7 +650,7 @@ class NVTProcess(MDProcess):
 def _run_simulation(
         comsolvate_topfile: BaseFile,
         comsolvate_crdfile: BaseFile,
-        process_list: list[MDProcess],
+        process_list: list,
         save_dir: Union[str, None] = None) -> None:
     '''
     执行分子动力学模拟工作流
