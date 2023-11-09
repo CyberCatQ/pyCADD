@@ -79,10 +79,10 @@ processor.leap_prepare(prefix)
 ```python
 # 使用set_comsolvate_file(file_path:str, file_type:str)来设定已存在的水箱复合物结构3个必要文件路径
 # 包括_comsolvate.pdb _comsolvate.prmtop _comsolvate.inpcrd
-# new_processor = Processor()
-# new_processor.set_comsolvate_file('leap/*_comsolvate.pdb', 'pdb')
-# new_processor.set_comsolvate_file('leap/*_comsolvate.prmtop', 'top')
-# new_processor.set_comsolvate_file('leap/*_comsolvate.inpcrd', 'crd')
+new_processor = Processor()
+new_processor.set_comsolvate_file('leap/*_comsolvate.pdb', 'pdb')
+new_processor.set_comsolvate_file('leap/*_comsolvate.prmtop', 'top')
+new_processor.set_comsolvate_file('leap/*_comsolvate.inpcrd', 'crd')
 # processor = new_processor
 ```
 
@@ -129,14 +129,14 @@ processor.creat_npt_input(total_step=500000, file_name="eq_npt.in")
 processor.creat_nvt_input(total_step=500000, file_name="eq_nvt.in")
 processor.creat_npt_input(total_step=step_num, file_name="production.in")
 
-processor.add_process('input_file/stepA.in', 'min', 'minimize')
+processor.add_process('input_file/min.in', 'min', 'minimize')
 processor.add_process('input_file/heat.in', 'heat')
 processor.add_process('input_file/eq_npt.in', 'eq_npt', 'npt')
 processor.add_process('input_file/eq_nvt.in', 'eq_nvt', 'nvt')
 processor.add_process('input_file/production.in', 'production', 'npt')
 ```
 
-工作流搭建完成后，传递`processor`用于构建个模拟器实例，设定GPU编号即可开始模拟。
+工作流搭建完成后，传递`processor`用于构建一个模拟器实例，设定GPU编号即可开始模拟。
 ```python
 simulator = Simulator(processor)
 
