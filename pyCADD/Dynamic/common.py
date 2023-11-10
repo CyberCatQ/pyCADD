@@ -23,7 +23,23 @@ MD_RESULT_DIR = os.path.join(CWD, 'md_result')
 
 ANALYSIS_RESULT_DIR = os.path.join(CWD, 'md_analysis')
 
-
+def find_amber():
+    '''
+    Check if AMBER is installed.
+    '''
+    amberhome = os.environ.get('AMBERHOME')
+    _sander = os.path.exists(os.popen('which sander').read())
+    _pmemd = os.path.exists(os.popen('which pmemd.cuda').read())
+    _cpptraj = os.path.exists(os.popen('which cpptraj').read())
+    if not all([amberhome, _sander, _pmemd, _cpptraj]):
+        return False
+    try:
+        import pytraj as pt
+    except ImportError:
+        return False
+    else:
+        return True
+    
 class Processor:
     '''
     为分子动力学模拟执行预处理
@@ -331,8 +347,9 @@ class Processor:
 
         logger.info(
             f'Minimize process input file created for {file_name.split(".")[0]}.')
-        logger.info(
-            f'maxcyc: {maxcyc}, ncyc: {ncyc}, restraint: {restraint}, restraint mask: {restraint_mask}')
+        # logger.info(
+        #     f'maxcyc: {maxcyc}, ncyc: {ncyc}, restraint: {restraint}, restraint mask: {restraint_mask}')
+        logger.info(f"{constructor.get_state_dict()}")
 
         return BaseFile(file_path)
 
@@ -378,8 +395,9 @@ class Processor:
 
         logger.info(
             f'Heat process input file created for {file_name.split(".")[0]}.')
-        logger.info(
-            f'tgt_temp: {tgt_temp}, heat_step: {heat_step}, total_step: {total_step}')
+        # logger.info(
+        #     f'tgt_temp: {tgt_temp}, heat_step: {heat_step}, total_step: {total_step}')
+        logger.info(f"{constructor.get_state_dict()}")
 
         return BaseFile(file_path)
 
@@ -422,8 +440,9 @@ class Processor:
 
         logger.info(
             f'NVT process input file created for {file_name.split(".")[0]}.')
-        logger.info(
-            f'temp0: {temp0}, total_step: {total_step}, step_length: {step_length}, irest: {irest}, ntx: {ntx}')
+        # logger.info(
+        #     f'temp0: {temp0}, total_step: {total_step}, step_length: {step_length}, irest: {irest}, ntx: {ntx}')
+        logger.info(f"{constructor.get_state_dict()}")
 
         return BaseFile(file_path)
 
@@ -466,9 +485,10 @@ class Processor:
         constructor.save(file_path)
 
         logger.info(
-            f'NPT process input file created for {file_name.split(".")[0]}.')
-        logger.info(
-            f'temp0: {temp0}, total_step: {total_step}, step_length: {step_length}, irest: {irest}, ntx: {ntx}, taup: {taup}')
+            f'NPT process input file created for {file_name.split(".in")[0]}.')
+        # logger.info(
+        #     f'temp0: {temp0}, total_step: {total_step}, step_length: {step_length}, irest: {irest}, ntx: {ntx}, taup: {taup}')
+        logger.info(f"{constructor.get_state_dict()}")
 
         return BaseFile(file_path)
 
