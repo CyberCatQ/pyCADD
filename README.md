@@ -6,11 +6,17 @@ pyCADD
 * 自动化调用Schrodinger Python API执行晶体准备、格点文件生成与对接、MMGBSA结合能计算等功能
 * 调用多核并行计算 实现集合式对接与结果提取、数据分析
 * 调用Gaussian、Multiwfn计算、分析配体分子结构优化、单点能、RESP(2)电荷
-* AMBER分子动力学模拟准备、运行和MD轨迹的基本分析
-* 用户界面友好
+* 自动运行 AMBER 分子动力学模拟准备、运行和 MD轨迹的基本分析
+* 提供简单友好的用户界面
 * 支持CLI快速调用
 
 ## 更新日志
+* 1.6.6 (2023-11-10)
+  * 重构 Dynamic 模块构建工作流的方式，现在更加模块化和自由
+  * 修复了一些BUG
+  * 更新了部分注释与文档
+  * Dynamic 与 Density 导入时添加简单的必要检查
+
 * 1.6.5 (2023-04-28)
   * 修复 Dock 开展 Ensemble Docking 完成时数据提取的BUG
   * 调整了一些代码的位置便于后续维护
@@ -28,8 +34,8 @@ pyCADD
 * 1.6.3 (2022-10-27)
   * 修改了 Dock 模块的对接函数调用 不再使用Schrodinger任务管理层
     * 显著降低无意义时间损耗 提升 Ensemble Docking 速度
-    * 完全减除任务管理层perl的长期内存占用 避免后期速度下降
-    * 完全保障了 CPU 100%时间满载运行对接任务
+    * 移除任务管理层perl的长期内存占用 避免后期速度下降
+    * 保障了 CPU 100%时间满载运行对接任务
   * 修改 Dock 的默认的结果文件生成为仅输出配体结构 
     * 显著减少对接结果文件体积
   * 修复了Dynamic Analysis模块的BUG
@@ -42,13 +48,8 @@ pyCADD
 
 * 1.6.1 (2022-07-14)
   * 添加了 Dynamic 模块的MD后处理工具 Analyzer
-  * 为 Dynamic-Analyzer 添加了CLI接口 pycadd-mdanalysis
+  * 为 Dynamic-Analyzer 添加了CLI接口 pycadd-dynamic analysis
   * 为 Dance 添加了新的统计方法 标准富集因子NEF
-  
-* 1.6.0 (2022-07-07)
-  * 分子动力学模块 Dynamic 开发完成
-  * 添加了Dynamic的CLI接口
-  * 为项目文档增加了 Dynamic 的 User Guide
 
 ## Platform  
 
@@ -143,10 +144,11 @@ pycadd-dock ensemble-dock --help
 各模块使用指南及更多帮助信息, 请参阅[API文档](https://cybercatq.github.io/pyCADD)。
 
 * * *
-`pyCADD` 完全基于开发者自身实际需求开发, 更多其他功能及模块的使用教程尚未完全撰写, 但具有详尽注释。可参阅[文档](https://cybercatq.github.io/pyCADD)API部分及注释。  
+`pyCADD` 完全基于开发者自身实际需求开发, 更多其他功能及模块的使用教程尚未完全撰写, 但可能附有详尽注释。可参阅[文档](https://cybercatq.github.io/pyCADD)API部分及代码注释。  
 如果您有任何问题或建议, 请在[项目主页](https://github.com/CyberCatQ/pyCADD)提交Issue。  
 如果任何模块对您有帮助，欢迎为此项目点亮星星。
 
+UI等大部分功能为作者练手之作， 可能不具有实用性。  
 此脚本仅限于学习和批评使用, 请勿用作其他用途。  
 源码仅包含中文注释。
 
