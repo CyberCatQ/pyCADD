@@ -20,6 +20,7 @@ pyCADD Documentation
    dance.md
    density.md
    dynamic.md
+   demand.md
 
 .. toctree::
    :maxdepth: 2

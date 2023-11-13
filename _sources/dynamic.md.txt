@@ -193,7 +193,7 @@ pycadd-dynamic analysis -y TRAJ_FILE -ro OUTPUT_FILE -sp SOL_COM_TOP_FILE -cp CO
 2. 计算模拟体系中蛋白各**残基的RMSF(基于alpha C)**
 3. 统计模拟过程的氢键数量、键长、键角等信息，及模拟过程的氢键存续(Lifetime)
 
-如果默认可以通过以下参数来跳过分析过程：
+如果您不想以alpha C计算或因其他原因需要跳过分析过程，可以通过以下参数：
 * `--no-hbond` 不进行氢键分析
 * `--no-rmsd` 不进行RMSD分析
 * `--no-rmsf` 不进行RMSF分析
