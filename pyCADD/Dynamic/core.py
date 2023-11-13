@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 import logging
 from time import sleep
@@ -21,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 def _system_call(cmd: str) -> None:
     '''
-    系统命令调用
+    系统shell命令调用
 
     Parameters
     ----------
@@ -32,7 +33,10 @@ def _system_call(cmd: str) -> None:
 
     return_code = os.system(cmd)
     if return_code != 0:
-        raise RuntimeError(f'System call failed: {cmd}') from None
+        # raise RuntimeError(f'System call failed: {cmd}') from None
+        print(f"\033[1;31mShell command failed:\033[0m {cmd}")
+        print('\033[1mPlease check the error messages above and try again.\033[0m')
+        sys.exit(1)
 
 
 def _convert_mae_to_pdb(mae_file_path: str) -> None:
