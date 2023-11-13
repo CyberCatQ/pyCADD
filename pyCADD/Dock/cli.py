@@ -145,7 +145,7 @@ def ensemble_dock(input_file_path, library_file_path, parallel, precision, del_w
 @click.option('--redock', is_flag=True, help='Redock ligands from crystals to grids or not.')
 def extract_data(input_file_path, library_file_path, parallel, precision, redock):
     '''
-    Extract ensemble docking data from docking results. \n
+    Extract ensemble docking data from finished docking results. \n
     input_file_path : Specify input file path for ensemble docking.\n
     library_file_path : Specify compounds library file path for ensemble docking.
     '''
@@ -163,15 +163,15 @@ def extract_data(input_file_path, library_file_path, parallel, precision, redock
     dock_data_list = console.multi_extract_data(redock_data=False, precision=precision)
     save_ensemble_docking_data(dock_data_list, save_dir=console.result_save_dir, precision=precision)
     
-@cli_main.command(short_help='Generate quick report for ligand(s).')
+@cli_main.command(short_help='Generate excel reports for every ligand to compare them with cocrystal ligands.')
 @click.argument('input_file_path', type=str)
 @click.argument('ligand_file_path', type=str)
 @click.option('--parallel', '-n', default=os.cpu_count(), type=int, help='Number of parallel processes.')
 @click.option('--precision', '-p', default='SP', required=False, type=click.Choice(['SP', 'XP']), help='Docking Precision (SP/XP), default SP.')
 @click.option('--overwrite', '-O', is_flag=True, help='Overwrite the file.')
-def quick_report(input_file_path, ligand_file_path, parallel, precision, overwrite):
+def generate_report(input_file_path, ligand_file_path, parallel, precision, overwrite):
     '''
-    Generate quick report for ligand(s). \n
+    Generate excel reports for every ligand. \n
     input_file_path : Specify input file path for quick report.
     ligand_file_path : Specify ligand file path for quick report.
     '''
