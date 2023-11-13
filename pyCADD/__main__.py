@@ -11,16 +11,19 @@ enter_text = '[bold]Enter the Code of Options'
 from pyCADD import __version__
 
 def main():
-    if len(sys.argv) != 1:
-        try:
-            opts, args = getopt.getopt(sys.argv[1:], 'hvV', ['help', 'version'])
-        except getopt.GetoptError as err:
-            print(err)
-            sys.exit(2)
-        for opt, arg in opts:
-            if opt in ('-v', '--version', '-V'):
-                print('pyCADD Version', __version__)
-                sys.exit(0)
+    import argparse
+    parser = argparse.ArgumentParser(
+        description='pyCADD: A Python-based Computer-Aided Drug Design Toolkit.',
+        usage='''
+    pycadd-dock: Docking module of pyCADD.
+    pycadd-density: Gaussian calculation module of pyCADD.
+    pycadd-dynamic: Molecular dynamics simulation module of pyCADD.
+    pycadd-demand: Query module for the PDB data from Uniprot ID.
+
+    Use CLI_COMMAND + -h or --help for more information. ''')
+    parser.add_argument('-v', '-V', '--version', action='version', version='pyCADD Version ' + __version__)
+    args = parser.parse_args()
+    
     ui = UI()
     options = [
         '1. Query the PDB data from Uniprot ID',

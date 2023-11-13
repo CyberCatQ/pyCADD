@@ -146,7 +146,7 @@ def simulate(top_file, inpcrd_file, with_gpu):
     simulator = Simulator(processor)
     simulator.run_simulation(with_gpu)
 
-@main.command(short_help='Simple post analysis for MD simulation.')
+@main.command(short_help='Simple post-analysis for finished MD simulation.')
 @click.option('-y', type=click.Path(exists=True), help='Trajectory file path.', prompt='Please specify trajectory file path')
 @click.option('-sp', type=click.Path(exists=True), help='Solvated complex topology file path.', prompt='Please specify solvated complex topology file path')
 @click.option('-lp', type=click.Path(exists=True), help='Ligand topology file path. If not specified, apo system analysis will be performed.')
@@ -192,11 +192,17 @@ def analysis(y, sp, lp, rp, cp, ro, no_hbond, no_rmsd, no_rmsf, decomp, nmode, p
         decomp_start_fm = input('Please specify energy decomposition START_FRAME:\n')
         decomp_end_fm = input('Please specify energy decomposition END_FRAME:\n')
         decomp_step_size = input('Please specify energy decomposition STEP_SIZE:\n')
+        if not all([decomp_start_fm, decomp_end_fm, decomp_step_size]):
+            decomp = False
+            print('Invalid input. Energy decomposition will not be performed.')
 
     if nmode:
         nmode_start_fm = input('Please specify nmode START_FRAME:\n')
         nmode_end_fm = input('Please specify nmode END_FRAME:\n')
         nmode_step_size = input('Please specify nmode STEP_SIZE:\n')
+        if not all([nmode_start_fm, nmode_end_fm, nmode_step_size]):
+            nmode = False
+            print('Invalid input. Entropy calculation will not be performed.')
 
     if not no_rmsd:
         analyzer.calc_rmsd()

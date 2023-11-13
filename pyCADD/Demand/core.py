@@ -6,15 +6,10 @@ from urllib import parse
 import pandas as pd
 import requests
 import yaml
-from pyCADD.Demand.config import BaseQueryCfg
+from pyCADD.Demand.config import BaseQueryCfg, IGNORE_LIG
 from pyCADD.utils.tool import makedirs_from_list
 
 logger = logging.getLogger(__name__)
-
-# 非配体的小分子
-ignore_lig = ['EDO', 'DMS', 'IPA', 'TBY', 'ARS', 'EU', 'MG', 'IOD', 'ACT', 'CA', 'CAC', 'K', 'FMT', 'BU3', 'PGO', 'PE4',
-               'PO4', 'BR', 'NO3', 'BCT', 'ZN', 'SO4', 'CL', 'NA', 'AU', 'GOL', 'NI', 'YT3', 'PEG', 'PGE']
-
 
 # API 接口
 UNIPROT_URL = 'https://rest.uniprot.org/uniprotkb/'
@@ -147,7 +142,13 @@ class QueryClient:
             parse_data.append(d)
         self.pdb_data = parse_data
         pd.DataFrame(parse_data).to_csv(os.path.join(self.pdb_save_dir, self.uniprot_id + '.csv'), index=False)
-        
+
+    def query(self):
+        '''
+        查询 pdb 数据
+        '''
+        self._query_pdb()
+            
     def clean_pdb_data(self, del_mutations:bool=True, del_ignore_lig:bool=True, cutoff:float=None):
         '''
         清洗 pdb 数据:
@@ -195,7 +196,7 @@ class QueryClient:
                     target_ligs.append(nonpoly_entity['nonpolymer_comp']['chem_comp']['id'])
             total_result[pdb['rcsb_id']] = target_ligs
         
-        self.pairs_clean = {k: v for k, v in total_result.items() if set(v).difference(ignore_lig)}
+        self.pairs_clean = {k: v for k, v in total_result.items() if set(v).difference(IGNORE_LIG)}
         self.output_data = self.pairs_clean
 
         if del_mutations:
@@ -203,7 +204,7 @@ class QueryClient:
             self.output_data = {k: v for k, v in self.output_data.items() if k not in mutations}
         
         if del_ignore_lig:
-            self.output_data = {key: ','.join(v for v in value if v not in ignore_lig) for key, value in self.output_data.items()}
+            self.output_data = {key: ','.join(v for v in value if v not in IGNORE_LIG) for key, value in self.output_data.items()}
         
         return self.output_data
     

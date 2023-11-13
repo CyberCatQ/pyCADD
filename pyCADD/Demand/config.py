@@ -1,3 +1,7 @@
+# 非配体的小分子
+IGNORE_LIG = ['EDO', 'DMS', 'IPA', 'TBY', 'ARS', 'EU', 'MG', 'IOD', 'ACT', 'CA', 'CAC', 'K', 'FMT', 'BU3', 'PGO', 'PE4',
+               'PO4', 'BR', 'NO3', 'BCT', 'ZN', 'SO4', 'CL', 'NA', 'AU', 'GOL', 'NI', 'YT3', 'PEG', 'PGE']
+
 class BaseQueryCfg:
 	def __init__(self, pdb_list):
 		pdb_list = ['"' + pdb + '"' for pdb in pdb_list]

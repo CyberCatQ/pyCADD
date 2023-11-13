@@ -209,7 +209,7 @@ def get_gaussian():
         gaussian = g16
     elif g09:
         logger.warning(
-            'You are using gaussian 09, that may cause some unknown errors.\nGaussian 16 is recommend.')
+            'You are using gaussian 09, which may cause some unknown errors.\nGaussian 16 is recommended.')
         gaussian = g09
     else:
         logger.error('Gaussian is not installed.')
