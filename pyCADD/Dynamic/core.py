@@ -5,7 +5,6 @@ from time import sleep
 from typing import Union
 
 from pyCADD.Dynamic.template import LeapInput
-from pyCADD.Density.base import Gauss
 from pyCADD.utils.common import BaseFile
 from pyCADD.utils.tool import _get_progress, makedirs_from_list, timeit
 
@@ -232,11 +231,14 @@ def molecule_prepare_resp2(
             f'parmchk2 -i {mol2_file_path} -f mol2 -o {frcmod_file_path}')
         os.chdir(CWD)
         return BaseFile(mol2_file_path), BaseFile(frcmod_file_path)
-
+    
+    from pyCADD.Density.base import Gauss
+    if Gauss.gauss is None:
+        raise RuntimeError('Gaussian may not be installed.\nPlease calculate QM charges with AM1-BCC.')
     Gauss(file_path).set_system(cpu_num, '16GB')
 
-    if os.popen('which obabel').read() == '':
-        raise RuntimeError('Openbabel may not be installed.')
+    if os.popen('which obabel').read().strip() == '':
+        raise RuntimeError('Openbabel may not be installed.\nPlease install Openbabel first.')
     print('Optimizing ligand structure...')
     # 高斯坐标优化与RESP2电荷计算
     # 完成时 生成.pqr文件
