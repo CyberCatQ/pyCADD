@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dynamic User Guide &mdash; pyCADD 1.6.6 documentation</title>
+  <title>Dynamic User Guide &mdash; pyCADD 1.6.7 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -13,7 +13,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=3f534e33"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=9b2bca2a"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/js/theme.js"></script>
@@ -60,12 +60,15 @@
 <li class="toctree-l3"><a class="reference internal" href="#md">构建MD工作流并执行模拟</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#cli-dynamic-md">CLI 调用 Dynamic 模块进行MD模拟</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id4">模拟结果分析</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cli-dynamic-md">CLI 调用 Dynamic 模块进行MD模拟</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">部分参数说明</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">模拟结果分析</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#cli">CLI快速分析</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#python-analyzer">python 包调用 Analyzer 分析工具</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#rmsd-rmsf">RMSD &amp; RMSF 分析</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id5">氢键分析</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">氢键分析</a></li>
 </ul>
 </li>
 </ul>
@@ -129,12 +132,12 @@
 <section id="id2">
 <h3>蛋白结构准备<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
 <p>使用processor的protein_prepare()方法 对蛋白结构文件进行自动预处理工作。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">processor</span><span class="o">.</span><span class="n">protein_prepare</span><span class="p">(</span><span class="n">protein_file</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">processor</span><span class="o">.</span><span class="n">protein_prepare</span><span class="p">(</span><span class="n">protein_file</span><span class="p">,</span> <span class="n">keep_water</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>这一过程包括以下几个步骤(需要AmberTools)：</p>
 <ol class="simple">
-<li><p>去除蛋白结构中所有的水分子, 并补充标准氨基酸残基缺失的原子(add missing atoms), 得到后缀为<code class="docutils literal notranslate"><span class="pre">_dry.pdb</span></code>的文件。</p></li>
+<li><p>去除蛋白结构中所有的水分子(需要保留参与模拟的重要水分子时，设定keep_water=True), 并补充标准氨基酸残基缺失的原子(add missing atoms), 得到后缀为<code class="docutils literal notranslate"><span class="pre">_dry.pdb</span></code>的文件。</p></li>
 <li><p>去除蛋白结构中的所有“原生”H原子，得到后缀为<code class="docutils literal notranslate"><span class="pre">_noH.pdb</span></code>的文件。</p></li>
 <li><p>使用AmberTools为蛋白结构重新生成蛋白力场下的H原子，得到后缀为<code class="docutils literal notranslate"><span class="pre">_leap.pdb</span></code>的文件。</p></li>
 </ol>
@@ -149,6 +152,7 @@
 <span class="c1"># multiplicity指定小分子自旋多重度 默认为1</span>
 
 <span class="n">processor</span><span class="o">.</span><span class="n">molecule_prepare</span><span class="p">(</span><span class="n">molecule_file</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">multiplicity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;resp&#39;</span><span class="p">)</span>
+<span class="c1"># processor.molecule_prepare(molecule_file, charge=0, multiplicity=1, method=&#39;bcc&#39;)</span>
 </pre></div>
 </div>
 <p>这一过程包括以下几个步骤：</p>
@@ -158,23 +162,23 @@
 <li><p>antechamber (需要AmberTools) 生成Amber模拟模型参数文件<code class="docutils literal notranslate"><span class="pre">.prepin</span></code></p></li>
 <li><p>parmchk2 (需要AmberTools) 生成Amber模拟模型参数文件<code class="docutils literal notranslate"><span class="pre">.frcmod</span></code></p></li>
 </ol>
-<p>可以通过设定 <code class="docutils literal notranslate"><span class="pre">method='bcc'</span></code> 来使用AM1-bcc方法生成电荷而不是resp。<br />所有此步骤的过程文件保存在<code class="docutils literal notranslate"><span class="pre">molecule</span></code>目录中。</p>
+<p>可以通过设定 <code class="docutils literal notranslate"><span class="pre">method='bcc'</span></code> 来使用AM1-bcc方法生成电荷而不是resp, 此时1、2步不再执行，也不需要安装Guassian及Multiwfn。<br />所有此步骤的过程文件保存在<code class="docutils literal notranslate"><span class="pre">molecule</span></code>目录中。</p>
 </section>
 <section id="amber-leap">
 <h3>Amber 模拟前准备 - LEaP<a class="headerlink" href="#amber-leap" title="Permalink to this heading"></a></h3>
 <p>在蛋白与小分子都准备就绪后，使用LEaP来完成最终的模拟准备文件生成。
 为了方便识别生成文件，选择一个任意名称作为生成文件前缀名 <code class="docutils literal notranslate"><span class="pre">prefix</span></code> ，这通常可以是PDBID或配体小分子名等。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;1FBY&#39;</span>
-<span class="n">processor</span><span class="o">.</span><span class="n">leap_prepare</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+<span class="n">processor</span><span class="o">.</span><span class="n">leap_prepare</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">box_size</span><span class="o">=</span><span class="mf">12.0</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>这一过程包括以下几个步骤：</p>
 <ol class="simple">
 <li><p>创建tleap命令的输入文件 <code class="docutils literal notranslate"><span class="pre">_tleap.in</span></code></p></li>
 <li><p>调用tleap命令为蛋白结构(pro)、小分子结构()lig以及二者复合物(com)生成必要的拓扑及坐标文件<code class="docutils literal notranslate"><span class="pre">.prmtop</span></code>、<code class="docutils literal notranslate"><span class="pre">.inpcrd</span></code></p></li>
-<li><p>将复合物溶于TIP3P水箱中 (size=12.0) 得到水箱复合物结构文件(<code class="docutils literal notranslate"><span class="pre">_comsolvate.pdb</span></code>)，并同时生成拓扑与坐标文件<code class="docutils literal notranslate"><span class="pre">_comsolvate.prmtop</span></code>、<code class="docutils literal notranslate"><span class="pre">_comsolvate.inpcrd</span></code></p></li>
+<li><p>将复合物溶于TIP3P水箱中 (box_size=12.0) 得到溶剂化复合物结构文件(<code class="docutils literal notranslate"><span class="pre">_comsolvate.pdb</span></code>)，并同时生成拓扑与坐标文件<code class="docutils literal notranslate"><span class="pre">_comsolvate.prmtop</span></code>、<code class="docutils literal notranslate"><span class="pre">_comsolvate.inpcrd</span></code></p></li>
 </ol>
-<p>所有此步骤的过程文件保存在<code class="docutils literal notranslate"><span class="pre">leap</span></code>目录中。</p>
+<p>所有此步骤的过程文件保存在<code class="docutils literal notranslate"><span class="pre">leap</span></code>目录中，并具有<code class="docutils literal notranslate"><span class="pre">prefix</span></code>前缀。模拟后处理及分析过程将会再次使用它们。</p>
 <p>现在，如果没有产生预料之外的错误，预处理阶段已经完成。</p>
 </section>
 <section id="md">
@@ -234,7 +238,7 @@
 <span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;input_file/production.in&#39;</span><span class="p">,</span> <span class="s1">&#39;production&#39;</span><span class="p">,</span> <span class="s1">&#39;npt&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>工作流搭建完成后，传递<code class="docutils literal notranslate"><span class="pre">processor</span></code>用于构建一个模拟器实例，设定GPU编号即可开始模拟。</p>
+<p>工作流搭建完成后，传递<code class="docutils literal notranslate"><span class="pre">processor</span></code>用于构建一个<code class="docutils literal notranslate"><span class="pre">Simulator</span></code>实例，设定GPU编号即可开始模拟。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simulator</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">processor</span><span class="p">)</span>
 
 <span class="c1"># 使用shwo_cuda_device()查看当前GPU信息</span>
@@ -250,8 +254,26 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-dynamic<span class="w"> </span>auto<span class="w"> </span>PROTEIN_FILE<span class="w"> </span><span class="o">[</span>MOLECULE_FILE<span class="o">]</span>
 </pre></div>
 </div>
-<p>即可快速完成以上全部过程。
-未提供小分子化合物结构MOLECULE_FILE时，将为Apo结构进行模拟。</p>
+<p>即可快速完成以上全部过程。未提供小分子化合物结构MOLECULE_FILE时，将为Apo结构进行模拟。</p>
+<section id="id4">
+<h3>部分参数说明<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-p</span> <span class="pre">/</span> <span class="pre">--prefix</span></code>: 指定生成的leap所需文件的前缀名，默认为当前工作目录的名称。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-g</span> <span class="pre">/</span> <span class="pre">--with-gpu</span></code>: 指定 <code class="docutils literal notranslate"><span class="pre">pmemd.cuda</span></code> 使用的GPU编号，默认为0。当系统中有多个GPU时，可以通过该参数指定使用的GPU编号。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-t</span> <span class="pre">/</span> <span class="pre">--time</span></code>: 指定完成系统平衡后的生产模拟(production) 总时长，单位为ns，默认为100ns。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-w</span> <span class="pre">/</span> <span class="pre">--keep-water</span></code>: 保留原始蛋白文件中存在的水分子。当蛋白文件中存在需要参与模拟过程的重要水分子时，可以使用该参数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-b</span> <span class="pre">/</span> <span class="pre">--box-size</span></code>: 设定模拟系统的TIP3P水箱大小，默认为12埃。</p></li>
+</ul>
+<p>小分子相关参数(Apo结构中将被忽略)：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">/</span> <span class="pre">--charge</span></code>: 指定小分子的总电荷量，默认为0。当分子为非中性时，需要指定该参数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-m</span> <span class="pre">/</span> <span class="pre">--multiplicity</span></code>: 指定小分子的自旋多重度，默认为1。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-s</span> <span class="pre">/</span> <span class="pre">--solvent</span></code>: 指定计算RESP2(0.5)电荷时液相的溶剂分子的种类，默认为水(water)。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">/</span> <span class="pre">--parallel</span></code>: 指定计算RESP2电荷时所用的CPU核心数量。默认为最大可用核心数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-bcc</span></code>: 使用AM1-bcc方法计算原子电荷，而不是RESP。此时不需要安装Gaussian及Multiwfn。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-k</span> <span class="pre">/</span> <span class="pre">--keep-cood</span></code>: 保留小分子的输入原始坐标用于模拟，而不使用高斯结构优化产生的坐标。需要维持小分子的姿势或坐标不变时，可以使用该参数。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-O</span> <span class="pre">/</span> <span class="pre">--overwrire</span></code>: 覆盖已存在的文件。默认将跳过先前已完成的小分子准备等过程，当需要从头重新运行模拟时，可以使用该参数。</p></li>
+</ul>
 <p>A simple demo:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>md
 <span class="nb">cd</span><span class="w"> </span>md
@@ -267,10 +289,11 @@ pycadd-dynamic<span class="w"> </span>prepare<span class="w"> </span>--help
 pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 </pre></div>
 </div>
-<p>获取CLI接口的更多信息。</p>
+<p>获取CLI接口的更多帮助信息。</p>
 </section>
-<section id="id4">
-<h2>模拟结果分析<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h2>
+</section>
+<section id="id5">
+<h2>模拟结果分析<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h2>
 <p>Dynamic 的 <code class="docutils literal notranslate"><span class="pre">Analyzer</span></code> 类提供了一些常规的自动化分析工具，用于分析Amber MD模拟结果并快速导出分析数据用于绘制图表。</p>
 <section id="cli">
 <h3>CLI快速分析<a class="headerlink" href="#cli" title="Permalink to this heading"></a></h3>
@@ -293,7 +316,7 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 <li><p>计算模拟体系中蛋白各<strong>残基的RMSF(基于alpha C)</strong></p></li>
 <li><p>统计模拟过程的氢键数量、键长、键角等信息，及模拟过程的氢键存续(Lifetime)</p></li>
 </ol>
-<p>如果您不想以alpha C计算或因其他原因需要跳过分析过程，可以通过以下参数：</p>
+<p>如果您不想以alpha C计算(请通过python包调用方法定制化您的分析过程)或因其他原因需要跳过分析过程，可以通过以下参数：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">--no-hbond</span></code> 不进行氢键分析</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--no-rmsd</span></code> 不进行RMSD分析</p></li>
@@ -336,8 +359,8 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 </pre></div>
 </div>
 </section>
-<section id="id5">
-<h4>氢键分析<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h4>
+<section id="id6">
+<h4>氢键分析<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h4>
 <p>分析器将检测并追踪模拟全过程中指定条件下的氢键（默认为包括蛋白大分子间及蛋白-配体小分子间的全部氢键），然后统计氢键的数量、键长、键角等信息，及模拟过程的氢键存续(Lifetime)。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span># 默认分析所有可能存在的氢键
 analyzer.calc_hbond(
@@ -358,7 +381,7 @@ analyzer.calc_hbond(
 <li><p>solvent_acceptor: 指定溶剂中的受体原子Amber MASK, 如’:WAT&#64;O’，默认None。若 <code class="docutils literal notranslate"><span class="pre">solvent_donor</span></code> 与 <code class="docutils literal notranslate"><span class="pre">solvent_acceptor</span></code>不为None时，将搜索溶剂与溶质间的氢键，默认仅搜索溶质间的氢键</p></li>
 <li><p>options: 其他将被传递到cpptraj的参数，默认为 <code class="docutils literal notranslate"><span class="pre">avgout</span> <span class="pre">HBOND_RESULTS.dat</span> <span class="pre">printatomnum</span> <span class="pre">nointramol</span></code>，参阅<code class="docutils literal notranslate"><span class="pre">cpptraj</span></code>文档获取更多帮助</p></li>
 </ul>
-<p>所有分析结果可在当前目录下的<code class="docutils literal notranslate"><span class="pre">analysis</span></code>中找到并用于进一步统计分析与绘图。</p>
+<p>所有分析结果可在当前目录下的<code class="docutils literal notranslate"><span class="pre">analysis/</span></code>中找到并用于进一步统计分析与绘图。</p>
 </section>
 </section>
 </section>

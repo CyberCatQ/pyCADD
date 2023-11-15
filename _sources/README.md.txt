@@ -11,6 +11,11 @@ pyCADD
 * 支持CLI快速调用
 
 ## 更新日志
+* 1.6.7 (2023-11-15)
+  * 修复了 Dynamic 解析输入文件过程的一个BUG，该BUG将导致部分限制性MD的输入文件解析失败
+  * 调整了 Dynamic 在调用命令失败时的输出信息
+  * 更新了部分文档和注释
+
 * 1.6.6 (2023-11-10)
   * 重构 Dynamic 模块构建工作流的方式，现在更加模块化和自由
   * 修复了一些BUG
@@ -89,10 +94,10 @@ pyCADD的不同模块需要安装不同的软件来完成自动化工作流。�
 | -----------------  | -------- | -------- |
 | Dock     | [Schrodinger Suite](https://www.schrodinger.com/) | 2020-3 or newer |
 | Dynamic  | [AMBER](http://ambermd.org/) | 18 or newer |
-| Density & Dynamic | [Gaussian](http://gaussian.com/) | 16.A01 or newer |
-| Dynamic | [Multiwfn](http://sobereva.com/multiwfn/) |3.7 or newer |
 | Dynamic | [OpenBabel](https://openbabel.org/)  | 2.4 or newer |
-| Dynamic | [CUDA](https://developer.nvidia.com/cuda-zone) | 9.0 or newer(optional) |
+| Density & Dynamic | [Gaussian](http://gaussian.com/) | 16.A01 or newer |
+| Dynamic | [Multiwfn](http://sobereva.com/multiwfn/) |3.7 or newer (optional for RESP charge) |
+| Dynamic | [CUDA](https://developer.nvidia.com/cuda-zone) | 9.0 or newer (optional for pmemd.cuda) |
 
 ### ！Attention
 * `pyCADD` 不包含以上所需程序的安装与许可证 您需要自行获得授权并安装恰当

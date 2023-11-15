@@ -26,10 +26,10 @@ processor = Processor()     # 实例化的同时，将在当前目录创建所�
 ### 蛋白结构准备
 使用processor的protein_prepare()方法 对蛋白结构文件进行自动预处理工作。
 ```python
-processor.protein_prepare(protein_file)
+processor.protein_prepare(protein_file, keep_water=False)
 ```
 这一过程包括以下几个步骤(需要AmberTools)：  
-1. 去除蛋白结构中所有的水分子, 并补充标准氨基酸残基缺失的原子(add missing atoms), 得到后缀为`_dry.pdb`的文件。
+1. 去除蛋白结构中所有的水分子(需要保留参与模拟的重要水分子时，设定keep_water=True), 并补充标准氨基酸残基缺失的原子(add missing atoms), 得到后缀为`_dry.pdb`的文件。
 2. 去除蛋白结构中的所有“原生”H原子，得到后缀为`_noH.pdb`的文件。
 3. 使用AmberTools为蛋白结构重新生成蛋白力场下的H原子，得到后缀为`_leap.pdb`的文件。
 
@@ -45,6 +45,7 @@ processor.protein_prepare(protein_file)
 # multiplicity指定小分子自旋多重度 默认为1
 
 processor.molecule_prepare(molecule_file, charge=0, multiplicity=1, method='resp')
+# processor.molecule_prepare(molecule_file, charge=0, multiplicity=1, method='bcc')
 
 ```
 
@@ -54,7 +55,7 @@ processor.molecule_prepare(molecule_file, charge=0, multiplicity=1, method='resp
 3. antechamber (需要AmberTools) 生成Amber模拟模型参数文件`.prepin`
 4. parmchk2 (需要AmberTools) 生成Amber模拟模型参数文件`.frcmod`
 
-可以通过设定 `method='bcc'` 来使用AM1-bcc方法生成电荷而不是resp。  
+可以通过设定 `method='bcc'` 来使用AM1-bcc方法生成电荷而不是resp, 此时1、2步不再执行，也不需要安装Guassian及Multiwfn。  
 所有此步骤的过程文件保存在`molecule`目录中。
 
 ### Amber 模拟前准备 - LEaP
@@ -62,14 +63,14 @@ processor.molecule_prepare(molecule_file, charge=0, multiplicity=1, method='resp
 为了方便识别生成文件，选择一个任意名称作为生成文件前缀名 `prefix` ，这通常可以是PDBID或配体小分子名等。
 ```python
 prefix = '1FBY'
-processor.leap_prepare(prefix)
+processor.leap_prepare(prefix, box_size=12.0)
 ```
 这一过程包括以下几个步骤：
 1. 创建tleap命令的输入文件 `_tleap.in`
 2. 调用tleap命令为蛋白结构(pro)、小分子结构()lig以及二者复合物(com)生成必要的拓扑及坐标文件`.prmtop`、`.inpcrd`
-3. 将复合物溶于TIP3P水箱中 (size=12.0) 得到水箱复合物结构文件(`_comsolvate.pdb`)，并同时生成拓扑与坐标文件`_comsolvate.prmtop`、`_comsolvate.inpcrd`
+3. 将复合物溶于TIP3P水箱中 (box_size=12.0) 得到溶剂化复合物结构文件(`_comsolvate.pdb`)，并同时生成拓扑与坐标文件`_comsolvate.prmtop`、`_comsolvate.inpcrd`
 
-所有此步骤的过程文件保存在`leap`目录中。
+所有此步骤的过程文件保存在`leap`目录中，并具有`prefix`前缀。模拟后处理及分析过程将会再次使用它们。
 
 现在，如果没有产生预料之外的错误，预处理阶段已经完成。
 
@@ -136,7 +137,7 @@ processor.add_process('input_file/eq_nvt.in', 'eq_nvt', 'nvt')
 processor.add_process('input_file/production.in', 'production', 'npt')
 ```
 
-工作流搭建完成后，传递`processor`用于构建一个模拟器实例，设定GPU编号即可开始模拟。
+工作流搭建完成后，传递`processor`用于构建一个`Simulator`实例，设定GPU编号即可开始模拟。
 ```python
 simulator = Simulator(processor)
 
@@ -151,8 +152,23 @@ simulator.run_simulation(with_gpu=0)
 ```bash
 pycadd-dynamic auto PROTEIN_FILE [MOLECULE_FILE]
 ```
-即可快速完成以上全部过程。
-未提供小分子化合物结构MOLECULE_FILE时，将为Apo结构进行模拟。  
+即可快速完成以上全部过程。未提供小分子化合物结构MOLECULE_FILE时，将为Apo结构进行模拟。  
+
+### 部分参数说明  
+* `-p / --prefix`: 指定生成的leap所需文件的前缀名，默认为当前工作目录的名称。
+* `-g / --with-gpu`: 指定 `pmemd.cuda` 使用的GPU编号，默认为0。当系统中有多个GPU时，可以通过该参数指定使用的GPU编号。
+* `-t / --time`: 指定完成系统平衡后的生产模拟(production) 总时长，单位为ns，默认为100ns。
+* `-w / --keep-water`: 保留原始蛋白文件中存在的水分子。当蛋白文件中存在需要参与模拟过程的重要水分子时，可以使用该参数。
+* `-b / --box-size`: 设定模拟系统的TIP3P水箱大小，默认为12埃。
+
+小分子相关参数(Apo结构中将被忽略)：
+* `-c / --charge`: 指定小分子的总电荷量，默认为0。当分子为非中性时，需要指定该参数。
+* `-m / --multiplicity`: 指定小分子的自旋多重度，默认为1。
+* `-s / --solvent`: 指定计算RESP2(0.5)电荷时液相的溶剂分子的种类，默认为水(water)。
+* `-n / --parallel`: 指定计算RESP2电荷时所用的CPU核心数量。默认为最大可用核心数。
+* `-bcc`: 使用AM1-bcc方法计算原子电荷，而不是RESP。此时不需要安装Gaussian及Multiwfn。
+* `-k / --keep-cood`: 保留小分子的输入原始坐标用于模拟，而不使用高斯结构优化产生的坐标。需要维持小分子的姿势或坐标不变时，可以使用该参数。
+* `-O / --overwrire`: 覆盖已存在的文件。默认将跳过先前已完成的小分子准备等过程，当需要从头重新运行模拟时，可以使用该参数。
 
 A simple demo:
 ```bash
@@ -169,7 +185,7 @@ pycadd-dynamic auto --help
 pycadd-dynamic prepare --help
 pycadd-dynamic simulate --help
 ```
-获取CLI接口的更多信息。
+获取CLI接口的更多帮助信息。
 
 ## 模拟结果分析
 
@@ -193,7 +209,7 @@ pycadd-dynamic analysis -y TRAJ_FILE -ro OUTPUT_FILE -sp SOL_COM_TOP_FILE -cp CO
 2. 计算模拟体系中蛋白各**残基的RMSF(基于alpha C)**
 3. 统计模拟过程的氢键数量、键长、键角等信息，及模拟过程的氢键存续(Lifetime)
 
-如果您不想以alpha C计算或因其他原因需要跳过分析过程，可以通过以下参数：
+如果您不想以alpha C计算(请通过python包调用方法定制化您的分析过程)或因其他原因需要跳过分析过程，可以通过以下参数：
 * `--no-hbond` 不进行氢键分析
 * `--no-rmsd` 不进行RMSD分析
 * `--no-rmsf` 不进行RMSF分析
@@ -255,4 +271,4 @@ analyzer.calc_hbond(
 * solvent_acceptor: 指定溶剂中的受体原子Amber MASK, 如':WAT@O'，默认None。若 `solvent_donor` 与 `solvent_acceptor`不为None时，将搜索溶剂与溶质间的氢键，默认仅搜索溶质间的氢键
 * options: 其他将被传递到cpptraj的参数，默认为 `avgout HBOND_RESULTS.dat printatomnum nointramol`，参阅`cpptraj`文档获取更多帮助
 
-所有分析结果可在当前目录下的`analysis`中找到并用于进一步统计分析与绘图。
+所有分析结果可在当前目录下的`analysis/`中找到并用于进一步统计分析与绘图。

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD &mdash; pyCADD 1.6.6 documentation</title>
+  <title>pyCADD &mdash; pyCADD 1.6.7 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -13,7 +13,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=3f534e33"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=9b2bca2a"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/js/theme.js"></script>
@@ -70,6 +70,7 @@
 <li class="toctree-l1"><a class="reference internal" href="dance.html">Dance User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="density.html">Density User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dynamic.html">Dynamic User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demand.html">Demand User Guide</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
@@ -116,6 +117,13 @@
 <section id="id2">
 <h2>更新日志<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h2>
 <ul class="simple">
+<li><p>1.6.7 (2023-11-15)</p>
+<ul>
+<li><p>修复了 Dynamic 解析输入文件过程的一个BUG，该BUG将导致部分限制性MD的输入文件解析失败</p></li>
+<li><p>调整了 Dynamic 在调用命令失败时的输出信息</p></li>
+<li><p>更新了部分文档和注释</p></li>
+</ul>
+</li>
 <li><p>1.6.6 (2023-11-10)</p>
 <ul>
 <li><p>重构 Dynamic 模块构建工作流的方式，现在更加模块化和自由</p></li>
@@ -236,6 +244,11 @@
 <td>18 or newer</td>
 </tr>
 <tr>
+<td>Dynamic</td>
+<td><a href="https://openbabel.org/">OpenBabel</a></td>
+<td>2.4 or newer</td>
+</tr>
+<tr>
 <td>Density &amp; Dynamic</td>
 <td><a href="http://gaussian.com/">Gaussian</a></td>
 <td>16.A01 or newer</td>
@@ -243,17 +256,12 @@
 <tr>
 <td>Dynamic</td>
 <td><a href="http://sobereva.com/multiwfn/">Multiwfn</a></td>
-<td>3.7 or newer</td>
-</tr>
-<tr>
-<td>Dynamic</td>
-<td><a href="https://openbabel.org/">OpenBabel</a></td>
-<td>2.4 or newer</td>
+<td>3.7 or newer (optional for RESP charge)</td>
 </tr>
 <tr>
 <td>Dynamic</td>
 <td><a href="https://developer.nvidia.com/cuda-zone">CUDA</a></td>
-<td>9.0 or newer(optional)</td>
+<td>9.0 or newer (optional for pmemd.cuda)</td>
 </tr>
 </tbody>
 </table></section>
