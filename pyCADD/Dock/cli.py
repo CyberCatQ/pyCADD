@@ -1,15 +1,13 @@
 import os
 import click
 import pickle
-from pyCADD.Dock.common import DockResultFile, GridFile, MaestroFile, PDBFile, LigandFile, ComplexFile, MultiInputFile
-from pyCADD.Dock.data import Reporter
 import warnings
 warnings.filterwarnings("ignore")
 
 @click.group()
 def cli_main():
     '''
-    Command line interface for pyCADD.
+    Command line interface for pyCADD Dock Module.
     '''
     pass
 
@@ -27,6 +25,7 @@ def keep_chain(pdb_file_path, ligand):
     '''
     Keep the singel chain that binding HET.
     '''
+    from pyCADD.Dock.common import PDBFile
     pdb_file = PDBFile(pdb_file_path, ligand)
     pdb_file.keep_chain()
 
@@ -42,6 +41,7 @@ def minimize(file_path, side_chain, missing_loop, del_water, overwrite):
 
     file_path: PDB file path.
     '''
+    from pyCADD.Dock.common import MaestroFile
     pdb_file = MaestroFile(file_path)
     pdb_file.minimize(side_chain, missing_loop, del_water, overwrite)
 
@@ -57,6 +57,7 @@ def grid_generate(complex_file_path, ligand, grid_size, overwrite):
     complex_file_path: Path of the file to create the grid.
     '''
     from pyCADD.Dock.core import grid_generate as _grid_generate
+    from pyCADD.Dock.common import ComplexFile
     if isinstance(ligand, str):
         complex_file = ComplexFile(complex_file_path, ligand=ligand)
     elif isinstance(ligand, int):
@@ -76,6 +77,7 @@ def dock(grid_file_path, ligand_file_path, precision, rmsd, overwrite):
     ligand_file_path : Specify ligand file path for ligand docking.  
     '''
     from pyCADD.Dock.core import dock as _dock
+    from pyCADD.Dock.common import GridFile, LigandFile
     grid_file = GridFile(grid_file_path)
     ligand_file = LigandFile(ligand_file_path)
     _dock(grid_file, ligand_file, precision=precision, calc_rmsd=rmsd, overwrite=overwrite)
@@ -87,6 +89,7 @@ def calc_mmgbsa(file_path, overwrite):
     '''
     Specify ligand file path for MM-GBSA calculation.
     '''
+    from pyCADD.Dock.common import DockResultFile
     result_file = DockResultFile(file_path)
     result_file.calc_mmgbsa(overwrite=overwrite)
 
@@ -95,6 +98,7 @@ def calc_mmgbsa(file_path, overwrite):
 @click.option('--overwrite', '-O', is_flag=True, help='Overwrite the file.')
 def calc_admet(file_path, overwrite):
     '''Specify ligand file path for ADMET calculation.'''
+    from pyCADD.Dock.common import LigandFile
     ligand_file = LigandFile(file_path)
     ligand_file.calc_admet(overwrite=overwrite)
 
@@ -113,6 +117,7 @@ def ensemble_dock(input_file_path, library_file_path, parallel, precision, del_w
     library_file_path : Specify compounds library file path for ensemble docking. If not specified, redocking ligands will be performed even without redock flag.
     '''
     from pyCADD.Dock import MultiDocker
+    from pyCADD.Dock.common import MultiInputFile, LigandFile
     from pyCADD.Dock.data import save_ensemble_docking_data, save_redocking_data
     input_file = MultiInputFile(input_file_path)
     library_file = LigandFile(library_file_path) if library_file_path is not None else None
@@ -150,6 +155,7 @@ def extract_data(input_file_path, library_file_path, parallel, precision, redock
     library_file_path : Specify compounds library file path for ensemble docking.
     '''
     from pyCADD.Dock import MultiDocker
+    from pyCADD.Dock.common import MultiInputFile, LigandFile
     from pyCADD.Dock.data import save_ensemble_docking_data, save_redocking_data
     input_file = MultiInputFile(input_file_path)
     library_file = LigandFile(library_file_path)
@@ -176,7 +182,8 @@ def generate_report(input_file_path, ligand_file_path, parallel, precision, over
     ligand_file_path : Specify ligand file path for quick report.
     '''
     from pyCADD.Dock import MultiDocker
-    from pyCADD.Dock.data import save_ensemble_docking_data
+    from pyCADD.Dock.common import MultiInputFile, LigandFile
+    from pyCADD.Dock.data import Reporter, save_ensemble_docking_data
     input_file = MultiInputFile.read_from_config(input_file_path)
     ligand_file = LigandFile(ligand_file_path)
     console = MultiDocker(input_file)
