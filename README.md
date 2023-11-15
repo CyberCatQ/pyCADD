@@ -94,10 +94,10 @@ pyCADD的不同模块需要安装不同的软件来完成自动化工作流。�
 | -----------------  | -------- | -------- |
 | Dock     | [Schrodinger Suite](https://www.schrodinger.com/) | 2020-3 or newer |
 | Dynamic  | [AMBER](http://ambermd.org/) | 18 or newer |
-| Density & Dynamic | [Gaussian](http://gaussian.com/) | 16.A01 or newer |
-| Dynamic | [Multiwfn](http://sobereva.com/multiwfn/) |3.7 or newer |
 | Dynamic | [OpenBabel](https://openbabel.org/)  | 2.4 or newer |
-| Dynamic | [CUDA](https://developer.nvidia.com/cuda-zone) | 9.0 or newer(optional) |
+| Density & Dynamic | [Gaussian](http://gaussian.com/) | 16.A01 or newer(optional) |
+| Dynamic | [Multiwfn](http://sobereva.com/multiwfn/) |3.7 or newer (optional for RESP charge) |
+| Dynamic | [CUDA](https://developer.nvidia.com/cuda-zone) | 9.0 or newer (optional for pmemd.cuda) |
 
 ### ！Attention
 * `pyCADD` 不包含以上所需程序的安装与许可证 您需要自行获得授权并安装恰当
