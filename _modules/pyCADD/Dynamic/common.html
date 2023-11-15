@@ -87,7 +87,7 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">pyCADD.utils.common</span> <span class="kn">import</span> <span class="n">BaseFile</span>
-<span class="kn">from</span> <span class="nn">pyCADD.utils.tool</span> <span class="kn">import</span> <span class="n">makedirs_from_list</span>
+<span class="kn">from</span> <span class="nn">pyCADD.utils.tool</span> <span class="kn">import</span> <span class="n">makedirs_from_list</span><span class="p">,</span> <span class="n">is_amber_available</span><span class="p">,</span> <span class="n">is_gaussian_available</span><span class="p">,</span> <span class="n">is_pmemd_cuda_available</span>
 <span class="kn">from</span> <span class="nn">pyCADD.Dynamic</span> <span class="kn">import</span> <span class="n">core</span>
 <span class="kn">from</span> <span class="nn">pyCADD.Dynamic.core</span> <span class="kn">import</span> <span class="n">MDProcess</span><span class="p">,</span> <span class="n">MinimizeProcess</span><span class="p">,</span> <span class="n">NPTProcess</span><span class="p">,</span> <span class="n">NVTProcess</span>
 <span class="kn">from</span> <span class="nn">pyCADD.Dynamic.template</span> <span class="kn">import</span> <span class="n">LeapInput</span><span class="p">,</span> <span class="n">HeatInput</span><span class="p">,</span> <span class="n">NVTInput</span><span class="p">,</span> <span class="n">NPTInput</span><span class="p">,</span> <span class="n">MMGBSAInput</span><span class="p">,</span> <span class="n">RestrainedMinimizeInput</span><span class="p">,</span> <span class="n">MinimizeInput</span>
@@ -105,23 +105,6 @@
 <span class="n">MD_RESULT_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CWD</span><span class="p">,</span> <span class="s1">&#39;md_result&#39;</span><span class="p">)</span>
 
 <span class="n">ANALYSIS_RESULT_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CWD</span><span class="p">,</span> <span class="s1">&#39;md_analysis&#39;</span><span class="p">)</span>
-
-<div class="viewcode-block" id="find_amber"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.find_amber">[docs]</a><span class="k">def</span> <span class="nf">find_amber</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Check if AMBER is installed.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">amberhome</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;AMBERHOME&#39;</span><span class="p">)</span>
-    <span class="n">_sander</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span><span class="s1">&#39;which sander&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
-    <span class="n">_pmemd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span><span class="s1">&#39;which pmemd.cuda&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
-    <span class="n">_cpptraj</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span><span class="s1">&#39;which cpptraj&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">amberhome</span><span class="p">,</span> <span class="n">_sander</span><span class="p">,</span> <span class="n">_pmemd</span><span class="p">,</span> <span class="n">_cpptraj</span><span class="p">]):</span>
-        <span class="k">return</span> <span class="kc">False</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="kn">import</span> <span class="nn">pytraj</span> <span class="k">as</span> <span class="nn">pt</span>
-    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span></div>
     
 <div class="viewcode-block" id="Processor"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor">[docs]</a><span class="k">class</span> <span class="nc">Processor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
@@ -145,6 +128,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">apo</span> <span class="o">=</span> <span class="n">apo</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">md_process_list</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">amber_available</span> <span class="o">=</span> <span class="n">is_amber_available</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_required_dirs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -222,6 +207,9 @@
         <span class="n">cpu_num</span> <span class="o">=</span> <span class="n">cpu_num</span> <span class="k">if</span> <span class="n">cpu_num</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CPU_NUM</span>
         <span class="n">molecule_file</span> <span class="o">=</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">molecule_file_path</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;resp&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_gaussian_available</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="s1">&#39;Gaussian 16 is not installed or not in PATH. Please use AM1-bcc method instead.&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">processed_molfile_pdb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frcmod_file</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">molecule_prepare_resp2</span><span class="p">(</span>
                 <span class="n">molecule_file</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">MOL_RELATED_DIR</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span> <span class="n">multiplicity</span><span class="o">=</span><span class="n">multiplicity</span><span class="p">,</span>
                 <span class="n">cpu_num</span><span class="o">=</span><span class="n">cpu_num</span><span class="p">,</span> <span class="n">solvent</span><span class="o">=</span><span class="n">solvent</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span> <span class="n">keep_origin_cood</span><span class="o">=</span><span class="n">keep_origin_cood</span><span class="p">)</span>
@@ -721,6 +709,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">md_process_list</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">md_process_list</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">cuda_device</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">amber_available</span> <span class="o">=</span> <span class="n">is_amber_available</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pmemd_cuda_available</span> <span class="o">=</span> <span class="n">is_pmemd_cuda_available</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Simulator.shwo_cuda_device"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator.shwo_cuda_device">[docs]</a>    <span class="k">def</span> <span class="nf">shwo_cuda_device</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
@@ -768,7 +758,11 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">md_process_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;No MD process has been added.&#39;</span><span class="p">)</span>
-
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">amber_available</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s1">&#39;Amber or AmberTools is not installed or not in PATH.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">pmemd_cuda_available</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;pmemd.cuda is not installed or not in PATH.&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cuda_device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_cuda_device</span><span class="p">(</span><span class="n">cuda_device</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -793,8 +787,12 @@
         <span class="n">traj_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">comsolvated_topfile_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">com_topfile_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">receptor_topfile_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ligand_topfile_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mdout_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-
-        <span class="kn">from</span> <span class="nn">pytraj</span> <span class="kn">import</span> <span class="n">iterload</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">amber_available</span> <span class="o">=</span> <span class="n">is_amber_available</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">pytraj</span> <span class="kn">import</span> <span class="n">iterload</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Ambertools is not accessible in current python environment by Analyzer.</span><span class="se">\n</span><span class="s1">Use </span><span class="se">\033</span><span class="s1">[32mconda install ambertools -c conda-forge</span><span class="se">\033</span><span class="s1">[0m to install it.&#39;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_iterload</span> <span class="o">=</span> <span class="n">iterload</span>
 
         <span class="kn">from</span> <span class="nn">pyCADD.Dynamic</span> <span class="kn">import</span> <span class="n">analysis</span>

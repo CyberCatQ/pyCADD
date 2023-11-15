@@ -295,6 +295,7 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 <section id="id5">
 <h2>模拟结果分析<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h2>
 <p>Dynamic 的 <code class="docutils literal notranslate"><span class="pre">Analyzer</span></code> 类提供了一些常规的自动化分析工具，用于分析Amber MD模拟结果并快速导出分析数据用于绘制图表。</p>
+<p>模拟结果的分析工具需要当前的python环境可以导入<code class="docutils literal notranslate"><span class="pre">pytraj</span></code>包，请在您 <strong>安装Amber的python环境</strong> 中使用分析工具，或使用命令 <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">ambertools=23</span> <span class="pre">-c</span> <span class="pre">conda-forge</span></code> 将Ambertools安装到当前环境中。</p>
 <section id="cli">
 <h3>CLI快速分析<a class="headerlink" href="#cli" title="Permalink to this heading"></a></h3>
 <p>使用 <code class="docutils literal notranslate"><span class="pre">pycadd-dynamic</span> <span class="pre">analysis</span></code> 命令可以快速开展常规的轨迹分析，并将结果保存至 <code class="docutils literal notranslate"><span class="pre">analysis</span></code> 目录中。分析轨迹需要提供必要的拓扑及轨迹文件。</p>
