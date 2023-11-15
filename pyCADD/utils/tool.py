@@ -265,3 +265,58 @@ def timeit(func):
         logger.info(f'Duration: {time.strftime("%H:%M:%S", time.gmtime(end - start))}')
         return result
     return wrapper
+
+def _find_execu(path) -> bool:
+    if not os.path.exists(os.popen(f"which {path}").read().strip()):
+        print(f"\033[31m{path} is not installed or not in PATH.\033[0m")
+        return False
+    else:
+        return True
+
+def _check_execu_help(path) -> bool:
+    if os.system(f"{path} -h > /dev/null") == 0:
+        return True
+    else:
+        print(f"\033[31m{path} is not installed or not in PATH.\033[0m")
+        return False
+    
+def _check_execu_version(path) -> bool:
+    if os.system(f"{path} --version > /dev/null") == 0:
+        return True
+    else:
+        print(f"\033[31m{path} is not installed or not in PATH.\033[0m")
+        return False
+    
+def is_amber_available():
+    '''
+    检查Amber/mberTools是否安装并配置好环境变量
+    '''
+    if not all([
+    _check_execu_help('tleap'),
+    _check_execu_version('sander'),
+    _check_execu_version('cpptraj'),
+    _check_execu_version('parmed'),
+    _check_execu_version('pdb4amber'),
+    _check_execu_help('antechamber')]
+    ):
+        return False
+    else:
+        return True
+    
+def is_pmemd_cuda_available():
+    '''
+    检查AMBER CUDA加速是否可用
+    '''
+    return _check_execu_version('pmemd.cuda')
+    
+def is_gaussian_available():
+    '''
+    检查Gaussian 16是否安装并配置好环境变量
+    '''
+    return _find_execu('g16')
+
+def is_multiwfn_available():
+    '''
+    检查Multiwfn是否安装并配置好环境变量
+    '''
+    return _find_execu('Multiwfn')
