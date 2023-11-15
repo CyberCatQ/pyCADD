@@ -515,12 +515,12 @@ def _get_input_config(input_file: str) -> list:
     output_list = []
     type_pattern = r'&(.*?)\n'
     config_pattern = "(?<=&{_type}\n).*"
+    item_pattern = r'(\w+)=(.*?)(?=(?:,\s*\w+=|$))'
 
     with open(input_file, 'r') as f:
-        lines = f.readlines()
+        context = f.read()
 
-    config_str = "".join([line for line in lines])
-    config_list = config_str.split('/')
+    config_list = context.split('/')
 
     for index, config in enumerate(config_list):
         config = config.strip()
@@ -528,12 +528,10 @@ def _get_input_config(input_file: str) -> list:
             continue
         _type = re.findall(type_pattern, config)[0]
         _config_list = re.findall(config_pattern.format(
-            _type=_type), config, re.S)[0].split(',')
+            _type=_type), config, re.S)[0].replace('\n', '')
         config_dict = {"_index": index, "_type": _type}
-        config_dict.update(
-            {k.strip(): v.strip()
-             for k, v in [item.split('=') for item in _config_list]}
-        )
+        for k, v in re.findall(item_pattern, _config_list):
+            config_dict[k] = v
         output_list.append(config_dict)
     return output_list
 
