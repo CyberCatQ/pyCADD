@@ -4,6 +4,7 @@ import logging
 import requests
 import multiprocessing
 import functools
+import subprocess
 from random import randint
 
 # For Schrodinger 2021-2 or newer release
@@ -274,14 +275,18 @@ def _find_execu(path) -> bool:
         return True
 
 def _check_execu_help(path) -> bool:
-    if os.system(f"{path} -h > /dev/null") == 0:
+    p = subprocess.run(f"{path} -h", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    # if os.system(f"{path} -h > /dev/null") == 0:
+    if p.returncode == 0:
         return True
     else:
         print(f"\033[31m{path} is not installed or not in PATH.\033[0m")
         return False
     
 def _check_execu_version(path) -> bool:
-    if os.system(f"{path} --version > /dev/null") == 0:
+    p = subprocess.run(f"{path} --version", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    # if os.system(f"{path} --version > /dev/null") == 0:
+    if p.returncode == 0:
         return True
     else:
         print(f"\033[31m{path} is not installed or not in PATH.\033[0m")
