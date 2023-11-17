@@ -708,7 +708,7 @@ class Analyzer:
         try:
             from pytraj import iterload
         except ImportError:
-            print('Ambertools is not accessible in current python environment by Analyzer.\nUse \033[32mconda install ambertools -c conda-forge\033[0m to install it.')
+            print('Ambertools is not accessible in current python environment by Analyzer.\nUse \033[32msource amber22/amber.sh\033[0m to activate or \033[32mconda install ambertools -c conda-forge\033[0m to install.')
             os._exit(1)
         self._iterload = iterload
 
