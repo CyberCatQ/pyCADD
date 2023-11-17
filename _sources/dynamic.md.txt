@@ -29,9 +29,9 @@ processor = Processor()     # 实例化的同时，将在当前目录创建所�
 processor.protein_prepare(protein_file, keep_water=False)
 ```
 这一过程包括以下几个步骤(需要AmberTools)：  
-1. 去除蛋白结构中所有的水分子(需要保留参与模拟的重要水分子时，设定keep_water=True), 并补充标准氨基酸残基缺失的原子(add missing atoms), 得到后缀为`_dry.pdb`的文件。
-2. 去除蛋白结构中的所有“原生”H原子，得到后缀为`_noH.pdb`的文件。
-3. 使用AmberTools为蛋白结构重新生成蛋白力场下的H原子，得到后缀为`_leap.pdb`的文件。
+1. 去除蛋白结构中所有的水分子(需要保留参与模拟的重要水分子时，设定 `keep_water=True` ), 并补充标准氨基酸残基缺失的原子(add missing atoms), 得到后缀为`_dry.pdb`的文件。
+2. 去除蛋白结构中的所有“原生”H原子，得到后缀为 `_noH.pdb` 的文件。
+3. 使用AmberTools为蛋白结构重新生成蛋白力场下的H原子，得到后缀为 `_leap.pdb` 的文件。
 
 所有此步骤的过程文件保存在`protein`目录中。
 
@@ -178,6 +178,8 @@ cp SOMEWHERE/pro.pdb ./
 cp SOMEWHERE/lig.pdb ./
 pycadd-dynamic auto --charge -1 --multiplicity 1 --prefix myMD --parallel 48 --with-gpu 0 pro.pdb lig.pdb
 ```
+所有MD环节的轨迹及输出文件可以在`md_result/`中找到。
+
 使用
 ```bash
 pycadd-dynamic --help
@@ -189,9 +191,17 @@ pycadd-dynamic simulate --help
 
 ## 模拟结果分析
 
-Dynamic 的 `Analyzer` 类提供了一些常规的自动化分析工具，用于分析Amber MD模拟结果并快速导出分析数据用于绘制图表。 
+Dynamic 的 `Analyzer` 类提供了一些常规的自动化分析工具，用于分析 Amber MD 模拟结果并快速导出分析数据用于绘制图表。 
 
-模拟结果的分析工具需要当前的python环境可以导入`pytraj`包，请在您 **安装Amber的python环境** 中使用分析工具，或使用命令 `conda install ambertools=23 -c conda-forge` 将Ambertools安装到当前环境中。
+### 分析环境准备
+模拟结果的分析工具需要当前的python环境可以导入 `pytraj` 包，即 cpptraj 的python接口。  
+为此，请确保已经执行过命令 `source $AMBERHOME/amber.sh`，其中 `$AMBERHOME` 是您的 AMBER 安装根目录;  
+或使用命令 `conda install ambertools=23 -c conda-forge` 将 Ambertools 安装到当前环境中。
+
+此外，为了使用 MPI 运行 MM-PB/GBSA 结合自由能及能量分解计算，您可能还需要通过 `conda` 安装 `openmpi` 及 `mpi4py`:
+```bash
+conda install openmpi mpi4py -c conda-forge
+```
 
 ### CLI快速分析
 使用 `pycadd-dynamic analysis` 命令可以快速开展常规的轨迹分析，并将结果保存至 `analysis` 目录中。分析轨迹需要提供必要的拓扑及轨迹文件。
@@ -215,6 +225,9 @@ pycadd-dynamic analysis -y TRAJ_FILE -ro OUTPUT_FILE -sp SOL_COM_TOP_FILE -cp CO
 * `--no-hbond` 不进行氢键分析
 * `--no-rmsd` 不进行RMSD分析
 * `--no-rmsf` 不进行RMSF分析
+
+可选参数：
+* `-d / --decomp INT1 INT2 INT3`: 计算MM-GBSA结合自由能及能量分解。使用该参数时必须提供3个整数 `START_FRAME` `END_FRAME` `STEP_SIZE`。
 
 ### python 包调用 Analyzer 分析工具
 除了使用CLI中固定的工作流进行快速分析外，也可以从 pyCADD.Dynamic 中导入 `Analyzer` 类并在python中定制化分析过程。
@@ -266,11 +279,33 @@ analyzer.calc_hbond(
     options=None
 )
 ```
-* mask: 指定搜索氢键的原子组范围，使用Amber MASK格式，如`:1-10`表示分析第1-10号残基原子间的氢键，默认为`:*`表示分析所有可能存在的氢键，但不包括溶剂分子
-* distance: 指定氢键分析的键长阈值，默认为3.0Å，仅统计重原子间距离小于 `distance` 的氢键
-* angle: 指定氢键分析的键角阈值，默认为135.0°，仅统计 A-H-D 键角小于 `angle` 的氢键
-* solvent_donor: 指定溶剂中的供体原子Amber MASK，如':WAT@N'，默认None
-* solvent_acceptor: 指定溶剂中的受体原子Amber MASK, 如':WAT@O'，默认None。若 `solvent_donor` 与 `solvent_acceptor`不为None时，将搜索溶剂与溶质间的氢键，默认仅搜索溶质间的氢键
-* options: 其他将被传递到cpptraj的参数，默认为 `avgout HBOND_RESULTS.dat printatomnum nointramol`，参阅`cpptraj`文档获取更多帮助
+* `mask`: 指定搜索氢键的原子组范围，使用Amber MASK格式，如`:1-10`表示分析第1-10号残基原子间的氢键，默认为`:*`表示分析所有可能存在的氢键，但不包括溶剂分子
+* `distance`: 指定氢键分析的键长阈值，默认为3.0Å，仅统计重原子间距离小于 `distance` 的氢键
+* `angle`: 指定氢键分析的键角阈值，默认为135.0°，仅统计 A-H-D 键角小于 `angle` 的氢键
+* `solvent_donor`: 指定溶剂中的供体原子Amber MASK，如':WAT@N'，默认None
+* `solvent_acceptor`: 指定溶剂中的受体原子Amber MASK, 如':WAT@O'，默认None。若 `solvent_donor` 与 `solvent_acceptor`不为None时，将搜索溶剂与溶质间的氢键，默认仅搜索溶质间的氢键
+* `options`: 其他将被传递到cpptraj的参数，默认为 `avgout HBOND_RESULTS.dat printatomnum nointramol`，参阅`cpptraj`文档获取更多帮助
 
-所有分析结果可在当前目录下的`analysis/`中找到并用于进一步统计分析与绘图。
+#### MM-GBSA 结合自由能计算与能量分解
+
+为了使用`MMPBSA.py.MPI`，需要安装 `openmpi` 及 `mpi4py`:
+```bash
+conda install openmpi mpi4py -c conda-forge
+```
+
+调用 `MMPBSA.py.MPI` 对轨迹指定范围内的帧计算MM-GBSA结合自由能，并计算残基能量分解情况。
+
+```python
+# INT1 INT2 INT3 分别指定计算自由能的起始帧、结束帧及步长
+# cpu_num 指定并行计算所用的CPU核心数量
+decomp_start_fm = 1
+decomp_end_fm = 5000
+decomp_step_size = 10
+cpu_num = 16
+
+analyzer.creat_energy_inputfile(start_frame=decomp_start_fm, end_frame=decomp_end_fm, interval=decomp_step_size, job_type='decomp')
+analyzer.run_energy_calc(cpu_num=cpu_num)
+```
+
+
+以上所有分析结果可在当前目录下的`md_analysis/`中找到并用于进一步统计分析与绘图。

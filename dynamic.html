@@ -65,10 +65,12 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#id5">模拟结果分析</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">分析环境准备</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cli">CLI快速分析</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#python-analyzer">python 包调用 Analyzer 分析工具</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#rmsd-rmsf">RMSD &amp; RMSF 分析</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id6">氢键分析</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id7">氢键分析</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mm-gbsa">MM-GBSA 结合自由能计算与能量分解</a></li>
 </ul>
 </li>
 </ul>
@@ -137,9 +139,9 @@
 </div>
 <p>这一过程包括以下几个步骤(需要AmberTools)：</p>
 <ol class="simple">
-<li><p>去除蛋白结构中所有的水分子(需要保留参与模拟的重要水分子时，设定keep_water=True), 并补充标准氨基酸残基缺失的原子(add missing atoms), 得到后缀为<code class="docutils literal notranslate"><span class="pre">_dry.pdb</span></code>的文件。</p></li>
-<li><p>去除蛋白结构中的所有“原生”H原子，得到后缀为<code class="docutils literal notranslate"><span class="pre">_noH.pdb</span></code>的文件。</p></li>
-<li><p>使用AmberTools为蛋白结构重新生成蛋白力场下的H原子，得到后缀为<code class="docutils literal notranslate"><span class="pre">_leap.pdb</span></code>的文件。</p></li>
+<li><p>去除蛋白结构中所有的水分子(需要保留参与模拟的重要水分子时，设定 <code class="docutils literal notranslate"><span class="pre">keep_water=True</span></code> ), 并补充标准氨基酸残基缺失的原子(add missing atoms), 得到后缀为<code class="docutils literal notranslate"><span class="pre">_dry.pdb</span></code>的文件。</p></li>
+<li><p>去除蛋白结构中的所有“原生”H原子，得到后缀为 <code class="docutils literal notranslate"><span class="pre">_noH.pdb</span></code> 的文件。</p></li>
+<li><p>使用AmberTools为蛋白结构重新生成蛋白力场下的H原子，得到后缀为 <code class="docutils literal notranslate"><span class="pre">_leap.pdb</span></code> 的文件。</p></li>
 </ol>
 <p>所有此步骤的过程文件保存在<code class="docutils literal notranslate"><span class="pre">protein</span></code>目录中。</p>
 </section>
@@ -282,6 +284,7 @@ cp<span class="w"> </span>SOMEWHERE/lig.pdb<span class="w"> </span>./
 pycadd-dynamic<span class="w"> </span>auto<span class="w"> </span>--charge<span class="w"> </span>-1<span class="w"> </span>--multiplicity<span class="w"> </span><span class="m">1</span><span class="w"> </span>--prefix<span class="w"> </span>myMD<span class="w"> </span>--parallel<span class="w"> </span><span class="m">48</span><span class="w"> </span>--with-gpu<span class="w"> </span><span class="m">0</span><span class="w"> </span>pro.pdb<span class="w"> </span>lig.pdb
 </pre></div>
 </div>
+<p>所有MD环节的轨迹及输出文件可以在<code class="docutils literal notranslate"><span class="pre">md_result/</span></code>中找到。</p>
 <p>使用</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-dynamic<span class="w"> </span>--help
 pycadd-dynamic<span class="w"> </span>auto<span class="w"> </span>--help
@@ -294,8 +297,15 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 </section>
 <section id="id5">
 <h2>模拟结果分析<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h2>
-<p>Dynamic 的 <code class="docutils literal notranslate"><span class="pre">Analyzer</span></code> 类提供了一些常规的自动化分析工具，用于分析Amber MD模拟结果并快速导出分析数据用于绘制图表。</p>
-<p>模拟结果的分析工具需要当前的python环境可以导入<code class="docutils literal notranslate"><span class="pre">pytraj</span></code>包，请在您 <strong>安装Amber的python环境</strong> 中使用分析工具，或使用命令 <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">ambertools=23</span> <span class="pre">-c</span> <span class="pre">conda-forge</span></code> 将Ambertools安装到当前环境中。</p>
+<p>Dynamic 的 <code class="docutils literal notranslate"><span class="pre">Analyzer</span></code> 类提供了一些常规的自动化分析工具，用于分析 Amber MD 模拟结果并快速导出分析数据用于绘制图表。</p>
+<section id="id6">
+<h3>分析环境准备<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
+<p>模拟结果的分析工具需要当前的python环境可以导入 <code class="docutils literal notranslate"><span class="pre">pytraj</span></code> 包，即 cpptraj 的python接口。<br />为此，请确保已经执行过命令 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">$AMBERHOME/amber.sh</span></code>，其中 <code class="docutils literal notranslate"><span class="pre">$AMBERHOME</span></code> 是您的 AMBER 安装根目录;<br />或使用命令 <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">ambertools=23</span> <span class="pre">-c</span> <span class="pre">conda-forge</span></code> 将 Ambertools 安装到当前环境中。</p>
+<p>此外，为了使用 MPI 运行 MM-PB/GBSA 结合自由能及能量分解计算，您可能还需要通过 <code class="docutils literal notranslate"><span class="pre">conda</span></code> 安装 <code class="docutils literal notranslate"><span class="pre">openmpi</span></code> 及 <code class="docutils literal notranslate"><span class="pre">mpi4py</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>openmpi<span class="w"> </span>mpi4py<span class="w"> </span>-c<span class="w"> </span>conda-forge
+</pre></div>
+</div>
+</section>
 <section id="cli">
 <h3>CLI快速分析<a class="headerlink" href="#cli" title="Permalink to this heading"></a></h3>
 <p>使用 <code class="docutils literal notranslate"><span class="pre">pycadd-dynamic</span> <span class="pre">analysis</span></code> 命令可以快速开展常规的轨迹分析，并将结果保存至 <code class="docutils literal notranslate"><span class="pre">analysis</span></code> 目录中。分析轨迹需要提供必要的拓扑及轨迹文件。</p>
@@ -322,6 +332,10 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 <li><p><code class="docutils literal notranslate"><span class="pre">--no-hbond</span></code> 不进行氢键分析</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--no-rmsd</span></code> 不进行RMSD分析</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--no-rmsf</span></code> 不进行RMSF分析</p></li>
+</ul>
+<p>可选参数：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">/</span> <span class="pre">--decomp</span> <span class="pre">INT1</span> <span class="pre">INT2</span> <span class="pre">INT3</span></code>: 计算MM-GBSA结合自由能及能量分解。使用该参数时必须提供3个整数 <code class="docutils literal notranslate"><span class="pre">START_FRAME</span></code> <code class="docutils literal notranslate"><span class="pre">END_FRAME</span></code> <code class="docutils literal notranslate"><span class="pre">STEP_SIZE</span></code>。</p></li>
 </ul>
 </section>
 <section id="python-analyzer">
@@ -360,8 +374,8 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 </pre></div>
 </div>
 </section>
-<section id="id6">
-<h4>氢键分析<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h4>
+<section id="id7">
+<h4>氢键分析<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h4>
 <p>分析器将检测并追踪模拟全过程中指定条件下的氢键（默认为包括蛋白大分子间及蛋白-配体小分子间的全部氢键），然后统计氢键的数量、键长、键角等信息，及模拟过程的氢键存续(Lifetime)。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span># 默认分析所有可能存在的氢键
 analyzer.calc_hbond(
@@ -375,14 +389,33 @@ analyzer.calc_hbond(
 </pre></div>
 </div>
 <ul class="simple">
-<li><p>mask: 指定搜索氢键的原子组范围，使用Amber MASK格式，如<code class="docutils literal notranslate"><span class="pre">:1-10</span></code>表示分析第1-10号残基原子间的氢键，默认为<code class="docutils literal notranslate"><span class="pre">:*</span></code>表示分析所有可能存在的氢键，但不包括溶剂分子</p></li>
-<li><p>distance: 指定氢键分析的键长阈值，默认为3.0Å，仅统计重原子间距离小于 <code class="docutils literal notranslate"><span class="pre">distance</span></code> 的氢键</p></li>
-<li><p>angle: 指定氢键分析的键角阈值，默认为135.0°，仅统计 A-H-D 键角小于 <code class="docutils literal notranslate"><span class="pre">angle</span></code> 的氢键</p></li>
-<li><p>solvent_donor: 指定溶剂中的供体原子Amber MASK，如’:WAT&#64;N’，默认None</p></li>
-<li><p>solvent_acceptor: 指定溶剂中的受体原子Amber MASK, 如’:WAT&#64;O’，默认None。若 <code class="docutils literal notranslate"><span class="pre">solvent_donor</span></code> 与 <code class="docutils literal notranslate"><span class="pre">solvent_acceptor</span></code>不为None时，将搜索溶剂与溶质间的氢键，默认仅搜索溶质间的氢键</p></li>
-<li><p>options: 其他将被传递到cpptraj的参数，默认为 <code class="docutils literal notranslate"><span class="pre">avgout</span> <span class="pre">HBOND_RESULTS.dat</span> <span class="pre">printatomnum</span> <span class="pre">nointramol</span></code>，参阅<code class="docutils literal notranslate"><span class="pre">cpptraj</span></code>文档获取更多帮助</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mask</span></code>: 指定搜索氢键的原子组范围，使用Amber MASK格式，如<code class="docutils literal notranslate"><span class="pre">:1-10</span></code>表示分析第1-10号残基原子间的氢键，默认为<code class="docutils literal notranslate"><span class="pre">:*</span></code>表示分析所有可能存在的氢键，但不包括溶剂分子</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distance</span></code>: 指定氢键分析的键长阈值，默认为3.0Å，仅统计重原子间距离小于 <code class="docutils literal notranslate"><span class="pre">distance</span></code> 的氢键</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">angle</span></code>: 指定氢键分析的键角阈值，默认为135.0°，仅统计 A-H-D 键角小于 <code class="docutils literal notranslate"><span class="pre">angle</span></code> 的氢键</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">solvent_donor</span></code>: 指定溶剂中的供体原子Amber MASK，如’:WAT&#64;N’，默认None</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">solvent_acceptor</span></code>: 指定溶剂中的受体原子Amber MASK, 如’:WAT&#64;O’，默认None。若 <code class="docutils literal notranslate"><span class="pre">solvent_donor</span></code> 与 <code class="docutils literal notranslate"><span class="pre">solvent_acceptor</span></code>不为None时，将搜索溶剂与溶质间的氢键，默认仅搜索溶质间的氢键</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">options</span></code>: 其他将被传递到cpptraj的参数，默认为 <code class="docutils literal notranslate"><span class="pre">avgout</span> <span class="pre">HBOND_RESULTS.dat</span> <span class="pre">printatomnum</span> <span class="pre">nointramol</span></code>，参阅<code class="docutils literal notranslate"><span class="pre">cpptraj</span></code>文档获取更多帮助</p></li>
 </ul>
-<p>所有分析结果可在当前目录下的<code class="docutils literal notranslate"><span class="pre">analysis/</span></code>中找到并用于进一步统计分析与绘图。</p>
+</section>
+<section id="mm-gbsa">
+<h4>MM-GBSA 结合自由能计算与能量分解<a class="headerlink" href="#mm-gbsa" title="Permalink to this heading"></a></h4>
+<p>为了使用<code class="docutils literal notranslate"><span class="pre">MMPBSA.py.MPI</span></code>，需要安装 <code class="docutils literal notranslate"><span class="pre">openmpi</span></code> 及 <code class="docutils literal notranslate"><span class="pre">mpi4py</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>openmpi<span class="w"> </span>mpi4py<span class="w"> </span>-c<span class="w"> </span>conda-forge
+</pre></div>
+</div>
+<p>调用 <code class="docutils literal notranslate"><span class="pre">MMPBSA.py.MPI</span></code> 对轨迹指定范围内的帧计算MM-GBSA结合自由能，并计算残基能量分解情况。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># INT1 INT2 INT3 分别指定计算自由能的起始帧、结束帧及步长</span>
+<span class="c1"># cpu_num 指定并行计算所用的CPU核心数量</span>
+<span class="n">decomp_start_fm</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">decomp_end_fm</span> <span class="o">=</span> <span class="mi">5000</span>
+<span class="n">decomp_step_size</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">cpu_num</span> <span class="o">=</span> <span class="mi">16</span>
+
+<span class="n">analyzer</span><span class="o">.</span><span class="n">creat_energy_inputfile</span><span class="p">(</span><span class="n">start_frame</span><span class="o">=</span><span class="n">decomp_start_fm</span><span class="p">,</span> <span class="n">end_frame</span><span class="o">=</span><span class="n">decomp_end_fm</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">decomp_step_size</span><span class="p">,</span> <span class="n">job_type</span><span class="o">=</span><span class="s1">&#39;decomp&#39;</span><span class="p">)</span>
+<span class="n">analyzer</span><span class="o">.</span><span class="n">run_energy_calc</span><span class="p">(</span><span class="n">cpu_num</span><span class="o">=</span><span class="n">cpu_num</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>以上所有分析结果可在当前目录下的<code class="docutils literal notranslate"><span class="pre">md_analysis/</span></code>中找到并用于进一步统计分析与绘图。</p>
 </section>
 </section>
 </section>

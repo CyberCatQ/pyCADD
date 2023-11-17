@@ -791,7 +791,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">pytraj</span> <span class="kn">import</span> <span class="n">iterload</span>
         <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Ambertools is not accessible in current python environment by Analyzer.</span><span class="se">\n</span><span class="s1">Use </span><span class="se">\033</span><span class="s1">[32mconda install ambertools -c conda-forge</span><span class="se">\033</span><span class="s1">[0m to install it.&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Ambertools is not accessible in current python environment by Analyzer.</span><span class="se">\n</span><span class="s1">Use </span><span class="se">\033</span><span class="s1">[32msource amber22/amber.sh</span><span class="se">\033</span><span class="s1">[0m to activate or </span><span class="se">\033</span><span class="s1">[32mconda install ambertools -c conda-forge</span><span class="se">\033</span><span class="s1">[0m to install.&#39;</span><span class="p">)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_iterload</span> <span class="o">=</span> <span class="n">iterload</span>
 
