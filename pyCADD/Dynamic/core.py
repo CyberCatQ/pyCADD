@@ -849,7 +849,7 @@ def _run_energy_calculation(
 ) -> None:
 
     cpu_num = cpu_num if cpu_num is not None else CPU_NUM
-    energy_cmd = f'mpirun -np {cpu_num} MMPBSA.py.MPI -O '
+    energy_cmd = f'mpirun -np {cpu_num} --host localhost:{cpu_num} MMPBSA.py.MPI -O '
     energy_cmd += f'-i {input_file.file_path} '
     energy_cmd += f'-sp {comsolvate_topfile.file_path} '
     energy_cmd += f'-cp {com_topfile.file_path} '
