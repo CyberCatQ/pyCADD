@@ -12,6 +12,14 @@ pyCADD.utils.common module
    :undoc-members:
    :show-inheritance:
 
+pyCADD.utils.env module
+-----------------------
+
+.. automodule:: pyCADD.utils.env
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pyCADD.utils.log module
 -----------------------
 

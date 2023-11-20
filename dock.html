@@ -92,16 +92,16 @@
   <section id="dock-user-guide">
 <h1>Dock User Guide<a class="headerlink" href="#dock-user-guide" title="Permalink to this heading"></a></h1>
 <p>Dock 模块是通过串联分子对接软件 python API 来实现各类分子设计与评估功能、筛选等工作流的自动化模块。<br />目前, Dock 仅针对 Schrodinger Suites 进行开发，并计划在未来添加更多主流分子对接软件的支持。</p>
-<p><strong>注意</strong></p>
+<p><strong>关于Schrodinger虚拟环境</strong><br />由于Schrodinger Suite使用了闭源环境提供Python API调用, 使用 <code class="docutils literal notranslate"><span class="pre">Dock</span></code> 模块相关功能(包括CLI命令)脚本时, 应该保证您正处于由 Schrodinger 建立的虚拟环境中，并在该环境中安装 <code class="docutils literal notranslate"><span class="pre">pyCADD</span></code>。</p>
 <ul>
-<li><p>由于Schrodinger Suite使用了闭源环境提供Python API调用, 使用 <code class="docutils literal notranslate"><span class="pre">Dock</span></code> 模块相关功能(包括CLI命令)脚本时, 应该保证您正处于由 Schrodinger 建立的虚拟环境中，并在该环境中安装 <code class="docutils literal notranslate"><span class="pre">pyCADD</span></code>。</p></li>
-<li><p>使用</p>
+<li><p>现在，Dock 模块的 CLI 接口 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span></code> 已能够自动创建 schrodinger 虚拟 python 环境，并在其中运行 Dock 模块，您无需进行额外的<code class="docutils literal notranslate"><span class="pre">source</span></code>等操作。 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span></code> 通过 <code class="docutils literal notranslate"><span class="pre">SCHRODINGER</span></code> 变量确定您的 Schrodinger 安装位置，如果您的 <code class="docutils literal notranslate"><span class="pre">SCHRODINGER</span></code> 变量未指定，则在首次运行<code class="docutils literal notranslate"><span class="pre">pycadd-dock</span></code>接口时，会提示您提供 Schrodinger Suite 的安装目录路径。</p></li>
+<li><p>通过 python 导入 Dock 模块仍然需要您自行创建或激活 Schrodinger 虚拟环境。例如使用</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$SCHRODINGER/run schrodinger_virtualenv.py schrodinger.ve
 source schrodinger.ve/bin/activate
 python3 -m pip install pycadd -U
 </pre></div>
 </div>
-<p>命令可在当前目录下创建名为<code class="docutils literal notranslate"><span class="pre">schrodinger.ve</span></code>的虚拟环境，激活并在其中安装 <code class="docutils literal notranslate"><span class="pre">pyCADD</span></code>。 更多信息请参阅 <a class="reference external" href="https://content.schrodinger.com/Docs/r2022-1/python_api/intro.html#per-user-virtual-environments-for-installing-additional-modules">如何建立Schrodinger Python Virtual Env</a>。</p>
+<p>命令可在当前目录下创建名为 <code class="docutils literal notranslate"><span class="pre">schrodinger.ve</span></code> 的虚拟环境，激活并在其中安装 <code class="docutils literal notranslate"><span class="pre">pyCADD</span></code>。 更多信息请参阅 <a class="reference external" href="https://content.schrodinger.com/Docs/r2022-1/python_api/intro.html#per-user-virtual-environments-for-installing-additional-modules">如何建立Schrodinger Python Virtual Env</a>。</p>
 </li>
 </ul>
 <section id="docking-of-many-to-one">

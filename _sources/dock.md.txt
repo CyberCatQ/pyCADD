@@ -3,15 +3,16 @@
 Dock 模块是通过串联分子对接软件 python API 来实现各类分子设计与评估功能、筛选等工作流的自动化模块。   
 目前, Dock 仅针对 Schrodinger Suites 进行开发，并计划在未来添加更多主流分子对接软件的支持。
 
-**注意**  
-* 由于Schrodinger Suite使用了闭源环境提供Python API调用, 使用 `Dock` 模块相关功能(包括CLI命令)脚本时, 应该保证您正处于由 Schrodinger 建立的虚拟环境中，并在该环境中安装 `pyCADD`。 
-* 使用 
+**关于Schrodinger虚拟环境**  
+由于Schrodinger Suite使用了闭源环境提供Python API调用, 使用 `Dock` 模块相关功能(包括CLI命令)脚本时, 应该保证您正处于由 Schrodinger 建立的虚拟环境中，并在该环境中安装 `pyCADD`。 
+* 现在，Dock 模块的 CLI 接口 `pycadd-dock` 已能够自动创建 schrodinger 虚拟 python 环境，并在其中运行 Dock 模块，您无需进行额外的`source`等操作。 `pycadd-dock` 通过 `SCHRODINGER` 变量确定您的 Schrodinger 安装位置，如果您的 `SCHRODINGER` 变量未指定，则在首次运行`pycadd-dock`接口时，会提示您提供 Schrodinger Suite 的安装目录路径。
+* 通过 python 导入 Dock 模块仍然需要您自行创建或激活 Schrodinger 虚拟环境。例如使用 
     ```
     $SCHRODINGER/run schrodinger_virtualenv.py schrodinger.ve
     source schrodinger.ve/bin/activate
     python3 -m pip install pycadd -U
     ```
-    命令可在当前目录下创建名为`schrodinger.ve`的虚拟环境，激活并在其中安装 `pyCADD`。 更多信息请参阅 [如何建立Schrodinger Python Virtual Env](https://content.schrodinger.com/Docs/r2022-1/python_api/intro.html#per-user-virtual-environments-for-installing-additional-modules)。
+    命令可在当前目录下创建名为 `schrodinger.ve` 的虚拟环境，激活并在其中安装 `pyCADD`。 更多信息请参阅 [如何建立Schrodinger Python Virtual Env](https://content.schrodinger.com/Docs/r2022-1/python_api/intro.html#per-user-virtual-environments-for-installing-additional-modules)。
 
 ## Docking of Many-to-One
 
