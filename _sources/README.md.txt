@@ -11,6 +11,12 @@ pyCADD
 * 支持CLI快速调用
 
 ## 更新日志
+* 1.6.8 (2023-11-21)
+  * 为 Dock 模块 CLI 接口 pycadd-dock 添加了自动创建 schrodinger 虚拟环境的功能
+  * 为 Dynamic 模块增加了额外的必须软件检查
+  * 调整了MD分析工具中能量分解参数的传递方式，现在起始、结束、步长参数通过命令行直接传递
+  * 增加了 mpirun 命令的 localhost:N 参数以避免在某些系统中出现核心数量不匹配的问题
+
 * 1.6.7 (2023-11-15)
   * 修复了 Dynamic 解析输入文件过程的一个BUG，该BUG将导致部分限制性MD的输入文件解析失败
   * 调整了 Dynamic 在调用命令失败时的输出信息
@@ -95,7 +101,7 @@ pyCADD的不同模块需要安装不同的软件来完成自动化工作流。�
 | Dock     | [Schrodinger Suite](https://www.schrodinger.com/) | 2020-3 or newer |
 | Dynamic  | [AMBER](http://ambermd.org/) | 18 or newer |
 | Dynamic | [OpenBabel](https://openbabel.org/)  | 2.4 or newer |
-| Density & Dynamic | [Gaussian](http://gaussian.com/) | 16.A01 or newer |
+| Density & Dynamic | [Gaussian](http://gaussian.com/) | 16.A01 or newer(optional) |
 | Dynamic | [Multiwfn](http://sobereva.com/multiwfn/) |3.7 or newer (optional for RESP charge) |
 | Dynamic | [CUDA](https://developer.nvidia.com/cuda-zone) | 9.0 or newer (optional for pmemd.cuda) |
 
