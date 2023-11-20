@@ -11,3 +11,4 @@ docs/
 pyCADD/VSW/*.txt
 pyCADD/VSW/*.csv
 *_deprecated.*
+*.ve
