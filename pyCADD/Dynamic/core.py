@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 import re
 import logging
@@ -20,7 +21,7 @@ TEMPLATE_DIR = os.path.join(SCRIPT_DIR, 'template')
 logger = logging.getLogger(__name__)
 
 
-def _system_call(cmd: str) -> None:
+def _system_call(cmd: str, output: bool = True) -> None:
     '''
     系统shell命令调用
 
@@ -28,16 +29,22 @@ def _system_call(cmd: str) -> None:
     ----------
     cmd : str
         命令行
-
+    output : bool, optional
+        是否输出命令行结果 默认为True
     '''
 
-    return_code = os.system(cmd)
-    if return_code != 0:
+    # return_code = os.system(cmd)
+    process = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    if process.returncode != 0:
         # raise RuntimeError(f'System call failed: {cmd}') from None
         print(f"\033[1;31mShell command failed:\033[0m {cmd}")
-        print('\033[1mPlease check the error messages above and try again.\033[0m')
+        print('\033[1mPlease check the error messages below and try again.\033[0m')
+        print(process.stdout.decode('utf-8'))
         sys.exit(1)
-
+    else:
+        logger.debug(f'Command success: {cmd}')
+        if output:
+            print(process.stdout.decode('utf-8'))
 
 def _convert_mae_to_pdb(mae_file_path: str) -> None:
     '''
@@ -847,9 +854,10 @@ def _run_energy_calculation(
     receptor_topfile: BaseFile, ligand_topfile: BaseFile, traj_file: BaseFile,
     output_filepath: Union[str, None] = None, decom_output_filepath: Union[str, None] = None, cpu_num: Union[int, None] = None
 ) -> None:
-
+    
+    _system_call('mpirun -V', output=False)
     cpu_num = cpu_num if cpu_num is not None else CPU_NUM
-    energy_cmd = f'mpirun -np {cpu_num} MMPBSA.py.MPI -O '
+    energy_cmd = f'mpirun -np {cpu_num} --host localhost:{cpu_num} MMPBSA.py.MPI -O '
     energy_cmd += f'-i {input_file.file_path} '
     energy_cmd += f'-sp {comsolvate_topfile.file_path} '
     energy_cmd += f'-cp {com_topfile.file_path} '

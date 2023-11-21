@@ -159,12 +159,18 @@ def simulate(top_file, inpcrd_file, with_gpu):
 # @click.option('--no-extract', '-ne', is_flag=True, help='Disable extracting of lowest energy structure.')
 @click.option(
     '--decomp', '-d', 
-    is_flag=True,
-    help='Performing MM-GBSA energy decomposition from START_FRAME(INT1) to END_FRAME(INT2) with STEP_SIZE(INT3).')
+    nargs=3,
+    help='Performing MM-GBSA energy decomposition from START_FRAME(INT1) to END_FRAME(INT2) with STEP_SIZE(INT3).', 
+    default=None,
+    type=int
+    )
 @click.option(
     '--nmode', '-e', 
-    is_flag=True,
-    help='Performing entropy calculation with normal mode(nmode) from START_FRAME(INT1) to END_FRAME(INT2) with STEP_SIZE(INT3).')
+    nargs=3,
+    help='Performing entropy calculation with normal mode(nmode) from START_FRAME(INT1) to END_FRAME(INT2) with STEP_SIZE(INT3).',
+    default=None,
+    type=int
+    )
 @click.option('--parallel', '-n', default=os.cpu_count(), show_default=True, type=int, help='Number of parallel processes used in energy calculation.')
 def analysis(y, sp, lp, rp, cp, ro, no_hbond, no_rmsd, no_rmsf, decomp, nmode, parallel=None):
     '''
@@ -188,21 +194,33 @@ def analysis(y, sp, lp, rp, cp, ro, no_hbond, no_rmsd, no_rmsf, decomp, nmode, p
         mdout_file_path=ro
         )
 
-    if decomp:
-        decomp_start_fm = input('Please specify energy decomposition START_FRAME:\n')
-        decomp_end_fm = input('Please specify energy decomposition END_FRAME:\n')
-        decomp_step_size = input('Please specify energy decomposition STEP_SIZE:\n')
-        if not all([decomp_start_fm, decomp_end_fm, decomp_step_size]):
-            decomp = False
-            print('Invalid input. Energy decomposition will not be performed.')
+    if decomp is not None:
+        # decomp_start_fm = input('Please specify energy decomposition START_FRAME:\n')
+        # decomp_end_fm = input('Please specify energy decomposition END_FRAME:\n')
+        # decomp_step_size = input('Please specify energy decomposition STEP_SIZE:\n')
+        try:
+            decomp_start_fm, decomp_end_fm, decomp_step_size = decomp
+        except ValueError:
+            raise ValueError('Invalid input. Energy decomposition needs 3 integers for STRAT_FRAME, END_FRAME and STEP_SIZE.')
+        
+        if decomp_start_fm > decomp_end_fm:
+            raise ValueError('Invalid input. Energy decomposition can not be performed.')
+        
+        decomp = True
 
-    if nmode:
-        nmode_start_fm = input('Please specify nmode START_FRAME:\n')
-        nmode_end_fm = input('Please specify nmode END_FRAME:\n')
-        nmode_step_size = input('Please specify nmode STEP_SIZE:\n')
-        if not all([nmode_start_fm, nmode_end_fm, nmode_step_size]):
-            nmode = False
-            print('Invalid input. Entropy calculation will not be performed.')
+    if nmode is not None:
+        # nmode_start_fm = input('Please specify nmode START_FRAME:\n')
+        # nmode_end_fm = input('Please specify nmode END_FRAME:\n')
+        # nmode_step_size = input('Please specify nmode STEP_SIZE:\n')
+        try:
+            nmode_start_fm, nmode_end_fm, nmode_step_size = nmode
+        except ValueError:
+            raise ValueError('Invalid input. Entropy calculation needs 3 integers for STRAT_FRAME, END_FRAME and STEP_SIZE.')
+        
+        if nmode_start_fm > nmode_end_fm:
+            raise ValueError('Invalid input. Entropy calculation can not be performed.')
+        
+        nmode = True
 
     if not no_rmsd:
         analyzer.calc_rmsd()

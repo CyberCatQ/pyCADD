@@ -6,6 +6,10 @@ import pandas as pd
 from typing import List
 from pyCADD.utils.common import BaseFile
 
+import numpy as np
+np.float = np.float64
+np.int = np.int64
+
 from schrodinger import structure as struc
 from schrodinger.structure import StructureReader, StructureWriter, Structure
 from schrodinger.job import jobcontrol as jc

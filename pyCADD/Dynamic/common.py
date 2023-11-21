@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Literal, Union
 
 from pyCADD.utils.common import BaseFile
-from pyCADD.utils.tool import makedirs_from_list
+from pyCADD.utils.tool import makedirs_from_list, is_amber_available, is_gaussian_available, is_pmemd_cuda_available
 from pyCADD.Dynamic import core
 from pyCADD.Dynamic.core import MDProcess, MinimizeProcess, NPTProcess, NVTProcess
 from pyCADD.Dynamic.template import LeapInput, HeatInput, NVTInput, NPTInput, MMGBSAInput, RestrainedMinimizeInput, MinimizeInput
@@ -22,23 +22,6 @@ INPUT_FILE_DIR = os.path.join(CWD, 'input_file')
 MD_RESULT_DIR = os.path.join(CWD, 'md_result')
 
 ANALYSIS_RESULT_DIR = os.path.join(CWD, 'md_analysis')
-
-def find_amber():
-    '''
-    Check if AMBER is installed.
-    '''
-    amberhome = os.environ.get('AMBERHOME')
-    _sander = os.path.exists(os.popen('which sander').read())
-    _pmemd = os.path.exists(os.popen('which pmemd.cuda').read())
-    _cpptraj = os.path.exists(os.popen('which cpptraj').read())
-    if not all([amberhome, _sander, _pmemd, _cpptraj]):
-        return False
-    try:
-        import pytraj as pt
-    except ImportError:
-        return False
-    else:
-        return True
     
 class Processor:
     '''
@@ -62,6 +45,8 @@ class Processor:
         self.apo = apo
 
         self.md_process_list = []
+        
+        self.amber_available = is_amber_available()
 
     @property
     def _required_dirs(self):
@@ -139,6 +124,9 @@ class Processor:
         cpu_num = cpu_num if cpu_num is not None else CPU_NUM
         molecule_file = BaseFile(molecule_file_path)
         if method == 'resp':
+            if not is_gaussian_available():
+                raise RuntimeError(
+                    'Gaussian 16 is not installed or not in PATH. Please use AM1-bcc method instead.')
             self.processed_molfile_pdb, self.frcmod_file = core.molecule_prepare_resp2(
                 molecule_file, save_dir=MOL_RELATED_DIR, charge=charge, multiplicity=multiplicity,
                 cpu_num=cpu_num, solvent=solvent, overwrite=overwrite, keep_origin_cood=keep_origin_cood)
@@ -638,6 +626,8 @@ class Simulator:
         self.md_process_list = processor.md_process_list
 
         self.cuda_device = 0
+        self.amber_available = is_amber_available()
+        self.pmemd_cuda_available = is_pmemd_cuda_available()
 
     def shwo_cuda_device(self) -> None:
         '''
@@ -685,7 +675,11 @@ class Simulator:
         '''
         if len(self.md_process_list) == 0:
             raise RuntimeError('No MD process has been added.')
-
+        if not self.amber_available:
+            raise RuntimeError(
+                'Amber or AmberTools is not installed or not in PATH.')
+        if not self.pmemd_cuda_available:
+            raise RuntimeError('pmemd.cuda is not installed or not in PATH.')
         if cuda_device is not None:
             self.set_cuda_device(cuda_device)
         else:
@@ -710,8 +704,12 @@ class Analyzer:
         traj_file_path: str = None, comsolvated_topfile_path: str = None, com_topfile_path: str = None,
         receptor_topfile_path: str = None, ligand_topfile_path: str = None, mdout_file_path: str = None,
     ) -> None:
-
-        from pytraj import iterload
+        self.amber_available = is_amber_available()
+        try:
+            from pytraj import iterload
+        except ImportError:
+            print('Ambertools is not accessible in current python environment by Analyzer.\nUse \033[32msource amber22/amber.sh\033[0m to activate or \033[32mconda install ambertools -c conda-forge\033[0m to install.')
+            os._exit(1)
         self._iterload = iterload
 
         from pyCADD.Dynamic import analysis

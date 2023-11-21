@@ -29,7 +29,8 @@ setup(
         'console_scripts': [
             'pyCADD = pyCADD.__main__:main', 
             'pycadd = pyCADD.__main__:main', 
-            'pycadd-dock = pyCADD.Dock.cli:cli_main',
+            # 'pycadd-dock = pyCADD.Dock.cli:cli_main',
+            'pycadd-dock = pyCADD.utils.env:main',
             'pycadd-density = pyCADD.Density.__main__:main',
             'pycadd-demand = pyCADD.Demand.cli:main',
             'pycadd-dynamic = pyCADD.Dynamic.cli:main'
