@@ -51,16 +51,7 @@ pyCADD
     * 显著减少对接结果文件体积
   * 修复了Dynamic Analysis模块的BUG
     * 现在以重原子间距离计算氢键键长
-  
-* 1.6.2 (2022-07-21)
-  * 修复了 Dynamic-Analyzer 的一些BUG
-  * 修复了 python wheel build 的一些BUG
-  * 更新了API文档
 
-* 1.6.1 (2022-07-14)
-  * 添加了 Dynamic 模块的MD后处理工具 Analyzer
-  * 为 Dynamic-Analyzer 添加了CLI接口 pycadd-dynamic analysis
-  * 为 Dance 添加了新的统计方法 标准富集因子NEF
 
 ## Platform  
 
@@ -159,8 +150,8 @@ pycadd-dock ensemble-dock --help
 如果您有任何问题或建议, 请在[项目主页](https://github.com/CyberCatQ/pyCADD)提交Issue。  
 如果任何模块对您有帮助，欢迎为此项目点亮星星。
 
-UI等大部分功能为作者练手之作， 可能不具有实用性。  
-此脚本仅限于学习和批评使用, 请勿用作其他用途。  
+UI等部分功能为作者练手之作， 可能不具有实用性。  
+此工具包仅限于学习和批评使用, 请勿用作其他用途。  
 源码仅包含中文注释。
 
 YH. W  
