@@ -119,7 +119,7 @@ def ensemble_dock(input_file_path, library_file_path, parallel, precision, del_w
     from pyCADD.Dock import MultiDocker
     from pyCADD.Dock.common import MultiInputFile, LigandFile
     from pyCADD.Dock.data import save_ensemble_docking_data, save_redocking_data
-    input_file = MultiInputFile(input_file_path)
+    input_file = MultiInputFile.read_from_config(input_file_path)
     library_file = LigandFile(library_file_path) if library_file_path is not None else None
     
     console = MultiDocker(input_file)
@@ -157,7 +157,7 @@ def extract_data(input_file_path, library_file_path, parallel, precision, redock
     from pyCADD.Dock import MultiDocker
     from pyCADD.Dock.common import MultiInputFile, LigandFile
     from pyCADD.Dock.data import save_ensemble_docking_data, save_redocking_data
-    input_file = MultiInputFile(input_file_path)
+    input_file = MultiInputFile.read_from_config(input_file_path)
     library_file = LigandFile(library_file_path)
     console = MultiDocker(input_file)
     console.ligand_split(library_file)

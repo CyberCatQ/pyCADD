@@ -662,121 +662,41 @@ class MultiInputFile(BaseFile):
     '''
     pyCADD受体列表输入文件
     '''
-    def __init__(self, path, parse_:bool=True) -> None:
+    def __init__(self, path, parse: bool=True) -> None:
         '''
         Parameters
         ----------
         path : str
             受体列表输入文件路径
+        parse : bool
+            是否解析文件
         '''
         super().__init__(path)
         self.config = None
         self.pairs_list = None
-        self.pdbid_list = None
         self.mappings = None
-        if parse_:
+        self._pdbid_list = None
+        self._ligand_list = None
+
+        if parse:
             self.parse_file()
 
+    @property
+    def pdbid_list(self) -> list:
+        if self._pdbid_list is None:
+            self._pdbid_list = self.get_pdbid_list()
+        return self._pdbid_list
+    
+    @property
+    def ligand_list(self) -> list:
+        if self._ligand_list is None:
+            self._ligand_list = self.get_ligand_list()
+        return self._ligand_list
+    
     @staticmethod
-    def _parse_from_cfg(config_file:str):
+    def _parse_from_csv(csv_file_path: str) -> None:
         '''
-        从配置文件中获取受体与配体的对应关系
-        '''
-        from pyCADD.utils.tool import Myconfig
-
-        config = Myconfig()
-        config.read(config_file)
-        receptors = [receptor for receptor in config.sections()]
-        pdbid_list = []
-        pairs_list = []
-        mappings = []
-        for _list in [config.options(receptor) for receptor in receptors]:
-            pdbid_list.extend(_list)
-
-        for receptor in receptors:
-            for _item in config.items(receptor):
-                ligs = _item[1].split(',')
-                if len(ligs) == 1:
-                    pairs_list.append([_item[0], ligs[0]])
-                    mappings.append({'receptor': receptor, 'pdb': _item[0], 'ligand': ligs[0]})
-                else:
-                    for lig in ligs:
-                        pairs_list.append([_item[0], lig])
-                        mappings.append({'receptor': receptor, 'pdb': _item[0], 'ligand': lig})
-        
-        return pdbid_list, pairs_list, mappings
-
-    @staticmethod
-    def _parse_from_yaml(yaml_file:str):
-        '''
-        从yaml文件中获取受体与配体的对应关系
-        '''
-        import yaml
-        with open(yaml_file, 'r') as f:
-            yaml_dict = yaml.load(f, Loader=yaml.FullLoader)
-
-        pdbid_list = []
-        pairs_list = []
-        mappings = []
-        for receptor in yaml_dict.keys():
-            for pdb, ligs in yaml_dict[receptor].items():
-                if isinstance(ligs, str):
-                    ligs = [ligs]
-                    
-                if len(ligs) == 1:
-                    pairs_list.append((pdb, ligs[0]))
-                    mappings.append({'receptor': receptor, 'pdb': pdb, 'ligand': ligs[0]})
-                else:
-                    for lig in ligs:
-                        pairs_list.append((pdb, lig))
-                        mappings.append({'receptor': receptor, 'pdb': pdb, 'ligand': lig})
-                pdbid_list.append(pdb)
-        return pdbid_list, pairs_list, mappings
-
-    @staticmethod
-    def read_from_config(config_file:str) -> 'MultiInputFile':
-        '''
-        依据配置文件类型初始化
-
-        Parameters
-        ----------
-        config_file : str
-            配置文件路径
-        '''
-        if config_file.endswith('.csv'):
-            input_file = MultiInputFile(config_file)
-            input_file.mappings = []
-            for pdb, lig in input_file.pairs_list:
-                input_file.mappings.append({'receptor': '', 'pdb': pdb, 'ligand': lig})
-            return input_file
-        if config_file.endswith('ini') or config_file.endswith('in'):
-            pdbid_list, pairs_list, mappings = MultiInputFile._parse_from_cfg(config_file)
-        elif config_file.endswith('yaml') or config_file.endswith('yml'):
-            pdbid_list, pairs_list, mappings = MultiInputFile._parse_from_yaml(config_file)
-            
-        _input_file = MultiInputFile(config_file, parse_=False)
-        _input_file.pairs_list = pairs_list
-        _input_file.pdbid_list = pdbid_list
-        _input_file.ligand_list = [ligid for pdbid, ligid in pairs_list]
-        _input_file.mappings = mappings
-        return _input_file
-
-    def read(self, file_path:str) -> None:
-        '''
-        读取输入文件
-
-        Parameters
-        ----------
-        file_path : str
-            输入文件路径
-        '''
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f'File {file_path} not found.')
-        self.parse_file(file_path)
-
-    def parse_file(self, file_path: str=None) -> None:
-        '''
-        解析受体输入文件
+        解析csv输入文件
         文件中含有多行的 逗号分隔的PDBID与配体ID
         
             example:
@@ -790,15 +710,117 @@ class MultiInputFile(BaseFile):
         Parameters
         ----------
         file_path : str
-            受体列表文件路径
+            csv输入文件路径
         '''
-        file_path = self.file_path if file_path is None else file_path
+        file_path = csv_file_path
+        receptor_name = os.path.basename(file_path).split('.')[0] or "Undefine"
         with open(file_path, 'r') as f:
             raw_list = f.read().splitlines()
         
-        self.pairs_list = [(pdbid, ligid) for pdbid, ligid in [line.split(',') for line in raw_list]]
-        self.pdbid_list = [pdbid for pdbid, ligid in self.pairs_list]
-        self.ligand_list = [ligid for pdbid, ligid in self.pairs_list]
+        pairs_list = [(pdbid.strip(), ligid.strip()) for pdbid, ligid in [line.split(',') for line in raw_list]]
+        # ligand_list = [ligid for pdbid, ligid in pairs_list]
+        mappings = [{'receptor': receptor_name, 'pdb': pdbid, 'ligand': ligid} for pdbid, ligid in pairs_list]
+        return pairs_list, mappings
+        
+    @staticmethod
+    def _parse_from_ini(config_file:str):
+        '''
+        从ini配置文件中获取受体与配体的对应关系
+        '''
+        from pyCADD.utils.tool import Myconfig
+
+        config = Myconfig()
+        config.read(config_file)
+        receptors = [receptor for receptor in config.sections()]
+        # pdbid_list = []
+        pairs_list = []
+        mappings = []
+        # for _list in [config.options(receptor) for receptor in receptors]:
+        #     pdbid_list.extend(_list)
+
+        for receptor in receptors:
+            for _item in config.items(receptor):
+                # PDB = LIG1,LIG2,LIG3
+                ligs = _item[1].split(',')
+                for lig in ligs:
+                    pairs_list.append((_item[0], lig))
+                    mappings.append({'receptor': receptor, 'pdb': _item[0], 'ligand': lig})
+        
+        return pairs_list, mappings
+
+    @staticmethod
+    def _parse_from_yaml(yaml_file:str):
+        '''
+        从yaml文件中获取受体与配体的对应关系
+        '''
+        import yaml
+        with open(yaml_file, 'r') as f:
+            yaml_dict = yaml.load(f, Loader=yaml.FullLoader)
+
+        pairs_list = []
+        mappings = []
+        for receptor in yaml_dict.keys():
+            for pdb, ligs in yaml_dict[receptor].items():
+                if isinstance(ligs, str):
+                    ligs = [ligs]
+                for lig in ligs:
+                    pairs_list.append((pdb, lig))
+                    mappings.append({'receptor': receptor, 'pdb': pdb, 'ligand': lig})
+        return pairs_list, mappings
+
+    @staticmethod
+    def read_from_config(config_file:str) -> 'MultiInputFile':
+        '''
+        依据配置文件类型解析文件内容
+
+        Parameters
+        ----------
+        config_file : str
+            配置文件路径
+        '''
+        if config_file.lower().endswith('.csv') or config_file.lower().endswith('.txt'):
+            pairs_list, mappings = MultiInputFile._parse_from_csv(config_file)
+        elif config_file.lower().endswith('.ini') or config_file.lower().endswith('.in'):
+            pairs_list, mappings = MultiInputFile._parse_from_ini(config_file)
+        elif config_file.lower().endswith('.yaml') or config_file.lower().endswith('.yml'):
+            pairs_list, mappings = MultiInputFile._parse_from_yaml(config_file)
+        else:
+            raise NotImplementedError(f'Unsupported file type: {config_file}')
+            
+        _input_file = MultiInputFile(config_file, parse=False)
+        _input_file.pairs_list = pairs_list
+        _input_file.mappings = mappings
+        return _input_file
+
+    def parse_file(self, file_path:str=None) -> None:
+        '''
+        解析输入文件
+        
+        Parameters
+        ----------
+        file_path : str
+            输入文件路径
+        '''
+        if file_path is None:
+            file_path = self.file_path
+        parsed_file = self.read_from_config(file_path)
+        self.pairs_list = parsed_file.pairs_list
+        self.pdbid_list = parsed_file.pdbid_list
+        self.ligand_list = parsed_file.ligand_list
+        self.mappings = parsed_file.mappings
+        
+    def read(self, file_path:str) -> None:
+        '''
+        读取输入文件
+
+        Parameters
+        ----------
+        file_path : str
+            输入文件路径
+        '''
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f'File {file_path} not found.')
+        self.parse_file(file_path)
     
     def get_pairs_list(self) -> list:
         '''
@@ -812,17 +834,17 @@ class MultiInputFile(BaseFile):
         '''
         获取受体信息列表中的PDBID列表
         '''
-        if self.pdbid_list is None:
+        if self.pairs_list is None:
             self.parse_file()
-        return self.pdbid_list
+        return list(set([pdbid for pdbid, ligid in self.pairs_list]))
 
     def get_ligand_list(self) -> list:
         '''
         获取受体信息列表中的配体列表
         '''
-        if self.ligand_list is None:
+        if self.pairs_list is None:
             self.parse_file()
-        return self.ligand_list
+        return list(set([ligid for pdbid, ligid in self.pairs_list]))
 
     def get_pdbfile_path_list(self, pdb_dir: str) -> list:
         '''
@@ -833,7 +855,7 @@ class MultiInputFile(BaseFile):
         pdb_dir : str
             PDB文件所在目录
         '''
-        return [os.path.join(pdb_dir, pdbid + '.pdb') for pdbid in self.get_pdbid_list()]
+        return [os.path.join(pdb_dir, pdbid + '.pdb') for pdbid in self.pdbid_list]
         
     def get_gridfile_path_list(self, grid_dir: str) -> list:
         '''
@@ -844,4 +866,4 @@ class MultiInputFile(BaseFile):
         grid_dir : str
             Grid文件所在目录
         '''
-        return [os.path.join(grid_dir, '%s_glide_grid_%s.zip' % (pdbid, ligid)) for pdbid, ligid in self.get_pairs_list()]
+        return [os.path.join(grid_dir, '%s_glide_grid_%s.zip' % (pdbid, ligid)) for pdbid, ligid in self.pairs_list]
