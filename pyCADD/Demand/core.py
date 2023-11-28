@@ -7,7 +7,8 @@ import pandas as pd
 import requests
 import yaml
 from pyCADD.Demand.config import BaseQueryCfg, IGNORE_LIG
-from pyCADD.utils.tool import makedirs_from_list
+from pyCADD.Demand.config import DATA_KEYS, PDBID_KEYS, TITLE_KEYS, RESOLUTION_KEYS, AUTHOR_KEYS, REFERENCE_KEYS, REF_DOI_KEYS, POLYMER_ENTITY_NUM_KEYS, NONPOLYMER_ENTITY_NUM_KEYS, POLYMER_ENTITY_KEYS, POLYMER_NAME_KEYS, POLYMER_CHAIN_ID_KEYS, POLYMER_MUTATION_NUM_KEYS, POLYMER_TYPE_KEYS, NONPOLYMER_CHAIN_ID_KEYS, NONPOLYMER_ENTITY_KEYS,NONPOLYMER_ID_KEYS,NONPOLYMER_NAME_KEYS,NONPOLYMER_SMILES_KEYS, POLYMER_UNIPROT_ID_KEYS
+from pyCADD.utils.tool import makedirs_from_list, Myconfig
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +59,8 @@ def query_pdb(pdb_list, save_path=None, quert_cfg=None):
     query = query_cfg.get_query()
     query = parse.quote(query)
     req = requests.get(PDB_URL + query)
+    if req.status_code != 200:
+        raise ValueError(f"Query failed: {req.text}")
     data_json = req.json()
 
     if save_path is not None:
@@ -65,6 +68,14 @@ def query_pdb(pdb_list, save_path=None, quert_cfg=None):
             f.write(json.dumps(data_json))
 
     return data_json
+
+def get_nested_value(data, keys):
+    try:
+        for key in keys:
+            data = data[key]
+        return data
+    except KeyError:
+        return None
 
 class QueryClient:
     def __init__(self, uniprot_id:str) -> None:
@@ -77,9 +88,9 @@ class QueryClient:
         self.pairs_clean = None
         self.output_data = None
         self.apo = None
-
-        self.uniprot_save_dir = './query_data/uniprot'
-        self.pdb_save_dir = './query_data/pdb'
+        
+        self.uniprot_save_dir = os.path.join(os.getcwd(), 'query_data', 'uniprot')
+        self.pdb_save_dir = os.path.join(os.getcwd(), 'query_data', 'pdb')
 
         makedirs_from_list([
             self.uniprot_save_dir,
@@ -108,46 +119,50 @@ class QueryClient:
     
     def _parse_json(self):
         parse_data = []
-        js_data = self.data_dict['data']['entries']
+        js_data = get_nested_value(self.data_dict, DATA_KEYS)
 
         for dic_pdb in js_data:
             d = {}
-            d['PDBID'] = dic_pdb['rcsb_id']  # PDB ID
-            d['title'] = dic_pdb['struct']['title']  # 标题
-            d['resolution'] = dic_pdb['rcsb_entry_info']['resolution_combined']  # 分辨率
-            d['reference'] = dic_pdb['rcsb_primary_citation']['title']  # 参考文献
-            d['authors'] = ''.join(i + ' ' for i in dic_pdb['rcsb_primary_citation']['rcsb_authors'])  # 作者
-            d['DOI'] = dic_pdb['rcsb_primary_citation']['pdbx_database_id_DOI']  # DOI
-            d['polymer_entity'] = dic_pdb['rcsb_entry_info']['deposited_polymer_entity_instance_count']  # 多肽体实体数
-            d['nonpolymer_entity'] = dic_pdb['rcsb_entry_info']['deposited_nonpolymer_entity_instance_count']  # 非多肽体实体数
+            d['PDBID'] = get_nested_value(dic_pdb, PDBID_KEYS)  # PDB ID
+            d['title'] = get_nested_value(dic_pdb, TITLE_KEYS)  # 标题
+            d['resolution'] = get_nested_value(dic_pdb, RESOLUTION_KEYS)  # 分辨率
+            d['reference'] = get_nested_value(dic_pdb, REFERENCE_KEYS)  # 参考文献
+            d['authors'] = ''.join(i + ' ' for i in get_nested_value(dic_pdb, AUTHOR_KEYS))
+            d['DOI'] = get_nested_value(dic_pdb, REF_DOI_KEYS)  # DOI
+            d['polymer_entity'] = get_nested_value(dic_pdb, POLYMER_ENTITY_NUM_KEYS)  # 多肽体实体数
+            d['nonpolymer_entity'] = get_nested_value(dic_pdb, NONPOLYMER_ENTITY_NUM_KEYS)  # 非多肽体实体数
             
             # 解析多肽体实体
-            for index, polymer in enumerate(dic_pdb['polymer_entities']):
-                d['polymer_entities_' + str(index) + '_name'] = polymer['rcsb_polymer_entity']['pdbx_description']  # 名称
-                d['polymer_entities_' + str(index) + '_type'] = polymer['entity_poly']['rcsb_entity_polymer_type']  # 类型
-                d['polymer_entities_' + str(index) + '_mutation'] = polymer['entity_poly']['rcsb_mutation_count']  # 突变数
-                d['polymer_entities_' + str(index) + '_chain'] = polymer['entity_poly']['pdbx_strand_id']  # 所在链
+            polymer_entities = get_nested_value(dic_pdb, POLYMER_ENTITY_KEYS)
+            for index, polymer in enumerate(polymer_entities):
+                d[f'polymer_entities_{index}_name'] = get_nested_value(polymer, POLYMER_NAME_KEYS)  # 名称
+                d[f'polymer_entities_{index}_type'] = get_nested_value(polymer, POLYMER_TYPE_KEYS)  # 类型
+                d[f'polymer_entities_{index}_mutation'] = get_nested_value(polymer, POLYMER_MUTATION_NUM_KEYS)  # 突变数
+                d[f'polymer_entities_{index}_chain'] = get_nested_value(polymer, POLYMER_CHAIN_ID_KEYS)  # 所在链
                 try:
                     d['polymer_entities_' + str(index) + '_source_organism'] = ','.join(list(d.values())[0] for d in polymer['rcsb_entity_source_organism'][0]['rcsb_gene_name']) if polymer['rcsb_entity_source_organism'] else None  # 结构来源蛋白
                 except TypeError:
                     d['polymer_entities_' + str(index) + '_source_organism'] = None
             # 解析非多肽体实体
-            if dic_pdb['nonpolymer_entities']:
-                for index, nonpolymer in enumerate(dic_pdb['nonpolymer_entities']):
-                    d['nonpolymer_entities_' + str(index) + '_name'] = nonpolymer['nonpolymer_comp']['chem_comp']['name']   # 名称
-                    d['nonpolymer_entities_' + str(index) + '_ID'] = nonpolymer['nonpolymer_comp']['chem_comp']['id']   # ID
-                    d['nonpolymer_entities_' + str(index) + '_SMILES'] = nonpolymer['nonpolymer_comp']['rcsb_chem_comp_descriptor']['SMILES']   # SMILES
-                    d['nonpolymer_entities_' + str(index) + '_chain'] = ','.join(i for i in nonpolymer['rcsb_nonpolymer_entity_container_identifiers']['auth_asym_ids'])   # 所在链
+            nonpolymer_entities = get_nested_value(dic_pdb, NONPOLYMER_ENTITY_KEYS)
+            if nonpolymer_entities is not None:
+                for index, nonpolymer in enumerate(nonpolymer_entities):
+                    d[f'nonpolymer_entities_{index}_name'] = get_nested_value(nonpolymer, NONPOLYMER_NAME_KEYS)   # 名称
+                    d[f'nonpolymer_entities_{index}_ID'] = get_nested_value(nonpolymer, NONPOLYMER_ID_KEYS)   # ID
+                    d[f'nonpolymer_entities_{index}_SMILES'] = get_nested_value(nonpolymer, NONPOLYMER_SMILES_KEYS)   # SMILES
+                    d[f'nonpolymer_entities_{index}_chain'] = ','.join(i for i in get_nested_value(nonpolymer, NONPOLYMER_CHAIN_ID_KEYS))
             
             parse_data.append(d)
         self.pdb_data = parse_data
-        pd.DataFrame(parse_data).to_csv(os.path.join(self.pdb_save_dir, self.uniprot_id + '.csv'), index=False)
 
     def query(self):
         '''
         查询 pdb 数据
         '''
         self._query_pdb()
+        csv_file = f"{os.path.abspath(os.path.join(self.pdb_save_dir, self.uniprot_id))}.csv"
+        pd.DataFrame(self.pdb_data).to_csv(csv_file, index=False)
+        logger.info(f'Parsed PDB data is saved to {csv_file}')
             
     def clean_pdb_data(self, del_mutations:bool=True, del_ignore_lig:bool=True, cutoff:float=None):
         '''
@@ -169,33 +184,39 @@ class QueryClient:
         total_result = {}
         
         if self.data_dict is None:
-            self._query_pdb()
-        data_dict = self.data_dict
+            self.query()
+        data_list = get_nested_value(self.data_dict, DATA_KEYS)
 
-        for pdb in data_dict['data']['entries']:
+        for pdb in data_list:
             target_ligs = []
-            if not pdb['nonpolymer_entities']:
-                self.apo.append(pdb['rcsb_id'])
+            pdbid = get_nested_value(pdb, PDBID_KEYS)
+            # if not pdb['nonpolymer_entities']:
+            if get_nested_value(pdb, NONPOLYMER_ENTITY_KEYS) is None:
+                self.apo.append(pdbid)
                 continue
             if cutoff is not None:
-                resolution = pdb['pdbx_vrpt_summary']['resolution_combined']
-                if resolution is None or float(resolution) > cutoff:
+                resolution = get_nested_value(pdb, RESOLUTION_KEYS)
+                if float(resolution) > cutoff:
+                    continue
+                elif resolution is None:
+                    logger.warning(f'PDB {pdbid} has no resolution data.')
                     continue
                 
             # 目标蛋白所在链
-            for poly_entity in pdb['polymer_entities']:
-                _uniprot_id = poly_entity['rcsb_polymer_entity_container_identifiers']['uniprot_ids']
+            for poly_entity in get_nested_value(pdb, POLYMER_ENTITY_KEYS):
+                _uniprot_id = get_nested_value(poly_entity, POLYMER_UNIPROT_ID_KEYS)
                 if isinstance(_uniprot_id, list):
                     if _uniprot_id[0] == self.uniprot_id:
-                        target_chains = set(poly_entity['entity_poly']['pdbx_strand_id'].split(','))
+                        target_chains = set(get_nested_value(poly_entity, POLYMER_CHAIN_ID_KEYS).split(','))
             
-            for nonpoly_entity in pdb['nonpolymer_entities']:
-                binding_chains = set(nonpoly_entity['rcsb_nonpolymer_entity_container_identifiers']['auth_asym_ids'])
+            for nonpoly_entity in get_nested_value(pdb, NONPOLYMER_ENTITY_KEYS):
+                binding_chains = set(get_nested_value(nonpoly_entity, NONPOLYMER_CHAIN_ID_KEYS))
                 # 存在并集 即结合在目标链上
                 if binding_chains.intersection(target_chains):
-                    target_ligs.append(nonpoly_entity['nonpolymer_comp']['chem_comp']['id'])
-            total_result[pdb['rcsb_id']] = target_ligs
-        
+                    target_ligs.append(get_nested_value(nonpoly_entity, NONPOLYMER_ID_KEYS))
+            total_result[pdbid] = target_ligs
+
+        # Filter Apo
         self.pairs_clean = {k: v for k, v in total_result.items() if set(v).difference(IGNORE_LIG)}
         self.output_data = self.pairs_clean
 
@@ -204,7 +225,7 @@ class QueryClient:
             self.output_data = {k: v for k, v in self.output_data.items() if k not in mutations}
         
         if del_ignore_lig:
-            self.output_data = {key: ','.join(v for v in value if v not in IGNORE_LIG) for key, value in self.output_data.items()}
+            self.output_data = {key: [v for v in value if v not in IGNORE_LIG] for key, value in self.output_data.items()}
         
         return self.output_data
     
@@ -213,53 +234,59 @@ class QueryClient:
         识别突变晶体
         '''
         mutations = []
-        data_dict = self.data_dict
-        for pdb in data_dict['data']['entries']:
-            for entity in pdb['polymer_entities']:
-                if entity['entity_poly']['rcsb_entity_polymer_type'] != 'Protein':
+        data_dict = get_nested_value(self.data_dict, DATA_KEYS)
+        for pdb in data_dict:
+            pdbid = get_nested_value(pdb, PDBID_KEYS)
+            for entity in get_nested_value(pdb, POLYMER_ENTITY_KEYS):
+                if get_nested_value(entity, POLYMER_TYPE_KEYS) != 'Protein':
                     continue
-                if entity['entity_poly']['rcsb_mutation_count'] != 0:
-                    mutations.append(pdb['rcsb_id'])
-
+                if get_nested_value(entity, POLYMER_MUTATION_NUM_KEYS) != 0:
+                    mutations.append(pdbid)
         self.mutation_pdb = set(mutations)
         return self.mutation_pdb
 
-    def save(self, path:str, _format:str=None):
+    def generate_inputfile(self, path:str, _format:str=None):
         '''
-        保存结果
+        为 Dock 模块生成输入文件
+        Parameters
+        ----------
+        path : str
+            输入文件路径
+        _format : str
+            输入文件格式 (csv, ini, yml, yaml)
         '''
         if _format is None:
-            if path.endswith('.csv'):
+            if path.lower().endswith('.csv') or path.lower().endswith('.txt'):
                 _format = 'csv'
-            elif path.endswith('.in') or path.endswith('.ini'):
+            elif path.lower().endswith('.in') or path.lower().endswith('.ini'):
                 _format = 'ini'
-            elif path.endswith('.yml') or path.endswith('.yaml'):
+            elif path.lower().endswith('.yml') or path.lower().endswith('.yaml'):
                 _format = 'yaml'
             else:
-                raise ValueError(f'Unsupported format: {path.split(".")[-1]}')
-
+                raise NotImplementedError(f'Unsupported format: {path.split(".")[-1]}')
+        
+        output_data = self.output_data.copy()
         if _format == 'yaml':
-            self.output_data = {k: v.split(',') for k, v in self.output_data.items()}
-            for k, v in self.output_data.items():
+            for k, v in output_data.items():
                 if len(v) == 1:
-                    self.output_data[k] = v[0]
-                    
+                    output_data[k] = v[0]
             with open(path, 'w') as f:
-                yaml.dump({self.uniprot_id: self.output_data}, f)
+                yaml.dump({self.uniprot_id: output_data}, f)
 
         elif _format == 'csv':
             with open(path, 'w') as f:
-                for pdb, ligs in self.output_data.items():
-                    if len(ligs.split(',')) > 1:
-                        logger.warning(f'{pdb} has multiple ligands: {ligs}')
-                        for lig in ligs.split(','):
+                for pdb, ligs in output_data.items():
+                    for lig in ligs:
                             f.write(f'{pdb},{lig}\n')
 
         elif _format == 'ini' or _format == 'in':
+            config = Myconfig()
+            config.add_section(self.uniprot_id)
+            for pdb, ligs in output_data.items():
+                ligs = ','.join(ligs)
+                config.set(self.uniprot_id, pdb, ligs)
             with open(path, 'w') as f:
-                f.write(f'[{self.uniprot_id}]\n')
-                for pdb, ligs in self.output_data.items():
-                    f.write(f'{pdb}:{ligs}\n')
+                config.write(f)
         
-        logger.info(f'Results is saved to {path}.')
+        logger.info(f'Dock input file is saved to {path}.')
             

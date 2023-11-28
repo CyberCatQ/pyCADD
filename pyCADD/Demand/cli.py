@@ -14,5 +14,6 @@ def main(uniprot_id, not_del_mutations, not_del_ignore, cutoff, output_format):
     client = QueryClient(uniprot_id)
     del_mutations = not not_del_mutations
     del_ignore = not not_del_ignore
+    client.query()
     client.clean_pdb_data(del_mutations, del_ignore, cutoff)
-    client.save(f'{uniprot_id}.{output_format}')
+    client.generate_inputfile(f'{uniprot_id}.{output_format}')

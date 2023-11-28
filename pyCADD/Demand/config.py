@@ -73,3 +73,26 @@ class BaseQueryCfg:
 				}
 		}
 		''' % self.pdbs
+  
+DATA_KEYS = ['data', 'entries']
+PDBID_KEYS = ['rcsb_id']
+TITLE_KEYS = ['struct', 'title']
+RESOLUTION_KEYS = ['rcsb_entry_info', 'resolution_combined', 0]
+AUTHOR_KEYS = ['rcsb_primary_citation', 'rcsb_authors']
+REFERENCE_KEYS = ['rcsb_primary_citation', 'title']
+REF_DOI_KEYS = ['rcsb_primary_citation', 'pdbx_database_id_DOI']
+POLYMER_ENTITY_NUM_KEYS = ['rcsb_entry_info', 'deposited_polymer_entity_instance_count']
+NONPOLYMER_ENTITY_NUM_KEYS = ['rcsb_entry_info', 'deposited_nonpolymer_entity_instance_count']
+
+POLYMER_ENTITY_KEYS = ['polymer_entities']
+POLYMER_NAME_KEYS = ['rcsb_polymer_entity', 'pdbx_description']
+POLYMER_TYPE_KEYS = ['entity_poly', 'rcsb_entity_polymer_type']
+POLYMER_MUTATION_NUM_KEYS = ['entity_poly', 'rcsb_mutation_count']
+POLYMER_CHAIN_ID_KEYS = ['entity_poly', 'pdbx_strand_id']
+POLYMER_UNIPROT_ID_KEYS = ['rcsb_polymer_entity_container_identifiers', 'uniprot_ids']
+
+NONPOLYMER_ENTITY_KEYS = ['nonpolymer_entities']
+NONPOLYMER_NAME_KEYS = ['nonpolymer_comp', 'chem_comp', 'name']
+NONPOLYMER_ID_KEYS = ['nonpolymer_comp', 'chem_comp', 'id']
+NONPOLYMER_SMILES_KEYS = ['nonpolymer_comp', 'rcsb_chem_comp_descriptor', 'SMILES']
+NONPOLYMER_CHAIN_ID_KEYS = ['rcsb_nonpolymer_entity_container_identifiers', 'auth_asym_ids']
