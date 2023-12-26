@@ -6,8 +6,12 @@ from urllib import parse
 import pandas as pd
 import requests
 import yaml
-from pyCADD.Demand.config import BaseQueryCfg, IGNORE_LIG
-from pyCADD.Demand.config import DATA_KEYS, PDBID_KEYS, TITLE_KEYS, RESOLUTION_KEYS, AUTHOR_KEYS, REFERENCE_KEYS, REF_DOI_KEYS, POLYMER_ENTITY_NUM_KEYS, NONPOLYMER_ENTITY_NUM_KEYS, POLYMER_ENTITY_KEYS, POLYMER_NAME_KEYS, POLYMER_CHAIN_ID_KEYS, POLYMER_MUTATION_NUM_KEYS, POLYMER_TYPE_KEYS, NONPOLYMER_CHAIN_ID_KEYS, NONPOLYMER_ENTITY_KEYS,NONPOLYMER_ID_KEYS,NONPOLYMER_NAME_KEYS,NONPOLYMER_SMILES_KEYS, POLYMER_UNIPROT_ID_KEYS
+from pyCADD.Demand.config import BaseQueryCfg, BaseQueryPDB, IGNORE_LIG
+from pyCADD.Demand.config import (DATA_KEYS, PDBID_KEYS, TITLE_KEYS, RESOLUTION_KEYS, AUTHOR_KEYS, 
+                                  REFERENCE_KEYS, REF_DOI_KEYS, POLYMER_ENTITY_NUM_KEYS, NONPOLYMER_ENTITY_NUM_KEYS, 
+                                  POLYMER_ENTITY_KEYS, POLYMER_NAME_KEYS, POLYMER_CHAIN_ID_KEYS, POLYMER_MUTATION_NUM_KEYS, 
+                                  POLYMER_TYPE_KEYS, NONPOLYMER_CHAIN_ID_KEYS, NONPOLYMER_ENTITY_KEYS,NONPOLYMER_ID_KEYS,
+                                  NONPOLYMER_NAME_KEYS,NONPOLYMER_SMILES_KEYS, POLYMER_UNIPROT_ID_KEYS, POLYMER_MUTATION_KEYS)
 from pyCADD.utils.tool import makedirs_from_list, Myconfig
 
 logger = logging.getLogger(__name__)
@@ -15,6 +19,7 @@ logger = logging.getLogger(__name__)
 # API 接口
 UNIPROT_URL = 'https://rest.uniprot.org/uniprotkb/'
 PDB_URL = 'https://data.rcsb.org/graphql?query='
+PDB_SEARCH_URL = 'https://search.rcsb.org/rcsbsearch/v2/query?json='
 
 def query_uniprot(uniprot_id:str, save_path:str=None):
 
@@ -53,6 +58,23 @@ def parse_uniport(uniprot_file_path):
         raise ValueError(f'Uniprot ID {os.path.basename(uniprot_file_path).split(".")[0]} has no PDB crystal data.')
     return pdb_list
 
+def query_uniprot_id_on_pdb(uniprot_id:str, save_path:str=None) -> list:
+    query = BaseQueryPDB(uniprot_id=uniprot_id).get_query()
+    query = parse.quote(query)
+    req = requests.get(PDB_SEARCH_URL + query)
+    if req.status_code != 200:
+        raise ValueError(f"Query failed: {req.text}")
+    if save_path is not None:
+        with open(os.path.join(save_path, uniprot_id + '.json'), 'w') as f:
+            f.write(req.text)
+            
+    search_result = req.json()
+    result_length = int(search_result['total_count'])
+    pdb_list = [result['identifier'] for result in search_result['result_set']]
+    if len(pdb_list) != result_length:
+        raise ValueError(f'Uniprot ID {uniprot_id} has {result_length} PDB crystal data, but only {len(pdb_list)} is returned.')
+    return pdb_list
+    
 def query_pdb(pdb_list, save_path=None, quert_cfg=None):
 
     query_cfg = BaseQueryCfg(pdb_list) if quert_cfg is None else quert_cfg(pdb_list)
@@ -106,11 +128,15 @@ class QueryClient:
     def _query_uniprot(self):
         save_path = os.path.join(self.uniprot_save_dir, self.uniprot_id + '.json')
         query_uniprot(self.uniprot_id, save_path)
+        
+    def _query_uniprot_id(self):
+        self.pdb_list = query_uniprot_id_on_pdb(self.uniprot_id, self.uniprot_save_dir)
     
     def _query_pdb(self):
         if self.pdb_list is None:
-            self._query_uniprot()
-            self.pdb_list = parse_uniport(os.path.join(self.uniprot_save_dir, self.uniprot_id + '.json'))
+            # self._query_uniprot()
+            # self.pdb_list = parse_uniport(os.path.join(self.uniprot_save_dir, self.uniprot_id + '.json'))
+            self._query_uniprot_id()
         save_path = os.path.join(self.pdb_save_dir, self.uniprot_id + '.json')
         self.data_dict = query_pdb(self.pdb_list, save_path, self.pdb_query_cfg)
         if self.data_dict is None:
@@ -137,7 +163,8 @@ class QueryClient:
             for index, polymer in enumerate(polymer_entities):
                 d[f'polymer_entities_{index}_name'] = get_nested_value(polymer, POLYMER_NAME_KEYS)  # 名称
                 d[f'polymer_entities_{index}_type'] = get_nested_value(polymer, POLYMER_TYPE_KEYS)  # 类型
-                d[f'polymer_entities_{index}_mutation'] = get_nested_value(polymer, POLYMER_MUTATION_NUM_KEYS)  # 突变数
+                d[f'polymer_entities_{index}_mutation_num'] = get_nested_value(polymer, POLYMER_MUTATION_NUM_KEYS)  # 突变数
+                d[f'polymer_entities_{index}_mutation'] = get_nested_value(polymer, POLYMER_MUTATION_KEYS)  # 突变数
                 d[f'polymer_entities_{index}_chain'] = get_nested_value(polymer, POLYMER_CHAIN_ID_KEYS)  # 所在链
                 try:
                     d['polymer_entities_' + str(index) + '_source_organism'] = ','.join(list(d.values())[0] for d in polymer['rcsb_entity_source_organism'][0]['rcsb_gene_name']) if polymer['rcsb_entity_source_organism'] else None  # 结构来源蛋白

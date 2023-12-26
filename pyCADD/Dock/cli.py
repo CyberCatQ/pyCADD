@@ -12,11 +12,18 @@ def cli_main():
     pass
 
 @cli_main.command(short_help='Download PDB file from RCSB.')
-@click.argument('pdb_id')
+@click.option('-i','--id', default=None, help='Single PDB ID.')
+@click.option('-f', '--file', type=str, help='Input file of Dock Module.')
 @click.option('--save_dir', '-s', default=os.getcwd(), help='Directory to save the PDB file.')
-def download(pdb_id, save_dir):
-    from pyCADD.utils.tool import download_pdb
-    download_pdb(pdb_id, save_dir)
+def download(id:str=None, file:str=None, column:str=None, save_dir:str=None):
+    from pyCADD.utils.tool import download_pdb, download_pdb_list
+    from pyCADD.Dock.common import MultiInputFile
+    if id is not None:
+        download_pdb(id, save_dir)
+    elif file is not None:
+        input_file = MultiInputFile.read_from_config(file)
+        pdb_list = input_file.get_pdbid_list()
+        download_pdb_list(pdb_list, save_dir)
 
 @cli_main.command(short_help='Keep the singel chain that binding HET.')
 @click.argument('pdb_file_path')

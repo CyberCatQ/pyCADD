@@ -73,6 +73,52 @@ class BaseQueryCfg:
 				}
 		}
 		''' % self.pdbs
+
+class BaseQueryPDB:
+	def __init__(self, uniprot_id:str) -> None:
+		self.uniprot_id = uniprot_id.strip()
+  
+	def get_query(self):
+		return self._search_pdb_list
+
+	@property
+	def _search_pdb_list(self):
+		return '''{
+		"query": {
+			"type": "group",
+			"nodes": [
+			{
+				"type": "terminal",
+				"service": "text",
+				"parameters": {
+				"attribute": "rcsb_polymer_entity_container_identifiers.reference_sequence_identifiers.database_accession",
+				"operator": "in",
+				"value": [
+					"%s"
+				]
+				}
+			},
+			{
+				"type": "terminal",
+				"service": "text",
+				"parameters": {
+				"attribute": "rcsb_polymer_entity_container_identifiers.reference_sequence_identifiers.database_name",
+				"operator": "exact_match",
+				"value": "UniProt"
+				}
+			}
+			],
+			"logical_operator": "and",
+			"label": "nested-attribute"
+		},
+		"return_type": "entry",
+		"request_options": {
+		"paginate": {
+			"start": 0,
+			"rows": 10000
+				}
+			}
+		}''' % self.uniprot_id
   
 DATA_KEYS = ['data', 'entries']
 PDBID_KEYS = ['rcsb_id']
@@ -88,6 +134,7 @@ POLYMER_ENTITY_KEYS = ['polymer_entities']
 POLYMER_NAME_KEYS = ['rcsb_polymer_entity', 'pdbx_description']
 POLYMER_TYPE_KEYS = ['entity_poly', 'rcsb_entity_polymer_type']
 POLYMER_MUTATION_NUM_KEYS = ['entity_poly', 'rcsb_mutation_count']
+POLYMER_MUTATION_KEYS = ['rcsb_polymer_entity', 'pdbx_mutation']
 POLYMER_CHAIN_ID_KEYS = ['entity_poly', 'pdbx_strand_id']
 POLYMER_UNIPROT_ID_KEYS = ['rcsb_polymer_entity_container_identifiers', 'uniprot_ids']
 
