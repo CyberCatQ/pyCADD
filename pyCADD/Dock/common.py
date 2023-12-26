@@ -199,8 +199,8 @@ class PDBFile(BaseFile):
         '''
         
         ligand_id = self.ligid if ligand_id is None else ligand_id
-        ligand_id = ligand_id.strip().upper()
         assert ligand_id is not None, 'Ligand ID is not specified.'
+        ligand_id = ligand_id.strip().upper()
         _all_match_lig = [res for res in self.structure.residue if res.pdbres.strip() == ligand_id]
 
         if len(_all_match_lig) == 0:
@@ -717,7 +717,20 @@ class MultiInputFile(BaseFile):
         with open(file_path, 'r') as f:
             raw_list = f.read().splitlines()
         
-        pairs_list = [(pdbid.strip(), ligid.strip()) for pdbid, ligid in [line.split(',') for line in raw_list]]
+        # pairs_list = [(pdbid.strip(), ligid.strip()) for pdbid, ligid in [line.split(',') for line in raw_list]]
+        pairs_list = []
+        for item in raw_list:
+            line = item.split(',')
+            if len(line) == 1:
+                pdbid = line[0]
+                ligid = None
+            elif len(line) >= 2:
+                pdbid, ligid = line[0].strip(), line[1].strip()
+            else:
+                raise RuntimeError('Input file may not be a csv file.')
+
+            pairs_list.append((pdbid, ligid))
+        
         # ligand_list = [ligid for pdbid, ligid in pairs_list]
         mappings = [{'receptor': receptor_name, 'pdb': pdbid, 'ligand': ligid} for pdbid, ligid in pairs_list]
         return pairs_list, mappings
