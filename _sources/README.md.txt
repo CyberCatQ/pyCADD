@@ -117,6 +117,11 @@ Copyight © 2023 XMU
 2023-11-21
 
 ## 更新日志
+* 1.6.9 (2023-12-26)
+  * 将 Demand 数据获取修改为直接与PDB服务器API交互，确保获取最新PDB数据
+  * 添加了对PDB蛋白链突变信息的解析
+  * 为 Dock 添加了多线程批量下载PDB的接口 `pycadd-dock download`
+  * 其他 BUG 修复
 
 * 1.6.8 (2023-11-21)
   * 为 Dock 模块 CLI 接口 pycadd-dock 添加了自动创建 schrodinger 虚拟环境的功能

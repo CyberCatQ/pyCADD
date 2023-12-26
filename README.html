@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD &mdash; pyCADD 1.6.8 documentation</title>
+  <title>pyCADD &mdash; pyCADD 1.6.9 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -13,7 +13,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=733169e8"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=d749edf1"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/js/theme.js"></script>
@@ -291,6 +291,14 @@ pycadd-dock<span class="w"> </span>ensemble-dock<span class="w"> </span>--help
 <section id="id1">
 <h2>更新日志<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
 <ul class="simple">
+<li><p>1.6.9 (2023-12-26)</p>
+<ul>
+<li><p>将 Demand 数据获取修改为直接与PDB服务器API交互，确保获取最新PDB数据</p></li>
+<li><p>添加了对PDB蛋白链突变信息的解析</p></li>
+<li><p>为 Dock 添加了多线程批量下载PDB的接口 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">download</span></code></p></li>
+<li><p>其他 BUG 修复</p></li>
+</ul>
+</li>
 <li><p>1.6.8 (2023-11-21)</p>
 <ul>
 <li><p>为 Dock 模块 CLI 接口 pycadd-dock 添加了自动创建 schrodinger 虚拟环境的功能</p></li>

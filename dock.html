@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dock User Guide &mdash; pyCADD 1.6.8 documentation</title>
+  <title>Dock User Guide &mdash; pyCADD 1.6.9 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -13,7 +13,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=733169e8"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=d749edf1"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/js/theme.js"></script>
@@ -49,7 +49,7 @@
 <p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Dock User Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#docking-of-many-to-one">Docking of Many-to-One</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#download-pdb-file-s">Download PDB file(s)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#docking-of-many-to-many-ensemble-docking">Docking of Many-to-many (Ensemble Docking)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#generate-docking-reports">Generate Docking Reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#dock">为系综对接构建Dock输入文件的示例</a></li>
@@ -104,10 +104,17 @@ python3 -m pip install pycadd -U
 <p>命令可在当前目录下创建名为 <code class="docutils literal notranslate"><span class="pre">schrodinger.ve</span></code> 的虚拟环境，激活并在其中安装 <code class="docutils literal notranslate"><span class="pre">pyCADD</span></code>。 更多信息请参阅 <a class="reference external" href="https://content.schrodinger.com/Docs/r2022-1/python_api/intro.html#per-user-virtual-environments-for-installing-additional-modules">如何建立Schrodinger Python Virtual Env</a>。</p>
 </li>
 </ul>
-<section id="docking-of-many-to-one">
-<h2>Docking of Many-to-One<a class="headerlink" href="#docking-of-many-to-one" title="Permalink to this heading"></a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> UI 的 <code class="docutils literal notranslate"><span class="pre">Dock</span> <span class="pre">Mode</span></code> 提供了将一个或多个配体对接于单个受体结构的功能。
-运行 <code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 选择模式1 并使用功能6，提供包含一个多个配体的单一 <code class="docutils literal notranslate"><span class="pre">.mae</span></code> 或 <code class="docutils literal notranslate"><span class="pre">.maegz</span></code> 的文件路径即可</p>
+<section id="download-pdb-file-s">
+<h2>Download PDB file(s)<a class="headerlink" href="#download-pdb-file-s" title="Permalink to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 的 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">download</span></code> 提供了从PDB数据库进行多线程批量下载PDB结构文件的功能（需要互联网）。
+使用 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">download</span> <span class="pre">-i</span> <span class="pre">PDBID</span></code> 下载单一结构，或在一个文件 <code class="docutils literal notranslate"><span class="pre">example.csv</span></code> 中列出您想要下载的PDB ID：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="n">FBY</span>
+<span class="mi">3</span><span class="n">OAP</span>
+<span class="mi">4</span><span class="n">K6I</span>
+<span class="mi">5</span><span class="n">JI0</span>
+</pre></div>
+</div>
+<p>然后使用 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">download</span> <span class="pre">-f</span> <span class="pre">example.csv</span> <span class="pre">[-s</span> <span class="pre">SAVE_DIR]</span></code> (在当前目录或指定目录SAVE_DIR) 批量下载它们。</p>
 </section>
 <section id="docking-of-many-to-many-ensemble-docking">
 <h2>Docking of Many-to-many (Ensemble Docking)<a class="headerlink" href="#docking-of-many-to-many-ensemble-docking" title="Permalink to this heading"></a></h2>

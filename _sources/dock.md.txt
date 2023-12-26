@@ -14,10 +14,17 @@ Dock 模块是通过串联分子对接软件 python API 来实现各类分子设
     ```
     命令可在当前目录下创建名为 `schrodinger.ve` 的虚拟环境，激活并在其中安装 `pyCADD`。 更多信息请参阅 [如何建立Schrodinger Python Virtual Env](https://content.schrodinger.com/Docs/r2022-1/python_api/intro.html#per-user-virtual-environments-for-installing-additional-modules)。
 
-## Docking of Many-to-One
+## Download PDB file(s)
+`pyCADD` 的 `pycadd-dock download` 提供了从PDB数据库进行多线程批量下载PDB结构文件的功能（需要互联网）。
+使用 `pycadd-dock download -i PDBID` 下载单一结构，或在一个文件 `example.csv` 中列出您想要下载的PDB ID：
 
-`pyCADD` UI 的 `Dock Mode` 提供了将一个或多个配体对接于单个受体结构的功能。
-运行 `pyCADD` 选择模式1 并使用功能6，提供包含一个多个配体的单一 `.mae` 或 `.maegz` 的文件路径即可
+```
+1FBY
+3OAP
+4K6I
+5JI0
+```
+然后使用 `pycadd-dock download -f example.csv [-s SAVE_DIR]` (在当前目录或指定目录SAVE_DIR) 批量下载它们。
 
 ## Docking of Many-to-many (Ensemble Docking)
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD.Demand package &mdash; pyCADD 1.6.8 documentation</title>
+  <title>pyCADD.Demand package &mdash; pyCADD 1.6.9 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -13,7 +13,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=733169e8"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=d749edf1"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=4825356b"></script>
     <script src="_static/js/theme.js"></script>
@@ -122,6 +122,17 @@
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.BaseQueryPDB">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Demand.config.</span></span><span class="sig-name descname"><span class="pre">BaseQueryPDB</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uniprot_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Demand/config.html#BaseQueryPDB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.config.BaseQueryPDB" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.BaseQueryPDB.get_query">
+<span class="sig-name descname"><span class="pre">get_query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Demand/config.html#BaseQueryPDB.get_query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.config.BaseQueryPDB.get_query" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-pyCADD.Demand.core">
 <span id="pycadd-demand-core-module"></span><h2>pyCADD.Demand.core module<a class="headerlink" href="#module-pyCADD.Demand.core" title="Permalink to this heading"></a></h2>
@@ -211,6 +222,11 @@ path : str</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyCADD.Demand.core.query_uniprot">
 <span class="sig-prename descclassname"><span class="pre">pyCADD.Demand.core.</span></span><span class="sig-name descname"><span class="pre">query_uniprot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uniprot_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Demand/core.html#query_uniprot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.core.query_uniprot" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Demand.core.query_uniprot_id_on_pdb">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Demand.core.</span></span><span class="sig-name descname"><span class="pre">query_uniprot_id_on_pdb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uniprot_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/pyCADD/Demand/core.html#query_uniprot_id_on_pdb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.core.query_uniprot_id_on_pdb" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </section>
