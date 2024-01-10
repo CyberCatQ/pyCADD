@@ -37,6 +37,23 @@ def create_environment(environment_name, schrodinger_home, root_path=None):
         print(f"Error creating virtual environment: {e}")
         sys.exit(1)
 
+def _save_schrodinger_dir(schrodinger_home:str):
+    if not os.path.exists(os.path.join(schrodinger_home, 'run')):
+        print(f"\033[31mError: {schrodinger_home} is not a valid Schrodinger installation.\033[0m")
+        sys.exit(1)
+    else:
+        with open(os.path.join(os.environ.get('HOME'), '.schrodinger_dir'), 'w') as f:
+            f.write(schrodinger_home)
+            
+        
+def _get_schrodinger_dir():
+    try:
+        with open(os.path.join(os.environ.get('HOME'), '.schrodinger_dir'), 'r') as f:
+            schrodinger_home = f.read().strip()
+    except FileNotFoundError:
+        schrodinger_home = None
+    return schrodinger_home
+
 def main():
     args = sys.argv[1:]
     if len(args) > 0:
@@ -44,14 +61,12 @@ def main():
         
     package_name = "schrodinger"  
     environment_name = "pycadd-dock.ve"  
-    schrodinger_home = os.environ.get('SCHRODINGER')
+    schrodinger_home = os.environ.get('SCHRODINGER') or _get_schrodinger_dir()
 
-    if schrodinger_home is None:
+    if not schrodinger_home:
         print("SCHRODINGER environment variable is not set.")
         schrodinger_home = input("Please enter the path to Schrodinger installation: ")
-        if not os.path.exists(os.path.join(schrodinger_home, 'run')):
-            print(f"\033[31mError: {schrodinger_home} is not a valid Schrodinger installation.\033[0m")
-            sys.exit(1)
+        _save_schrodinger_dir(schrodinger_home)
 
     if not check_virtual_environment(package_name, environment_name):
         env_path = create_environment(environment_name, schrodinger_home)
