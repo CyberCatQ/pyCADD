@@ -318,7 +318,9 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 <span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;input_file/eq_npt.in&#39;</span><span class="p">,</span> <span class="s1">&#39;eq_npt&#39;</span><span class="p">,</span> <span class="s1">&#39;npt&#39;</span><span class="p">)</span>
 <span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;input_file/eq_nvt.in&#39;</span><span class="p">,</span> <span class="s1">&#39;eq_nvt&#39;</span><span class="p">,</span> <span class="s1">&#39;nvt&#39;</span><span class="p">)</span>
 <span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;input_file/production.in&#39;</span><span class="p">,</span> <span class="s1">&#39;production&#39;</span><span class="p">,</span> <span class="s1">&#39;npt&#39;</span><span class="p">)</span>
+
 <span class="n">simulator</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">processor</span><span class="p">)</span>
+<span class="n">simulator</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="n">with_gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -471,7 +473,7 @@ analyzer.calc_hbond(
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Yuhang Wu.</p>
+    <p>&#169; Copyright 2023, Yuhang Wu.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
