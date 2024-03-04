@@ -1,14 +1,3 @@
-__pycache__/
-lib/*
-logs/
-test/
-build/
-dist/
-pyCADD.egg-info/
-libpynalysis/
-bin/
-docs/
-pyCADD/VSW/*.txt
-pyCADD/VSW/*.csv
-*_deprecated.*
-*.ve
+html
+worktree
+build

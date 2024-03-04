@@ -1,0 +1,45 @@
+pyCADD.Dance package
+====================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   pyCADD.Dance.algorithm
+
+Submodules
+----------
+
+pyCADD.Dance.common module
+--------------------------
+
+.. automodule:: pyCADD.Dance.common
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyCADD.Dance.core module
+------------------------
+
+.. automodule:: pyCADD.Dance.core
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyCADD.Dance.metrics module
+---------------------------
+
+.. automodule:: pyCADD.Dance.metrics
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: pyCADD.Dance
+   :members:
+   :undoc-members:
+   :show-inheritance:
