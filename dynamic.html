@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dynamic User Guide &mdash; pyCADD 1.6.9 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -53,23 +55,24 @@
 <li class="toctree-l1"><a class="reference internal" href="density.html">Density User Guide</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Dynamic User Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#id1">文件准备</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cli-dynamic-md">CLI 调用 Dynamic 模块进行MD模拟</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">部分参数说明</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#python-dynamic">Python 包调用 Dynamic 模块</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id2">蛋白结构准备</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id3">小分子结构准备</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">蛋白结构准备</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">小分子结构准备</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#amber-leap">Amber 模拟前准备 - LEaP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">检查输入文件（可选）</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#md">构建MD工作流并执行模拟</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#cli-dynamic-md">CLI 调用 Dynamic 模块进行MD模拟</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id4">部分参数说明</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">模拟结果分析</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id6">分析环境准备</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">模拟结果分析</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">分析环境准备</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cli">CLI快速分析</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#python-analyzer">python 包调用 Analyzer 分析工具</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#rmsd-rmsf">RMSD &amp; RMSF 分析</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id7">氢键分析</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8">氢键分析</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mm-gbsa">MM-GBSA 结合自由能计算与能量分解</a></li>
 </ul>
 </li>
@@ -123,155 +126,17 @@
 <li><p>如果使用 pyCADD.Dock 模块进行过分子对接，则可在 <code class="docutils literal notranslate"><span class="pre">protein</span></code> 及 <code class="docutils literal notranslate"><span class="pre">ligand</span></code> 目录下找到已经拆分好的蛋白和配体小分子的PDB格式结构文件。</p></li>
 </ul>
 </section>
-<section id="python-dynamic">
-<h2>Python 包调用 Dynamic 模块<a class="headerlink" href="#python-dynamic" title="Permalink to this heading"></a></h2>
-<p>首先 从模块中导入结构预处理器 <code class="docutils literal notranslate"><span class="pre">Processor</span></code> 及实施分子动力学模拟的模拟器 <code class="docutils literal notranslate"><span class="pre">Simulator</span></code>, 然后创建一个预处理器实例 <code class="docutils literal notranslate"><span class="pre">processor</span></code></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 如果AMBER 或 Ambertools安装不正确，导入时将收到额外提示</span>
-<span class="kn">from</span> <span class="nn">pyCADD.Dynamic</span> <span class="kn">import</span> <span class="n">Processor</span><span class="p">,</span> <span class="n">Simulator</span>
-<span class="n">processor</span> <span class="o">=</span> <span class="n">Processor</span><span class="p">()</span>     <span class="c1"># 实例化的同时，将在当前目录创建所有必要的文件夹</span>
-</pre></div>
-</div>
-<section id="id2">
-<h3>蛋白结构准备<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
-<p>使用processor的protein_prepare()方法 对蛋白结构文件进行自动预处理工作。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">processor</span><span class="o">.</span><span class="n">protein_prepare</span><span class="p">(</span><span class="n">protein_file</span><span class="p">,</span> <span class="n">keep_water</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>这一过程包括以下几个步骤(需要AmberTools)：</p>
-<ol class="simple">
-<li><p>去除蛋白结构中所有的水分子(需要保留参与模拟的重要水分子时，设定 <code class="docutils literal notranslate"><span class="pre">keep_water=True</span></code> ), 并补充标准氨基酸残基缺失的原子(add missing atoms), 得到后缀为<code class="docutils literal notranslate"><span class="pre">_dry.pdb</span></code>的文件。</p></li>
-<li><p>去除蛋白结构中的所有“原生”H原子，得到后缀为 <code class="docutils literal notranslate"><span class="pre">_noH.pdb</span></code> 的文件。</p></li>
-<li><p>使用AmberTools为蛋白结构重新生成蛋白力场下的H原子，得到后缀为 <code class="docutils literal notranslate"><span class="pre">_leap.pdb</span></code> 的文件。</p></li>
-</ol>
-<p>所有此步骤的过程文件保存在 <code class="docutils literal notranslate"><span class="pre">protein</span></code>目录中。</p>
-</section>
-<section id="id3">
-<h3>小分子结构准备<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
-<p>使用 <code class="docutils literal notranslate"><span class="pre">processor</span></code> 对小分子结构文件进行自动预处理工作。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="c1"># charge指定小分子结构的电荷量 根据实际情况改变 </span>
-<span class="c1"># 当charge与实际不符时 Gaussian将报错 默认为0</span>
-<span class="c1"># multiplicity指定小分子自旋多重度 默认为1</span>
-
-<span class="n">processor</span><span class="o">.</span><span class="n">molecule_prepare</span><span class="p">(</span><span class="n">molecule_file</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">multiplicity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;resp&#39;</span><span class="p">,</span> <span class="n">keep_origin_cood</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="c1"># processor.molecule_prepare(molecule_file, charge=0, multiplicity=1, method=&#39;bcc&#39;)</span>
-</pre></div>
-</div>
-<p>这一过程包括以下几个步骤：</p>
-<ol class="simple">
-<li><p>高斯结构优化 (需要Gaussian 16, 使用泛函B3LYP、基组def2SVP、色散矫正em=GD3BJ、loose收敛限)，如果您不想因高斯结构优化改变您的配体分子坐标，可使用参数 <code class="docutils literal notranslate"><span class="pre">keep_origin_cood=True</span></code></p></li>
-<li><p>计算小分子的RESP2电荷 (需要Multiwfn) 并生成输出PDB结构<code class="docutils literal notranslate"><span class="pre">_out.pdb</span></code> 关于RESP2(0.5)电荷的更多信息，参阅<a class="reference external" href="http://sobereva.com/531">RESP2(0.5)电荷</a></p></li>
-<li><p>antechamber (需要AmberTools) 生成Amber模拟力场参数文件<code class="docutils literal notranslate"><span class="pre">.prepin</span></code></p></li>
-<li><p>parmchk2 (需要AmberTools) 生成Amber模拟力场参数文件<code class="docutils literal notranslate"><span class="pre">.frcmod</span></code></p></li>
-</ol>
-<p>可以通过设定 <code class="docutils literal notranslate"><span class="pre">method='bcc'</span></code> 来使用AM1-bcc方法生成电荷而不是resp, 此时1、2步不再执行，也不需要安装Guassian及Multiwfn。</p>
-<p>所有此步骤的过程文件保存在<code class="docutils literal notranslate"><span class="pre">molecule</span></code>目录中。</p>
-</section>
-<section id="amber-leap">
-<h3>Amber 模拟前准备 - LEaP<a class="headerlink" href="#amber-leap" title="Permalink to this heading"></a></h3>
-<p>在蛋白与小分子都准备就绪后，使用LEaP来完成最终的模拟准备文件生成。</p>
-<p>为了方便识别生成文件，选择一个任意名称作为生成文件前缀名 <code class="docutils literal notranslate"><span class="pre">prefix</span></code> ，这通常可以是PDBID或配体小分子名等。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;1FBY&#39;</span>
-<span class="n">processor</span><span class="o">.</span><span class="n">leap_prepare</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">box_size</span><span class="o">=</span><span class="mf">12.0</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>这一过程包括以下几个步骤：</p>
-<ol class="simple">
-<li><p>创建tleap命令的输入文件 <code class="docutils literal notranslate"><span class="pre">_tleap.in</span></code></p></li>
-<li><p>调用tleap命令为蛋白结构(pro)、小分子结构()lig以及二者复合物(com)生成必要的拓扑及坐标文件<code class="docutils literal notranslate"><span class="pre">.prmtop</span></code>、<code class="docutils literal notranslate"><span class="pre">.inpcrd</span></code></p></li>
-<li><p>将复合物溶于TIP3P水箱中 (立方体边长 box_size=12.0Å) 得到溶剂化复合物结构文件(<code class="docutils literal notranslate"><span class="pre">_comsolvate.pdb</span></code>)，并同时生成拓扑与坐标文件<code class="docutils literal notranslate"><span class="pre">_comsolvate.prmtop</span></code>、<code class="docutils literal notranslate"><span class="pre">_comsolvate.inpcrd</span></code></p></li>
-</ol>
-<p>所有此步骤的过程文件保存在<code class="docutils literal notranslate"><span class="pre">leap</span></code>目录中，并具有<code class="docutils literal notranslate"><span class="pre">prefix</span></code>前缀。模拟后处理及分析过程可能会再次使用它们。</p>
-<p>现在，如果没有产生预料之外的错误，预处理阶段已经完成。</p>
-</section>
-<section id="md">
-<h3>构建MD工作流并执行模拟<a class="headerlink" href="#md" title="Permalink to this heading"></a></h3>
-<p>为了开始模拟阶段，首先需要此前的预处理器实例 <code class="docutils literal notranslate"><span class="pre">processor</span></code> 来完成工作流构造。</p>
-<p>首先在工作流中添加能量最小化步骤。<code class="docutils literal notranslate"><span class="pre">process_name</span></code> 仅用于命名各工作流模块，不影响模块功能。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 如果您需要不执行准备阶段直接进行模拟，可以参照下面的python命令构建一个新的Processor实例。 </span>
-<span class="c1"># 使用set_comsolvate_file(file_path:str, file_type:str)来设定已存在的水箱复合物结构3个必要文件路径</span>
-<span class="c1"># 包括_comsolvate.pdb _comsolvate.prmtop _comsolvate.inpcrd</span>
-
-<span class="c1"># new_processor = Processor()</span>
-<span class="c1"># new_processor.set_comsolvate_file(&#39;leap/*_comsolvate.pdb&#39;, &#39;pdb&#39;)</span>
-<span class="c1"># new_processor.set_comsolvate_file(&#39;leap/*_comsolvate.prmtop&#39;, &#39;top&#39;)</span>
-<span class="c1"># new_processor.set_comsolvate_file(&#39;leap/*_comsolvate.inpcrd&#39;, &#39;crd&#39;)</span>
-<span class="c1"># processor = new_processor</span>
-
-<span class="n">processor</span><span class="o">.</span><span class="n">add_minimize_process</span><span class="p">(</span>
-    <span class="n">process_name</span><span class="o">=</span><span class="s1">&#39;min&#39;</span><span class="p">,</span>
-    <span class="c1"># maxcyc=10000,</span>
-    <span class="c1"># ncyc=5000</span>
-    <span class="p">)</span>
-<span class="c1"># 也可以通过设定参数 restraint=True，并在restraint_mask提供约束原子的amber mask来进行有约束的能量最小化</span>
-<span class="c1"># processor.add_minimize_process(process_name=&#39;min&#39;, restraint=True, restraint_mask=f&quot;&#39;:1-101&#39;&quot;, restraint_wt=2.0)</span>
-</pre></div>
-</div>
-<p>然后，为模拟工作流添加加热步骤。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># tgt_temp: 目标温度</span>
-<span class="c1"># total_step: 阶段总步数</span>
-<span class="c1"># heat_step: 加热环节步数，到达目标温度后将保持该温度直至total_step</span>
-<span class="n">processor</span><span class="o">.</span><span class="n">add_heat_process</span><span class="p">(</span><span class="n">tgt_temp</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">heat_step</span><span class="o">=</span><span class="mi">9000</span><span class="p">,</span> <span class="n">total_step</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">process_name</span><span class="o">=</span><span class="s1">&#39;heat&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>接下来，为模拟工作流添加平衡步骤。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 您可以根据自主需要，创建任意流程的平衡步骤，并在任何步骤中添加约束</span>
-<span class="c1"># 所有步骤将被有序依次串联，并在运行模拟时顺序执行</span>
-
-<span class="c1"># 逐步降低约束的NPT平衡</span>
-<span class="n">restraintmask</span> <span class="o">=</span> <span class="s2">&quot;&#39;!(:WAT,Na+,Cl-,K+,K) &amp; !@H= &amp; !@H&#39;&quot;</span>
-<span class="k">for</span> <span class="n">rest_wt</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
-    <span class="n">processor</span><span class="o">.</span><span class="n">add_npt_process</span><span class="p">(</span><span class="n">total_step</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">process_name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;eq_npt_reswt</span><span class="si">{</span><span class="n">rest_wt</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">restraint_wt</span><span class="o">=</span><span class="n">rest_wt</span><span class="p">,</span> <span class="n">restraintmask</span><span class="o">=</span><span class="n">restraintmask</span><span class="p">)</span>
-
-<span class="c1"># NPT与NVT平衡</span>
-<span class="n">processor</span><span class="o">.</span><span class="n">add_npt_process</span><span class="p">(</span><span class="n">total_step</span><span class="o">=</span><span class="mi">500000</span><span class="p">,</span> <span class="n">process_name</span><span class="o">=</span><span class="s1">&#39;eq_npt&#39;</span><span class="p">)</span>
-<span class="n">processor</span><span class="o">.</span><span class="n">add_nvt_process</span><span class="p">(</span><span class="n">total_step</span><span class="o">=</span><span class="mi">500000</span><span class="p">,</span> <span class="n">process_name</span><span class="o">=</span><span class="s1">&#39;eq_nvt&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>最后，为工作流添加生产模拟环节。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># is_production 设定为True将在运行时将pmemd.cuda任务挂起至后台。此外，还将启用一个进度条，告知您当前模拟运行的百分比情况。关闭进度条或终端不会导致模拟中断。</span>
-<span class="c1"># step_length: 模拟步长，单位为 ps</span>
-<span class="c1"># total_step: 模拟总步数 模拟总时长 = step_length * total_step 默认为 100ns</span>
-<span class="n">processor</span><span class="o">.</span><span class="n">add_npt_process</span><span class="p">(</span><span class="n">total_step</span><span class="o">=</span><span class="mi">50000000</span><span class="p">,</span> <span class="n">step_length</span><span class="o">=</span><span class="mf">0.002</span><span class="p">,</span> <span class="n">total_step</span><span class="o">=</span><span class="n">step_num</span><span class="p">,</span> <span class="n">is_production</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">process_name</span><span class="o">=</span><span class="s1">&#39;production&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>所有工作流也可仅先生成输入文件，而后添加至工作流框架中。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 生成的输入文件将位于当前目录下的 input_file 内</span>
-<span class="n">processor</span><span class="o">.</span><span class="n">creat_minimize_input</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;min.in&quot;</span><span class="p">)</span>
-<span class="n">processor</span><span class="o">.</span><span class="n">creat_heat_input</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;heat.in&quot;</span><span class="p">)</span>
-<span class="n">processor</span><span class="o">.</span><span class="n">creat_npt_input</span><span class="p">(</span><span class="n">total_step</span><span class="o">=</span><span class="mi">500000</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;eq_npt.in&quot;</span><span class="p">)</span>
-<span class="n">processor</span><span class="o">.</span><span class="n">creat_nvt_input</span><span class="p">(</span><span class="n">total_step</span><span class="o">=</span><span class="mi">500000</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;eq_nvt.in&quot;</span><span class="p">)</span>
-<span class="n">processor</span><span class="o">.</span><span class="n">creat_npt_input</span><span class="p">(</span><span class="n">total_step</span><span class="o">=</span><span class="n">step_num</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;production.in&quot;</span><span class="p">)</span>
-
-<span class="c1"># 指定任意模块输入文件的相对/绝对路径，将其有序的添加至工作流中</span>
-<span class="c1"># _type 参数将决定该模块的类型：minimize / heat / nvt / npt</span>
-<span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;input_file/min.in&#39;</span><span class="p">,</span> <span class="n">process_name</span><span class="o">=</span><span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="n">_type</span><span class="o">=</span><span class="s1">&#39;minimize&#39;</span><span class="p">)</span>
-<span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;input_file/heat.in&#39;</span><span class="p">,</span> <span class="s1">&#39;heat&#39;</span><span class="p">,</span> <span class="s1">&#39;heat&#39;</span><span class="p">)</span>
-<span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;input_file/eq_npt.in&#39;</span><span class="p">,</span> <span class="s1">&#39;eq_npt&#39;</span><span class="p">,</span> <span class="s1">&#39;npt&#39;</span><span class="p">)</span>
-<span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;input_file/eq_nvt.in&#39;</span><span class="p">,</span> <span class="s1">&#39;eq_nvt&#39;</span><span class="p">,</span> <span class="s1">&#39;nvt&#39;</span><span class="p">)</span>
-<span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;input_file/production.in&#39;</span><span class="p">,</span> <span class="s1">&#39;production&#39;</span><span class="p">,</span> <span class="s1">&#39;npt&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>工作流搭建完成后，传递<code class="docutils literal notranslate"><span class="pre">processor</span></code>用于构建一个<code class="docutils literal notranslate"><span class="pre">Simulator</span></code>实例，设定GPU编号即可开始模拟。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simulator</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">processor</span><span class="p">)</span>
-
-<span class="c1"># 使用shwo_cuda_device()查看当前GPU信息</span>
-<span class="c1"># simulator.show_cuda_device()</span>
-<span class="n">simulator</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="n">with_gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-</section>
 <section id="cli-dynamic-md">
 <h2>CLI 调用 Dynamic 模块进行MD模拟<a class="headerlink" href="#cli-dynamic-md" title="Permalink to this heading"></a></h2>
 <p>使用命令</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-dynamic<span class="w"> </span>auto<span class="w"> </span>PROTEIN_FILE<span class="w"> </span><span class="o">[</span>MOLECULE_FILE<span class="o">]</span>
 </pre></div>
 </div>
-<p>即可快速完成以上全部过程。</p>
+<p>即可快速完成MD准备及模拟的全部过程。</p>
+<p>了解具体步骤或需自定义准备、模拟过程，请参见下述python包调用部分。</p>
 <p>未提供小分子化合物结构 MOLECULE_FILE 时，将为Apo结构进行模拟。</p>
-<section id="id4">
-<h3>部分参数说明<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
+<section id="id2">
+<h3>部分参数说明<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">-p</span> <span class="pre">/</span> <span class="pre">--prefix</span></code>: 指定生成的leap所需文件的前缀名，默认为当前工作目录的名称。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-g</span> <span class="pre">/</span> <span class="pre">--with-gpu</span></code>: 指定 <code class="docutils literal notranslate"><span class="pre">pmemd.cuda</span></code> 使用的GPU编号，默认为0。当系统中有多个GPU时，可以通过该参数指定使用的GPU编号。</p></li>
@@ -308,12 +173,166 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 <p>获取CLI接口的更多帮助信息。</p>
 </section>
 </section>
+<section id="python-dynamic">
+<h2>Python 包调用 Dynamic 模块<a class="headerlink" href="#python-dynamic" title="Permalink to this heading"></a></h2>
+<p>首先 从模块中导入结构预处理器 <code class="docutils literal notranslate"><span class="pre">Processor</span></code> 及实施分子动力学模拟的模拟器 <code class="docutils literal notranslate"><span class="pre">Simulator</span></code>, 然后创建一个预处理器实例 <code class="docutils literal notranslate"><span class="pre">processor</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 如果AMBER 或 Ambertools安装不正确，导入时将收到额外提示</span>
+<span class="kn">from</span> <span class="nn">pyCADD.Dynamic</span> <span class="kn">import</span> <span class="n">Processor</span><span class="p">,</span> <span class="n">Simulator</span>
+<span class="c1"># 实例化的同时，将在当前目录创建所有必要的文件夹</span>
+<span class="n">processor</span> <span class="o">=</span> <span class="n">Processor</span><span class="p">()</span>     
+</pre></div>
+</div>
+<section id="id3">
+<h3>蛋白结构准备<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<p>使用processor的protein_prepare()方法 对蛋白结构文件进行自动预处理工作。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">processor</span><span class="o">.</span><span class="n">protein_prepare</span><span class="p">(</span><span class="n">protein_file</span><span class="p">,</span> <span class="n">keep_water</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>这一过程包括以下几个步骤(需要AmberTools)：</p>
+<ol class="simple">
+<li><p>去除蛋白结构中所有的水分子(需要保留参与模拟的重要水分子时，设定 <code class="docutils literal notranslate"><span class="pre">keep_water=True</span></code> ), 并补充标准氨基酸残基缺失的原子(add missing atoms), 得到后缀为<code class="docutils literal notranslate"><span class="pre">_dry.pdb</span></code>的文件。</p></li>
+<li><p>去除蛋白结构中的所有“原生”H原子，得到后缀为 <code class="docutils literal notranslate"><span class="pre">_noH.pdb</span></code> 的文件。</p></li>
+<li><p>使用AmberTools为蛋白结构重新生成蛋白力场下的H原子，得到后缀为 <code class="docutils literal notranslate"><span class="pre">_leap.pdb</span></code> 的文件。</p></li>
+</ol>
+<p>所有此步骤的过程文件保存在 <code class="docutils literal notranslate"><span class="pre">protein</span></code>目录中。</p>
+</section>
+<section id="id4">
+<h3>小分子结构准备<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">processor</span></code> 对小分子结构文件进行自动预处理工作。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="c1"># charge指定小分子结构的电荷量 根据实际情况改变 </span>
+<span class="c1"># 当charge与实际不符时 Gaussian将报错 默认为0</span>
+<span class="c1"># multiplicity指定小分子自旋多重度 默认为1</span>
+
+<span class="n">processor</span><span class="o">.</span><span class="n">molecule_prepare</span><span class="p">(</span><span class="n">molecule_file</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">multiplicity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;resp&#39;</span><span class="p">,</span> <span class="n">keep_origin_cood</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># processor.molecule_prepare(molecule_file, charge=0, multiplicity=1, method=&#39;bcc&#39;)</span>
+</pre></div>
+</div>
+<p>这一过程包括以下几个步骤：</p>
+<ol class="simple">
+<li><p>高斯结构优化 (需要Gaussian 16, 使用泛函B3LYP、基组def2SVP、色散矫正em=GD3BJ、loose收敛限)，如果您不想因高斯结构优化改变您的配体分子坐标，可使用参数 <code class="docutils literal notranslate"><span class="pre">keep_origin_cood=True</span></code></p></li>
+<li><p>计算小分子的RESP2电荷 (需要Multiwfn) 并生成输出PDB结构<code class="docutils literal notranslate"><span class="pre">_out.pdb</span></code> 关于RESP2(0.5)电荷的更多信息，参阅<a class="reference external" href="http://sobereva.com/531">RESP2(0.5)电荷</a></p></li>
+<li><p>antechamber (需要AmberTools) 生成Amber模拟力场参数文件<code class="docutils literal notranslate"><span class="pre">.prepin</span></code></p></li>
+<li><p>parmchk2 (需要AmberTools) 生成Amber模拟力场参数文件<code class="docutils literal notranslate"><span class="pre">.frcmod</span></code></p></li>
+</ol>
+<p>可以通过设定 <code class="docutils literal notranslate"><span class="pre">method='bcc'</span></code> 来使用AM1-bcc方法生成电荷而不是resp, 此时1、2步不再执行，也不需要安装Guassian及Multiwfn。</p>
+<p>所有此步骤的过程文件保存在<code class="docutils literal notranslate"><span class="pre">molecule</span></code>目录中。</p>
+</section>
+<section id="amber-leap">
+<h3>Amber 模拟前准备 - LEaP<a class="headerlink" href="#amber-leap" title="Permalink to this heading"></a></h3>
+<p>在蛋白与小分子都准备就绪后，使用LEaP来完成最终的模拟准备文件生成。</p>
+<p>为了方便识别生成文件，选择一个任意名称作为生成文件前缀名 <code class="docutils literal notranslate"><span class="pre">prefix</span></code> ，这通常可以是PDBID或配体小分子名等。例如：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;1FBY&#39;</span>
+<span class="n">processor</span><span class="o">.</span><span class="n">leap_prepare</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">box_size</span><span class="o">=</span><span class="mf">12.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>这一过程包括以下几个步骤：</p>
+<ol class="simple">
+<li><p>创建tleap命令的输入文件 <code class="docutils literal notranslate"><span class="pre">prefix_tleap.in</span></code></p></li>
+<li><p>调用tleap命令为蛋白结构(pro)、小分子结构(lig)以及二者复合物(com)生成必要的拓扑及坐标文件<code class="docutils literal notranslate"><span class="pre">.prmtop</span></code>、<code class="docutils literal notranslate"><span class="pre">.inpcrd</span></code></p></li>
+<li><p>将复合物溶于TIP3P立方体水箱中 (box_size=12.0Å，可调整) 得到溶剂化复合物结构文件(<code class="docutils literal notranslate"><span class="pre">prefix_comsolvate.pdb</span></code>)，并同时生成拓扑与坐标文件<code class="docutils literal notranslate"><span class="pre">prefix_comsolvate.prmtop</span></code>、<code class="docutils literal notranslate"><span class="pre">prefix_comsolvate.inpcrd</span></code></p></li>
+</ol>
+<p>所有此步骤的过程文件保存在<code class="docutils literal notranslate"><span class="pre">leap</span></code>目录中，并具有<code class="docutils literal notranslate"><span class="pre">prefix</span></code>前缀。模拟后处理及分析过程可能会再次使用它们。</p>
+</section>
 <section id="id5">
-<h2>模拟结果分析<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h2>
-<p>Dynamic 的 <code class="docutils literal notranslate"><span class="pre">Analyzer</span></code> 类提供了一些常规的自动化分析工具，用于分析 Amber MD 模拟结果并快速导出分析数据用于绘制图表。</p>
+<h3>检查输入文件（可选）<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
+<p>现在，如果没有产生预料之外的错误，预处理阶段已经完成。</p>
+<p>您可以在各步骤的目录中检查生成的文件是否符合预期，并进行必要的修改（如果您知道自己在做什么）。
+例如，若您想要使用八面体而非立方体水箱，则可修改<code class="docutils literal notranslate"><span class="pre">leap/prefix_tleap.in</span></code>中的如下部分：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">solvatebox</span> <span class="n">com</span> <span class="n">TIP3PBOX</span> <span class="mf">12.0</span> <span class="o">---&gt;</span> <span class="n">solvateoct</span> <span class="n">com</span> <span class="n">TIP3PBOX</span> <span class="mf">12.0</span>
+</pre></div>
+</div>
+<p>在<code class="docutils literal notranslate"><span class="pre">simulator.run_simulation()</span></code>命令之前，修改过程文件中的任何内容都是安全的。</p>
+</section>
+<section id="md">
+<h3>构建MD工作流并执行模拟<a class="headerlink" href="#md" title="Permalink to this heading"></a></h3>
+<p>为了开始模拟阶段，首先需要此前的预处理器实例 <code class="docutils literal notranslate"><span class="pre">processor</span></code> 来完成工作流构造。</p>
+<p>首先在工作流中添加能量最小化步骤。<code class="docutils literal notranslate"><span class="pre">process_name</span></code> 仅用于命名各工作流模块，不影响模块功能。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">processor</span><span class="o">.</span><span class="n">add_minimize_process</span><span class="p">(</span>
+    <span class="n">process_name</span><span class="o">=</span><span class="s1">&#39;min&#39;</span><span class="p">,</span>
+    <span class="c1"># maxcyc=10000,</span>
+    <span class="c1"># ncyc=5000</span>
+    <span class="p">)</span>
+<span class="c1"># 也可以通过设定参数 restraint=True，并在restraint_mask提供约束原子的amber mask来进行有约束的能量最小化</span>
+<span class="c1"># processor.add_minimize_process(process_name=&#39;min&#39;, restraint=True, restraint_mask=f&quot;&#39;:1-101&#39;&quot;, restraint_wt=2.0)</span>
+
+<span class="c1"># 如果您需要不执行准备阶段直接进行模拟，可以参照下面的python命令构建一个新的Processor实例。 </span>
+<span class="c1"># 使用set_comsolvate_file(file_path:str, file_type:str)来设定已存在的水箱复合物结构3个必要文件路径</span>
+<span class="c1"># 包括_comsolvate.pdb _comsolvate.prmtop _comsolvate.inpcrd</span>
+
+<span class="c1"># new_processor = Processor()</span>
+<span class="c1"># new_processor.set_comsolvate_file(&#39;leap/*_comsolvate.pdb&#39;, &#39;pdb&#39;)</span>
+<span class="c1"># new_processor.set_comsolvate_file(&#39;leap/*_comsolvate.prmtop&#39;, &#39;top&#39;)</span>
+<span class="c1"># new_processor.set_comsolvate_file(&#39;leap/*_comsolvate.inpcrd&#39;, &#39;crd&#39;)</span>
+<span class="c1"># processor = new_processor</span>
+</pre></div>
+</div>
+<p>然后，为模拟工作流添加加热步骤。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># tgt_temp: 目标温度</span>
+<span class="c1"># total_step: 阶段总步数</span>
+<span class="c1"># heat_step: 加热环节步数，到达目标温度后将保持该温度直至total_step</span>
+<span class="n">processor</span><span class="o">.</span><span class="n">add_heat_process</span><span class="p">(</span><span class="n">tgt_temp</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">heat_step</span><span class="o">=</span><span class="mi">9000</span><span class="p">,</span> <span class="n">total_step</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">process_name</span><span class="o">=</span><span class="s1">&#39;heat&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>接下来，为模拟工作流添加平衡步骤。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 您可以根据自主需要，创建任意流程的平衡步骤，并在任何步骤中添加约束</span>
+<span class="c1"># 所有步骤将被有序依次串联，并在运行模拟时顺序执行</span>
+
+<span class="c1"># 添加逐步降低约束的NPT平衡，将有助于避免模拟系统崩溃</span>
+<span class="n">restraintmask</span> <span class="o">=</span> <span class="s2">&quot;&#39;!(:WAT,Na+,Cl-,K+,K) &amp; !@H= &amp; !@H&#39;&quot;</span>
+<span class="k">for</span> <span class="n">rest_wt</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
+    <span class="n">processor</span><span class="o">.</span><span class="n">add_npt_process</span><span class="p">(</span><span class="n">total_step</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">process_name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;eq_npt_reswt</span><span class="si">{</span><span class="n">rest_wt</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">restraint_wt</span><span class="o">=</span><span class="n">rest_wt</span><span class="p">,</span> <span class="n">restraintmask</span><span class="o">=</span><span class="n">restraintmask</span><span class="p">)</span>
+
+<span class="c1"># 添加NPT与NVT平衡</span>
+<span class="n">processor</span><span class="o">.</span><span class="n">add_npt_process</span><span class="p">(</span><span class="n">total_step</span><span class="o">=</span><span class="mi">500000</span><span class="p">,</span> <span class="n">process_name</span><span class="o">=</span><span class="s1">&#39;eq_npt&#39;</span><span class="p">)</span>
+<span class="n">processor</span><span class="o">.</span><span class="n">add_nvt_process</span><span class="p">(</span><span class="n">total_step</span><span class="o">=</span><span class="mi">500000</span><span class="p">,</span> <span class="n">process_name</span><span class="o">=</span><span class="s1">&#39;eq_nvt&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>最后，为工作流添加生产模拟环节。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># is_production 设定为True将在运行时将pmemd.cuda任务挂起至后台。此外，还将启用一个进度条，告知您当前模拟运行的百分比情况。关闭进度条或终端不会导致模拟中断。</span>
+<span class="c1"># step_length: 模拟步长，单位为 ps</span>
+<span class="c1"># total_step: 模拟总步数 模拟总时长 = step_length * total_step 默认为 100ns</span>
+<span class="n">processor</span><span class="o">.</span><span class="n">add_npt_process</span><span class="p">(</span><span class="n">total_step</span><span class="o">=</span><span class="mi">50000000</span><span class="p">,</span> <span class="n">step_length</span><span class="o">=</span><span class="mf">0.002</span><span class="p">,</span> <span class="n">total_step</span><span class="o">=</span><span class="n">step_num</span><span class="p">,</span> <span class="n">is_production</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">process_name</span><span class="o">=</span><span class="s1">&#39;production&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>工作流搭建完成后，传递<code class="docutils literal notranslate"><span class="pre">processor</span></code>用于构建一个<code class="docutils literal notranslate"><span class="pre">Simulator</span></code>实例，设定GPU编号即可开始模拟。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simulator</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">processor</span><span class="p">)</span>
+
+<span class="c1"># 使用shwo_cuda_device()查看当前GPU信息</span>
+<span class="c1"># simulator.show_cuda_device()</span>
+<span class="n">simulator</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="n">with_gpu</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>（可选）所有工作流节点也可仅先生成输入文件，而后添加至工作流框架中。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 生成的输入文件将位于当前目录下的 input_file 内</span>
+<span class="n">processor</span><span class="o">.</span><span class="n">creat_minimize_input</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;min.in&quot;</span><span class="p">)</span>
+<span class="n">processor</span><span class="o">.</span><span class="n">creat_heat_input</span><span class="p">(</span><span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;heat.in&quot;</span><span class="p">)</span>
+<span class="n">processor</span><span class="o">.</span><span class="n">creat_npt_input</span><span class="p">(</span><span class="n">total_step</span><span class="o">=</span><span class="mi">500000</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;eq_npt.in&quot;</span><span class="p">)</span>
+<span class="n">processor</span><span class="o">.</span><span class="n">creat_nvt_input</span><span class="p">(</span><span class="n">total_step</span><span class="o">=</span><span class="mi">500000</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;eq_nvt.in&quot;</span><span class="p">)</span>
+<span class="n">processor</span><span class="o">.</span><span class="n">creat_npt_input</span><span class="p">(</span><span class="n">total_step</span><span class="o">=</span><span class="n">step_num</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;production.in&quot;</span><span class="p">)</span>
+
+<span class="c1"># 指定任意模块输入文件的相对/绝对路径，将其有序的添加至工作流中</span>
+<span class="c1"># _type 参数将决定该模块的类型：minimize / heat / nvt / npt</span>
+<span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;input_file/min.in&#39;</span><span class="p">,</span> <span class="n">process_name</span><span class="o">=</span><span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="n">_type</span><span class="o">=</span><span class="s1">&#39;minimize&#39;</span><span class="p">)</span>
+<span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;input_file/heat.in&#39;</span><span class="p">,</span> <span class="s1">&#39;heat&#39;</span><span class="p">,</span> <span class="s1">&#39;heat&#39;</span><span class="p">)</span>
+<span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;input_file/eq_npt.in&#39;</span><span class="p">,</span> <span class="s1">&#39;eq_npt&#39;</span><span class="p">,</span> <span class="s1">&#39;npt&#39;</span><span class="p">)</span>
+<span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;input_file/eq_nvt.in&#39;</span><span class="p">,</span> <span class="s1">&#39;eq_nvt&#39;</span><span class="p">,</span> <span class="s1">&#39;nvt&#39;</span><span class="p">)</span>
+<span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;input_file/production.in&#39;</span><span class="p">,</span> <span class="s1">&#39;production&#39;</span><span class="p">,</span> <span class="s1">&#39;npt&#39;</span><span class="p">)</span>
+<span class="n">simulator</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">processor</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
 <section id="id6">
-<h3>分析环境准备<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
-<p>模拟结果的分析工具需要当前的python环境可以导入 <code class="docutils literal notranslate"><span class="pre">pytraj</span></code> 包，即 cpptraj 的 python bindings。<br />为此，请确保已经执行过命令 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">$AMBERHOME/amber.sh</span></code>，其中 <code class="docutils literal notranslate"><span class="pre">$AMBERHOME</span></code> 是您的 AMBER 安装根目录;<br />或使用命令 <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">ambertools=23</span> <span class="pre">-c</span> <span class="pre">conda-forge</span></code> 将 Ambertools 安装到当前环境中。</p>
+<h2>模拟结果分析<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h2>
+<p>Dynamic 的 <code class="docutils literal notranslate"><span class="pre">Analyzer</span></code> 类提供了一些常规的自动化分析工具，用于分析 Amber MD 模拟结果并快速导出分析数据用于绘制图表。</p>
+<section id="id7">
+<h3>分析环境准备<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<p>模拟结果的分析工具需要当前的python环境可以导入 <code class="docutils literal notranslate"><span class="pre">pytraj</span></code> 包，即 cpptraj 的 python bindings。<br />为此，请确保已经执行过命令 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">$AMBERHOME/amber.sh</span></code>，其中 <code class="docutils literal notranslate"><span class="pre">$AMBERHOME</span></code> 是您的 AMBER 安装根目录</p>
+<p>或将 Ambertools 安装到当前环境中:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span><span class="nv">ambertools</span><span class="o">=</span><span class="m">23</span><span class="w"> </span>-c<span class="w"> </span>conda-forge
+</pre></div>
+</div>
 <p>此外，为了使用 MPI 运行 MM-PB/GBSA 结合自由能及能量分解计算，您可能还需要通过 <code class="docutils literal notranslate"><span class="pre">conda</span></code> 安装 <code class="docutils literal notranslate"><span class="pre">openmpi</span></code> 及 <code class="docutils literal notranslate"><span class="pre">mpi4py</span></code>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>openmpi<span class="w"> </span>mpi4py<span class="w"> </span>-c<span class="w"> </span>conda-forge
 </pre></div>
@@ -321,7 +340,8 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 </section>
 <section id="cli">
 <h3>CLI快速分析<a class="headerlink" href="#cli" title="Permalink to this heading"></a></h3>
-<p>使用 <code class="docutils literal notranslate"><span class="pre">pycadd-dynamic</span> <span class="pre">analysis</span></code> 命令可以快速开展常规的轨迹分析，并将结果保存至 <code class="docutils literal notranslate"><span class="pre">md_analysis/</span></code> 目录中。分析轨迹需要提供必要的拓扑及轨迹文件。使用 <code class="docutils literal notranslate"><span class="pre">Dynamic</span></code> 模块完成的模拟，这些文件通常位于 <code class="docutils literal notranslate"><span class="pre">leap/</span></code> 及 <code class="docutils literal notranslate"><span class="pre">md_result/</span></code> 目录中。</p>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">pycadd-dynamic</span> <span class="pre">analysis</span></code> 命令可以快速开展常规的轨迹分析，并将结果保存至 <code class="docutils literal notranslate"><span class="pre">md_analysis/</span></code> 目录中。分析轨迹需要提供必要的拓扑及轨迹文件。</p>
+<p>使用 <code class="docutils literal notranslate"><span class="pre">pyCADD-Dynamic</span></code> 模块完成的模拟，这些文件通常位于 <code class="docutils literal notranslate"><span class="pre">leap/</span></code> 及 <code class="docutils literal notranslate"><span class="pre">md_result/</span></code> 目录中。即使模拟并非由 <code class="docutils literal notranslate"><span class="pre">pyCADD-Dynamic</span></code> 完成，在提供必要文件的路径后，您也可以尝试使用该命令进行分析。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-dynamic<span class="w"> </span>analysis<span class="w"> </span>-y<span class="w"> </span>TRAJ_FILE<span class="w"> </span>-ro<span class="w"> </span>OUTPUT_FILE<span class="w"> </span>-sp<span class="w"> </span>SOL_COM_TOP_FILE<span class="w"> </span>-cp<span class="w"> </span>COM_TOP_FILE<span class="w"> </span>-lp<span class="w"> </span>LIG_TOP_FILE<span class="w"> </span>-rp<span class="w"> </span>PRO_TOP_FILE<span class="w"> </span><span class="o">[</span>--no-hbond<span class="o">]</span><span class="w"> </span><span class="o">[</span>--no-rmsd<span class="o">]</span><span class="w"> </span><span class="o">[</span>--no-rmsf<span class="o">]</span><span class="w"> </span><span class="o">[</span>-h/--help<span class="o">]</span><span class="w"> </span><span class="o">[</span>-d<span class="w"> </span>START_FRAME<span class="w"> </span>END_FRAME<span class="w"> </span>STEP_SIZE<span class="o">]</span>
 </pre></div>
 </div>
@@ -340,7 +360,7 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 <li><p>计算模拟体系中蛋白各<strong>残基的RMSF(基于alpha C)</strong></p></li>
 <li><p>统计模拟过程的氢键数量、键长、键角等信息，及模拟过程的氢键存续(Lifetime)</p></li>
 </ol>
-<p>如果您不想以alpha C计算 (请通过python包调用方法定制化您的分析过程)，或因其他原因需要跳过分析过程，可以使用以下参数：</p>
+<p>如果您不想以alpha C计算 (此时，请通过下述python包调用方法定制化您的分析过程)，或因其他原因需要跳过分析过程，可以使用以下参数：</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">--no-hbond</span></code> 不进行氢键分析</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--no-rmsd</span></code> 不进行RMSD分析</p></li>
@@ -358,7 +378,7 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 </section>
 <section id="python-analyzer">
 <h3>python 包调用 Analyzer 分析工具<a class="headerlink" href="#python-analyzer" title="Permalink to this heading"></a></h3>
-<p>除了使用CLI中固定的工作流进行快速分析外，也可以从 pyCADD.Dynamic 中导入 <code class="docutils literal notranslate"><span class="pre">Analyzer</span></code> 类并在python中定制化分析过程。</p>
+<p>除了使用CLI中固定的工作流进行快速分析外，也可以从 <code class="docutils literal notranslate"><span class="pre">pyCADD.Dynamic</span></code> 中导入 <code class="docutils literal notranslate"><span class="pre">Analyzer</span></code> 类并在python中定制化分析过程。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 如果AMBER 或 Ambertools安装不正确，导入时将收到额外提示</span>
 <span class="kn">from</span> <span class="nn">pyCADD.Dynamic</span> <span class="kn">import</span> <span class="n">Analyzer</span>
 </pre></div>
@@ -392,8 +412,8 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 </pre></div>
 </div>
 </section>
-<section id="id7">
-<h4>氢键分析<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h4>
+<section id="id8">
+<h4>氢键分析<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h4>
 <p>分析器将检测并追踪模拟全过程中指定条件下的氢键（默认为包括蛋白残基间及蛋白残基-配体小分子间的全部氢键），然后统计氢键的数量、键长、键角等信息，及模拟过程的氢键存续(Lifetime)。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span># 默认分析所有可能存在的氢键
 analyzer.calc_hbond(
@@ -451,7 +471,7 @@ analyzer.calc_hbond(
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Yuhang Wu.</p>
+    <p>&#169; Copyright 2024, Yuhang Wu.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
