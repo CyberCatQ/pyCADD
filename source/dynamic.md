@@ -210,7 +210,9 @@ processor.add_process('input_file/heat.in', 'heat', 'heat')
 processor.add_process('input_file/eq_npt.in', 'eq_npt', 'npt')
 processor.add_process('input_file/eq_nvt.in', 'eq_nvt', 'nvt')
 processor.add_process('input_file/production.in', 'production', 'npt')
+
 simulator = Simulator(processor)
+simulator.run_simulation(with_gpu=0)
 ```
 
 ## 模拟结果分析
