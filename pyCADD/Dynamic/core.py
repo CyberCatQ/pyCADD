@@ -6,7 +6,7 @@ import logging
 from time import sleep
 from typing import Union
 
-from pyCADD.Dynamic.template import LeapInput
+from pyCADD.Dynamic.template import LeapInput, MMGBSAInput
 from pyCADD.utils.common import BaseFile
 from pyCADD.utils.tool import _get_progress, makedirs_from_list, timeit
 
@@ -820,32 +820,40 @@ def _creat_energy_inputfile(job_type: str, startframe: int, endframe: int, inter
         能量计算输入文件
     '''
     save_dir = save_dir if save_dir is not None else CWD
-
+    mmgbsa_input = MMGBSAInput(start_frame=startframe, end_frame=endframe, step_size=interval)
+    mmgbsa_input.add_general()
     if job_type == 'pb/gb':
+        mmgbsa_input.add_pb()
+        mmgbsa_input.add_gb()
         if decomp:
-            template_file = os.path.join(TEMPLATE_DIR, 'mmpb_gbsa_decom.in')
-        else:
-            template_file = os.path.join(TEMPLATE_DIR, 'mmpb_gbsa_only.in')
+            # template_file = os.path.join(TEMPLATE_DIR, 'mmpb_gbsa_decom.in')
+            mmgbsa_input.add_decomp()
+        # else:
+        #     template_file = os.path.join(TEMPLATE_DIR, 'mmpb_gbsa_only.in')
     elif job_type == 'gb':
+        mmgbsa_input.add_gb()
         if decomp:
-            template_file = os.path.join(TEMPLATE_DIR, 'mmgbsa_decom.in')
-        else:
-            template_file = os.path.join(TEMPLATE_DIR, 'mmgbsa_only.in')
+            # template_file = os.path.join(TEMPLATE_DIR, 'mmgbsa_decom.in')
+            mmgbsa_input.add_decomp()
+        # else:
+        #     template_file = os.path.join(TEMPLATE_DIR, 'mmgbsa_only.in')
     elif job_type == 'nmode':
-        template_file = os.path.join(TEMPLATE_DIR, 'nmode.in')
+        # template_file = os.path.join(TEMPLATE_DIR, 'nmode.in')
+        mmgbsa_input.add_nmode()
     else:
         raise ValueError(f'Invalid job_type: {job_type}')
 
-    output_file = os.path.join(save_dir, os.path.basename(template_file))
-    input_file = _creat_file_from_template(
-        template_file,
-        output_file,
-        startframe=startframe,
-        endframe=endframe,
-        interval=interval
-    )
-
-    return input_file
+    # output_file = os.path.join(save_dir, os.path.basename(template_file))
+    # input_file = _creat_file_from_template(
+    #     template_file,
+    #     output_file,
+    #     startframe=startframe,
+    #     endframe=endframe,
+    #     interval=interval
+    # )
+    input_file_path = os.path.join(save_dir, f"{job_type.replace('/', '_')}.in")
+    mmgbsa_input.save(input_file_path)
+    return BaseFile(input_file_path)
 
 
 @timeit

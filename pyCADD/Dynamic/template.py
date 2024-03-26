@@ -618,7 +618,7 @@ class NPTInput(SimulationConstructor):
 MMGBSA_GENERAL_DEFAULT = {
     "startframe": None,
     "endframe": None,
-    "step_size": None,
+    "interval": None,
     "verbose": 2,
     "keep_files": 1,
     "netcdf": 1,
