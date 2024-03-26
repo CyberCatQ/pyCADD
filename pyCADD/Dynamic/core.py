@@ -190,7 +190,7 @@ def molecule_prepare_resp2(
         solvent: Union[str, None] = None,
         save_dir: Union[str, None] = None,
         overwrite: bool = False,
-        keep_origin_cood: bool = False) -> tuple:
+        keep_origin_cood: bool = True) -> tuple:
     '''
     预处理小分子文件
         高斯坐标优化与RESP2(0.5)电荷计算
@@ -212,7 +212,7 @@ def molecule_prepare_resp2(
     overwrite : bool, optional
         是否覆盖已存在文件 默认为False
     keep_origin_cood : bool, optional
-        是否在输出结构中保留原始坐标 而不使用高斯结构优化的坐标 默认为False
+        是否在输出结构中保留原始坐标 而不使用高斯结构优化的坐标 默认为True
 
     Returns
     -------

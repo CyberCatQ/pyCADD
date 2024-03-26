@@ -23,7 +23,7 @@ def main():
 @click.option('--with-gpu', '-g', default=0, show_default=True, type=int, help='Specify GPU device code used in simulation. Default to 0')
 @click.option('--time', '-t', default=100, show_default=True, type=int, help='Total time(ns) of simulation. Default to 100 ns.')
 @click.option('-bcc', is_flag=True, help='Use existing BCC charges instead of RESP.')
-@click.option('--keep-cood', '-k', is_flag=True, help='Keep atoms coordinates from the input molecular file after calculating resp charge, instead of using the gaussian optimized output.')
+@click.option('--keep-cood', '-k', is_flag=True, help='DEPRECATED. Now the coordinate from original small molecule file will be used all the time with/without -k.')
 @click.option('--keep-water', '-w', is_flag=True, help='Keep water molecules in the original protein file.')
 @click.option('--box-size', '-b', default=12, show_default=True, type=float, help='TIP3P Water Box size of simulation. Default to 12 Angstrom.')
 @click.option('--overwrite', '-O', is_flag=True, help='Overwrite existing files.')
@@ -39,7 +39,7 @@ def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, par
     if molecule_file is not None:
         if not bcc:
             processor.molecule_prepare(
-                molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='resp', keep_origin_cood=keep_cood)
+                molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='resp2', keep_origin_cood=True)
         else:
             processor.molecule_prepare(
                 molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='bcc')
@@ -78,7 +78,7 @@ def auto(protein_file, molecule_file, charge, multiplicity, solvent, prefix, par
 @click.option('--parallel', '-n', default=os.cpu_count(), show_default=True, type=int, help='Number of parallel processes.')
 @click.option('--time', '-t', default=100, show_default=True, type=int, help='Total time(ns) of simulation. Default to 100 ns.')
 @click.option('-bcc', is_flag=True, help='Use existing BCC charges instead of RESP.')
-@click.option('--keep-cood', '-k', is_flag=True, help='Keep atoms coordinates from the input molecular file after calculating resp charge, instead of using the gaussian optimized output.')
+@click.option('--keep-cood', '-k', is_flag=True, help='DEPRECATED. Now the coordinate from original small molecule file will be used all the time with/without -k.')
 @click.option('--keep-water', '-w', is_flag=True, help='Keep water molecules in the original protein file.')
 @click.option('--box-size', '-b', default=12, show_default=True, type=float, help='TIP3P Water Box size of simulation. Default to 12 Angstrom.')
 @click.option('--overwrite', '-O', is_flag=True, help='Overwrite existing files.')
@@ -94,7 +94,7 @@ def prepare(protein_file, molecule_file, charge, multiplicity, solvent, prefix, 
     if molecule_file is not None:
         if not bcc:
             processor.molecule_prepare(
-                molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='resp', keep_origin_cood=keep_cood)
+                molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='resp2', keep_origin_cood=True)
         else:
             processor.molecule_prepare(
                 molecule_file, charge, multiplicity, parallel, solvent, overwrite=overwrite, method='bcc')
