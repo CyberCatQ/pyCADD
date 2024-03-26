@@ -18,7 +18,7 @@ setup(
     packages=find_packages(),
     install_requires=['rich>=10.16', 'concurrent_log_handler>=0.9.20',
                       r"scikit-learn", 'pandas>=1.4.1', 
-                      'openpyxl', 
+                      'openpyxl', 'openbabel>=3.1.0',
                       'pyyaml>=6.0', 'click', 'scipy', 
                       'xlsxwriter>=3.0', 'openpyxl', 'requests'],
     license='GNU General Public License v3.0',

@@ -1,7 +1,6 @@
 __pycache__/
 lib/*
 logs/
-test/
 build/
 dist/
 pyCADD.egg-info/
@@ -12,3 +11,4 @@ pyCADD/VSW/*.txt
 pyCADD/VSW/*.csv
 *_deprecated.*
 *.ve*
+.vscode
