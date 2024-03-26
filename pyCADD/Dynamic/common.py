@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Literal, Union
 
 from pyCADD.utils.common import BaseFile
-from pyCADD.utils.tool import makedirs_from_list, is_amber_available, is_gaussian_available, is_pmemd_cuda_available
+from pyCADD.utils.tool import makedirs_from_list, is_amber_available, is_gaussian_available, is_multiwfn_available, is_pmemd_cuda_available
 from pyCADD.Dynamic import core
 from pyCADD.Dynamic.core import MDProcess, MinimizeProcess, NPTProcess, NVTProcess
 from pyCADD.Dynamic.template import LeapInput, HeatInput, NVTInput, NPTInput, MMGBSAInput, RestrainedMinimizeInput, MinimizeInput
@@ -95,7 +95,7 @@ class Processor:
             cpu_num: int = None,
             solvent: str = 'water',
             overwrite: bool = False,
-            method: str = 'resp',
+            method: str = 'resp2',
             keep_origin_cood: bool = False) -> None:
         '''
         为动力学模拟执行小分子结构预处理
@@ -123,13 +123,18 @@ class Processor:
         '''
         cpu_num = cpu_num if cpu_num is not None else CPU_NUM
         molecule_file = BaseFile(molecule_file_path)
-        if method == 'resp':
+        if method == 'resp2':
             if not is_gaussian_available():
                 raise RuntimeError(
                     'Gaussian 16 is not installed or not in PATH. Please use AM1-bcc method instead.')
+            elif not is_multiwfn_available():
+                raise RuntimeError(
+                    'Multiwfn is not installed or not in PATH. Please install it or use AM1-bcc method instead.')
             self.processed_molfile_pdb, self.frcmod_file = core.molecule_prepare_resp2(
                 molecule_file, save_dir=MOL_RELATED_DIR, charge=charge, multiplicity=multiplicity,
                 cpu_num=cpu_num, solvent=solvent, overwrite=overwrite, keep_origin_cood=keep_origin_cood)
+        elif method == 'resp':
+            raise NotImplementedError()
         elif method == 'bcc':
             self.processed_molfile_pdb, self.frcmod_file = core.molecule_prepare_bcc(
                 molecule_file, save_dir=MOL_RELATED_DIR, charge=charge, overwrite=overwrite)
