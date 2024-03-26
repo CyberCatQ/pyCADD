@@ -37,7 +37,6 @@ pycadd-dynamic auto PROTEIN_FILE [MOLECULE_FILE]
 * `-s / --solvent`: 指定计算RESP2(0.5)电荷时液相的溶剂分子的种类，默认为水(water)。
 * `-n / --parallel`: 指定计算RESP2电荷时所用的CPU核心数量。默认为最大可用核心数。
 * `-bcc`: 使用AM1-bcc方法计算原子电荷，而不是RESP。此时不需要安装Gaussian及Multiwfn。
-* `-k / --keep-cood`: 保留小分子的输入原始坐标用于模拟，而不使用高斯结构优化产生的坐标。需要维持小分子的姿势或坐标不变时，可以使用该参数。
 * `-O / --overwrire`: 覆盖已存在的文件。默认将跳过先前已完成的小分子准备等过程，当需要从头重新运行模拟时，可以使用该参数。
 
 A simple demo:
@@ -90,18 +89,18 @@ processor.protein_prepare(protein_file, keep_water=False)
 # 当charge与实际不符时 Gaussian将报错 默认为0
 # multiplicity指定小分子自旋多重度 默认为1
 
-processor.molecule_prepare(molecule_file, charge=0, multiplicity=1, method='resp', keep_origin_cood=True)
+processor.molecule_prepare(molecule_file, charge=0, multiplicity=1, method='resp2', keep_origin_cood=True)
 # processor.molecule_prepare(molecule_file, charge=0, multiplicity=1, method='bcc')
 
 ```
 
 这一过程包括以下几个步骤：
-1. 高斯结构优化 (需要Gaussian 16, 使用泛函B3LYP、基组def2SVP、色散矫正em=GD3BJ、loose收敛限)，如果您不想因高斯结构优化改变您的配体分子坐标，可使用参数 `keep_origin_cood=True`
+1. 高斯结构优化 (需要Gaussian 16, 使用泛函B3LYP、基组def2SVP、色散矫正em=GD3BJ、loose收敛限)，现在，高斯优化后的坐标将仅用于计算RESP电荷，不会被用于模拟；除非设定`keep_origin_cood=False`，否则模拟过程中将维持原始的PDB结构坐标。
 2. 计算小分子的RESP2电荷 (需要Multiwfn) 并生成输出PDB结构`_out.pdb` 关于RESP2(0.5)电荷的更多信息，参阅[RESP2(0.5)电荷](http://sobereva.com/531)
 3. antechamber (需要AmberTools) 生成Amber模拟力场参数文件`.prepin`
 4. parmchk2 (需要AmberTools) 生成Amber模拟力场参数文件`.frcmod`
 
-可以通过设定 `method='bcc'` 来使用AM1-bcc方法生成电荷而不是resp, 此时1、2步不再执行，也不需要安装Guassian及Multiwfn。  
+如果您**不希望安装Guassian及Multiwfn**，可以通过设定 `method='bcc'` 来使用AM1-bcc方法生成电荷而不是resp, 此时1、2步不再执行。  
 
 所有此步骤的过程文件保存在`molecule`目录中。
 
