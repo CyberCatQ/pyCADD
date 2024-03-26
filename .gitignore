@@ -1,10 +1,10 @@
 __pycache__/
+tests/
 lib/*
 logs/
 build/
 dist/
 pyCADD.egg-info/
-libpynalysis/
 bin/
 docs/
 pyCADD/VSW/*.txt
