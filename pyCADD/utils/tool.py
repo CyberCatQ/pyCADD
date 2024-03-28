@@ -53,7 +53,13 @@ def _get_progress(name: str, description: str, total: int, start: bool = False):
     return progress, taskID
 
 
-def func_timeout(func, *args, timeout=0, **kwargs):
+def _func_timeout(func, *args, timeout=0, **kwargs):
+    """Run a function with a timeout.
+
+    Args:
+        func (Callable): the function to run
+        timeout (int, optional): timeout for the function. Defaults to 0.
+    """
     def timeout_handler(signum, frame):
         raise TimeoutError()
     signal.signal(signal.SIGALRM, timeout_handler)
@@ -101,7 +107,7 @@ def multiprocssing_run(func: Callable, iterable: Iterable, job_name: str, num_pa
 
     pool = Pool(num_parallel, maxtasksperchild=1)
     for item in iterable:
-        pool.apply_async(func_timeout, (func, item), kwds={
+        pool.apply_async(_func_timeout, (func, item), kwds={
                          **kwargs, "timeout": timeout}, callback=success_handler, error_callback=error_handler)
     pool.close()
     pool.join()
