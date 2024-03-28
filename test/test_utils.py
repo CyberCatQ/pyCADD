@@ -1,26 +1,29 @@
 import logging
 import os
+import signal
 import unittest
 from tempfile import TemporaryDirectory
 from time import sleep
 from unittest.mock import patch
 
 import rich
-import signal
 
-from pyCADD.utils.common import BaseFile, File, FixedConfig, FixedThread, TimeoutError
+from pyCADD.utils.common import (BaseFile, File, FixedConfig, FixedThread,
+                                 TimeoutError)
 from pyCADD.utils.log import _init_log, get_logfile_name
 from pyCADD.utils.tool import (_check_execu_help, _check_execu_version,
-                               _find_execu, download_pdb, download_pdb_list,
-                               is_amber_available, is_gaussian_available,
-                               is_multiwfn_available, is_pmemd_cuda_available,
-                               multiprocssing_run, timeit, func_timeout)
+                               _find_execu, _func_timeout, download_pdb,
+                               download_pdb_list, is_amber_available,
+                               is_gaussian_available, is_multiwfn_available,
+                               is_pmemd_cuda_available, multiprocssing_run,
+                               timeit)
 
 
 class TestBaseFile(unittest.TestCase):
     def test_init_existing_file(self):
         # Test initialization with an existing file
-        file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'assets', '3OAP.pdb'))
+        file_path = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), 'assets', '3OAP.pdb'))
         base_file = BaseFile(file_path)
         self.assertEqual(base_file.file_path, file_path)
         self.assertEqual(base_file.file_name, '3OAP.pdb')
@@ -35,11 +38,13 @@ class TestBaseFile(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             BaseFile(file_path)
 
+
 class TestFile(unittest.TestCase):
     def test_init(self):
         # Test initialization of File object
         file = File('Error occurred')
         self.assertEqual(str(file), 'Error occurred')
+
 
 class TestLog(unittest.TestCase):
     def test_get_logfile_name(self):
@@ -54,7 +59,8 @@ class TestLog(unittest.TestCase):
         self.assertEqual(len(logger.handlers), 2)
         self.assertIsInstance(logger.handlers[0], logging.FileHandler)
         self.assertIsInstance(logger.handlers[1], rich.logging.RichHandler)
-        
+
+
 class TestFixedThread(unittest.TestCase):
     def test_run_without_exception(self):
         # Test running FixedThread without exception
@@ -74,13 +80,15 @@ class TestFixedThread(unittest.TestCase):
         thread.start()
         with self.assertRaises(ValueError):
             thread.join()
-            
+
+
 class TestFixedConfig(unittest.TestCase):
     def test_optionxform(self):
         # Test optionxform method
         config = FixedConfig()
         option = 'Option'
         self.assertEqual(config.optionxform(option), option)
+
 
 class TestTool(unittest.TestCase):
     def test__find_execu(self):
@@ -126,9 +134,10 @@ class TestTool(unittest.TestCase):
                 downloaded_file = os.path.join(save_dir, f'{pdbid}.pdb')
                 self.assertTrue(os.path.exists(downloaded_file))
                 os.remove(downloaded_file)
-            
+
             pdblist = ['non_existing_pdbid']
-            self.assertRaises(RuntimeError, download_pdb_list, pdblist, save_dir)
+            self.assertRaises(
+                RuntimeError, download_pdb_list, pdblist, save_dir)
 
     def test_is_amber_available(self):
         # Test is_amber_available function with all executables available
@@ -173,12 +182,12 @@ class TestTool(unittest.TestCase):
         num_parallel = 2
         result = multiprocssing_run(square, iterable, 'Test', num_parallel)
         self.assertEqual(result, [1, 4, 9, 16, 25])
-        
+
         iterable = [20, 30]
         num_parallel = 2
-        result = multiprocssing_run(square, iterable, 'Test_timeout', num_parallel, timeout=1, args1=1, args2="test")
+        result = multiprocssing_run(
+            square, iterable, 'Test_timeout', num_parallel, timeout=1, args1=1, args2="test")
         self.assertEqual(result, [])
-        
 
     def test_timeit(self):
         # Test timeit decorator
@@ -189,60 +198,62 @@ class TestTool(unittest.TestCase):
         my_function()
 
         # No assertion is made as this is a timing test
-        
+
+
 class TestFuncTimeout(unittest.TestCase):
-    def test_func_timeout(self):
-        # Test func_timeout with a function that completes within the timeout
+    def test__func_timeout(self):
+        # Test _func_timeout with a function that completes within the timeout
         def target_func():
             return "Success"
 
-        result = func_timeout(target_func, timeout=1)
+        result = _func_timeout(target_func, timeout=1)
         self.assertEqual(result, "Success")
 
-    def test_func_timeout_timeout_error(self):
-        # Test func_timeout with a function that exceeds the timeout
+    def test__func_timeout_timeout_error(self):
+        # Test _func_timeout with a function that exceeds the timeout
         def target_func():
             import time
             time.sleep(2)
 
         with self.assertRaises(TimeoutError):
-            func_timeout(target_func, timeout=1)
+            _func_timeout(target_func, timeout=1)
 
-    def test_func_timeout_timeout_error_message(self):
-        # Test the error message of func_timeout when a timeout occurs
+    def test__func_timeout_timeout_error_message(self):
+        # Test the error message of _func_timeout when a timeout occurs
         def target_func(arg1, arg2):
             import time
             time.sleep(2)
 
         with self.assertRaises(TimeoutError) as cm:
-            func_timeout(target_func, "arg1", arg2="arg2", timeout=1)
+            _func_timeout(target_func, "arg1", arg2="arg2", timeout=1)
         error_message = str(cm.exception)
         self.assertIn("Task timed out after 1 seconds", error_message)
         self.assertIn("target_func(arg1, arg2=arg2)", error_message)
 
     @patch('signal.signal')
     @patch('signal.alarm')
-    def test_func_timeout_signal_calls(self, mock_alarm, mock_signal):
-        # Test the calls to signal.alarm and signal.signal in func_timeout
+    def test__func_timeout_signal_calls(self, mock_alarm, mock_signal):
+        # Test the calls to signal.alarm and signal.signal in _func_timeout
         def target_func():
             return "Success"
 
-        func_timeout(target_func, timeout=1)
+        _func_timeout(target_func, timeout=1)
         mock_signal.assert_called_once_with(signal.SIGALRM, unittest.mock.ANY)
         mock_alarm.assert_called_once_with(1)
 
-    def test_func_timeout_no_timeout(self):
-        # Test func_timeout with no timeout specified
+    def test__func_timeout_no_timeout(self):
+        # Test _func_timeout with no timeout specified
         def target_func():
             return "Success"
 
-        result = func_timeout(target_func)
+        result = _func_timeout(target_func)
         self.assertEqual(result, "Success")
-        
+
+
 def square(x, *args, **kwargs):
     sleep(x)
     return x**2
 
+
 if __name__ == '__main__':
     unittest.main()
-    
