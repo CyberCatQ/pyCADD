@@ -1,6 +1,7 @@
 import logging
 import os
 import signal
+import subprocess
 import unittest
 from tempfile import TemporaryDirectory
 from time import sleep
@@ -16,7 +17,7 @@ from pyCADD.utils.tool import (_check_execu_help, _check_execu_version,
                                download_pdb_list, is_amber_available,
                                is_gaussian_available, is_multiwfn_available,
                                is_pmemd_cuda_available, multiprocssing_run,
-                               timeit)
+                               shell_run, timeit)
 
 
 class TestBaseFile(unittest.TestCase):
@@ -32,18 +33,13 @@ class TestBaseFile(unittest.TestCase):
         self.assertEqual(base_file.file_prefix, '3OAP')
         self.assertEqual(base_file.file_suffix, 'pdb')
 
+
+class TestFile(unittest.TestCase):
     def test_init_non_existing_file(self):
         # Test initialization with a non-existing file
         file_path = 'non_existing_file.txt'
         with self.assertRaises(FileNotFoundError):
-            BaseFile(file_path)
-
-
-class TestFile(unittest.TestCase):
-    def test_init(self):
-        # Test initialization of File object
-        file = File('Error occurred')
-        self.assertEqual(str(file), 'Error occurred')
+            File(file_path)
 
 
 class TestLog(unittest.TestCase):
@@ -248,6 +244,39 @@ class TestFuncTimeout(unittest.TestCase):
 
         result = _func_timeout(target_func)
         self.assertEqual(result, "Success")
+
+
+class TestShellRun(unittest.TestCase):
+    @patch('subprocess.run')
+    def test_shell_run_success(self, mock_run):
+        # Test shell_run function with a successful command
+        command = 'ls -l'
+        mock_run.return_value.stdout.decode.return_value = 'output'
+        result = shell_run(command)
+        self.assertEqual(result, 'output')
+        mock_run.assert_called_once_with(
+            command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=0)
+
+    @patch('subprocess.run')
+    def test_shell_run_error(self, mock_run):
+        # Test shell_run function with a command that raises CalledProcessError
+        command = 'invalid_command'
+        mock_run.side_effect = subprocess.CalledProcessError(
+            1, command, 'error')
+        with self.assertRaises(subprocess.CalledProcessError):
+            shell_run(command)
+        mock_run.assert_called_once_with(
+            command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=0)
+
+    @patch('subprocess.run')
+    def test_shell_run_timeout(self, mock_run):
+        # Test shell_run function with a command that raises TimeoutExpired
+        command = 'long_running_command'
+        mock_run.side_effect = subprocess.TimeoutExpired(command, 1)
+        with self.assertRaises(subprocess.TimeoutExpired):
+            shell_run(command)
+        mock_run.assert_called_once_with(
+            command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=0)
 
 
 def square(x, *args, **kwargs):

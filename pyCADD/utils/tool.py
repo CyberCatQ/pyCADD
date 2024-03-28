@@ -1,3 +1,4 @@
+from multiprocessing import Pool
 import functools
 import importlib
 import logging
@@ -18,7 +19,6 @@ from .common import FixedThread, TimeoutError
 
 # For Schrodinger 2021-2 or newer release
 importlib.reload(multiprocessing)
-from multiprocessing import Pool
 
 NUM_PARALLEL = multiprocessing.cpu_count() // 4 * 3
 logger = logging.getLogger(__name__)
@@ -75,6 +75,29 @@ def _func_timeout(func, *args, timeout=0, **kwargs):
                 ")", f", {', '.join(kwargs_list)})")
         raise TimeoutError(error_info)
     return result
+
+
+def shell_run(command: str, timeout: int = None) -> str:
+    """Run a shell command.
+
+    Args:
+        command (str): shell command to run
+        timeout (int, optional): timeout for the command. Defaults to None.
+
+    Returns:
+        str: command output
+    """
+    timeout = 0 if timeout is None else timeout
+    try:
+        result = subprocess.run(command, shell=True, check=True,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
+        return result.stdout.decode('utf-8').strip()
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error running command: {command}")
+        raise e
+    except subprocess.TimeoutExpired as e:
+        logger.error(f"Timeout running command: {command}")
+        raise e
 
 
 def multiprocssing_run(func: Callable, iterable: Iterable, job_name: str, num_parallel: int, timeout: int = None, **kwargs) -> list:
