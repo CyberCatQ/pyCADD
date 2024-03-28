@@ -1,186 +1,41 @@
-import os
-import time
-import logging
-import requests
-import multiprocessing
 import functools
+import importlib
+import logging
+import multiprocessing
+import os
 import subprocess
-from random import randint
+import time
+
+import requests
+import signal
 
 # For Schrodinger 2021-2 or newer release
-import importlib
 importlib.reload(multiprocessing)
-from typing import Iterable
+# from concurrent.futures import ProcessPoolExecutor, Future
+from multiprocessing import Pool
+from typing import Callable, Iterable
 
-from rich.progress import SpinnerColumn, TextColumn, BarColumn, Progress, TimeElapsedColumn, TimeRemainingColumn
+from rich.progress import (BarColumn, Progress, SpinnerColumn, TextColumn,
+                           TimeElapsedColumn, TimeRemainingColumn)
 from rich.table import Column
-from configparser import ConfigParser
-from threading import Thread
-from concurrent.futures import ProcessPoolExecutor, Future
-from multiprocessing import Manager, Pool
+
+from .common import FixedThread, TimeoutError
 
 NUM_PARALLEL = multiprocessing.cpu_count() // 4 * 3
 logger = logging.getLogger(__name__)
 
-def _multiprocssing_run(func, _iterable:Iterable, *args, job_name:str, num_parallel:int):
-    '''
-    多进程运行函数 并自动生成进度条
-
-    Parameters
-    ----------
-    func : function
-        运行函数
-    _iterable : Iterable
-        可迭代对象 即函数作用对象总集
-    *args
-        传入func函数的其他参数
-    job_name : str
-        进程名称
-    num_parallel : int
-        进程数量
-    
-    Returns
-    -------
-    List
-        所有成功完成任务的返回值
-    
-    '''
-    progress, taskID = _get_progress(job_name, 'bold cyan', len(_iterable))
-    returns = []
-    def success_handler(future:Future):
-        '''
-        处理完成的任务(成功/失败)
-        '''
-        if future.exception() is not None:
-            logger.debug(f'Multiprocessing Warnning: {future.exception()}')
-        else:
-            returns.append(future.result())
-        # 避免同时更新进度条
-        # time.sleep(randint(1000, 3000) / 1000)
-        progress.update(taskID, advance=1)
-    '''
-    def _error_handler(error:Exception):
-        
-        异常处理函数
-        
-        logger.debug(f'Warnning: {error}')
-        progress.update(taskID, advance=1)
-    '''
-    progress.start()
-    progress.start_task(taskID)
-
-    with ProcessPoolExecutor(max_workers=num_parallel) as pool:
-        for item in _iterable:
-            if isinstance(item, Iterable):
-                future = pool.submit(func, *item, *args)
-                future.add_done_callback(success_handler)
-            else:
-                future = pool.submit(func, item, *args)
-                future.add_done_callback(success_handler)
-
-    # 当ligands数量较多时 父进程将卡死于pool.join()
-    # bug原因未知
-    # pool = multiprocessing.Pool(num_parallel, maxtasksperchild=1)
-    # for item in _iterable:
-    #    if isinstance(item, Iterable):
-    #        pool.apply_async(func, args=(*item, *args), callback=success_handler, error_callback=_error_handler)
-    #    else:
-    #        pool.apply_async(func, args=(item, *args), callback=success_handler, error_callback=_error_handler)
-    # pool.close()
-    # pool.join()
-
-    progress.stop()
-    return returns
- 
-def get_lib_dir():
-    '''
-    获取pyCADD库所在的Absolute PATH
-    '''
-    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-def download_pdb(pdbid, download_dir:str=None, overwrite:bool=False) -> None:
-    '''
-    从RCSB服务器下载PDB文件
-
-    Parameters
-    ----------
-    pdbid : str
-        PDB ID
-    download_dir : str
-        下载目录
-    overwrite : bool
-        是否覆盖已存在的文件
-
-    '''
-    base_url = 'https://files.rcsb.org/download/'
-    pdbfile = pdbid + '.pdb'
-    download_dir = os.getcwd() if download_dir is None else download_dir
-    downloaded_file = os.path.join(download_dir, pdbfile)
-
-    if os.path.exists(downloaded_file) and not overwrite:
-        return
-
-    logger.debug('Downloading %s ...' % pdbid)
-    url = base_url + pdbid + '.pdb'
-    response = requests.get(url)
-    pdb_data = response.text
-    with open(downloaded_file, 'w') as f:
-        f.write(pdb_data)
-    
-    logger.debug('%s.pdb downloaded.' % pdbid)
-
-def download_pdb_list(pdblist:list, download_dir:str=None, overwrite:bool=False) -> None:
-    '''
-    多线程下载PDB ID列表中的所有PDB文件
-    Parameters
-    ----------
-    pdblist : list
-        PDB列表
-    download_dir : str
-        下载目录
-    overwrite : bool
-        是否覆盖已存在的文件
-    '''
-    download_dir = os.getcwd() if download_dir is None else download_dir
-    threads = []
-    for pdbid in pdblist:
-        t = Thread(target=download_pdb, args=(pdbid, download_dir, overwrite))
-        threads.append(t)
-    for t in threads:
-        t.start()
-    for t in threads:
-        t.join()
-
-def makedirs_from_list(path_list: list) -> None:
-    '''
-    输入包含多个PATH的列表 尝试创建列表中的所有目录
-
-    Parameters
-    ----------
-    path_list : list
-        要创建的PATH列表
-    '''
-    for path in path_list:
-        os.makedirs(path, exist_ok=True)
-
 def _get_progress(name: str, description: str, total: int, start:bool=False):
-    '''
-    创建Rich进度条
+    """Create a progress bar.
 
-    Parameters
-    ----------
-    name : str
-        进度条进程名
-    description : str
-        进度条名称样式(example: 'bold red')
-    total : int
-        标志项目总进度为100%时的长度
+    Args:
+        name (str): name of the progress bar
+        description (str): style description of the progress bar
+        total (int): total number of tasks
+        start (bool, optional): start the progress bar immediately. Defaults to False.
 
-    Reture
-    ----------
-    rich.progress.Progress, task ID
-        进度条对象, 任务ID(用于update)
-    '''
+    Returns:
+        rich.progress.Progress: Progress bar object
+    """
 
     text_column = TextColumn("{task.description}",
                              table_column=Column(), justify='right')
@@ -192,68 +47,118 @@ def _get_progress(name: str, description: str, total: int, start:bool=False):
     progress = Progress(SpinnerColumn(), text_column, "•", TimeElapsedColumn(
     ), "•", percent_column, bar_column, finished_column, TimeRemainingColumn())
 
-    task = progress.add_task('[%s]%s' % (
+    taskID = progress.add_task('[%s]%s' % (
         description, name), total=total, start=start)
 
-    return progress, task
+    return progress, taskID
 
-# 废弃
-def check_file_update_progress(file_path: str, progress:Progress, task_ID: str, time_sleep: int = 3):
-    '''
-    定时检查文件是否存在 已存在则更新进度条
+def func_timeout(func, *args, timeout=0, **kwargs):
+    def timeout_handler(signum, frame):
+        raise TimeoutError()
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(timeout)
+    try:
+        result = func(*args, **kwargs)
+    except TimeoutError:
+        args_list = [str(arg) for arg in args]
+        kwargs_list = [f"{k}={v}" for k, v in kwargs.items()]
+        error_info = f"Task timed out after {timeout} seconds: {func.__name__}({', '.join(args_list)})"
+        if kwargs_list:
+            error_info = error_info.replace(")", f", {', '.join(kwargs_list)})")
+        raise TimeoutError(error_info)
+    return result
 
-    Parameters
-    ----------
-    file_path : str
-        检查的文件路径
-    progress : rich.progress.Progress
-        进度条对象
-    task_ID : str
-        要更新的进度条任务ID
-    time_sleep : int
-        检查间隔时间
+def multiprocssing_run(func:Callable, iterable: Iterable, job_name:str, num_parallel:int, timeout:int=None, **kwargs) -> list:
+    """Run a function in parallel using multiprocessing.
 
-    '''
-    while os.path.exists(file_path) == False:
-        time.sleep(time_sleep)
+    Args:
+        func (Callable): the function to run in parallel
+        iterable (Iterable): the iterable to pass to the function. Each item in the iterable will be applied as an argument to the function
+        job_name (str): the job name to display in the progress bar
+        num_parallel (int): cpu core number
+        timeout (int, optional): timeout for each function call. Defaults to None.
+        kwargs: additional keyword arguments to pass to the function
+
+    Returns:
+        list: a list of return values from the function
+    """
+    timeout = 0 if timeout is None else timeout
+    progress, taskID = _get_progress(job_name, 'bold cyan', len(iterable))
+    returns = []
+    progress.start()
+    progress.start_task(taskID)
+
+    def success_handler(result):
+        returns.append(result)
+        progress.update(taskID, advance=1)
     
-    progress.update(task_ID, advance=1)
-    time.sleep(0.5)
+    def error_handler(exception:Exception):
+        logger.debug(f'Multiprocessing Run Warnning: {exception}')
+        progress.update(taskID, advance=1)
+    
+    pool = Pool(num_parallel, maxtasksperchild=1)
+    for item in iterable:
+        pool.apply_async(func_timeout, (func, item), kwds={**kwargs,"timeout": timeout}, callback=success_handler, error_callback=error_handler)
+    pool.close()
+    pool.join()
+    progress.stop()
+    
+    return returns
 
+def download_pdb(pdbid:str, save_dir:str=None, overwrite:bool=False) -> None:
+    """Download a PDB file from RCSB PDB.
 
-class Myconfig(ConfigParser):
-    '''
-    重写以解决配置读取大小写修改问题
-    '''
+    Args:
+        pdbid (str): PDB ID to download
+        save_dir (str, optional): directory to save the pdb file. Defaults to current working directory.
+        overwrite (bool, optional): whether to overwrite the pdb file when it exists. Defaults to False.
+    """
+    base_url = 'https://files.rcsb.org/download/'
+    pdbfile = f'{pdbid}.pdb'
+    save_dir = os.getcwd() if save_dir is None else save_dir
+    downloaded_file = os.path.join(save_dir, pdbfile)
 
-    def __init__(self, defaults=None):
-        ConfigParser.__init__(self, defaults=defaults)
+    if os.path.exists(downloaded_file) and not overwrite:
+        return
 
-    def optionxform(self, optionstr):
-        return optionstr
+    logger.debug(f'Downloading {pdbid} ...')
+    url = base_url + pdbfile
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise RuntimeError(f'Failed to download {pdbid}.pdb')
+    pdb_data = response.text
+    with open(downloaded_file, 'w') as f:
+        f.write(pdb_data)
+    
+    logger.debug(f'{pdbid}.pdb has been downloaded to {save_dir}')
 
-def get_config(config_file: str) -> Myconfig:
-    '''
-    读取配置文件
+def download_pdb_list(pdblist:list, save_dir:str=None, overwrite:bool=False) -> None:
+    """Download a list of PDB files from RCSB PDB.
 
-    Parameters
-    ----------
-    config_file : str
-        配置文件路径
+    Args:
+        pdblist (list): a list of PDB IDs to download
+        save_dir (str, optional): directory to save the pdb files. Defaults to current working directory.
+        overwrite (bool, optional): whether to overwrite the pdb files when they exist. Defaults to False.
+    """
+    save_dir = os.getcwd() if save_dir is None else save_dir
+    threads = []
+    for pdbid in pdblist:
+        t = FixedThread(target=download_pdb, args=(pdbid, save_dir, overwrite))
+        threads.append(t)
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
 
-    Return
-    ----------
-    Myconfig
-        配置文件对象
-    '''
-    config = Myconfig()
-    config.read(config_file)
-    return config
+def timeit(func:Callable):
+    """Decorator to measure the execution time of a function.
 
-def timeit(func):
-    '''
-    计时装饰器
-    '''
+    Args:
+        func (Callable): the function to measure the execution time
+
+    Returns:
+        wrapper: a wrapper function
+    """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         start = time.time()
@@ -267,14 +172,30 @@ def timeit(func):
         return result
     return wrapper
 
-def _find_execu(path) -> bool:
+def _find_execu(path:str) -> bool:
+    """Check if an executable is available in the PATH.
+
+    Args:
+        path (str): executable path, e.g., 'g16', 'Multiwfn', 'pmemd.cuda', etc.
+
+    Returns:
+        bool: True if the executable is available, False otherwise
+    """
     if not os.path.exists(os.popen(f"which {path}").read().strip()):
         print(f"\033[31m{path} is not installed or not in PATH.\033[0m")
         return False
     else:
         return True
 
-def _check_execu_help(path) -> bool:
+def _check_execu_help(path:str) -> bool:
+    """Check if an executable is available in the PATH by running the help command.
+
+    Args:
+        path (str): executable path
+
+    Returns:
+        bool: True if the executable is available, False otherwise
+    """
     p = subprocess.run(f"{path} -h", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     # if os.system(f"{path} -h > /dev/null") == 0:
     if p.returncode == 0:
@@ -283,7 +204,15 @@ def _check_execu_help(path) -> bool:
         print(f"\033[31m{path} is not installed or not in PATH.\033[0m")
         return False
     
-def _check_execu_version(path) -> bool:
+def _check_execu_version(path:str) -> bool:
+    """Check if an executable is available in the PATH by running the version command.
+
+    Args:
+        path (str): executable path
+
+    Returns:
+        bool: True if the executable is available, False otherwise
+    """
     p = subprocess.run(f"{path} --version", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     # if os.system(f"{path} --version > /dev/null") == 0:
     if p.returncode == 0:
@@ -292,10 +221,12 @@ def _check_execu_version(path) -> bool:
         print(f"\033[31m{path} is not installed or not in PATH.\033[0m")
         return False
     
-def is_amber_available():
-    '''
-    检查Amber/mberTools是否安装并配置好环境变量
-    '''
+def is_amber_available() -> bool:
+    """Check if AMBER is available in the PATH.
+
+    Returns:
+        bool: True if AMBER is available, False otherwise
+    """
     if not all([
     _check_execu_help('tleap'),
     _check_execu_version('sander'),
@@ -308,20 +239,26 @@ def is_amber_available():
     else:
         return True
     
-def is_pmemd_cuda_available():
-    '''
-    检查AMBER CUDA加速是否可用
-    '''
+def is_pmemd_cuda_available() -> bool:
+    """Check if pmemd.cuda is available in the PATH.
+
+    Returns:
+        bool: True if pmemd.cuda is available, False otherwise
+    """
     return _check_execu_version('pmemd.cuda')
     
-def is_gaussian_available():
-    '''
-    检查Gaussian 16是否安装并配置好环境变量
-    '''
+def is_gaussian_available() -> bool:
+    """Check if Gaussian is available in the PATH.
+
+    Returns:
+        bool: True if Gaussian is available, False otherwise
+    """
     return _find_execu('g16')
 
-def is_multiwfn_available():
-    '''
-    检查Multiwfn是否安装并配置好环境变量
-    '''
+def is_multiwfn_available() -> bool:
+    """Check if Multiwfn is available in the PATH.
+
+    Returns:
+        bool: True if Multiwfn is available, False otherwise
+    """
     return _find_execu('Multiwfn')
