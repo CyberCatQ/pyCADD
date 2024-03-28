@@ -3,28 +3,28 @@ import importlib
 import logging
 import multiprocessing
 import os
+import signal
 import subprocess
 import time
 
-import requests
-import signal
-
-# For Schrodinger 2021-2 or newer release
-importlib.reload(multiprocessing)
-# from concurrent.futures import ProcessPoolExecutor, Future
-from multiprocessing import Pool
 from typing import Callable, Iterable
 
+import requests
 from rich.progress import (BarColumn, Progress, SpinnerColumn, TextColumn,
                            TimeElapsedColumn, TimeRemainingColumn)
 from rich.table import Column
 
 from .common import FixedThread, TimeoutError
 
+# For Schrodinger 2021-2 or newer release
+importlib.reload(multiprocessing)
+from multiprocessing import Pool
+
 NUM_PARALLEL = multiprocessing.cpu_count() // 4 * 3
 logger = logging.getLogger(__name__)
 
-def _get_progress(name: str, description: str, total: int, start:bool=False):
+
+def _get_progress(name: str, description: str, total: int, start: bool = False):
     """Create a progress bar.
 
     Args:
@@ -52,6 +52,7 @@ def _get_progress(name: str, description: str, total: int, start:bool=False):
 
     return progress, taskID
 
+
 def func_timeout(func, *args, timeout=0, **kwargs):
     def timeout_handler(signum, frame):
         raise TimeoutError()
@@ -64,11 +65,13 @@ def func_timeout(func, *args, timeout=0, **kwargs):
         kwargs_list = [f"{k}={v}" for k, v in kwargs.items()]
         error_info = f"Task timed out after {timeout} seconds: {func.__name__}({', '.join(args_list)})"
         if kwargs_list:
-            error_info = error_info.replace(")", f", {', '.join(kwargs_list)})")
+            error_info = error_info.replace(
+                ")", f", {', '.join(kwargs_list)})")
         raise TimeoutError(error_info)
     return result
 
-def multiprocssing_run(func:Callable, iterable: Iterable, job_name:str, num_parallel:int, timeout:int=None, **kwargs) -> list:
+
+def multiprocssing_run(func: Callable, iterable: Iterable, job_name: str, num_parallel: int, timeout: int = None, **kwargs) -> list:
     """Run a function in parallel using multiprocessing.
 
     Args:
@@ -91,21 +94,23 @@ def multiprocssing_run(func:Callable, iterable: Iterable, job_name:str, num_para
     def success_handler(result):
         returns.append(result)
         progress.update(taskID, advance=1)
-    
-    def error_handler(exception:Exception):
+
+    def error_handler(exception: Exception):
         logger.debug(f'Multiprocessing Run Warnning: {exception}')
         progress.update(taskID, advance=1)
-    
+
     pool = Pool(num_parallel, maxtasksperchild=1)
     for item in iterable:
-        pool.apply_async(func_timeout, (func, item), kwds={**kwargs,"timeout": timeout}, callback=success_handler, error_callback=error_handler)
+        pool.apply_async(func_timeout, (func, item), kwds={
+                         **kwargs, "timeout": timeout}, callback=success_handler, error_callback=error_handler)
     pool.close()
     pool.join()
     progress.stop()
-    
+
     return returns
 
-def download_pdb(pdbid:str, save_dir:str=None, overwrite:bool=False) -> None:
+
+def download_pdb(pdbid: str, save_dir: str = None, overwrite: bool = False) -> None:
     """Download a PDB file from RCSB PDB.
 
     Args:
@@ -129,10 +134,11 @@ def download_pdb(pdbid:str, save_dir:str=None, overwrite:bool=False) -> None:
     pdb_data = response.text
     with open(downloaded_file, 'w') as f:
         f.write(pdb_data)
-    
+
     logger.debug(f'{pdbid}.pdb has been downloaded to {save_dir}')
 
-def download_pdb_list(pdblist:list, save_dir:str=None, overwrite:bool=False) -> None:
+
+def download_pdb_list(pdblist: list, save_dir: str = None, overwrite: bool = False) -> None:
     """Download a list of PDB files from RCSB PDB.
 
     Args:
@@ -150,7 +156,8 @@ def download_pdb_list(pdblist:list, save_dir:str=None, overwrite:bool=False) -> 
     for t in threads:
         t.join()
 
-def timeit(func:Callable):
+
+def timeit(func: Callable):
     """Decorator to measure the execution time of a function.
 
     Args:
@@ -168,11 +175,13 @@ def timeit(func:Callable):
             f'Start: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start))}')
         logger.info(
             f'End: {time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(end))}')
-        logger.info(f'Duration: {time.strftime("%H:%M:%S", time.gmtime(end - start))}')
+        logger.info(
+            f'Duration: {time.strftime("%H:%M:%S", time.gmtime(end - start))}')
         return result
     return wrapper
 
-def _find_execu(path:str) -> bool:
+
+def _find_execu(path: str) -> bool:
     """Check if an executable is available in the PATH.
 
     Args:
@@ -187,7 +196,8 @@ def _find_execu(path:str) -> bool:
     else:
         return True
 
-def _check_execu_help(path:str) -> bool:
+
+def _check_execu_help(path: str) -> bool:
     """Check if an executable is available in the PATH by running the help command.
 
     Args:
@@ -196,15 +206,17 @@ def _check_execu_help(path:str) -> bool:
     Returns:
         bool: True if the executable is available, False otherwise
     """
-    p = subprocess.run(f"{path} -h", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    p = subprocess.run(f"{path} -h", shell=True,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     # if os.system(f"{path} -h > /dev/null") == 0:
     if p.returncode == 0:
         return True
     else:
         print(f"\033[31m{path} is not installed or not in PATH.\033[0m")
         return False
-    
-def _check_execu_version(path:str) -> bool:
+
+
+def _check_execu_version(path: str) -> bool:
     """Check if an executable is available in the PATH by running the version command.
 
     Args:
@@ -213,14 +225,16 @@ def _check_execu_version(path:str) -> bool:
     Returns:
         bool: True if the executable is available, False otherwise
     """
-    p = subprocess.run(f"{path} --version", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    p = subprocess.run(f"{path} --version", shell=True,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     # if os.system(f"{path} --version > /dev/null") == 0:
     if p.returncode == 0:
         return True
     else:
         print(f"\033[31m{path} is not installed or not in PATH.\033[0m")
         return False
-    
+
+
 def is_amber_available() -> bool:
     """Check if AMBER is available in the PATH.
 
@@ -228,17 +242,18 @@ def is_amber_available() -> bool:
         bool: True if AMBER is available, False otherwise
     """
     if not all([
-    _check_execu_help('tleap'),
-    _check_execu_version('sander'),
-    _check_execu_version('cpptraj'),
-    _check_execu_version('parmed'),
-    _check_execu_version('pdb4amber'),
-    _check_execu_help('antechamber')]
+        _check_execu_help('tleap'),
+        _check_execu_version('sander'),
+        _check_execu_version('cpptraj'),
+        _check_execu_version('parmed'),
+        _check_execu_version('pdb4amber'),
+        _check_execu_help('antechamber')]
     ):
         return False
     else:
         return True
-    
+
+
 def is_pmemd_cuda_available() -> bool:
     """Check if pmemd.cuda is available in the PATH.
 
@@ -246,7 +261,8 @@ def is_pmemd_cuda_available() -> bool:
         bool: True if pmemd.cuda is available, False otherwise
     """
     return _check_execu_version('pmemd.cuda')
-    
+
+
 def is_gaussian_available() -> bool:
     """Check if Gaussian is available in the PATH.
 
@@ -254,6 +270,7 @@ def is_gaussian_available() -> bool:
         bool: True if Gaussian is available, False otherwise
     """
     return _find_execu('g16')
+
 
 def is_multiwfn_available() -> bool:
     """Check if Multiwfn is available in the PATH.
