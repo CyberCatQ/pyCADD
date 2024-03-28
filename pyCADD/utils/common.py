@@ -2,6 +2,7 @@ import os
 from configparser import ConfigParser
 from threading import Thread
 
+
 class BaseFile:
     """
     Basic file class
@@ -15,7 +16,7 @@ class BaseFile:
         file_suffix (str): File suffix name without dot
     """
 
-    def __init__(self, path: str, exist: bool = True) -> None:
+    def __init__(self, path: str) -> None:
         """Initialize file object
 
         Args:
@@ -25,8 +26,6 @@ class BaseFile:
         Raises:
             FileNotFoundError: If the file does not exist and exist is True
         """
-        if exist and not os.path.exists(path):
-            raise FileNotFoundError('File %s not found' % path)
 
         self.file_path = os.path.abspath(path)
         self.file_name = os.path.basename(self.file_path)
@@ -36,9 +35,11 @@ class BaseFile:
         self.file_suffix = self.file_ext
 
 
-class File(BaseException):
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
+class File(BaseFile):
+    def __init__(self, path: str, exist: bool = True) -> None:
+        if exist and not os.path.exists(path):
+            raise FileNotFoundError('File %s not found' % path)
+        super().__init__(path)
 
 
 class FixedConfig(ConfigParser):
@@ -49,23 +50,37 @@ class FixedConfig(ConfigParser):
 
     def optionxform(self, optionstr):
         return optionstr
-    
+
+
 class FixedThread(Thread):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._exception = None
-    
+
     def run(self):
         try:
             if self._target:
                 self._target(*self._args, **self._kwargs)
         except Exception as e:
             self._exception = e
-    
+
     def join(self):
         super().join()
         if self._exception:
             raise self._exception
 
+
 class TimeoutError(Exception):
     pass
+
+
+class ChDir:
+    def __init__(self, path):
+        self.path = path
+        self.cwd = os.getcwd()
+
+    def __enter__(self):
+        os.chdir(self.path)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        os.chdir(self.cwd)
