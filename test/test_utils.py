@@ -8,9 +8,8 @@ from time import sleep
 from unittest.mock import patch
 
 import rich
-
-from pyCADD.utils.common import (BaseFile, File, FixedConfig, FixedThread,
-                                 TimeoutError)
+from pyCADD.utils.common import (BaseFile, ChDir, File, FixedConfig,
+                                 FixedThread, TimeoutError)
 from pyCADD.utils.log import _init_log, get_logfile_name
 from pyCADD.utils.tool import (_check_execu_help, _check_execu_version,
                                _find_execu, _func_timeout, download_pdb,
@@ -19,6 +18,14 @@ from pyCADD.utils.tool import (_check_execu_help, _check_execu_version,
                                is_pmemd_cuda_available, multiprocssing_run,
                                shell_run, timeit)
 
+# reset logger during test
+logger = logging.getLogger('pyCADD')
+for handler in logger.handlers:
+    logger.removeHandler(handler)
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter('%(message)s'))
+logger.setLevel(logging.INFO)
+logger.addHandler(handler)
 
 class TestBaseFile(unittest.TestCase):
     def test_init_existing_file(self):
@@ -110,7 +117,7 @@ class TestTool(unittest.TestCase):
 
     def test_download_pdb(self):
         # Test download_pdb function with an existing pdbid
-        with TemporaryDirectory(dir='.') as save_dir:
+        with TemporaryDirectory() as save_dir:
             pdbid = '3OAP'
             download_pdb(pdbid, save_dir)
             downloaded_file = os.path.join(save_dir, f'{pdbid}.pdb')
@@ -123,7 +130,7 @@ class TestTool(unittest.TestCase):
 
     def test_download_pdb_list(self):
         # Test download_pdb_list function with a list of existing pdbids
-        with TemporaryDirectory(dir='.') as save_dir:
+        with TemporaryDirectory() as save_dir:
             pdblist = ['3OAP', '4K6I']
             download_pdb_list(pdblist, save_dir)
             for pdbid in pdblist:
@@ -284,5 +291,45 @@ def square(x, *args, **kwargs):
     return x**2
 
 
+class TestChDir(unittest.TestCase):
+    def test_change_working_directory(self):
+        # Test changing working directory to an existing directory
+        with TemporaryDirectory() as temp_dir:
+            with ChDir(temp_dir):
+                self.assertEqual(os.getcwd(), temp_dir)
+
+        # Test changing working directory to a non-existing directory
+        with TemporaryDirectory() as temp_dir:
+            non_existing_dir = os.path.join(temp_dir, 'non_existing_dir')
+            with ChDir(non_existing_dir, exist=False):
+                self.assertEqual(os.getcwd(), non_existing_dir)
+                self.assertTrue(os.path.exists(non_existing_dir))
+
+        # Test changing working directory and deleting it afterwards
+        with TemporaryDirectory() as temp_dir:
+            with ChDir(temp_dir, delete=True):
+                self.assertEqual(os.getcwd(), temp_dir)
+            self.assertFalse(os.path.exists(temp_dir))
+
+    def test_change_working_directory_error(self):
+        # Test raising an error when the directory does not exist
+        with self.assertRaises(FileNotFoundError):
+            with ChDir('non_existing_dir'):
+                pass
+
+    def test_change_working_directory_nested(self):
+        # Test changing working directory in a nested context
+        with TemporaryDirectory() as temp_dir1:
+            with ChDir(temp_dir1):
+                self.assertEqual(os.getcwd(), temp_dir1)
+
+                with TemporaryDirectory() as temp_dir2:
+                    with ChDir(temp_dir2):
+                        self.assertEqual(os.getcwd(), temp_dir2)
+
+                    self.assertEqual(os.getcwd(), temp_dir1)
+
+                self.assertEqual(os.getcwd(), temp_dir1)
+                
 if __name__ == '__main__':
     unittest.main()

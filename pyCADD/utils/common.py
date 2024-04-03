@@ -4,27 +4,21 @@ from threading import Thread
 
 
 class BaseFile:
-    """
-    Basic file class
-
-    Attributes:
-        file_path (str): Absolute file path
-        file_name (str): File basename without directory path
-        file_dir (str): File directory path
-        file_ext (str): File extension name without dot
-        file_prefix (str): File prefix name
-        file_suffix (str): File suffix name without dot
-    """
 
     def __init__(self, path: str) -> None:
-        """Initialize file object
+        """
+        Basic file class
+
+        Attributes:
+            file_path (str): Absolute file path
+            file_name (str): File basename without directory path
+            file_dir (str): File directory path
+            file_ext (str): File extension name without dot
+            file_prefix (str): File prefix name
+            file_suffix (str): File suffix name without dot
 
         Args:
             path (str): file path string
-            exist (bool, optional): Check if the file exists. Defaults to True.
-
-        Raises:
-            FileNotFoundError: If the file does not exist and exist is True
         """
 
         self.file_path = os.path.abspath(path)
@@ -37,15 +31,31 @@ class BaseFile:
 
 class File(BaseFile):
     def __init__(self, path: str, exist: bool = True) -> None:
+        """File class
+
+        Attributes:
+            file_path (str): Absolute file path
+            file_name (str): File basename without directory path
+            file_dir (str): File directory path
+            file_ext (str): File extension name without dot
+            file_prefix (str): File prefix name
+            file_suffix (str): File suffix name without dot
+
+        Args:
+            path (str): file path string
+            exist (bool, optional): Check if the file exists. Defaults to True.
+
+        Raises:
+            FileNotFoundError: If the file does not exist and exist is True
+        """
         if exist and not os.path.exists(path):
             raise FileNotFoundError('File %s not found' % path)
         super().__init__(path)
 
 
 class FixedConfig(ConfigParser):
-    """Fixed optionxform method for ConfigParser due to upper string conversion"""
-
     def __init__(self, defaults=None):
+        """Fixed optionxform method for ConfigParser due to upper string conversion"""
         ConfigParser.__init__(self, defaults=defaults)
 
     def optionxform(self, optionstr):
@@ -54,6 +64,7 @@ class FixedConfig(ConfigParser):
 
 class FixedThread(Thread):
     def __init__(self, *args, **kwargs):
+        """Thread class with exception handling"""
         super().__init__(*args, **kwargs)
         self._exception = None
 
@@ -75,12 +86,28 @@ class TimeoutError(Exception):
 
 
 class ChDir:
-    def __init__(self, path):
+    def __init__(self, path: str, exist=True, delete=False):
+        """Change working directory to the given path
+
+        Args:
+            path (str): path to change
+            exist (bool, optional): Whether the directory must exist. False will create the directory if it does not exist. Defaults to True.
+            delete (bool, optional): Whether to delete the directory after use. Defaults to False.
+        """
         self.path = path
+        self.delete = delete
         self.cwd = os.getcwd()
+        if not os.path.exists(path):
+            if exist:
+                raise FileNotFoundError(f'Directory {path} not found')
+            else:
+                os.makedirs(path)
 
     def __enter__(self):
         os.chdir(self.path)
 
     def __exit__(self, exc_type, exc_value, traceback):
+        if self.delete:
+            import shutil
+            shutil.rmtree(self.path)
         os.chdir(self.cwd)
