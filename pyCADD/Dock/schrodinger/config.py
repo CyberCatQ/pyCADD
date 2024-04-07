@@ -1,6 +1,11 @@
 from typing import Iterable
 
-GLIDE_FORCEFIELD = 'OPLS3e'
+FORCE_FILED_DICT = {
+    "OPLS3e": "3",
+    "OPLS4": "S-OPLS",
+    "OPLS2005": "2005",
+    "OPLS3": "2.1"
+}
 
 class BaseConfig:
     '''

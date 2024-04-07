@@ -13,10 +13,14 @@ class MetaData:
     pdbid: str = 'Undefined'
     ligand_name: str = 'Undefined'
     ligand_resnum: int = 0
+    _action: str = 'Undefined'
+    docking_ligand_name: str = 'Undefined'
+    precision: str = 'Undefined'
+    
     property_index_map = {
         "pdbid": 0,
         "ligand_name": 1,
-        "action": 2,
+        "_action": 2,
         "docking_ligand_name": 3,
         "precision": 4
     }
@@ -29,8 +33,8 @@ class MetaData:
     def internal_ligand_resnum(self) -> int:
         return self.ligand_resnum
 
-    @staticmethod
-    def parse_from_filename(file_name: str, sep: str = '_', **kwargs) -> 'MetaData':
+    @classmethod
+    def parse_from_filename(cls, file_name: str, sep: str = '_') -> 'MetaData':
         """Parse metadata from the filename
 
         Args:
@@ -44,13 +48,11 @@ class MetaData:
         """
         file_name, _ = os.path.splitext(os.path.basename(file_name))
         metadatas = file_name.split(sep=sep)
-        for property, index in MetaData.property_index_map.items():
-            try:
-                kwargs[property] = metadatas[index]
-            except KeyError:
-                kwargs[property] = 'Undefined'
-
-        return MetaData(**kwargs)
+        ins = cls()
+        for p, index in cls.property_index_map.items():
+            if index < len(metadatas):
+                setattr(ins, p, metadatas[index])
+        return ins
 
     def generate_file_name(self, sep: str = "_") -> str:
         """Generate file name from metadata
@@ -59,6 +61,12 @@ class MetaData:
             str: file name without extension
         """
         return f"{self.pdbid}{sep}{self.ligand_name}"
+    
+    def __str__(self) -> str:
+        return f"{self.__dict__}"
+    
+    def __repr__(self) -> str:
+        return self.__str__()
 
 
 class MaestroFile(File):
@@ -79,6 +87,12 @@ class MaestroFile(File):
     def structures(self) -> List[Structure]:
         return [st for st in self.st_reader]
 
+    def __str__(self) -> str:
+        return f"<Maestro File at {self.file_path} with {len(self.structures)} structure(s)>\n{self.metadata}"
+    
+    def __repr__(self) -> str:
+        return self.__str__()
+    
     @staticmethod
     def get_structure(file_path: str, index: int = 0) -> Structure:
         """Get the structure from the file
