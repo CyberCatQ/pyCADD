@@ -27,6 +27,7 @@ handler.setFormatter(logging.Formatter('%(message)s'))
 logger.setLevel(logging.INFO)
 logger.addHandler(handler)
 
+
 class TestBaseFile(unittest.TestCase):
     def test_init_existing_file(self):
         # Test initialization with an existing file
@@ -47,6 +48,22 @@ class TestFile(unittest.TestCase):
         file_path = 'non_existing_file.txt'
         with self.assertRaises(FileNotFoundError):
             File(file_path)
+
+    def test_str_representation(self):
+        # Test the __str__ method
+        file_path = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), 'assets', '3OAP.pdb'))
+        file = File(file_path)
+        expected_str = f"<File at {file_path} exist=True>"
+        self.assertEqual(str(file), expected_str)
+
+    def test_repr_representation(self):
+        # Test the __repr__ method
+        file_path = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), 'assets', '3OAP.pdb'))
+        file = File(file_path)
+        expected_repr = f"<File at {file_path} exist=True>"
+        self.assertEqual(repr(file), expected_repr)
 
 
 class TestLog(unittest.TestCase):
@@ -262,7 +279,7 @@ class TestShellRun(unittest.TestCase):
         result = shell_run(command)
         self.assertEqual(result, 'output')
         mock_run.assert_called_once_with(
-            command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=0)
+            command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=None)
 
     @patch('subprocess.run')
     def test_shell_run_error(self, mock_run):
@@ -273,17 +290,17 @@ class TestShellRun(unittest.TestCase):
         with self.assertRaises(subprocess.CalledProcessError):
             shell_run(command)
         mock_run.assert_called_once_with(
-            command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=0)
+            command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=None)
 
     @patch('subprocess.run')
     def test_shell_run_timeout(self, mock_run):
         # Test shell_run function with a command that raises TimeoutExpired
-        command = 'long_running_command'
+        command = 'sleep 5'
         mock_run.side_effect = subprocess.TimeoutExpired(command, 1)
         with self.assertRaises(subprocess.TimeoutExpired):
-            shell_run(command)
+            shell_run(command, timeout=1)
         mock_run.assert_called_once_with(
-            command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=0)
+            command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=1)
 
 
 def square(x, *args, **kwargs):
@@ -330,6 +347,7 @@ class TestChDir(unittest.TestCase):
                     self.assertEqual(os.getcwd(), temp_dir1)
 
                 self.assertEqual(os.getcwd(), temp_dir1)
-                
+
+
 if __name__ == '__main__':
     unittest.main()

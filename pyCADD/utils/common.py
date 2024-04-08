@@ -51,6 +51,12 @@ class File(BaseFile):
         if exist and not os.path.exists(path):
             raise FileNotFoundError('File %s not found' % path)
         super().__init__(path)
+    
+    def __str__(self) -> str:
+        return f"<File at {self.file_path} exist={os.path.exists(self.file_path)}>"
+    
+    def __repr__(self) -> str:
+        return self.__str__()
 
 
 class FixedConfig(ConfigParser):
