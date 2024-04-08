@@ -87,7 +87,6 @@ def shell_run(command: str, timeout: int = None) -> str:
     Returns:
         str: command output
     """
-    timeout = 0 if timeout is None else timeout
     try:
         result = subprocess.run(command, shell=True, check=True,
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
