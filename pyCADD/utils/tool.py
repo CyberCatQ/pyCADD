@@ -1,4 +1,3 @@
-from multiprocessing import Pool
 import functools
 import importlib
 import logging
@@ -7,7 +6,7 @@ import os
 import signal
 import subprocess
 import time
-
+from multiprocessing import Pool
 from typing import Callable, Iterable
 
 import requests
