@@ -1,12 +1,15 @@
 import logging
 import os
 import signal
+from typing import Tuple, Union
 
 import pandas as pd
 
 from pyCADD.utils.common import File, TimeoutError
 
-from . import Job, StructureReader, StructureWriter, jobcontrol
+from . import (Job, Structure, StructureReader, StructureWriter,
+               center_of_mass, jobcontrol)
+from .common import MaestroFile
 
 
 def launch(cmd: str, timeout: int = 0) -> Job:
@@ -72,7 +75,7 @@ def collect_structures(list_file: str, output_file: str = None, data_dir: str = 
         st.property['i_user_SortedIndex'] = index
         required_sts.append(st)
 
-    with StructureWriter(output_file) as writer:
+    with StructureWriter(output_file.file_path) as writer:
         writer.extend(required_sts)
 
 
@@ -93,8 +96,8 @@ def convert_format(file_path: str, to_format: str, save_dir: str = None, overwri
     Returns:
         str: converted file path
     """
-    save_dir = os.getcwd() if save_dir is None else save_dir
-    prefix, suffix = os.path.splitext(file_path)
+    save_dir = os.getcwd() if save_dir is None else os.path.abspath(save_dir)
+    prefix, suffix = os.path.splitext(os.path.basename(file_path))
     converted_file = os.path.join(save_dir, f'{prefix}.{to_format}')
     if not overwrite and os.path.exists(converted_file):
         raise FileExistsError(f"File {converted_file} already exists.")
@@ -107,3 +110,20 @@ def convert_format(file_path: str, to_format: str, save_dir: str = None, overwri
         raise ValueError(f"Unsupported format: {to_format}")
 
     return converted_file
+
+
+def get_centroid(file: Union[MaestroFile, Structure, str], structure_index: int = 0) -> Tuple[float, float, float]:
+    """Get the centroid of a structure file.
+
+    Args:
+        file_path (MaestroFile | str | Structure): file, maestro structure, or file path to read
+        structure_index (int): Index of the structure to calculate the centroid. Defaults to 0.
+
+    Returns:
+        tuple[float, float, float]: centroid coordinates
+    """
+    if isinstance(file, str):
+        file = MaestroFile(file)
+    elif isinstance(file, Structure):
+        return tuple(center_of_mass(file))
+    return tuple(center_of_mass(file.structures[structure_index]))
