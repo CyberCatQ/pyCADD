@@ -3,13 +3,14 @@ import shutil
 import unittest
 from tempfile import TemporaryDirectory
 
-from pyCADD.utils.common import ChDir
 from pyCADD.Dock.schrodinger.common import MaestroFile
 from pyCADD.Dock.schrodinger.utils import (Job, collect_structures,
                                            convert_format, get_centroid,
                                            launch)
+from pyCADD.utils.common import ChDir
 
 from . import TEST_ASSETS_DIR, TEST_PDB_FILE_PATH
+
 
 class TestSchrodingerUtils(unittest.TestCase):
     def test_launch(self):

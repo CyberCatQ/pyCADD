@@ -1,4 +1,6 @@
+import importlib
 import logging
+import multiprocessing
 import os
 import signal
 import subprocess
@@ -7,7 +9,9 @@ from tempfile import TemporaryDirectory
 from time import sleep
 from unittest.mock import patch
 
+importlib.reload(multiprocessing)
 import rich
+
 from pyCADD.utils.common import (BaseFile, ChDir, File, FixedConfig,
                                  FixedThread, TimeoutError)
 from pyCADD.utils.log import _init_log, get_logfile_name
@@ -18,15 +22,17 @@ from pyCADD.utils.tool import (_check_execu_help, _check_execu_version,
                                is_pmemd_cuda_available, multiprocssing_run,
                                shell_run, timeit)
 
-# reset logger during test
-logger = logging.getLogger('pyCADD')
-for handler in logger.handlers:
-    logger.removeHandler(handler)
-handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter('%(message)s'))
-logger.setLevel(logging.INFO)
-logger.addHandler(handler)
+def init_logger():
+    # reset logger during test
+    logger = logging.getLogger('pyCADD')
+    for handler in logger.handlers:
+        logger.removeHandler(handler)
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter('%(message)s'))
+    logger.setLevel(logging.INFO)
+    logger.addHandler(handler)
 
+init_logger()
 
 class TestBaseFile(unittest.TestCase):
     def test_init_existing_file(self):

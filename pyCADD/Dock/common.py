@@ -1,5 +1,5 @@
 import os
-from typing import Union
+from typing import Union, List
 
 from pyCADD.utils.common import File
 
@@ -425,7 +425,7 @@ class EnsembleInputFile(File):
         """
         self.mappings = self.parse_file(file_path).mappings
 
-    def get_pairs_list(self) -> list[tuple]:
+    def get_pairs_list(self) -> List[tuple]:
         """Get the list of pairs. Pairs are defined as (pdb, ligand)
 
         Returns:
@@ -435,7 +435,7 @@ class EnsembleInputFile(File):
             self.read(self.file_path)
         return [(item['pdb'], item['ligand']) for item in self.mappings]
 
-    def get_pdbid_list(self) -> list[str]:
+    def get_pdbid_list(self) -> List[str]:
         """Get the list of unique pdb ids
 
         Returns:
@@ -445,7 +445,7 @@ class EnsembleInputFile(File):
             self.read(self.file_path)
         return list(set([item['pdb'] for item in self.mappings]))
 
-    def get_ligand_list(self) -> list:
+    def get_ligand_list(self) -> List[set]:
         """Get the list of unique ligands
 
         Returns:

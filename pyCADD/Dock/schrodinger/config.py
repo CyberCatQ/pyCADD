@@ -4,6 +4,7 @@ FORCE_FILED_DICT = {
     "OPLS3e": "3",
     "OPLS4": "S-OPLS",
     "OPLS2005": "2005",
+    "OPLS_2005": "2005",
     "OPLS3": "2.1"
 }
 
@@ -65,13 +66,15 @@ class DefaultDataConfig(BaseConfig):
             'activity'
         ]
         if precision == 'XP':
-            self.properties = self.default_prop_XP
+            self.properties = self.default_prop_XP.copy()
         elif precision == 'SP':
-            self.properties = self.default_prop_SP
+            self.properties = self.default_prop_SP.copy()
         else:
             raise ValueError('Precision must be XP or SP')
 
 class DataConfig(DefaultDataConfig):
     def __init__(self, precision, properties:list=None) -> None:
         super().__init__(precision)
-        self.properties = self.properties.extend(properties) if isinstance(properties, Iterable) else self.properties
+        if isinstance(properties, Iterable):
+            self.properties.extend(properties)
+        

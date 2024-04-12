@@ -1,10 +1,16 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 try:
     import schrodinger
 except ImportError:
     raise ValueError("Current environment does not include Schrodinger package. \nPlease activate Schrodinger python environment first.")
 
 from schrodinger import structure as struc
-from schrodinger.structure import StructureReader, StructureWriter, Structure
+from schrodinger.application.glide import poseviewconvert as pvc
 from schrodinger.job import jobcontrol
 from schrodinger.job.jobcontrol import Job
-from schrodinger.application.glide import poseviewconvert as pvc
+from schrodinger.structure import Structure, StructureReader, StructureWriter
+from schrodinger.structutils.analyze import (AslLigandSearcher, Ligand,
+                                             center_of_mass, evaluate_asl)
