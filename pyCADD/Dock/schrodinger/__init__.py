@@ -14,3 +14,4 @@ from schrodinger.job.jobcontrol import Job
 from schrodinger.structure import Structure, StructureReader, StructureWriter
 from schrodinger.structutils.analyze import (AslLigandSearcher, Ligand,
                                              center_of_mass, evaluate_asl)
+from schrodinger.utils import fileutils

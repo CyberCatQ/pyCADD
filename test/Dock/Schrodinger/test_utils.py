@@ -2,6 +2,7 @@ import os
 import shutil
 import unittest
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 from pyCADD.Dock.schrodinger.common import MaestroFile
 from pyCADD.Dock.schrodinger.utils import (Job, collect_structures,
@@ -33,14 +34,6 @@ class TestSchrodingerUtils(unittest.TestCase):
             collect_structures(list_file, output_file, data_dir, 'pdb')
             self.assertTrue(os.path.exists(output_file))
 
-    def test_convert_format(self):
-        # Test convert_format function with a supported format
-        file_path = TEST_PDB_FILE_PATH
-        to_format = 'mae'
-        with TemporaryDirectory() as save_dir:
-            converted_file = convert_format(file_path, to_format, save_dir)
-            self.assertTrue(os.path.exists(converted_file))
-
     def test_get_centroid(self):
         # Test get_centroid function with a MaestroFile object
         file_path = TEST_PDB_FILE_PATH
@@ -59,3 +52,53 @@ class TestSchrodingerUtils(unittest.TestCase):
         centroid = get_centroid(file_path)
         self.assertIsInstance(centroid, tuple)
         self.assertEqual(len(centroid), 3)
+
+    def test_convert_format_existing_file(self):
+        # Test convert_format with an existing input file
+        with TemporaryDirectory() as tmpdir:
+            input_file_path = TEST_PDB_FILE_PATH
+            output_file_path = os.path.join(tmpdir, 'output_file.mae')
+            converted_file_path = convert_format(
+                input_file_path, output_file_path, save_dir=tmpdir)
+
+            self.assertEqual(converted_file_path, os.path.join(
+                tmpdir, 'output_file.mae'))
+            self.assertTrue(os.path.exists(converted_file_path))
+
+    def test_convert_format_non_existing_file(self):
+        # Test convert_format with a non-existing input file
+        with TemporaryDirectory() as tmpdir:
+            input_file_path = 'non_existing_file.pdb'
+            output_file_path = os.path.join(tmpdir, 'output_file.mae')
+            save_dir = tmpdir
+            with self.assertRaises(FileNotFoundError):
+                convert_format(input_file_path, output_file_path, save_dir=save_dir)
+
+    def test_convert_format_existing_output_file(self):
+        # Test convert_format with an existing output file
+        with TemporaryDirectory() as tmpdir:
+            input_file_path = TEST_PDB_FILE_PATH
+            output_file_path = os.path.join(tmpdir, 'output_file.mae')
+            save_dir = tmpdir
+
+            # Create the output file
+            with open(output_file_path, 'w') as f:
+                f.write('Test')
+
+            with self.assertRaises(FileExistsError):
+                convert_format(input_file_path, output_file_path, save_dir=save_dir)
+
+
+    @patch('pyCADD.Dock.schrodinger.utils.StructureReader.read')
+    def test_convert_format_unsupported_format(self, mock_read):
+        # Test convert_format with an unsupported format
+        with TemporaryDirectory() as tmpdir:
+            input_file_path = TEST_PDB_FILE_PATH
+            output_file_path = os.path.join(tmpdir, 'output_file.unkown')
+            save_dir = tmpdir
+
+            mock_read.side_effect = Exception
+
+            with self.assertRaises(ValueError):
+                convert_format(input_file_path, output_file_path, save_dir=save_dir)
+            

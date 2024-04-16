@@ -49,7 +49,7 @@ class File(BaseFile):
             FileNotFoundError: If the file does not exist and exist is True
         """
         if exist and not os.path.exists(path):
-            raise FileNotFoundError('File %s not found' % path)
+            raise FileNotFoundError(f'File not found: {path}')
         super().__init__(path)
     
     def __str__(self) -> str:

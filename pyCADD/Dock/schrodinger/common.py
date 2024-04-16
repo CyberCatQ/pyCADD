@@ -138,7 +138,7 @@ class MetaData:
             any: attribute value. If the attribute is not found, return None
         """
         return getattr(self, attr, None)
-    
+
     def delete(self, attr) -> None:
         """Delete the attribute
 
@@ -248,7 +248,7 @@ class MaestroFile(BaseMaestroFile):
         Args:
             resnum (int): query residue number of the molecule
             structure_index (int): index of the structure
-            
+
         Returns:
             list: list of covalent bond(s) between query molecule and other residues
         """
@@ -359,6 +359,14 @@ class DockResultFile(MaestroFile):
         if self.include_receptor:
             return self.structures[1]
         return self.structures[0]
+
+    def get_raw_result_dict(self) -> dict:
+        """Get the raw docking result information
+
+        Returns:
+            dict: docking result information
+        """
+        return {k: v for k, v in self.get_ligand_structure().property.items()}
 
     def get_result_dict(self) -> dict:
         """Get the docking result information

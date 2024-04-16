@@ -8,7 +8,7 @@ import pandas as pd
 from pyCADD.utils.common import File, TimeoutError
 
 from . import (Job, Structure, StructureReader, StructureWriter,
-               center_of_mass, jobcontrol)
+               center_of_mass, fileutils, jobcontrol)
 from .common import MaestroFile
 
 
@@ -79,12 +79,13 @@ def collect_structures(list_file: str, output_file: str = None, data_dir: str = 
         writer.extend(required_sts)
 
 
-def convert_format(file_path: str, to_format: str, save_dir: str = None, overwrite: bool = False) -> str:
+def convert_format(file_path: str, output_file:str, to_format: str = None, save_dir: str = None, overwrite: bool = False) -> str:
     """Convert the file to another format using Schrodinger API.
 
     Args:
-        file_path (str): file path
-        to_format (str): target format
+        input_file_path (str): input file path
+        output_file_path (str): output file path
+        to_format (str): target format. If None, the format will be inferred from the output file extension.
         save_dir (str, optional): directory to save the converted file. Defaults to current working directory.
         overwrite (bool, optional): overwrite the existing file. Defaults to False.
 
@@ -96,16 +97,18 @@ def convert_format(file_path: str, to_format: str, save_dir: str = None, overwri
     Returns:
         str: converted file path
     """
-    save_dir = os.getcwd() if save_dir is None else os.path.abspath(save_dir)
-    prefix, suffix = os.path.splitext(os.path.basename(file_path))
-    converted_file = os.path.join(save_dir, f'{prefix}.{to_format}')
+    _input_file = File(file_path)
+    _output_file = File(output_file, exist=False)
+    save_dir = _output_file.file_dir if save_dir is None else os.path.abspath(save_dir)
+    to_format = _output_file.file_ext if to_format is None else to_format
+    to_format = fileutils.get_structure_file_format(to_format)
+    
+    converted_file = os.path.join(save_dir, _output_file.file_name)
     if not overwrite and os.path.exists(converted_file):
         raise FileExistsError(f"File {converted_file} already exists.")
     try:
-        st = StructureReader.read(file_path)
-        st.write(converted_file)
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File {file_path} not found.")
+        st = StructureReader.read(_input_file.file_path)
+        st.write(converted_file, format=to_format)
     except Exception:
         raise ValueError(f"Unsupported format: {to_format}")
 
