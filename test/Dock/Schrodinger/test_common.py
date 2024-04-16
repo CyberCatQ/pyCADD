@@ -84,8 +84,11 @@ class TestMetaData(unittest.TestCase):
                             action='glide-dock', docking_ligand_name='LIG', precision='SP')
         metadata.set('new_key', 'new_value')
         self.assertEqual(metadata.get('new_key'), 'new_value')
+        self.assertIsNone(metadata.get('non_existent_key', None))
+        with self.assertRaises(AttributeError):
+            metadata.get('non_existent_key')
         metadata.delete('new_key')
-        self.assertIsNone(metadata.get('new_key'))
+        self.assertIsNone(metadata.get('new_key', None))
 
 
 class TestBaseMaestroFile(unittest.TestCase):
@@ -185,6 +188,16 @@ class TestDockResultFile(unittest.TestCase):
         self.assertEqual(dock_result_file.file_path, path)
         self.assertTrue(dock_result_file.include_receptor)
 
+        metadata.set('include_receptor', False)
+        dock_result_file = DockResultFile(path, metadata=metadata)
+        self.assertFalse(dock_result_file.include_receptor)
+
+        dock_result_file = DockResultFile(path)
+        self.assertFalse(dock_result_file.include_receptor)
+
+        dock_result_file = DockResultFile(path, include_receptor=True)
+        self.assertTrue(dock_result_file.include_receptor)
+
     def test_get_receptor_structure(self):
         with TemporaryDirectory() as tmpdir:
             testdir = os.path.join(os.getcwd(), 'tests') if DEBUG else tmpdir
@@ -204,24 +217,24 @@ class TestDockResultFile(unittest.TestCase):
             ligand_structure = dock_result_file.get_ligand_structure()
             self.assertIsInstance(ligand_structure, Structure)
 
-    def test_get_raw_result_dict(self):
+    def test_get_raw_results(self):
         with TemporaryDirectory() as tmpdir:
             testdir = os.path.join(os.getcwd(), 'tests') if DEBUG else tmpdir
             with ChDir(testdir):
                 dock_result_file = self._dock(False)
-            raw_result_dict = dock_result_file.get_raw_result_dict()
-            self.assertIsInstance(raw_result_dict, dict)
-            self.assertTrue('r_i_docking_score' in raw_result_dict)
+            raw_result_list = dock_result_file.get_raw_results()
+            self.assertIsInstance(raw_result_list, list)
+            self.assertTrue('r_i_docking_score' in raw_result_list[0])
 
-    def test_get_result_dict(self):
+    def test_get_results(self):
         with TemporaryDirectory() as tmpdir:
             testdir = os.path.join(os.getcwd(), 'tests') if DEBUG else tmpdir
             with ChDir(testdir):
                 dock_result_file = self._dock(False)
-            result_dict = dock_result_file.get_result_dict()
-            self.assertIsInstance(result_dict, dict)
-            self.assertTrue('Docking_Score' in result_dict)
-            self.assertTrue(result_dict['Docking_Score'])
+            result_list = dock_result_file.get_results()
+            self.assertIsInstance(result_list, list)
+            self.assertTrue('Docking_Score' in result_list[0])
+            self.assertTrue(result_list[0]['Docking_Score'])
 
 
 if __name__ == '__main__':

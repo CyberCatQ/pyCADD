@@ -129,16 +129,22 @@ class MetaData:
         """
         setattr(self, attr, value)
 
-    def get(self, attr) -> any:
+    class NoDefault:
+        pass
+    
+    def get(self, attr, default=NoDefault) -> any:
         """Get the attribute value
 
         Args:
             attr (str): attribute name
+            default (any): default value that will be returned if the attribute is not found; without it, an AttributeError will be raised in this case.
 
         Returns:
-            any: attribute value. If the attribute is not found, return None
+            any: attribute value. If the attribute is not found, return provided default value.
         """
-        return getattr(self, attr, None)
+        if default is self.NoDefault:
+            return getattr(self, attr)
+        return getattr(self, attr, default)
 
     def delete(self, attr) -> None:
         """Delete the attribute
@@ -328,18 +334,19 @@ class MaestroFile(BaseMaestroFile):
 
 
 class DockResultFile(MaestroFile):
-    def __init__(self, path: str, metadata: MetaData = None, include_receptor: bool = False) -> None:
+    def __init__(self, path: str, metadata: MetaData = None, include_receptor: bool = None) -> None:
         """Docking result file class
 
         Args:
             path (str): file path
             metadata (MetaData, optional): metadata object. Defaults to None.
-            include_receptor (bool): True if the file contains receptor structure
+            include_receptor (bool): True if the file contains receptor structure.
         """
         super().__init__(path)
+        self.include_receptor = False
         if isinstance(metadata, MetaData):
-            _include_receptor = metadata.get('include_receptor')
-        self.include_receptor = _include_receptor if _include_receptor is not None else include_receptor
+            self.include_receptor = metadata.get('include_receptor', False)
+        self.include_receptor = include_receptor if include_receptor is not None else self.include_receptor
 
     def get_receptor_structure(self) -> Structure:
         """Get the receptor structure from the docking result file
@@ -361,19 +368,19 @@ class DockResultFile(MaestroFile):
             return self.structures[1]
         return self.structures[0]
 
-    def get_raw_result_dict(self) -> dict:
-        """Get the raw docking result information
+    def get_raw_results(self) -> List[dict]:
+        """Get the raw docking result information of all structures
 
         Returns:
-            dict: docking result information
+            list[dict]: raw docking result information
         """
-        return {k: v for k, v in self.get_ligand_structure().property.items()}
+        return [{k: v for k, v in st.property.items()} for st in self.structures]
 
-    def get_result_dict(self) -> dict:
-        """Get the docking result information
+    def get_results(self) -> List[dict]:
+        """Get the docking result information of all structures
 
         Returns:
-            dict: docking result information
+            list[dict]: docking result information
         """
         config = DataConfig(precision=self.metadata.precision)
         result_dict = {
@@ -382,5 +389,10 @@ class DockResultFile(MaestroFile):
             "internal_ligand_name": self.metadata.internal_ligand_name,
             "docking_ligand_name": self.metadata.docking_ligand_name
         }
-        result_dict.update({key: self.get_ligand_structure().property.get(value, None) for key, value in config.properties.items()})
-        return result_dict
+        results = []
+        for st in self.structures:
+            _result_dict = result_dict.copy()
+            _result_dict.update({key: st.property.get(value, None)
+                                for key, value in config.properties.items()})
+            results.append(_result_dict)
+        return results

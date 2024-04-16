@@ -58,7 +58,7 @@ class TestSchrodingerCore(unittest.TestCase):
                 dock_result = dock(grid_file, 'ligand.mae')
                 self.assertIsInstance(dock_result, DockResultFile)
                 self.assertTrue(
-                    'r_i_docking_score' in dock_result.get_raw_result_dict())
+                    'r_i_docking_score' in dock_result.get_raw_results()[0])
 
 
 if __name__ == '__main__':
