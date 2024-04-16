@@ -6,6 +6,7 @@ from typing import List, Union
 from pyCADD.utils.common import File
 
 from . import AslLigandSearcher, Ligand, Structure, StructureReader, struc
+from .config import DataConfig
 
 
 @dataclass
@@ -346,7 +347,7 @@ class DockResultFile(MaestroFile):
         Returns:
             Structure: Maestro structure object
         """
-        if not self.include_receptor or len(self.structures == 1):
+        if not self.include_receptor:
             return None
         return self.structures[0]
 
@@ -374,4 +375,12 @@ class DockResultFile(MaestroFile):
         Returns:
             dict: docking result information
         """
-        return {k: v for k, v in self.get_ligand_structure().property.items()}
+        config = DataConfig(precision=self.metadata.precision)
+        result_dict = {
+            "pdbid": self.metadata.pdbid,
+            "precision": self.metadata.precision,
+            "internal_ligand_name": self.metadata.internal_ligand_name,
+            "docking_ligand_name": self.metadata.docking_ligand_name
+        }
+        result_dict.update({key: self.get_ligand_structure().property.get(value, None) for key, value in config.properties.items()})
+        return result_dict

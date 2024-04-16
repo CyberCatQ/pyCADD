@@ -17,8 +17,8 @@ def check_pdb(pdb: str) -> bool:
         return True
     else:
         return False
-    
-    
+
+
 def get_input_pdbid() -> str:
     """Get PDB ID from directory name or user input.
 
@@ -28,7 +28,7 @@ def get_input_pdbid() -> str:
 
     pdbid = os.path.split(os.getcwd())[-1]
 
-    if check_pdb(pdbid):        
+    if check_pdb(pdbid):
         return pdbid
     else:
         while True:
@@ -37,7 +37,7 @@ def get_input_pdbid() -> str:
                 if check_pdb(pdbid):
                     logging.info(f'PDB ID: {pdbid}')
                     return pdbid
-                logging.warning(f'Invalid PDB ID: {pdbid}. Please try again or press Ctrl+C to exit.')
+                logging.warning(
+                    f'Invalid PDB ID: {pdbid}. Please try again or press Ctrl+C to exit.')
             except KeyboardInterrupt:
                 exit(0)
-    

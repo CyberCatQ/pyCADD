@@ -1,13 +1,18 @@
+import os
+import shutil
 import unittest
+from tempfile import TemporaryDirectory
 
 from schrodinger.structure import (Structure, StructureReader, _Molecule,
                                    _Residue)
 from schrodinger.structutils.analyze import Ligand
 
-from pyCADD.Dock.schrodinger.common import (BaseMaestroFile, GridFile,
-                                            MaestroFile, MetaData)
+from pyCADD.Dock.schrodinger.common import (BaseMaestroFile, DockResultFile,
+                                            GridFile, MaestroFile, MetaData)
+from pyCADD.Dock.schrodinger.core import dock, grid_generate, minimize
+from pyCADD.utils.common import ChDir
 
-from . import TEST_ASSETS_DIR, TEST_PDB_FILE_PATH
+from . import DEBUG, TEST_ASSETS_DIR, TEST_PDB_FILE_PATH
 
 
 class TestMetaData(unittest.TestCase):
@@ -155,6 +160,68 @@ class TestMaestroFile(unittest.TestCase):
         self.assertIsInstance(ligands[0], Ligand)
         self.assertEqual(len(ligands), 1)
         self.assertEqual(ligands[0].mol_num, 4)
+
+
+class TestDockResultFile(unittest.TestCase):
+    def _dock(self, include_recep: bool = False):
+        testdir = os.getcwd()
+        shutil.copy(TEST_PDB_FILE_PATH, testdir)
+        path = os.path.join(testdir, os.path.basename(TEST_PDB_FILE_PATH))
+        minimized_file = minimize(MaestroFile(path))
+        lig = minimized_file.find_ligands()[0]
+        lig.st.write('ligand.mae')
+        grid_file = grid_generate(
+            minimized_file, box_center_molnum=lig.mol_num)
+        return dock(grid_file, 'ligand.mae',
+                    include_receptor=include_recep,
+                    save_dir=os.path.join(testdir, f"dock_include_{include_recep}"))
+
+    def test_init(self):
+        path = TEST_PDB_FILE_PATH  # Not a real dock result file
+        metadata = MetaData(pdbid='3OAP', ligand_name='9cr', action='glide-dock',
+                            docking_ligand_name='9CR', precision='SP')
+        metadata.set('include_receptor', True)
+        dock_result_file = DockResultFile(path, metadata=metadata)
+        self.assertEqual(dock_result_file.file_path, path)
+        self.assertTrue(dock_result_file.include_receptor)
+
+    def test_get_receptor_structure(self):
+        with TemporaryDirectory() as tmpdir:
+            testdir = os.path.join(os.getcwd(), 'tests') if DEBUG else tmpdir
+            with ChDir(testdir):
+                dock_result_file_ligand_only = self._dock(False)
+                dock_result_file_with_recep = self._dock(True)
+            receptor_structure = dock_result_file_ligand_only.get_receptor_structure()
+            self.assertIsNone(receptor_structure)
+            receptor_structure = dock_result_file_with_recep.get_receptor_structure()
+            self.assertIsInstance(receptor_structure, Structure)
+
+    def test_get_ligand_structure(self):
+        with TemporaryDirectory() as tmpdir:
+            testdir = os.path.join(os.getcwd(), 'tests') if DEBUG else tmpdir
+            with ChDir(testdir):
+                dock_result_file = self._dock()
+            ligand_structure = dock_result_file.get_ligand_structure()
+            self.assertIsInstance(ligand_structure, Structure)
+
+    def test_get_raw_result_dict(self):
+        with TemporaryDirectory() as tmpdir:
+            testdir = os.path.join(os.getcwd(), 'tests') if DEBUG else tmpdir
+            with ChDir(testdir):
+                dock_result_file = self._dock(False)
+            raw_result_dict = dock_result_file.get_raw_result_dict()
+            self.assertIsInstance(raw_result_dict, dict)
+            self.assertTrue('r_i_docking_score' in raw_result_dict)
+
+    def test_get_result_dict(self):
+        with TemporaryDirectory() as tmpdir:
+            testdir = os.path.join(os.getcwd(), 'tests') if DEBUG else tmpdir
+            with ChDir(testdir):
+                dock_result_file = self._dock(False)
+            result_dict = dock_result_file.get_result_dict()
+            self.assertIsInstance(result_dict, dict)
+            self.assertTrue('Docking_Score' in result_dict)
+            self.assertTrue(result_dict['Docking_Score'])
 
 
 if __name__ == '__main__':

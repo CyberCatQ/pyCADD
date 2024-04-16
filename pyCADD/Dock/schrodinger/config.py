@@ -45,7 +45,7 @@ class XPConfig(DefaultDataConfig):
 
 class DataConfig:
     def __init__(self, precision: str = None, properties: dict = None) -> None:
-        if precision is None:
+        if not precision:
             config_class = DefaultDataConfig
         elif precision.upper() == 'SP':
             config_class = SPConfig
