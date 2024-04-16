@@ -36,6 +36,41 @@ class TestDataConfig(unittest.TestCase):
         test_dict.update({'new_property': 'new_value'})
         self.assertEqual(data_config.properties, test_dict)
 
+    def test_items(self):
+        # Test items() method
+        data_config = DataConfig(precision='SP')
+        self.assertEqual(data_config.items(), SPConfig().properties.items())
+
+    def test_keys(self):
+        # Test keys() method
+        data_config = DataConfig(precision='SP')
+        self.assertEqual([k for k in data_config.keys()], [
+                         k for k in SPConfig().properties.keys()])
+
+    def test_values(self):
+        # Test values() method
+        data_config = DataConfig(precision='SP')
+        self.assertEqual([v for v in data_config.values()], [
+                         v for v in SPConfig().properties.values()])
+
+    def test_get(self):
+        # Test get() method
+        data_config = DataConfig(precision='SP')
+        self.assertEqual(data_config.get('Docking_Score'),
+                         SPConfig().properties.get('Docking_Score'))
+
+    def test_getitem(self):
+        # Test __getitem__() method
+        data_config = DataConfig(precision='SP')
+        self.assertEqual(data_config['Docking_Score'],
+                         SPConfig().properties['Docking_Score'])
+
+    def test_setitem(self):
+        # Test __setitem__() method
+        data_config = DataConfig(precision='SP')
+        data_config['Docking_Score'] = 'new_value'
+        self.assertEqual(data_config['Docking_Score'], 'new_value')
+
 
 class TestSPConfig(unittest.TestCase):
     def test_properties(self):

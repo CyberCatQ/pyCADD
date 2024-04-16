@@ -21,6 +21,24 @@ class DefaultDataConfig:
             'einternal': 'r_i_glide_einternal'
         }
 
+    def items(self):
+        return self.properties.items()
+
+    def keys(self):
+        return self.properties.keys()
+
+    def values(self):
+        return self.properties.values()
+
+    def get(self, key):
+        return self.properties.get(key)
+
+    def __getitem__(self, key):
+        return self.properties[key]
+
+    def __setitem__(self, key, value):
+        return self.properties.__setitem__(key, value)
+
 
 class SPConfig(DefaultDataConfig):
     def __init__(self) -> None:
@@ -43,7 +61,7 @@ class XPConfig(DefaultDataConfig):
         })
 
 
-class DataConfig:
+class DataConfig(DefaultDataConfig):
     def __init__(self, precision: str = None, properties: dict = None) -> None:
         if not precision:
             config_class = DefaultDataConfig
@@ -51,7 +69,7 @@ class DataConfig:
             config_class = SPConfig
         elif precision.upper() == 'XP':
             config_class = XPConfig
-        
+
         self.properties = config_class().properties
         if isinstance(properties, dict):
             self.properties.update(properties)
