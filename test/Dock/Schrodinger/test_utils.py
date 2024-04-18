@@ -10,7 +10,9 @@ from pyCADD.Dock.schrodinger.utils import (Job, collect_structures,
                                            launch)
 from pyCADD.utils.common import ChDir
 
-from . import TEST_ASSETS_DIR, TEST_PDB_FILE_PATH
+from . import TEST_ASSETS_DIR, TEST_PDB_FILE_PATH, init_logger
+
+init_logger()
 
 
 class TestSchrodingerUtils(unittest.TestCase):

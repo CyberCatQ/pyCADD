@@ -11,7 +11,9 @@ from pyCADD.Dock.schrodinger.core import (dock, grid_generate, minimize,
                                           split_complex)
 from pyCADD.utils.common import ChDir
 
-from . import DEBUG, TEST_ASSETS_DIR, TEST_PDB_FILE_PATH
+from . import DEBUG, TEST_PDB_FILE_PATH, init_logger
+
+init_logger()
 
 
 class TestSchrodingerCore(unittest.TestCase):

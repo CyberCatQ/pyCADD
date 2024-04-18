@@ -12,7 +12,5 @@ def init_logger():
         logger.removeHandler(handler)
     handler = logging.StreamHandler()
     handler.setFormatter(logging.Formatter('%(message)s'))
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.WARNING)
     logger.addHandler(handler)
-
-init_logger()

@@ -12,7 +12,9 @@ from pyCADD.Dock.schrodinger.common import (BaseMaestroFile, DockResultFile,
 from pyCADD.Dock.schrodinger.core import dock, grid_generate, minimize
 from pyCADD.utils.common import ChDir
 
-from . import DEBUG, TEST_ASSETS_DIR, TEST_PDB_FILE_PATH
+from . import DEBUG, TEST_PDB_FILE_PATH, init_logger
+
+init_logger()
 
 
 class TestMetaData(unittest.TestCase):
