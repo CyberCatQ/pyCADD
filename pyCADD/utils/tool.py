@@ -2,6 +2,9 @@ import functools
 import importlib
 import logging
 import multiprocessing
+
+# for Schrodinger 2021-2 and higher version
+importlib.reload(multiprocessing)
 import os
 import signal
 import subprocess
@@ -10,17 +13,25 @@ from multiprocessing import Pool
 from typing import Callable, Iterable
 
 import requests
+import urllib3
 from rich.progress import (BarColumn, Progress, SpinnerColumn, TextColumn,
                            TimeElapsedColumn, TimeRemainingColumn)
 from rich.table import Column
 
 from .common import FixedThread, TimeoutError
 
-# For Schrodinger 2021-2 or newer release
-importlib.reload(multiprocessing)
-
 NUM_PARALLEL = multiprocessing.cpu_count() // 4 * 3
 logger = logging.getLogger(__name__)
+
+
+def makedirs_from_list(dir_list: list) -> None:
+    """Make directories from a list.
+
+    Args:
+        dir_list (list): list of required directory names
+    """
+    for dir in dir_list:
+        os.makedirs(dir, exist_ok=True)
 
 
 def _get_progress(name: str, description: str, total: int, start: bool = False):
@@ -153,8 +164,9 @@ def download_pdb(pdbid: str, save_dir: str = None, overwrite: bool = False) -> N
     if os.path.exists(downloaded_file) and not overwrite:
         return
 
-    logger.debug(f'Downloading {pdbid} ...')
     url = base_url + pdbfile
+    logger.debug(f'Downloading {pdbid} from URL {url}')
+    urllib3.disable_warnings()
     response = requests.get(url)
     if response.status_code != 200:
         raise RuntimeError(f'Failed to download {pdbid}.pdb')
@@ -217,8 +229,10 @@ def _find_execu(path: str) -> bool:
     Returns:
         bool: True if the executable is available, False otherwise
     """
-    if not os.path.exists(os.popen(f"which {path}").read().strip()):
-        print(f"\033[31m{path} is not installed or not in PATH.\033[0m")
+    p = subprocess.run(f"which {path}", shell=True,
+                       stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    if not os.path.exists(p.stdout.decode('utf-8').strip()):
+        logger.info(f"\033[31m{path} is not installed or not in PATH.\033[0m")
         return False
     else:
         return True
@@ -235,11 +249,10 @@ def _check_execu_help(path: str) -> bool:
     """
     p = subprocess.run(f"{path} -h", shell=True,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    # if os.system(f"{path} -h > /dev/null") == 0:
     if p.returncode == 0:
         return True
     else:
-        print(f"\033[31m{path} is not installed or not in PATH.\033[0m")
+        logger.info(f"\033[31m{path} is not installed or not in PATH.\033[0m")
         return False
 
 
@@ -254,11 +267,10 @@ def _check_execu_version(path: str) -> bool:
     """
     p = subprocess.run(f"{path} --version", shell=True,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    # if os.system(f"{path} --version > /dev/null") == 0:
     if p.returncode == 0:
         return True
     else:
-        print(f"\033[31m{path} is not installed or not in PATH.\033[0m")
+        logger.info(f"\033[31m{path} is not installed or not in PATH.\033[0m")
         return False
 
 

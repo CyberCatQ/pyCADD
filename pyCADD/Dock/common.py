@@ -1,5 +1,4 @@
-import os
-from typing import Union, List
+from typing import List, Union
 
 from pyCADD.utils.common import File
 
@@ -61,49 +60,55 @@ class PDBLine:
         return info.strip() if strip else info
 
     def _parse(self):
-        # parse ATOM line only for now
-        if self.is_atom_line:
-            for key, (start, end) in self._slice_define.items():
-                setattr(self, key, self._get_line_slice(start, end))
+        for key, (start, end) in self._slice_define.items():
+            setattr(self, key, self._get_line_slice(start, end))
 
     def __str__(self) -> str:
-        return f"PDBLine: " + self.line
+        return f"<PDBLine {self.line} >"
 
     def __repr__(self) -> str:
         return self.__str__()
 
     @property
-    def is_atom_line(self):
+    def is_atom_line(self) -> bool:
         return self._line.startswith('ATOM') or self._line.startswith('HETATM')
 
     @property
-    def is_amino(self):
+    def is_amino(self) -> bool:
         return self.record_name in ATOM_RECORDS and self.res_name in AMINO_ACIDS
 
     @property
-    def is_hetatm(self):
+    def is_hetatm(self) -> bool:
         return self._line.startswith('HETATM')
 
     @property
-    def is_conect(self):
+    def is_conect(self) -> bool:
         return self._line.startswith('CONECT')
 
     @property
-    def is_ter(self):
+    def is_ter(self) -> bool:
         return self._line.startswith('TER')
 
     @property
-    def is_end(self):
+    def is_end(self) -> bool:
         return self._line.startswith('END')
 
     @property
-    def line(self):
-        formatter = "{:<6}{:>5} {:<4}{:1}{:<3} {:1}{:>4}{:1}   {:>8}{:>8}{:>8}{:>6}{:>6}         {:>2}{:>2}"
-        return formatter.format(self.record_name, self.atom_idx, self.atom_name, self.alt_loc, self.res_name,
-                                self.chain_id, self.res_id, self.insertion_code, self.coord_x, self.coord_y,
-                                self.coord_z, self.occupancy, self.temp_factor, self.element, self.charge)
+    def _formatter(self) -> str:
+        if len(self.get_atom_name()) == 4:
+            return "{:<6}{:>5} {:<4}{:1}{:<3} {:1}{:>4}{:1}   {:>8}{:>8}{:>8}{:>6}{:>6}          {:>2}{:>2}"
+        # start writing atom name at 14th column
+        return "{:<6}{:>5}  {:<3}{:1}{:<3} {:1}{:>4}{:1}   {:>8}{:>8}{:>8}{:>6}{:>6}          {:>2}{:>2}"
 
-    def get_line(self):
+    @property
+    def line(self) -> str:
+        return self._formatter.format(self.record_name, self.atom_idx, self.atom_name, self.alt_loc, self.res_name,
+                                      self.chain_id, self.res_id, self.insertion_code,
+                                      self.coord_x, self.coord_y, self.coord_z,
+                                      self.occupancy, self.temp_factor,
+                                      self.element, self.charge)
+
+    def get_line(self) -> str:
         """Get the line string from current attributes
 
         Returns:
@@ -111,14 +116,16 @@ class PDBLine:
         """
         return self.line
 
-    def get_atom_name(self):
+    def get_atom_name(self) -> str:
         """Get the atom name from the line
 
         Returns:
             str: atom name
         """
         atom_name = self.atom_name
-        if atom_name[0].isdigit():  # for name such as: 1HB, 1HG2
+        if not atom_name:
+            return atom_name
+        elif atom_name[0].isdigit():  # for name such as: 1HB, 1HG2
             atom_name = atom_name[1:] + atom_name[0]
         return atom_name
 
@@ -166,8 +173,19 @@ class PDBLineParser:
 
     def get_lines(self):
         """Get a list of all lines parsed from the pdb file.
+
+        Returns:
+            list[PDBLine]: pdb line object list
         """
         return self.pdb_lines
+
+    def get_atom_lines(self):
+        """Get a list of atom line objects parsed from the pdb file.
+
+        Returns:
+            list[PDBLine]: atom line object list
+        """
+        return [line for line in self.pdb_lines if line.is_atom_line]
 
     def get_amino_lines(self):
         """Get a list of amino acid line objects parsed from the pdb file.
@@ -249,7 +267,9 @@ class PDBFile(File):
         Returns:
             str: pdb file content of a single chain
         """
-        return '\n'.join([line.get_line() for line in self.pdb_parser.get_lines() if line.chain_id == chain_id])
+        chain_content = [line.get_line(
+        ) for line in self.pdb_parser.get_atom_lines() if line.chain_id == chain_id]
+        return '\n'.join(chain_content) if return_str else chain_content
 
 
 class EnsembleInputFile(File):
@@ -277,43 +297,44 @@ class EnsembleInputFile(File):
         return self._ligand_list
 
     @classmethod
-    def from_csv(cls, file_path: str, sep: str = ',') -> 'EnsembleInputFile':
+    def from_csv(cls, file_path: str, sep: str = ',', header: bool = False) -> 'EnsembleInputFile':
         """
         Parse input file as csv format
 
         Args:
             file_path (str): csv file path
             sep (str, optional): separator. Defaults to ','.
+            header (bool, optional): whether the csv file has header. Defaults to None.
 
         csv examples:
             ```
-            3A9E,REA 
-            3KMZ,EQO 
-            3KMR,EQN 
-            4DQM,LUF
-            1DKF,BMS
-            5K13,6Q7
+            1XJ7,DHT
+            1XQ3,R18
+            2AM9,TES
+            2AM9,DTT
+            2YLP,TES
+            2YLP,056
             ```
 
         Returns:
             EnsembleInputFile: instance of EnsembleInputFile
         """
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f'File {file_path} not found.')
-        receptor_name = os.path.basename(file_path).split('.')[0]
-        with open(file_path, 'r') as f:
+        csv_file = File(file_path)
+        with open(csv_file.file_path, 'r') as f:
             raw_list = f.read().splitlines()
+        if header:
+            raw_list = raw_list[1:]
 
         mappings = []
         for line in raw_list:
             item = line.split(sep)
-            if len(line) == 1:
-                pdbid = line[0]
+            if len(item) == 1:
+                pdbid = line[0].strip()
                 ligand_name = ''
             elif len(line) >= 2:
-                pdbid, ligand_name = line[0].strip(), line[1].strip()
+                pdbid, ligand_name = item[0].strip(), item[1].strip()
 
-            mappings.append({'receptor': receptor_name,
+            mappings.append({'receptor': csv_file.file_prefix,
                             'pdb': pdbid, 'ligand': ligand_name})
         ins = cls(file_path)
         ins.mappings = mappings
@@ -395,11 +416,12 @@ class EnsembleInputFile(File):
         return ins
 
     @classmethod
-    def parse_file(cls, path: str) -> 'EnsembleInputFile':
+    def parse_file(cls, path: str, header: bool = False) -> 'EnsembleInputFile':
         """Parse input file
 
         Args:
             path (str): file path
+            header (bool, optional): whether the file has header. Only for csv file. Defaults to False.
 
         Raises:
             ValueError: Unsupported file type
@@ -408,11 +430,11 @@ class EnsembleInputFile(File):
             EnsembleInputFile: instance of EnsembleInputFile
         """
         file = File(path)
-        if file.file_ext.lower() in ['.csv', '.txt']:
-            return cls.from_csv(path)
-        elif file.file_ext.lower() == '.ini':
+        if file.file_ext.lower() in ['csv', 'txt']:
+            return cls.from_csv(path, header=header)
+        elif file.file_ext.lower() == 'ini':
             return cls.from_ini(path)
-        elif file.file_ext.lower() in ['.yaml', '.yml']:
+        elif file.file_ext.lower() in ['yaml', 'yml']:
             return cls.from_yaml(path)
         else:
             raise ValueError(f'Unsupported file type: {file.file_path}')
