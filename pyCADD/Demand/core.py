@@ -12,7 +12,8 @@ from pyCADD.Demand.config import (DATA_KEYS, PDBID_KEYS, TITLE_KEYS, RESOLUTION_
                                   POLYMER_ENTITY_KEYS, POLYMER_NAME_KEYS, POLYMER_CHAIN_ID_KEYS, POLYMER_MUTATION_NUM_KEYS,
                                   POLYMER_TYPE_KEYS, NONPOLYMER_CHAIN_ID_KEYS, NONPOLYMER_ENTITY_KEYS, NONPOLYMER_ID_KEYS,
                                   NONPOLYMER_NAME_KEYS, NONPOLYMER_SMILES_KEYS, POLYMER_UNIPROT_ID_KEYS, POLYMER_MUTATION_KEYS)
-from pyCADD.utils.tool import makedirs_from_list, Myconfig
+from pyCADD.utils.common import FixedConfig
+from pyCADD.utils.tool import makedirs_from_list
 
 logger = logging.getLogger(__name__)
 
@@ -395,7 +396,7 @@ class QueryClient:
                         f.write(f'{pdb},{lig}\n')
 
         elif _format == 'ini' or _format == 'in':
-            config = Myconfig()
+            config = FixedConfig()
             config.add_section(self.uniprot_id)
             for pdb, ligs in output_data.items():
                 ligs = ','.join(ligs)
