@@ -2,7 +2,7 @@ import os
 from typing import List, Union
 
 import pandas as pd
-from rdkit.Chem import (rdDepictor)
+from rdkit.Chem import rdDepictor
 
 from pyCADD.Dock.schrodinger.common import DockResultFile
 from pyCADD.Dock.schrodinger.config import DataConfig
