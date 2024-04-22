@@ -22,7 +22,7 @@ from .common import FixedThread, TimeoutError
 
 NUM_PARALLEL = multiprocessing.cpu_count() // 4 * 3
 logger = logging.getLogger(__name__)
-
+DEBUG = os.getenv('PYCADD_DEBUG')
 
 def makedirs_from_list(dir_list: list) -> None:
     """Make directories from a list.
@@ -46,7 +46,9 @@ def _get_progress(name: str, description: str, total: int, start: bool = False):
     Returns:
         rich.progress.Progress: Progress bar object
     """
-
+    disable = True if DEBUG else False
+    if disable:
+        logger.debug(f"Progress bar disabled for {name} when testing.")
     text_column = TextColumn("{task.description}",
                              table_column=Column(), justify='right')
     percent_column = TextColumn(
@@ -55,7 +57,8 @@ def _get_progress(name: str, description: str, total: int, start: bool = False):
         "[bold purple]{task.completed} of {task.total}")
     bar_column = BarColumn(bar_width=None, table_column=Column())
     progress = Progress(SpinnerColumn(), text_column, "•", TimeElapsedColumn(
-    ), "•", percent_column, bar_column, finished_column, TimeRemainingColumn())
+    ), "•", percent_column, bar_column, finished_column, TimeRemainingColumn(),
+    disable=disable)
 
     taskID = progress.add_task('[%s]%s' % (
         description, name), total=total, start=start)
