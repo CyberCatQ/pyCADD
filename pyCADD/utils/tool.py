@@ -10,7 +10,8 @@ import signal
 import subprocess
 import time
 from multiprocessing import Pool
-from typing import Callable, Iterable
+from traceback import format_exc
+from typing import Callable, Iterable, Iterator
 
 import requests
 import urllib3
@@ -23,6 +24,7 @@ from .common import FixedThread, TimeoutError
 NUM_PARALLEL = multiprocessing.cpu_count() // 4 * 3
 logger = logging.getLogger(__name__)
 DEBUG = os.getenv('PYCADD_DEBUG')
+
 
 def makedirs_from_list(dir_list: list) -> None:
     """Make directories from a list.
@@ -58,7 +60,7 @@ def _get_progress(name: str, description: str, total: int, start: bool = False):
     bar_column = BarColumn(bar_width=None, table_column=Column())
     progress = Progress(SpinnerColumn(), text_column, "•", TimeElapsedColumn(
     ), "•", percent_column, bar_column, finished_column, TimeRemainingColumn(),
-    disable=disable)
+        disable=disable)
 
     taskID = progress.add_task('[%s]%s' % (
         description, name), total=total, start=start)
@@ -66,7 +68,7 @@ def _get_progress(name: str, description: str, total: int, start: bool = False):
     return progress, taskID
 
 
-def _func_timeout(func, *args, timeout=0, **kwargs):
+def _func_timeout(func, *args, timeout: int = 0, **kwargs):
     """Run a function with a timeout.
 
     Args:
@@ -112,14 +114,18 @@ def shell_run(command: str, timeout: int = None) -> str:
         raise e
 
 
-def multiprocssing_run(func: Callable, iterable: Iterable, job_name: str, num_parallel: int, timeout: int = None, **kwargs) -> list:
+def multiprocessing_run(func: Callable, iterable: Iterable, job_name: str, num_parallel: int, total_task_num: int = None, timeout: int = None, **kwargs) -> list:
     """Run a function in parallel using multiprocessing.
 
     Args:
         func (Callable): the function to run in parallel
-        iterable (Iterable): the iterable to pass to the function. Each item in the iterable will be applied as an argument to the function
+        iterable (Iterable): the iterable to pass to the function. e.g [1, 2, 3] or [(1, 2), (3, 4)]
+            Each item in the iterable will be considered as a single argument if it is not a tuple.\
+            Otherwise, the item will be unpacked to multiple arguments and passed to the function.
         job_name (str): the job name to display in the progress bar
         num_parallel (int): cpu core number
+        total_task_num (int, optional): total number of tasks. \
+            If None, it will be set to the length of the iterable, and raise an exception if the iterable has no len().
         timeout (int, optional): timeout for each function call. Defaults to None.
         kwargs: additional keyword arguments to pass to the function
 
@@ -127,7 +133,12 @@ def multiprocssing_run(func: Callable, iterable: Iterable, job_name: str, num_pa
         list: a list of return values from the function
     """
     timeout = 0 if timeout is None else timeout
-    progress, taskID = _get_progress(job_name, 'bold cyan', len(iterable))
+    try:
+        total = total_task_num if total_task_num is not None else len(iterable)
+    except TypeError:
+        raise ValueError(
+            "The iterable has no len() and total_task_num is not provided.")
+    progress, taskID = _get_progress(job_name, 'bold cyan', total=total)
     returns = []
     progress.start()
     progress.start_task(taskID)
@@ -137,13 +148,30 @@ def multiprocssing_run(func: Callable, iterable: Iterable, job_name: str, num_pa
         progress.update(taskID, advance=1)
 
     def error_handler(exception: Exception):
-        logger.debug(f'Multiprocessing Run Warnning: {exception}')
+        if DEBUG:
+            logger.error(f'Multiprocessing Run Failed:\n{format_exc()}\n')
+        logger.debug(f'Multiprocessing Run Warning: {exception}')
         progress.update(taskID, advance=1)
 
+    if isinstance(iterable, Iterator):
+        iterable = list(iterable)
+    elif isinstance(iterable, str):
+        raise ValueError("The iterable can not be a string.")
+
     pool = Pool(num_parallel, maxtasksperchild=1)
+    # support for two type of func: single argument or multiple arguments
     for item in iterable:
-        pool.apply_async(_func_timeout, (func, item), kwds={
-                         **kwargs, "timeout": timeout}, callback=success_handler, error_callback=error_handler)
+        if isinstance(item, tuple):
+            # item is a argument tuple which can be unpacked to multiple arguments
+            pool.apply_async(_func_timeout, (func, *item), 
+                             kwds={**kwargs, "timeout": timeout}, 
+                             callback=success_handler, error_callback=error_handler
+                             )
+        else:
+            # item is a single argument, and the single argument can not be a tuple
+            pool.apply_async(_func_timeout, (func, item), 
+                             kwds={**kwargs, "timeout": timeout}, 
+                             callback=success_handler, error_callback=error_handler)
     pool.close()
     pool.join()
     progress.stop()
