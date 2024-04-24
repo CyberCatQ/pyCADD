@@ -8,13 +8,14 @@ from pyCADD.utils.common import File
 from . import AslLigandSearcher, Ligand, Structure, StructureReader, struc
 from .config import DataConfig
 
+DEBUG = os.getenv('PYCADD_DEBUG', False)
+
 
 @dataclass
 class MetaData:
     """Data class for metadata"""
     pdbid: str = ''
     ligand_name: str = ''
-    ligand_resnum: int = -1
     action: str = ''
     docking_ligand_name: str = ''
     precision: str = ''
@@ -29,10 +30,6 @@ class MetaData:
     @property
     def internal_ligand_name(self) -> str:
         return self.ligand_name
-
-    @property
-    def internal_ligand_resnum(self) -> int:
-        return self.ligand_resnum
 
     @classmethod
     def parse_from_filename(cls, file_name: str, sep: str = '_', parse_dict: dict = None) -> 'MetaData':
@@ -131,7 +128,7 @@ class MetaData:
 
     class NoDefault:
         pass
-    
+
     def get(self, attr, default=NoDefault) -> any:
         """Get the attribute value
 
@@ -181,6 +178,34 @@ class GridFile(BaseMaestroFile):
         super().__init__(path, metadata, **kwargs)
 
 
+class LigandSearched(Ligand):
+    def __init__(self, ligand_obj: Ligand):
+        self.__dict__ = ligand_obj.__dict__
+        self._ligand = ligand_obj
+
+    @property
+    def pdbres(self) -> str:
+        return self._ligand.pdbres.strip().upper()
+
+    @property
+    def chain(self) -> str:
+        return self._ligand.atom_objects[0].chain
+
+    @property
+    def resnum(self) -> int:
+        return self._ligand.atom_objects[0].getResidue().resnum
+
+    @property
+    def molnum(self) -> int:
+        return self.mol_num
+
+    def __str__(self):
+        return f"<LigandSearched: name={self.pdbres.strip()} chain={self.chain} resnum={self.resnum} molnum={self.molnum}>"
+
+    def __repr__(self):
+        return self.__str__()
+
+
 class MaestroFile(BaseMaestroFile):
 
     def __init__(self, path: str, metadata: MetaData = None, **kwargs) -> None:
@@ -202,7 +227,10 @@ class MaestroFile(BaseMaestroFile):
         return [st for st in self.st_reader]
 
     def __str__(self) -> str:
-        return f"<Maestro File at {self.file_path} with {len(self.structures)} structure(s)>\n{self.metadata}"
+        info = f"<Maestro File at {self.file_path} with {len(self.structures)} structure(s)>"
+        if DEBUG:
+            info += f"\n{self.metadata}"
+        return info
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -219,6 +247,18 @@ class MaestroFile(BaseMaestroFile):
             Structure: Maestro structure object
         """
         return MaestroFile(file_path).structures[index]
+
+    def get_chain_structure(self, chain_id: str, structure_index: int = 0) -> Structure:
+        """Get the chain structure from the structure file
+
+        Args:
+            chain_id (str): chain ID
+            structure_index (int): index of the structure
+
+        Returns:
+            Structure: Maestro structure object
+        """
+        return self.structures[structure_index].chain[chain_id].extractStructure()
 
     def get_residue(self, resnum: int, structure_index: int = 0) -> Union[struc._Residue, None]:
         """Get the Residue object from the structure
@@ -288,6 +328,7 @@ class MaestroFile(BaseMaestroFile):
         return res.molecule_number
 
     def find_ligands(self,
+                     specified_names: list = None,
                      included_names: list = None,
                      excluded_names: list = None,
                      min_heavy_atom_count: int = None,
@@ -295,12 +336,14 @@ class MaestroFile(BaseMaestroFile):
                      allow_amino_acid_only_molecules: bool = False,
                      allow_ion_only_molecules: bool = False,
                      structure_index: int = 0,
-                     ) -> List[Ligand]:
-        """Find ligands from the structure file
+                     ) -> List[LigandSearched]:
+        """Find all ligands from the structure file
 
         Args:
-            included_names (list, optional): PDB residue names which always be considered ligands. Defaults to None.
-            excluded_names (list, optional): PDB residue names which will never be considered ligands. Defaults to None.
+            specified_names (list, optional): PDB residue names which will be considered as ligands. \
+                Any found residues not in this list will be filtered out if this list is not None. Defaults to None.
+            included_names (list, optional): PDB residue names which always be considered as ligands. Defaults to None.
+            excluded_names (list, optional): PDB residue names which will never be considered as ligands. Defaults to None.
             min_heavy_atom_count (int, optional): Minimum number of heavy atoms required in each ligand molecule. Defaults to None.
             max_atom_count (int, optional): Maximum number of heavy atoms for a ligand molecule (does not include hydrogens). Defaults to None.
             allow_amino_acid_only_molecules (bool, optional): If True, consider small molecules containing only amino acids to be ligands. Defaults to False.
@@ -308,8 +351,8 @@ class MaestroFile(BaseMaestroFile):
             structure_index (int): Index of the structure
 
         Returns:
-            list[Ligand]: List of found Ligand objects.
-                useful properties: mol_num, centriod, st, pdbres, atom_indexes
+            list[LigandSearched]: List of found Ligand objects.
+                useful properties: pdbres, chain, resnum, mol_num, centriod, st, atom_indexes
         """
         included_names = set(
             included_names) if included_names is not None else set()
@@ -330,6 +373,9 @@ class MaestroFile(BaseMaestroFile):
 
         searcher = AslLigandSearcher(**args)
         self._ligands = searcher.search(self.structures[structure_index])
+        self._ligands = [LigandSearched(lig) for lig in self._ligands]
+        if specified_names is not None:
+            self._ligands = [lig for lig in self._ligands if lig.pdbres in specified_names]
         return self._ligands
 
 
