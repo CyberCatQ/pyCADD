@@ -77,10 +77,13 @@ class TestData(unittest.TestCase):
         mock_dataframe = MagicMock()
         mock_dataframe.return_value = mock_dataframe
         mock_dataframe.to_csv = Mock()
-        mock_dataframe.to_csv.return_value = None
+        mock_dataframe.to_csv.side_effect = mock_to_csv
         mock_dataframe.__getitem__.side_effect = lambda key: data_list[key]
         return mock_dataframe
-
+    
+def mock_to_csv(output_file, index=False):
+    with open(output_file, 'w') as f:
+        f.write('mock data')
 
 if __name__ == '__main__':
     unittest.main()

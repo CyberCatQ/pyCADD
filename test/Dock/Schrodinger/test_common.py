@@ -5,14 +5,14 @@ from tempfile import TemporaryDirectory
 
 from schrodinger.structure import (Structure, StructureReader, _Molecule,
                                    _Residue)
-from schrodinger.structutils.analyze import Ligand
 
 from pyCADD.Dock.schrodinger.common import (BaseMaestroFile, DockResultFile,
-                                            GridFile, MaestroFile, MetaData)
+                                            GridFile, LigandSearched,
+                                            MaestroFile, MetaData)
 from pyCADD.Dock.schrodinger.core import dock, grid_generate, minimize
 from pyCADD.utils.common import ChDir
 
-from . import DEBUG, TEST_PDB_FILE_PATH, init_logger
+from . import DEBUG, TEST_ASSETS_DIR, TEST_PDB_FILE_PATH, init_logger
 
 init_logger()
 
@@ -62,13 +62,13 @@ class TestMetaData(unittest.TestCase):
         metadata = MetaData(pdbid='1ABC', ligand_name='LIG',
                             action='glide-dock', docking_ligand_name='LIG', precision='SP')
         self.assertEqual(str(
-            metadata), "{'pdbid': '1ABC', 'ligand_name': 'LIG', 'ligand_resnum': -1, 'action': 'glide-dock', 'docking_ligand_name': 'LIG', 'precision': 'SP'}")
+            metadata), "{'pdbid': '1ABC', 'ligand_name': 'LIG', 'action': 'glide-dock', 'docking_ligand_name': 'LIG', 'precision': 'SP'}")
 
     def test_repr_representation(self):
         metadata = MetaData(pdbid='1ABC', ligand_name='LIG',
                             action='glide-dock', docking_ligand_name='LIG', precision='SP')
         self.assertEqual(repr(
-            metadata), "{'pdbid': '1ABC', 'ligand_name': 'LIG', 'ligand_resnum': -1, 'action': 'glide-dock', 'docking_ligand_name': 'LIG', 'precision': 'SP'}")
+            metadata), "{'pdbid': '1ABC', 'ligand_name': 'LIG', 'action': 'glide-dock', 'docking_ligand_name': 'LIG', 'precision': 'SP'}")
 
     def test_copy(self):
         metadata = MetaData(pdbid='1ABC', ligand_name='LIG',
@@ -113,58 +113,107 @@ class TestGridFile(unittest.TestCase):
         self.assertEqual(grid_file.metadata.__dict__, metadata.__dict__)
 
 
+class TestLigandSearchedFile(unittest.TestCase):
+    def setUp(self):
+        self.ligand = MaestroFile(TEST_PDB_FILE_PATH).find_ligands(['9CR'])[0]
+
+    def test_pdbres(self):
+        self.assertEqual(self.ligand.pdbres, '9CR')
+
+    def test_chain(self):
+        self.assertEqual(self.ligand.chain, 'A')
+
+    def test_resnum(self):
+        self.assertEqual(self.ligand.resnum, 500)
+
+    def test_molnum(self):
+        self.assertEqual(self.ligand.mol_num, 4)
+
+    def test_str(self):
+        self.assertEqual(
+            str(self.ligand), '<LigandSearched: name=9CR chain=A resnum=500 molnum=4>')
+
+    def test_repr(self):
+        self.assertEqual(
+            repr(self.ligand), '<LigandSearched: name=9CR chain=A resnum=500 molnum=4>')
+
+
 class TestMaestroFile(unittest.TestCase):
+    def setUp(self):
+        self.path = TEST_PDB_FILE_PATH
+        self.maestro_file = MaestroFile(self.path)
+        self.str_content = f"<Maestro File at {os.path.abspath(TEST_PDB_FILE_PATH)} with 1 structure(s)>"
+        if DEBUG:
+            self.str_content += f"\n{self.maestro_file.metadata}"
+            
     def test_init(self):
-        path = TEST_PDB_FILE_PATH
-        maestro_file = MaestroFile(path)
-        self.assertEqual(maestro_file.file_path, path)
+        self.assertEqual(self.maestro_file.file_path, self.path)
 
     def test_st_reader(self):
-        path = TEST_PDB_FILE_PATH
-        maestro_file = MaestroFile(path)
-        st_reader = maestro_file.st_reader
+        st_reader = self.maestro_file.st_reader
         self.assertIsInstance(st_reader, StructureReader)
+        next(st_reader)
+        self.assertRaises(StopIteration, next, st_reader)
 
     def test_structures(self):
-        path = TEST_PDB_FILE_PATH
-        maestro_file = MaestroFile(path)
-        structures = maestro_file.structures
+        structures = self.maestro_file.structures
         self.assertIsInstance(structures, list)
         self.assertIsInstance(structures[0], Structure)
         self.assertEqual(len(structures), 1)
 
+    def test_str(self):
+        self.assertEqual(str(self.maestro_file), self.str_content)
+
+    def test_repr(self):
+        self.assertEqual(repr(self.maestro_file), self.str_content)
+
     def test_get_structure(self):
-        path = TEST_PDB_FILE_PATH
-        structure = MaestroFile.get_structure(path)
+        structure = MaestroFile.get_structure(self.path)
         self.assertIsInstance(structure, Structure)
 
+    def test_get_chain_structure(self):
+        chain_structure = self.maestro_file.get_chain_structure('B')
+        self.assertIsInstance(chain_structure, Structure)
+        self.assertEqual(next(iter(chain_structure.chain)).name, 'B')
+
     def test_get_residue(self):
-        path = TEST_PDB_FILE_PATH
-        residue = MaestroFile(path).get_residue(resnum=500)
+        residue = self.maestro_file.get_residue(resnum=500)
         self.assertIsInstance(residue, _Residue)
+        self.assertEqual(residue.resnum, 500)
 
     def test_get_molecule_by_res(self):
-        path = TEST_PDB_FILE_PATH
-        molecule = MaestroFile(path).get_molecule_by_res(resnum=500)
+        molecule = self.maestro_file.get_molecule_by_res(resnum=500)
         self.assertIsInstance(molecule, _Molecule)
+        self.assertEqual(molecule._molnum, 4)
 
     def test_get_covalent_bond(self):
-        path = TEST_PDB_FILE_PATH
-        covalent_bonds = MaestroFile(path).get_covalent_bond(resnum=500)
+        covalent_bonds = self.maestro_file.get_covalent_bond(resnum=500)
         self.assertIsNone(covalent_bonds)
 
     def get_molnum_by_res(self):
-        path = TEST_PDB_FILE_PATH
-        molnum = MaestroFile(path).get_molnum_by_res(resnum=500)
+        molnum = self.maestro_file.get_molnum_by_res(resnum=500)
         self.assertEqual(molnum, 4)
 
     def test_find_ligands(self):
-        path = TEST_PDB_FILE_PATH
-        ligands = MaestroFile(path).find_ligands()
+        ligands = self.maestro_file.find_ligands()
         self.assertIsInstance(ligands, list)
-        self.assertIsInstance(ligands[0], Ligand)
+        self.assertIsInstance(ligands[0], LigandSearched)
         self.assertEqual(len(ligands), 1)
         self.assertEqual(ligands[0].mol_num, 4)
+
+        ligands = MaestroFile(os.path.join(
+            TEST_ASSETS_DIR, '2AM9.pdb')).find_ligands(['DTT'])
+        self.assertIsInstance(ligands, list)
+        self.assertEqual(len(ligands), 1)
+        self.assertEqual(ligands[0].pdbres, 'DTT')
+        self.assertEqual(ligands[0].chain, 'A')
+        self.assertEqual(ligands[0].resnum, 1003)
+        self.assertEqual(ligands[0].mol_num, 1)
+
+        ligands = MaestroFile(os.path.join(TEST_ASSETS_DIR, '2AM9.pdb')).find_ligands(
+            excluded_names=['DTT'])
+        self.assertIsInstance(ligands, list)
+        self.assertEqual(len(ligands), 2)
 
 
 class TestDockResultFile(unittest.TestCase):

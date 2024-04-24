@@ -17,7 +17,9 @@ init_logger()
 
 
 class TestSchrodingerCore(unittest.TestCase):
-
+    def setUp(self):
+        self.pdbid = os.path.basename(TEST_PDB_FILE_PATH).split('.')[0]
+        
     def test_split_complex(self):
         # Test case 1: Splitting complex with ligand_atom_indexes
         path = TEST_PDB_FILE_PATH
@@ -50,17 +52,26 @@ class TestSchrodingerCore(unittest.TestCase):
             shutil.copy(TEST_PDB_FILE_PATH, testdir)
             path = os.path.join(testdir, os.path.basename(TEST_PDB_FILE_PATH))
             with ChDir(testdir):
+                
                 minimized_file = minimize(MaestroFile(path))
+                self.assertEqual(minimized_file.file_prefix, f"{self.pdbid}__minimized")
                 self.assertIsInstance(minimized_file, MaestroFile)
+                
                 lig = minimized_file.find_ligands()[0]
                 lig.st.write('ligand.mae')
+                
+                with self.assertRaises(ValueError):
+                    grid_generate(minimized_file, overwrite=True)
                 grid_file = grid_generate(
                     minimized_file, box_center_molnum=lig.mol_num)
                 self.assertIsInstance(grid_file, GridFile)
+                self.assertEqual(grid_file.file_prefix, f"{self.pdbid}__glide-grid")
+                
                 dock_result = dock(grid_file, 'ligand.mae')
                 self.assertIsInstance(dock_result, DockResultFile)
                 self.assertTrue(
                     'r_i_docking_score' in dock_result.get_raw_results()[0])
+                self.assertEqual(dock_result.file_prefix, f"{self.pdbid}__glide-dock__SP")
 
 
 if __name__ == '__main__':

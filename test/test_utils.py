@@ -16,7 +16,7 @@ from pyCADD.utils.tool import (_check_execu_help, _check_execu_version,
                                _find_execu, _func_timeout, download_pdb,
                                download_pdb_list, is_amber_available,
                                is_gaussian_available, is_multiwfn_available,
-                               is_pmemd_cuda_available, multiprocssing_run,
+                               is_pmemd_cuda_available, multiprocessing_run,
                                shell_run, timeit)
 
 from . import init_logger
@@ -195,14 +195,23 @@ class TestTool(unittest.TestCase):
         # Test multiprocssing_run function with a function that returns a list
         iterable = [1, 2, 3, 4, 5]
         num_parallel = 2
-        result = multiprocssing_run(square, iterable, 'Test', num_parallel)
+        result = multiprocessing_run(square, iterable, 'Test', num_parallel)
         self.assertEqual(result, [1, 4, 9, 16, 25])
 
         iterable = [20, 30]
         num_parallel = 2
-        result = multiprocssing_run(
+        result = multiprocessing_run(
             square, iterable, 'Test_timeout', num_parallel, timeout=1, args1=1, args2="test")
         self.assertEqual(result, [])
+        
+        iterable = [(2, 3), (3, 2)]
+        num_parallel = 2
+        result = multiprocessing_run(
+            power, iterable, 'Test_timeout', num_parallel)
+        self.assertEqual(result, [8, 9])
+        result = multiprocessing_run(
+            power, zip([2, 3], [3, 2]), 'Test_timeout', num_parallel, total_task_num=2)
+        self.assertEqual(result, [8, 9])
 
     def test_timeit(self):
         # Test timeit decorator
@@ -298,9 +307,13 @@ class TestShellRun(unittest.TestCase):
             command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=1)
 
 
-def square(x, *args, **kwargs):
-    sleep(x)
+def square(x):
+    sleep(x/2)
     return x**2
+
+def power(x, y):
+    sleep(x/2)
+    return x**y
 
 
 class TestChDir(unittest.TestCase):
