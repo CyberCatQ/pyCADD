@@ -259,7 +259,7 @@ def dock(
             ligand_file.file_path, 'mae', save_dir=ligand_file.file_dir), metadata=ligand_file.metadata)
 
     metadata = grid_file.metadata.copy()
-    metadata.docking_ligand_name = ligand_file.metadata.ligand_name
+    metadata.docking_ligand_name = ligand_file.file_prefix.replace('_', '-')
     metadata.precision = precision
     metadata.set('calc_rmsd', bool(calc_rmsd))
     metadata.set('include_receptor', bool(include_receptor))

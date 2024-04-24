@@ -71,7 +71,7 @@ class TestSchrodingerCore(unittest.TestCase):
                 self.assertIsInstance(dock_result, DockResultFile)
                 self.assertTrue(
                     'r_i_docking_score' in dock_result.get_raw_results()[0])
-                self.assertEqual(dock_result.file_prefix, f"{self.pdbid}__glide-dock__SP")
+                self.assertEqual(dock_result.file_prefix, f"{self.pdbid}__glide-dock_ligand_SP")
 
 
 if __name__ == '__main__':

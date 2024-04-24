@@ -391,6 +391,7 @@ class DockResultFile(MaestroFile):
         super().__init__(path)
         self.include_receptor = False
         if isinstance(metadata, MetaData):
+            self.metadata = metadata.copy()
             self.include_receptor = metadata.get('include_receptor', False)
         self.include_receptor = include_receptor if include_receptor is not None else self.include_receptor
 

@@ -10,7 +10,6 @@ import signal
 import subprocess
 import time
 from multiprocessing import Pool
-from traceback import format_exc
 from typing import Callable, Iterable, Iterator
 
 import requests
@@ -80,7 +79,7 @@ def _func_timeout(func, *args, timeout: int = 0, **kwargs):
     signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(timeout)
     try:
-        result = func(*args, **kwargs)
+        return func(*args, **kwargs)
     except TimeoutError:
         args_list = [str(arg) for arg in args]
         kwargs_list = [f"{k}={v}" for k, v in kwargs.items()]
@@ -89,7 +88,6 @@ def _func_timeout(func, *args, timeout: int = 0, **kwargs):
             error_info = error_info.replace(
                 ")", f", {', '.join(kwargs_list)})")
         raise TimeoutError(error_info)
-    return result
 
 
 def shell_run(command: str, timeout: int = None) -> str:
@@ -149,7 +147,7 @@ def multiprocessing_run(func: Callable, iterable: Iterable, job_name: str, num_p
 
     def error_handler(exception: Exception):
         if DEBUG:
-            logger.error(f'Multiprocessing Run Failed:\n{format_exc()}\n')
+            logger.error(f'Multiprocessing Run Failed: {exception}')
         logger.debug(f'Multiprocessing Run Warning: {exception}')
         progress.update(taskID, advance=1)
 
@@ -171,7 +169,8 @@ def multiprocessing_run(func: Callable, iterable: Iterable, job_name: str, num_p
             # item is a single argument, and the single argument can not be a tuple
             pool.apply_async(_func_timeout, (func, item), 
                              kwds={**kwargs, "timeout": timeout}, 
-                             callback=success_handler, error_callback=error_handler)
+                             callback=success_handler, error_callback=error_handler
+                             )
     pool.close()
     pool.join()
     progress.stop()

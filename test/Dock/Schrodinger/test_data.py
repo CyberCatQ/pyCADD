@@ -37,17 +37,16 @@ class TestData(unittest.TestCase):
             with ChDir(testdir):
                 docking_result = self._dock(True)
             result_data_list = extract_docking_data(docking_result)
-            self.assertEqual(len(result_data_list), 2)
+            self.assertEqual(len(result_data_list), 1)
             self.assertEqual(
-                result_data_list[1]['pdbid'], docking_result.metadata.pdbid)
+                result_data_list[0]['pdbid'], docking_result.metadata.pdbid)
             self.assertEqual(
-                result_data_list[1]['precision'], docking_result.metadata.precision)
+                result_data_list[0]['precision'], docking_result.metadata.precision)
             self.assertEqual(
-                result_data_list[1]['internal_ligand_name'], docking_result.metadata.internal_ligand_name)
+                result_data_list[0]['internal_ligand_name'], docking_result.metadata.internal_ligand_name)
             self.assertEqual(
-                result_data_list[1]['docking_ligand_name'], docking_result.metadata.docking_ligand_name)
-            self.assertIsNone(result_data_list[0]['Docking_Score'])
-            self.assertLess(result_data_list[1]['Docking_Score'], -8.0)
+                result_data_list[0]['docking_ligand_name'], docking_result.metadata.docking_ligand_name)
+            self.assertLess(result_data_list[0]['Docking_Score'], -8.0)
 
     def test_save_docking_data(self):
         # Test saving docking data to a CSV file from the structure without receptor

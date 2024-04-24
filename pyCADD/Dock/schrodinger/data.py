@@ -30,8 +30,8 @@ def extract_docking_data(docking_result_file: Union[DockResultFile, str], data_c
 
     logger.debug(
         f'Prepare to extract data from file {docking_result_file.file_path}')
-
-    raw_data = docking_result_file.get_raw_results()
+    include_receptor = docking_result_file.metadata.get('include_receptor', False)
+    raw_data = docking_result_file.get_raw_results()[1:] if include_receptor else docking_result_file.get_raw_results()
     result_data_list = []
     data_dict = {
         "pdbid": docking_result_file.metadata.pdbid,
