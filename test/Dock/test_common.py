@@ -122,15 +122,15 @@ class TestEnsembleInputFile(unittest.TestCase):
         ensemble_file.mappings = self.expected_mapping
         pdbid_list = ensemble_file.get_pdbid_list()
         expected_pdbid_list = ['1XJ7', '1XQ3', '2AM9', '2YLP']
-        self.assertTrue(all([pdbid in expected_pdbid_list for pdbid in pdbid_list]))
+        self.assertEqual(pdbid_list, expected_pdbid_list)
         self.assertEqual(len(pdbid_list), 4)
 
     def test_get_ligand_list(self):
         ensemble_file = EnsembleInputFile(self.csv_file_path)
         ensemble_file.mappings = self.expected_mapping
         ligand_list = ensemble_file.get_ligand_list()
-        expected_ligand_list = ['DHT', 'R18', 'TES', 'DTT', '056']
-        self.assertTrue(all([ligand in expected_ligand_list for ligand in ligand_list]))
+        expected_ligand_list = ['056', 'DHT', 'DTT', 'R18', 'TES']
+        self.assertEqual(ligand_list, expected_ligand_list)
         self.assertEqual(len(ligand_list), 5)
 
 if __name__ == '__main__':

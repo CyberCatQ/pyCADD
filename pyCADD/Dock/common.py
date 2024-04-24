@@ -465,9 +465,9 @@ class EnsembleInputFile(File):
         """
         if self.mappings is None:
             self.read(self.file_path)
-        return list(set([item['pdb'] for item in self.mappings]))
+        return sorted(set([item['pdb'] for item in self.mappings]))
 
-    def get_ligand_list(self) -> List[set]:
+    def get_ligand_list(self) -> List[str]:
         """Get the list of unique ligands
 
         Returns:
@@ -475,4 +475,4 @@ class EnsembleInputFile(File):
         """
         if self.mappings is None:
             self.read(self.file_path)
-        return list(set([item['ligand'] for item in self.mappings]))
+        return sorted(set([item['ligand'] for item in self.mappings]))
