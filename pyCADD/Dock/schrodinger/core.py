@@ -95,7 +95,7 @@ def minimize(
     os.makedirs(save_dir, exist_ok=True)
     metadata = file.metadata.copy()
     metadata.action = 'minimized'
-    file_prefix = metadata.generate_file_name(['pdbid', 'action'])
+    file_prefix = metadata.generate_file_name(['pdbid', 'ligand_name', 'action'])
 
     force_field = FORCE_FILED_DICT[force_field]
     logger.debug(f'Prepare to prepare and minimize file: {file.file_path}')
@@ -133,7 +133,7 @@ def minimize(
 
 def grid_generate(
     file: Union[MaestroFile, str],
-    box_center: Tuple[float] = None,
+    box_center: Tuple[float, float, float] = None,
     box_center_molnum: int = None,
     box_size: int = 20,
     force_field: Literal['OPLS4', 'OPLS3e', 'OPLS3', 'OPLS_2005'] = 'OPLS4',
@@ -144,7 +144,7 @@ def grid_generate(
 
     Args:
         file (Union[MaestroFile, str]): structure to generate grid file.
-        box_center (tuple[float], optional): center XYZ of the grid box. Defaults to None.
+        box_center (tuple[float, float, float], optional): center XYZ of the grid box. Defaults to None.
         box_center_molnum (int, optional): the molecule number of the molecule that is set as the center.\
             This molecule will be removed during the grid box generation process,\
             and its centroid will be used as the center of the box.\
@@ -204,6 +204,9 @@ def grid_generate(
             glide_grid_config += [f"LIGAND_MOLECULE {box_center_molnum}\n"]
             logger.debug(
                 f'Grid box center is set to Molecule {box_center_molnum}')
+        else:
+            raise ValueError(
+                "Either box_center or box_center_molnum should be provided.")
 
         with open(input_file, 'w') as f:
             f.writelines(glide_grid_config)
