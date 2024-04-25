@@ -256,7 +256,7 @@ def dock(
         ligand_file = MaestroFile(ligand_file)
     if ligand_file.file_ext not in ['mae', 'maegz']:
         ligand_file = MaestroFile(convert_format(
-            ligand_file.file_path, 'mae', save_dir=ligand_file.file_dir), metadata=ligand_file.metadata)
+            ligand_file.file_path, f'{ligand_file.file_prefix}.mae', save_dir=ligand_file.file_dir), metadata=ligand_file.metadata)
 
     metadata = grid_file.metadata.copy()
     metadata.docking_ligand_name = ligand_file.file_prefix.replace('_', '-')

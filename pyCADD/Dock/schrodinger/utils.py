@@ -105,7 +105,7 @@ def convert_format(file_path: str, output_file:str, to_format: str = None, save_
     
     converted_file = os.path.join(save_dir, _output_file.file_name)
     if not overwrite and os.path.exists(converted_file):
-        raise FileExistsError(f"File {converted_file} already exists.")
+        raise FileExistsError(f"File already exists: {converted_file}")
     try:
         st = StructureReader.read(_input_file.file_path)
         st.write(converted_file, format=to_format)
