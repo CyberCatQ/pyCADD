@@ -135,7 +135,7 @@ def multi_grid_generate(
     structure_files: List[Union[str, File]],
     box_center_list: List[Tuple[float, float, float]] = None,
     box_center_molnum_list: List[int] = None,
-    box_size_list: List[int] = None,
+    box_size_list: List[float] = None,
     force_field: Literal['OPLS4', 'OPLS3e', 'OPLS3', 'OPLS_2005'] = 'OPLS4',
     save_dir: str = None,
     overwrite: bool = False,
@@ -147,7 +147,7 @@ def multi_grid_generate(
         structure_files (List[Union[str, File]]): list of structure file paths or File objects.
         box_center_list (List[Tuple[float, float, float]], optional): list of box centers. Should be the same length as structure_files. Defaults to None.
         box_center_molnum_list (List[int], optional): list of molecule numbers for box centers. Should be the same length as structure_files. Defaults to None.
-        box_size_list: list of box sizes. Should be the same length as structure_files. Defaults to None.
+        box_size_list: list of box sizes. Should be the same length as structure_files. Defaults to [20, 20, ...] with the length of structure_files.
         force_field (str, optional): force field to use. Defaults to 'OPLS4'.
         save_dir (str, optional): directory to save the grid files. Defaults to None.
         overwrite (bool, optional): Whether to overwrite the existed file. Defaults to False.
@@ -161,7 +161,9 @@ def multi_grid_generate(
         save_dir) if save_dir is not None else os.getcwd()
     structure_length = len(structure_files)
 
-    if len(box_size_list) != structure_length:
+    if box_size_list is None:
+        box_size_list = [20] * structure_length
+    elif len(box_size_list) != structure_length:
         raise ValueError(
             f"box_size_list should have the same length as structure_files.")
 
@@ -216,7 +218,7 @@ def get_docking_pairs(grid_files: List[Union[str, File]], ligand_files: List[Uni
 
 
 def multi_dock(
-    docking_pairs: List[Tuple[File, File]],
+    docking_pairs: List[Tuple[GridFile, File]],
     force_field: Literal['OPLS4', 'OPLS3e', 'OPLS3', 'OPLS_2005'] = 'OPLS4',
     precision: Literal['SP', 'XP', 'HTVS'] = 'SP',
     calc_rmsd: bool = False,
@@ -228,13 +230,15 @@ def multi_dock(
     """Dock multiple ligands to multiple grids.
 
     Args:
-        docking_mapping (List[Tuple[File, File]]): list of tuples containing grid and ligand file paths or File objects.\
+        docking_mapping (List[Tuple[GridFile, File]]): list of tuples containing grid and ligand file paths or File objects.\
             e.g. [(grid1, ligand1), (grid2, ligand2)]
         force_field (str, optional): force field to use. Defaults to 'OPLS4'.
         precision (str, optional): docking precision. Defaults to 'SP'.
-        calc_rmsd (bool, optional): Whether to calculate RMSD with co-crystal ligand. If True, grid file must be generated from a complex. Defaults to False.
+        calc_rmsd (bool, optional): Whether to calculate RMSD with co-crystal ligand. \
+            If True, grid file must be generated from a complex. Defaults to False.
         include_receptor (bool, optional): Whether to include receptor structure in the output file. Defaults to False.
-        save_dir (str, optional): directory to save the docked results. Defaults to None.
+        save_dir (str, optional): directory to save the docked results. \
+            Results will be further saved in separate directories named PDBIDs. Defaults to None.
         overwrite (bool, optional): Whether to overwrite the existed file. Defaults to False.
         cpu_num (int, optional): cpu core number used to dock ligands. Defaults to 3/4 of available cores.
 

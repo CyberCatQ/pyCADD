@@ -109,7 +109,8 @@ class TestEnsemble(unittest.TestCase):
 
     def test_multi_dock_workflow(self):
         with TemporaryDirectory() as tmpdir:
-
+            base_save_dir = tmpdir if not DEBUG else os.getcwd()
+            
             # minimize
             ph = 7.4
             force_field = 'OPLS4'
@@ -120,8 +121,7 @@ class TestEnsemble(unittest.TestCase):
             rmsd_cutoff = 0.3
             overwrite = False
             cpu_num = 6
-            save_dir = tmpdir if not DEBUG else os.path.join(
-                os.getcwd(), 'tests', 'multi_minimize')
+            save_dir = os.path.join(base_save_dir, 'tests', 'multi_minimize')
             structure_files = get_test_pdbfiles(self.test_mappings, save_dir)
             minimized_result = multi_minimize(
                 structure_files,
@@ -145,10 +145,9 @@ class TestEnsemble(unittest.TestCase):
 
             # generate grid
             box_center_molnum_list = get_mol_num_list(minimized_result)
-            box_size_list = [20 for _ in range(6)]
+            box_size_list = None    # default to [20] * len(minimized_result)
             force_field = 'OPLS4'
-            save_dir = tmpdir if not DEBUG else os.path.join(
-                os.getcwd(), 'tests', 'multi_grid')
+            save_dir = os.path.join(base_save_dir, 'tests', 'multi_grid')
             overwrite = False
             cpu_num = 6
             grid_result = multi_grid_generate(
@@ -168,8 +167,8 @@ class TestEnsemble(unittest.TestCase):
                             for f in grid_expected_output_files]))
 
             # dock
-            save_dir = tmpdir if not DEBUG else os.path.join(
-                os.getcwd(), 'tests', 'multi_dock')
+            ligands_save_dir = os.path.join(base_save_dir, 'tests', 'multi_dock', 'ligands')
+            docking_save_dir = os.path.join(base_save_dir, 'tests', 'multi_dock', 'docking')
             force_field = 'OPLS4'
             precision = 'SP'
             calc_rmsd = True
@@ -177,16 +176,15 @@ class TestEnsemble(unittest.TestCase):
             overwrite = False
             cpu_num = 6
             ligands = split_structure(
-                self.multi_ligands_file, save_dir=save_dir, overwrite=overwrite, cpu_num=cpu_num)
-            docking_pairs = [(grid, ligand)
-                             for grid in grid_result for ligand in ligands]
+                self.multi_ligands_file, save_dir=ligands_save_dir, overwrite=overwrite, cpu_num=cpu_num)
+            docking_pairs = [(grid, ligand) for grid in grid_result for ligand in ligands]
             dock_result = multi_dock(
-                docking_pairs,
+                docking_pairs=docking_pairs,
                 force_field=force_field,
                 precision=precision,
                 calc_rmsd=calc_rmsd,
                 include_receptor=include_receptor,
-                save_dir=save_dir,
+                save_dir=docking_save_dir,
                 overwrite=overwrite,
                 cpu_num=cpu_num
             )

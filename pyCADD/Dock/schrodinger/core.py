@@ -238,7 +238,8 @@ def dock(
         precision (str, optional): docking precision. Defaults to 'SP'.
         calc_rmsd (bool, optional): Whether to calculate RMSD with co-crystal ligand. If True, grid file must be generated from a complex. Defaults to False.
         include_receptor (bool, optional): Whether to include receptor structure in the output file. Defaults to False.
-        save_dir (str, optional): directory to save the results. Defaults to None.
+        save_dir (str, optional): directory to save the results. Results will be further saved in directory named PDBID. \
+            Using save_dir directly if PDBID is not provided. Defaults to current working directory.
         overwrite (bool, optional): whether to overwrite existing files. Defaults to False.
 
     Raises:
@@ -247,9 +248,7 @@ def dock(
     Returns:
         DockResultFile: docking result file.
     """
-    save_dir = os.path.abspath(
-        save_dir) if save_dir is not None else os.getcwd()
-    os.makedirs(save_dir, exist_ok=True)
+
     if isinstance(grid_file, str):
         grid_file = GridFile(grid_file)
     if isinstance(ligand_file, str):
@@ -264,7 +263,11 @@ def dock(
     metadata.set('calc_rmsd', bool(calc_rmsd))
     metadata.set('include_receptor', bool(include_receptor))
     metadata.action = 'glide-dock'
-
+    
+    save_dir = os.path.abspath(save_dir) if save_dir is not None else os.getcwd()
+    save_dir = os.path.join(save_dir, grid_file.metadata.pdbid) if grid_file.metadata.pdbid else save_dir
+    os.makedirs(save_dir, exist_ok=True)
+    
     file_prefix = metadata.generate_file_name(
         ['pdbid', 'ligand_name', 'action', 'docking_ligand_name', 'precision'])
     dock_result_file = os.path.join(save_dir, f'{file_prefix}.maegz')
