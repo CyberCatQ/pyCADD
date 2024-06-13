@@ -1,7 +1,7 @@
 import os
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Union, Any
 
 from pyCADD.utils.common import File
 
@@ -129,7 +129,7 @@ class MetaData:
     class NoDefault:
         pass
 
-    def get(self, attr, default=NoDefault) -> any:
+    def get(self, attr, default=NoDefault) -> Any:
         """Get the attribute value
 
         Args:
