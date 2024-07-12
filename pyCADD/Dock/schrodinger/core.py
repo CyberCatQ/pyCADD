@@ -253,9 +253,22 @@ def dock(
         grid_file = GridFile(grid_file)
     if isinstance(ligand_file, str):
         ligand_file = MaestroFile(ligand_file)
-    if ligand_file.file_ext not in ['mae', 'maegz']:
-        ligand_file = MaestroFile(convert_format(
-            ligand_file.file_path, f'{ligand_file.file_prefix}.mae', save_dir=ligand_file.file_dir), metadata=ligand_file.metadata)
+        
+    save_dir = os.path.abspath(save_dir) if save_dir is not None else os.getcwd()
+    save_dir = os.path.join(save_dir, grid_file.metadata.pdbid) if grid_file.metadata.pdbid else save_dir
+    os.makedirs(save_dir, exist_ok=True)
+    
+    if ligand_file.file_ext not in ["mae", "maegz"]:
+        coverted_ligand_file = convert_format(
+            ligand_file.file_path,
+            f"{ligand_file.file_prefix}.maegz",
+            save_dir=save_dir,
+            overwrite=True,
+        )
+        ligand_file = MaestroFile(
+            coverted_ligand_file,
+            metadata=ligand_file.metadata
+        )
 
     metadata = grid_file.metadata.copy()
     metadata.docking_ligand_name = ligand_file.file_prefix.replace('_', '-')
@@ -263,11 +276,7 @@ def dock(
     metadata.set('calc_rmsd', bool(calc_rmsd))
     metadata.set('include_receptor', bool(include_receptor))
     metadata.action = 'glide-dock'
-    
-    save_dir = os.path.abspath(save_dir) if save_dir is not None else os.getcwd()
-    save_dir = os.path.join(save_dir, grid_file.metadata.pdbid) if grid_file.metadata.pdbid else save_dir
-    os.makedirs(save_dir, exist_ok=True)
-    
+
     file_prefix = metadata.generate_file_name(
         ['pdbid', 'ligand_name', 'action', 'docking_ligand_name', 'precision'])
     dock_result_file = os.path.join(save_dir, f'{file_prefix}.maegz')

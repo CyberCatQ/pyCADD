@@ -58,7 +58,7 @@ class TestSchrodingerCore(unittest.TestCase):
                 self.assertIsInstance(minimized_file, MaestroFile)
                 
                 lig = minimized_file.find_ligands()[0]
-                lig.st.write('ligand.mae')
+                lig.st.write('ligand.sdf')
                 
                 with self.assertRaises(ValueError):
                     grid_generate(minimized_file, overwrite=True)
@@ -67,7 +67,7 @@ class TestSchrodingerCore(unittest.TestCase):
                 self.assertIsInstance(grid_file, GridFile)
                 self.assertEqual(grid_file.file_prefix, f"{self.pdbid}__glide-grid")
                 
-                dock_result = dock(grid_file, 'ligand.mae')
+                dock_result = dock(grid_file, 'ligand.sdf')
                 self.assertIsInstance(dock_result, DockResultFile)
                 self.assertTrue(
                     'r_i_docking_score' in dock_result.get_raw_results()[0])

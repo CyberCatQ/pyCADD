@@ -122,6 +122,7 @@ class TestEnsemble(unittest.TestCase):
             overwrite = False
             cpu_num = 6
             save_dir = os.path.join(base_save_dir, 'tests', 'multi_minimize')
+            os.makedirs(save_dir, exist_ok=True)
             structure_files = get_test_pdbfiles(self.test_mappings, save_dir)
             minimized_result = multi_minimize(
                 structure_files,
