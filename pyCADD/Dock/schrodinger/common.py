@@ -160,11 +160,15 @@ class BaseMaestroFile(File):
             path (str): file path
             metadata (MetaData, optional): metadata object. Defaults to None.
         """
-        super().__init__(path, **kwargs)
-        if metadata is None:
-            self.metadata = MetaData.parse_from_filename(self.file_path)
+        if isinstance(path, BaseMaestroFile):
+            super().__init__(path.file_path, **kwargs)
+            self.metadata = path.metadata.copy()
         else:
-            self.metadata = MetaData.parse_from_metadata(metadata)
+            super().__init__(path, **kwargs)
+            if metadata is None:
+                self.metadata = MetaData.parse_from_filename(self.file_path)
+            else:
+                self.metadata = MetaData.parse_from_metadata(metadata)
 
 
 class GridFile(BaseMaestroFile):
@@ -220,6 +224,8 @@ class MaestroFile(BaseMaestroFile):
 
     @property
     def st_reader(self) -> StructureReader:
+        if not self.file_path or not os.path.exists(self.file_path):
+            return []
         return StructureReader(self.file_path)
 
     @property
@@ -376,11 +382,13 @@ class MaestroFile(BaseMaestroFile):
         self._ligands = [LigandSearched(lig) for lig in self._ligands]
         if specified_names is not None:
             self._ligands = [lig for lig in self._ligands if lig.pdbres in specified_names]
+            if not self._ligands:
+                raise ValueError(f"No ligand named {specified_names} found in {self.file_path}")
         return self._ligands
 
 
 class DockResultFile(MaestroFile):
-    def __init__(self, path: str, metadata: MetaData = None, include_receptor: bool = None) -> None:
+    def __init__(self, path: str, metadata: MetaData = None, include_receptor: bool = None, **kwargs) -> None:
         """Docking result file class
 
         Args:
@@ -388,7 +396,7 @@ class DockResultFile(MaestroFile):
             metadata (MetaData, optional): metadata object. Defaults to None.
             include_receptor (bool): True if the file contains receptor structure.
         """
-        super().__init__(path)
+        super().__init__(path, **kwargs)
         self.include_receptor = False
         if isinstance(metadata, MetaData):
             self.metadata = metadata.copy()

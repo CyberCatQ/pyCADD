@@ -31,7 +31,9 @@ def extract_docking_data(docking_result_file: Union[DockResultFile, str], data_c
     logger.debug(
         f'Prepare to extract data from file {docking_result_file.file_path}')
     include_receptor = docking_result_file.metadata.get('include_receptor', False)
-    raw_data = docking_result_file.get_raw_results()[1:] if include_receptor else docking_result_file.get_raw_results()
+    raw_data = docking_result_file.get_raw_results()
+    if raw_data:
+        raw_data = raw_data[1:] if include_receptor else raw_data
     result_data_list = []
     data_dict = {
         "pdbid": docking_result_file.metadata.pdbid,
@@ -39,12 +41,11 @@ def extract_docking_data(docking_result_file: Union[DockResultFile, str], data_c
         "internal_ligand_name": docking_result_file.metadata.internal_ligand_name,
         "docking_ligand_name": docking_result_file.metadata.docking_ligand_name
     }
-
+    data = data_dict.copy()
     for raw_data_dict in raw_data:
-        data = data_dict.copy()
         data.update({key: raw_data_dict.get(value, None)
                     for key, value in data_config.items()})
-        result_data_list.append(data)
+    result_data_list.append(data)
 
     return result_data_list
 

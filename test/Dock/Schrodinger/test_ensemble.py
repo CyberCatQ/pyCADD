@@ -8,26 +8,10 @@ from pyCADD.Dock.schrodinger.common import MaestroFile
 from pyCADD.Dock.schrodinger.ensemble import (_write_struc, get_docking_pairs,
                                               multi_dock, multi_extract_data,
                                               multi_grid_generate,
+                                              multi_keep_single_chain,
                                               multi_minimize, split_structure)
-from pyCADD.utils.common import ChDir
 
 from . import DEBUG, TEST_ASSETS_DIR
-
-
-def get_test_pdbfiles(mappings, save_dir):
-    pdbfiles = []
-    with ChDir(save_dir):
-        for mapping in mappings:
-            pdb = mapping['pdb']
-            ligand_name = mapping['ligand']
-            pdbfile = MaestroFile(os.path.join(TEST_ASSETS_DIR, f"{pdb}.pdb"))
-            ligand_searched = pdbfile.find_ligands([ligand_name])
-            chain_id = ligand_searched[0].chain
-            single_chain_st = pdbfile.get_chain_structure(chain_id=chain_id)
-            single_chain_file = f"{pdb}-chain{chain_id}_{ligand_name}.pdb"
-            single_chain_st.write(single_chain_file)
-            pdbfiles.append(MaestroFile(single_chain_file))
-    return pdbfiles
 
 
 def get_mol_num_list(maestrofiles):
@@ -56,6 +40,15 @@ class TestEnsemble(unittest.TestCase):
             {'receptor': 'P10275', 'pdb': '2YLP', 'ligand': 'TES'},
             {'receptor': 'P10275', 'pdb': '2YLP', 'ligand': '056'}
         ]
+        self.pdb_files = []
+        self.ligand_names = []
+        for mapping in self.test_mappings:
+            pdb = mapping['pdb']
+            ligand_name = mapping['ligand']
+            pdb_file = MaestroFile(os.path.join(TEST_ASSETS_DIR, f"{pdb}.pdb"))
+            pdb_file.metadata.ligand_name = ligand_name
+            self.pdb_files.append(pdb_file)
+            self.ligand_names.append(ligand_name)
 
     def test_write_struc(self):
         with TemporaryDirectory() as tmpdir:
@@ -107,9 +100,31 @@ class TestEnsemble(unittest.TestCase):
         ]
         self.assertEqual(result, expected_result)
 
+    def test_multi_keep_single_chain(self):
+        with TemporaryDirectory() as tmpdir:
+            base_save_dir = tmpdir if not DEBUG else os.getcwd()
+            save_dir = os.path.join(base_save_dir, 'tests', 'multi_keep_single_chain')
+            multi_keep_single_chain(self.pdb_files, None, None, save_dir=os.path.join(save_dir, 'multi_keep_single_chain_1'))
+            multi_keep_single_chain(self.pdb_files, self.ligand_names, None, save_dir=os.path.join(save_dir, 'multi_keep_single_chain_2'))
+            multi_keep_single_chain(self.pdb_files, None, ['A'] * len(self.pdb_files), save_dir=os.path.join(save_dir, 'multi_keep_single_chain_3'))
+
     def test_multi_dock_workflow(self):
         with TemporaryDirectory() as tmpdir:
             base_save_dir = tmpdir if not DEBUG else os.getcwd()
+
+            # keep single chain
+            overwrite = False
+            cpu_num = 6
+            save_dir = os.path.join(base_save_dir, 'tests', 'multi_keep_single_chain')
+            os.makedirs(save_dir, exist_ok=True)
+
+            structure_files = multi_keep_single_chain(
+                self.pdb_files, 
+                self.ligand_names, 
+                save_dir=save_dir,
+                overwrite=overwrite,
+                cpu_num=cpu_num
+                )
             
             # minimize
             ph = 7.4
@@ -123,7 +138,7 @@ class TestEnsemble(unittest.TestCase):
             cpu_num = 6
             save_dir = os.path.join(base_save_dir, 'tests', 'multi_minimize')
             os.makedirs(save_dir, exist_ok=True)
-            structure_files = get_test_pdbfiles(self.test_mappings, save_dir)
+
             minimized_result = multi_minimize(
                 structure_files,
                 ph=ph,
@@ -189,12 +204,13 @@ class TestEnsemble(unittest.TestCase):
                 overwrite=overwrite,
                 cpu_num=cpu_num
             )
-            self.assertEqual(len(dock_result), 9)
+            self.assertEqual(len(dock_result), 18)
 
             # data extract
             dock_data = multi_extract_data(dock_result, cpu_num=3)
             df = pd.DataFrame(dock_data)
-            self.assertEqual(df.shape, (9, 19))
+            df.to_csv(os.path.join(docking_save_dir, 'dock_data.csv'))
+            self.assertEqual(df.shape, (18, 19))
 
 
 if __name__ == '__main__':

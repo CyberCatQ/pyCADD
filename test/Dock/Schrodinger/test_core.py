@@ -8,10 +8,10 @@ from schrodinger.structure import Structure
 from pyCADD.Dock.schrodinger.common import (DockResultFile, GridFile,
                                             MaestroFile)
 from pyCADD.Dock.schrodinger.core import (dock, grid_generate, minimize,
-                                          split_complex)
+                                          split_complex, keep_single_chain)
 from pyCADD.utils.common import ChDir
 
-from . import DEBUG, TEST_PDB_FILE_PATH, init_logger
+from . import DEBUG, TEST_PDB_FILE_PATH, TEST_HETATM_NAME, init_logger
 
 init_logger()
 
@@ -52,9 +52,12 @@ class TestSchrodingerCore(unittest.TestCase):
             shutil.copy(TEST_PDB_FILE_PATH, testdir)
             path = os.path.join(testdir, os.path.basename(TEST_PDB_FILE_PATH))
             with ChDir(testdir):
-                
-                minimized_file = minimize(MaestroFile(path))
-                self.assertEqual(minimized_file.file_prefix, f"{self.pdbid}__minimized")
+                single_chain_file = keep_single_chain(path, by_resname=TEST_HETATM_NAME)
+                chain_ids = list(chain.name for chain in single_chain_file.structures[0].chain)
+                self.assertEqual(len(chain_ids), 1)
+                self.assertEqual(chain_ids[0], 'A')
+                minimized_file = minimize(single_chain_file)
+                self.assertEqual(minimized_file.file_prefix, f"{self.pdbid}-chain-A_{TEST_HETATM_NAME}_minimized")
                 self.assertIsInstance(minimized_file, MaestroFile)
                 
                 lig = minimized_file.find_ligands()[0]
@@ -65,13 +68,13 @@ class TestSchrodingerCore(unittest.TestCase):
                 grid_file = grid_generate(
                     minimized_file, box_center_molnum=lig.mol_num)
                 self.assertIsInstance(grid_file, GridFile)
-                self.assertEqual(grid_file.file_prefix, f"{self.pdbid}__glide-grid")
+                self.assertEqual(grid_file.file_prefix, f"{self.pdbid}-chain-A_{TEST_HETATM_NAME}_glide-grid")
                 
                 dock_result = dock(grid_file, 'ligand.sdf')
                 self.assertIsInstance(dock_result, DockResultFile)
                 self.assertTrue(
                     'r_i_docking_score' in dock_result.get_raw_results()[0])
-                self.assertEqual(dock_result.file_prefix, f"{self.pdbid}__glide-dock_ligand_SP")
+                self.assertEqual(dock_result.file_prefix, f"{self.pdbid}-chain-A_{TEST_HETATM_NAME}_glide-dock_ligand_SP")
 
 
 if __name__ == '__main__':

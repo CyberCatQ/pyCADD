@@ -1,1 +1,1 @@
-from .. import TEST_ASSETS_DIR, TEST_PDB_FILE_PATH, init_logger
+from .. import TEST_ASSETS_DIR, TEST_PDB_FILE_PATH, TEST_HETATM_NAME, init_logger

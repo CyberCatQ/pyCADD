@@ -313,8 +313,60 @@ def dock(
         try:
             shutil.move(output_file, dock_result_file)
         except FileNotFoundError:
-            raise RuntimeError(f'Docking Failed: {file_prefix}')
+            logger.debug(f'Docking Failed: {file_prefix}')
+            return DockResultFile(dock_result_file, metadata=metadata, exist=False)
 
         logger.debug(f'Docking result file saved: {dock_result_file}')
 
     return DockResultFile(dock_result_file, metadata=metadata)
+
+
+def keep_single_chain(
+    structure_file: Union[MaestroFile, str],
+    by_resname: str = None,
+    chain_id: str = None,
+    save_dir: str = None,
+    overwrite: bool = False
+) -> MaestroFile:
+    """Keep single chain from a structure file.
+
+    Args:
+        structure_file (Union[MaestroFile, str]): Structure file object or path.
+        by_resname (str, optional): Residue or ligand name from the chain to be kept. Defaults to None.
+        chain_id (str, optional): Chain ID to be kept. Defaults to None.
+        save_dir (str, optional): Directory to save the results. Defaults to None.
+        overwrite (bool, optional): Whether to overwrite existing files. Defaults to False.
+
+    Raises:
+        ValueError: Either chain_id or by_resname should be specified.
+
+    Returns:
+        MaestroFile: The structure file with single chain.
+    """
+    save_dir = save_dir if save_dir is not None else os.getcwd()
+    if isinstance(structure_file, str):
+        structure_file = MaestroFile(structure_file)
+    metadata = structure_file.metadata.copy()
+    metadata.action = 'keep-single-chain'
+
+    if chain_id is None:
+        if by_resname is not None:
+            ligand = structure_file.find_ligands(specified_names=[by_resname])
+            if len(ligand) > 1:
+                msg = f'{len(ligand)} ligands named {by_resname} found in the structure file, and the first one will be kept.\n'
+                msg += f"Keep the chain structure of ligand {ligand[0]}"
+                logger.warning(msg)
+            chain_id = ligand[0].chain
+            metadata.ligand_name = by_resname
+        else:
+            raise ValueError("Please specify either chain_id or by_resname")
+    metadata.pdbid = f"{structure_file.file_prefix}-chain-{chain_id}"
+    file_prefix = metadata.generate_file_name(['pdbid', 'ligand_name'])
+    file_suffix = structure_file.file_suffix
+    chain_structure_file = os.path.join(save_dir, f"{file_prefix}.{file_suffix}")
+    if not overwrite and os.path.exists(chain_structure_file):
+        logger.debug(f'File already existed: {chain_structure_file}')
+        return MaestroFile(chain_structure_file, metadata=metadata)
+    chain_structure = structure_file.get_chain_structure(chain_id=chain_id)
+    chain_structure.write(chain_structure_file)
+    return MaestroFile(chain_structure_file, metadata=metadata)

@@ -9,7 +9,7 @@ from pyCADD.utils.tool import NUM_PARALLEL, multiprocessing_run
 from . import Structure, StructureReader, logger
 from .common import DockResultFile, GridFile, MaestroFile
 from .config import DataConfig
-from .core import dock, grid_generate, minimize
+from .core import dock, grid_generate, keep_single_chain, minimize
 from .data import extract_docking_data
 
 
@@ -75,6 +75,72 @@ def split_structure(multi_structure_file: Union[str, File], save_dir: str = None
         file_prefix=multi_structure_file.file_prefix,
         save_dir=save_dir,
         overwrite=overwrite
+    )
+
+
+def multi_keep_single_chain(
+    structure_files: List[Union[str, MaestroFile]],
+    ligand_name_list: List[str] = None,
+    chain_id_list: List[str] = None,
+    save_dir: str = None,
+    overwrite: bool = False,
+    cpu_num: int = None,
+) -> List[MaestroFile]:
+    """Keep the single chain for multiple structures.
+
+    Args:
+        structure_files (List[Union[str, MaestroFile]]): Structure files to be processed.
+        ligand_name_list (List[str], optional): Ligand name list for each structure. Only the chain where the ligand is located will be retained.\
+            Should have the same length as structure_files. Defaults to None.
+        chain_id_list (List[str], optional): Chain ID list for each structure to keep. Should have the same length as structure_files. \
+            Will be ignored if ligand_name_list is provided. Defaults to None.
+        save_dir (str, optional): directory to save the structure files. Defaults to None.
+        overwrite (bool, optional): Whether to overwrite the existed file. Defaults to False.
+        cpu_num (int, optional): cpu core number used to split structures. Defaults to 3/4 of available cores.
+
+    Raises:
+        ValueError: Single-chain structure cannot be kept without ligand name.
+        ValueError: The number of ligand name list is not equal to the number of structure files.
+
+    Returns:
+        List[MaestroFile]: list of structure files with single chain.
+    """
+    save_dir = os.path.abspath(save_dir) if save_dir is not None else os.getcwd()
+    os.makedirs(save_dir, exist_ok=True)
+    cpu_num = cpu_num if cpu_num is not None else NUM_PARALLEL
+    logger.debug(
+        f"Prepare to split and keep the single chain for {len(structure_files)} structures to {save_dir}"
+    )
+
+    structure_files = [MaestroFile(st) for st in structure_files]
+    if not ligand_name_list and not chain_id_list:
+        ligand_name_list = []
+        for structure in structure_files:
+            ligand_name = structure.metadata.ligand_name
+            if not ligand_name:
+                raise ValueError(
+                    f"Single-chain structure cannot be kept without ligand name: {structure.file_path}"
+                )
+            ligand_name_list.append(ligand_name)
+        if len(ligand_name_list) != len(structure_files):
+            raise ValueError(
+                f"The number of ligand name list ({len(ligand_name_list)}) is not equal \
+                    to the number of structure files ({len(structure_files)})."
+            )
+        iterable = zip(structure_files, ligand_name_list)
+    elif chain_id_list:
+        iterable = zip(structure_files, [None] * len(structure_files), chain_id_list)
+    else:
+        iterable = zip(structure_files, ligand_name_list)
+
+    return multiprocessing_run(
+        keep_single_chain,
+        job_name="Keep Single Chain",
+        iterable=iterable,
+        num_parallel=cpu_num,
+        total_task_num=len(structure_files),
+        save_dir=save_dir,
+        overwrite=overwrite,
     )
 
 

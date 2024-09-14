@@ -8,6 +8,11 @@ import sys
 
 from rich.prompt import Confirm
 
+from pyCADD.utils.tool import is_gaussian_available
+
+if not is_gaussian_available():
+    print('Gaussian 16 is not installed or not in PATH.\nDensity module may not work properly.')
+
 logger = logging.getLogger(__name__)
 RATIO = 27.2114313131
 

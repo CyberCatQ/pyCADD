@@ -173,6 +173,7 @@ def multiprocessing_run(func: Callable, iterable: Iterable, job_name: str, num_p
                              )
     pool.close()
     pool.join()
+    time.sleep(1)
     progress.stop()
 
     return returns
@@ -201,6 +202,7 @@ def download_pdb(pdbid: str, save_dir: str = None, overwrite: bool = False) -> N
     if response.status_code != 200:
         raise RuntimeError(f'Failed to download {pdbid}.pdb')
     pdb_data = response.text
+    os.makedirs(save_dir, exist_ok=True)
     with open(downloaded_file, 'w') as f:
         f.write(pdb_data)
 
@@ -262,7 +264,7 @@ def _find_execu(path: str) -> bool:
     p = subprocess.run(f"which {path}", shell=True,
                        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     if not os.path.exists(p.stdout.decode('utf-8').strip()):
-        logger.info(f"\033[31m{path} is not installed or not in PATH.\033[0m")
+        logger.warning(f"{path} is not installed or not in PATH.")
         return False
     else:
         return True
@@ -282,7 +284,7 @@ def _check_execu_help(path: str) -> bool:
     if p.returncode == 0:
         return True
     else:
-        logger.info(f"\033[31m{path} is not installed or not in PATH.\033[0m")
+        logger.warning(f"{path} is not installed or not in PATH.")
         return False
 
 
@@ -300,7 +302,7 @@ def _check_execu_version(path: str) -> bool:
     if p.returncode == 0:
         return True
     else:
-        logger.info(f"\033[31m{path} is not installed or not in PATH.\033[0m")
+        logger.info(f"{path} is not installed or not in PATH.")
         return False
 
 

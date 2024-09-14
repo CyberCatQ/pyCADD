@@ -92,22 +92,23 @@ class TimeoutError(Exception):
 
 
 class ChDir:
-    def __init__(self, path: str, exist=True, delete=False):
+    def __init__(self, path: str=None, exist: bool=False, delete=False):
         """Change working directory to the given path
 
         Args:
-            path (str): path to change
-            exist (bool, optional): Whether the directory must exist. False will create the directory if it does not exist. Defaults to True.
+            path (str): path to change, None to create a temporary directory.
+            exist (bool, optional): Whether the directory must exist. False will create the directory if it does not exist. Defaults to False.
             delete (bool, optional): Whether to delete the directory after use. Defaults to False.
         """
-        self.path = path
+        from tempfile import mkdtemp
+        self.path = path if path is not None else mkdtemp()
         self.delete = delete
         self.cwd = os.getcwd()
         if not os.path.exists(path):
             if exist:
                 raise FileNotFoundError(f'Directory {path} not found')
             else:
-                os.makedirs(path)
+                os.makedirs(path, exist_ok=True)
 
     def __enter__(self):
         os.chdir(self.path)

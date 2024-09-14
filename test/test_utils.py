@@ -339,7 +339,7 @@ class TestChDir(unittest.TestCase):
     def test_change_working_directory_error(self):
         # Test raising an error when the directory does not exist
         with self.assertRaises(FileNotFoundError):
-            with ChDir('non_existing_dir'):
+            with ChDir('non_existing_dir', exist=True):
                 pass
 
     def test_change_working_directory_nested(self):

@@ -6,7 +6,7 @@ pyCADD
 * 自动化调用Schrodinger Python API执行晶体准备、格点文件生成与对接、MMGBSA结合能计算等功能
 * 调用多核并行计算 实现集合式对接与结果提取、数据分析
 * 调用Gaussian、Multiwfn计算、分析配体分子结构优化、单点能、RESP(2)电荷
-* 自动运行 AMBER 分子动力学模拟准备、运行和 MD轨迹的基本分析
+* 自动运行 AMBER 分子动力学模拟准备、运行和 MD 轨迹的基本分析
 * 提供简单友好的用户界面
 * 支持CLI快速调用
 
@@ -59,15 +59,14 @@ pyCADD的不同模块需要安装不同的软件来完成自动化工作流。�
 
 ## Installation
 
-`pyCADD`已发布至PyPI
+`pyCADD`已发布至PyPI, 使用命令
 
-使用命令
-
+    conda install -f environment.yml
     pip install pyCADD
 
-即可安装 `pyCADD`  
+即可安装pyCADD。
 
-随后 您可以使用命令 `pycadd` 或 `pyCADD` 来启动应用程序  
+
 `pyCADD` 提供一个用户友好的界面使您能够轻易使用需要的功能, 请自行尝试。
 
 为了便于从命令行快速调用pyCADD的模块，还提供了以下CLI接口：
