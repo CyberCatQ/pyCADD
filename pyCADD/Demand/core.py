@@ -110,7 +110,12 @@ def query_pdb(pdb_list, save_path=None, quert_cfg=None):
 def get_nested_value(data, keys):
     try:
         for key in keys:
-            data = data[key]
+            if isinstance(data, list):
+                data = data[key]
+            elif isinstance(data, dict):
+                data = data.get(key, None)
+            if data is None:
+                return None
         return data
     except KeyError:
         return None
