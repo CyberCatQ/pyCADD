@@ -1,3 +1,5 @@
 html
 doctrees
 build
+tests
+logs

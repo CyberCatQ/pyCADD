@@ -259,7 +259,7 @@ pycadd-dynamic analysis -y TRAJ_FILE -ro OUTPUT_FILE -sp SOL_COM_TOP_FILE -cp CO
 * `--no-rmsf` 不进行RMSF分析
 
 可选参数：
-* `-d / --decomp INT1 INT2 INT3`: 计算MM-GBSA结合自由能及能量分解。使用该参数时必须提供3个整数 `START_FRAME` `END_FRAME` `STEP_SIZE`。
+* `-d / --decomp INT1 INT2 INT3`: 计算MM-GBSA结合自由能及能量分解。使用该参数时必须提供3个整数 `START_FRAME` `END_FRAME` `STEP_SIZE`，即分析起始帧，结束帧及步长。
 * `-n / --parallel INT`: 计算MM-GBSA结合自由能时，指定并行计算所用的CPU核心数量，默认为最大可用核心数。
 
 例如

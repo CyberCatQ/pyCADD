@@ -10,7 +10,7 @@ sys.path.insert(0, '../../pyCADD')
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'pyCADD'
-copyright = '2023, Yuhang Wu'
+copyright = '2025, Yuhang Wu'
 author = 'Yuhang Wu'
 from pyCADD import __version__
 release = __version__
@@ -19,8 +19,8 @@ release = __version__
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [   
-    'recommonmark',
-    'sphinx.ext.autodoc',
+   'recommonmark',
+   'sphinx.ext.autodoc',
    'sphinx.ext.doctest',
    'sphinx.ext.intersphinx',
    'sphinx.ext.todo',

@@ -32,7 +32,7 @@ Dock 模块是通过串联分子对接软件 python API 来实现各类分子设
 
 请确保当前工作目录在您想要保存项目文件的目录中, 并在目录中额外准备：
 
-* 一个分行列出的, 包含所有受体蛋白所属 PDB ID的输入文件，支持的格式包括 **.csv** **.ini** **.in** **.yaml** **.yml**, 支持的输入文件格式请参阅 [为系综对接构建Dock输入文件的示例](#为系综对接构建dock输入文件的示例)。该输入文件可由`Demand`模块自动生成，或由您手动创建;  
+* 一个分行列出的, 包含所有受体蛋白所属 PDB ID的输入文件，支持的格式包括 **.csv** **.ini** **.in** **.yaml** **.yml**, 支持的输入文件格式请参阅 [为系综对接构建Dock输入文件的示例](#generate-input-files-for-ensemble-docking)。该输入文件可由`Demand`模块自动生成，或由您手动创建;  
 * 一个需要对接的化合物库 **3D结构文件** **.pdb*  **.mae* **.sdf* 或其他Schrodinger支持的格式  
     如果晶体包含有多个不同名称(ID)的小分子配体, 请在文件中指明 (以逗号分隔) 以定义对接格点的中心;   
     如包含相同名称的多个小分子，则 `Dock` 会自动选择其中之一定义为对接格点的中心。
@@ -94,7 +94,7 @@ pycadd-dock generate-report example.csv ligand_file.mae -n 24 -p SP [--del_water
 报告文件生成应该聚焦于少数重点分子，不建议为过多分子生成报告文件。
 
 
-## 为系综对接构建Dock输入文件的示例
+## Generate Input Files for Ensemble Docking
 
 `pycadd-dock ensemble-dock` 支持三种输入文件格式：
 * csv
@@ -132,7 +132,7 @@ pycadd-dock generate-report example.csv ligand_file.mae -n 24 -p SP [--del_water
     2YLP: TES,056
 ```
 
-*yaml | yml*
+*yaml | yml (Recommended)*
 ```
 P10275:
     1XJ7: DHT
