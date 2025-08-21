@@ -1,23 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyCADD package &mdash; pyCADD 1.6.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=d749edf1"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
-        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f5333bb9"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -103,16 +101,16 @@
            <div itemprop="articleBody">
              
   <section id="pycadd-package">
-<h1>pyCADD package<a class="headerlink" href="#pycadd-package" title="Permalink to this heading"></a></h1>
+<h1>pyCADD package<a class="headerlink" href="#pycadd-package" title="Link to this heading"></a></h1>
 <section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pyCADD.Dance.html">pyCADD.Dance package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pyCADD.Dance.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pyCADD.Dance.algorithm.html">pyCADD.Dance.algorithm package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.Dance.algorithm.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dance.algorithm.html#module-pyCADD.Dance.algorithm.DL">pyCADD.Dance.algorithm.DL module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dance.algorithm.html#pycadd-dance-algorithm-dl-module">pyCADD.Dance.algorithm.DL module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.Dance.algorithm.html#module-pyCADD.Dance.algorithm.consensus">pyCADD.Dance.algorithm.consensus module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.Dance.algorithm.html#module-pyCADD.Dance.algorithm.default_params">pyCADD.Dance.algorithm.default_params module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.Dance.algorithm.html#module-pyCADD.Dance.algorithm">Module contents</a></li>
@@ -198,7 +196,9 @@
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.Demand.html#pyCADD.Demand.core.QueryClient.get_apo"><code class="docutils literal notranslate"><span class="pre">QueryClient.get_apo()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.Demand.html#pyCADD.Demand.core.QueryClient.get_mutation_pdb"><code class="docutils literal notranslate"><span class="pre">QueryClient.get_mutation_pdb()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.Demand.html#pyCADD.Demand.core.QueryClient.get_mutations"><code class="docutils literal notranslate"><span class="pre">QueryClient.get_mutations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Demand.html#pyCADD.Demand.core.QueryClient.pdb_save_dir"><code class="docutils literal notranslate"><span class="pre">QueryClient.pdb_save_dir</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.Demand.html#pyCADD.Demand.core.QueryClient.query"><code class="docutils literal notranslate"><span class="pre">QueryClient.query()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Demand.html#pyCADD.Demand.core.QueryClient.uniprot_save_dir"><code class="docutils literal notranslate"><span class="pre">QueryClient.uniprot_save_dir</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pyCADD.Demand.html#pyCADD.Demand.core.get_nested_value"><code class="docutils literal notranslate"><span class="pre">get_nested_value()</span></code></a></li>
@@ -267,127 +267,53 @@
 <li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.html#module-pyCADD.Dock.cli">pyCADD.Dock.cli module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.html#module-pyCADD.Dock.common">pyCADD.Dock.common module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.ComplexFile"><code class="docutils literal notranslate"><span class="pre">ComplexFile</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.ComplexFile.get_lig_molnum"><code class="docutils literal notranslate"><span class="pre">ComplexFile.get_lig_molnum()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.ComplexFile.split"><code class="docutils literal notranslate"><span class="pre">ComplexFile.split()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.DockResultFile"><code class="docutils literal notranslate"><span class="pre">DockResultFile</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.DockResultFile.calc_mmgbsa"><code class="docutils literal notranslate"><span class="pre">DockResultFile.calc_mmgbsa()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.DockResultFile.docking_ligand_st"><code class="docutils literal notranslate"><span class="pre">DockResultFile.docking_ligand_st</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.DockResultFile.docking_receptor_st"><code class="docutils literal notranslate"><span class="pre">DockResultFile.docking_receptor_st</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.DockResultFile.extract_docking_data"><code class="docutils literal notranslate"><span class="pre">DockResultFile.extract_docking_data()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.DockResultFile.get_ligand_file"><code class="docutils literal notranslate"><span class="pre">DockResultFile.get_ligand_file()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.DockResultFile.get_merged_file"><code class="docutils literal notranslate"><span class="pre">DockResultFile.get_merged_file()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.DockResultFile.get_receptor_file"><code class="docutils literal notranslate"><span class="pre">DockResultFile.get_receptor_file()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.DockResultFile.merged_file"><code class="docutils literal notranslate"><span class="pre">DockResultFile.merged_file</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.DockResultFile.property"><code class="docutils literal notranslate"><span class="pre">DockResultFile.property</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.GridFile"><code class="docutils literal notranslate"><span class="pre">GridFile</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.LigandFile"><code class="docutils literal notranslate"><span class="pre">LigandFile</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.LigandFile.calc_admet"><code class="docutils literal notranslate"><span class="pre">LigandFile.calc_admet()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.MaestroFile"><code class="docutils literal notranslate"><span class="pre">MaestroFile</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.MaestroFile.convert_format"><code class="docutils literal notranslate"><span class="pre">MaestroFile.convert_format()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.MaestroFile.get_first_structure"><code class="docutils literal notranslate"><span class="pre">MaestroFile.get_first_structure()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.MaestroFile.minimize"><code class="docutils literal notranslate"><span class="pre">MaestroFile.minimize()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.MaestroFile.st_reader"><code class="docutils literal notranslate"><span class="pre">MaestroFile.st_reader</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.MaestroFile.structures"><code class="docutils literal notranslate"><span class="pre">MaestroFile.structures</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile"><code class="docutils literal notranslate"><span class="pre">MultiInputFile</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile.get_gridfile_path_list"><code class="docutils literal notranslate"><span class="pre">MultiInputFile.get_gridfile_path_list()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile.get_ligand_list"><code class="docutils literal notranslate"><span class="pre">MultiInputFile.get_ligand_list()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile.get_pairs_list"><code class="docutils literal notranslate"><span class="pre">MultiInputFile.get_pairs_list()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile.get_pdbfile_path_list"><code class="docutils literal notranslate"><span class="pre">MultiInputFile.get_pdbfile_path_list()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile.get_pdbid_list"><code class="docutils literal notranslate"><span class="pre">MultiInputFile.get_pdbid_list()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile.ligand_list"><code class="docutils literal notranslate"><span class="pre">MultiInputFile.ligand_list</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile.parse_file"><code class="docutils literal notranslate"><span class="pre">MultiInputFile.parse_file()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile.pdbid_list"><code class="docutils literal notranslate"><span class="pre">MultiInputFile.pdbid_list</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile.read"><code class="docutils literal notranslate"><span class="pre">MultiInputFile.read()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.MultiInputFile.read_from_config"><code class="docutils literal notranslate"><span class="pre">MultiInputFile.read_from_config()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.from_csv"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.from_csv()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.from_ini"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.from_ini()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.from_yaml"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.from_yaml()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.get_ligand_list"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.get_ligand_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.get_pairs_list"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.get_pairs_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.get_pdbid_list"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.get_pdbid_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.ligand_list"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.ligand_list</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.parse_file"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.parse_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.pdbid_list"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.pdbid_list</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.read"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.read()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBFile"><code class="docutils literal notranslate"><span class="pre">PDBFile</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBFile.get_lig"><code class="docutils literal notranslate"><span class="pre">PDBFile.get_lig()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBFile.get_lig_name"><code class="docutils literal notranslate"><span class="pre">PDBFile.get_lig_name()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBFile.keep_chain"><code class="docutils literal notranslate"><span class="pre">PDBFile.keep_chain()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBFile.get_chain"><code class="docutils literal notranslate"><span class="pre">PDBFile.get_chain()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBFile.get_lines"><code class="docutils literal notranslate"><span class="pre">PDBFile.get_lines()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.ReceptorFile"><code class="docutils literal notranslate"><span class="pre">ReceptorFile</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.check_pdb"><code class="docutils literal notranslate"><span class="pre">check_pdb()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.get_input_pdbid"><code class="docutils literal notranslate"><span class="pre">get_input_pdbid()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.get_predict_structure"><code class="docutils literal notranslate"><span class="pre">get_predict_structure()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.launch"><code class="docutils literal notranslate"><span class="pre">launch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBLine"><code class="docutils literal notranslate"><span class="pre">PDBLine</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBLine.get_atom_name"><code class="docutils literal notranslate"><span class="pre">PDBLine.get_atom_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBLine.get_line"><code class="docutils literal notranslate"><span class="pre">PDBLine.get_line()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBLine.is_amino"><code class="docutils literal notranslate"><span class="pre">PDBLine.is_amino</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBLine.is_atom_line"><code class="docutils literal notranslate"><span class="pre">PDBLine.is_atom_line</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBLine.is_conect"><code class="docutils literal notranslate"><span class="pre">PDBLine.is_conect</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBLine.is_end"><code class="docutils literal notranslate"><span class="pre">PDBLine.is_end</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBLine.is_hetatm"><code class="docutils literal notranslate"><span class="pre">PDBLine.is_hetatm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBLine.is_ter"><code class="docutils literal notranslate"><span class="pre">PDBLine.is_ter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBLine.line"><code class="docutils literal notranslate"><span class="pre">PDBLine.line</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.html#module-pyCADD.Dock.config">pyCADD.Dock.config module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.config.BaseConfig"><code class="docutils literal notranslate"><span class="pre">BaseConfig</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.config.DataConfig"><code class="docutils literal notranslate"><span class="pre">DataConfig</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.config.DefaultDataConfig"><code class="docutils literal notranslate"><span class="pre">DefaultDataConfig</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.html#module-pyCADD.Dock.console">pyCADD.Dock.console module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker"><code class="docutils literal notranslate"><span class="pre">Docker</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.calc_admet"><code class="docutils literal notranslate"><span class="pre">Docker.calc_admet()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.calc_mmgbsa"><code class="docutils literal notranslate"><span class="pre">Docker.calc_mmgbsa()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.calc_volume"><code class="docutils literal notranslate"><span class="pre">Docker.calc_volume()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.dock"><code class="docutils literal notranslate"><span class="pre">Docker.dock()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.download_pdb"><code class="docutils literal notranslate"><span class="pre">Docker.download_pdb()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.extra_admet_data"><code class="docutils literal notranslate"><span class="pre">Docker.extra_admet_data()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.extra_docking_data"><code class="docutils literal notranslate"><span class="pre">Docker.extra_docking_data()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.grid_generate"><code class="docutils literal notranslate"><span class="pre">Docker.grid_generate()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.keep_chain"><code class="docutils literal notranslate"><span class="pre">Docker.keep_chain()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.lig_info"><code class="docutils literal notranslate"><span class="pre">Docker.lig_info</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.lig_name"><code class="docutils literal notranslate"><span class="pre">Docker.lig_name</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.minimize"><code class="docutils literal notranslate"><span class="pre">Docker.minimize()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.pdb_file"><code class="docutils literal notranslate"><span class="pre">Docker.pdb_file</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.pdb_file_path"><code class="docutils literal notranslate"><span class="pre">Docker.pdb_file_path</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.pdbid"><code class="docutils literal notranslate"><span class="pre">Docker.pdbid</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.save_admet_data"><code class="docutils literal notranslate"><span class="pre">Docker.save_admet_data()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.save_docking_data"><code class="docutils literal notranslate"><span class="pre">Docker.save_docking_data()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.set_calc_rmsd"><code class="docutils literal notranslate"><span class="pre">Docker.set_calc_rmsd()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.set_precision"><code class="docutils literal notranslate"><span class="pre">Docker.set_precision()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.console.Docker.split_complex"><code class="docutils literal notranslate"><span class="pre">Docker.split_complex()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBLineParser"><code class="docutils literal notranslate"><span class="pre">PDBLineParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBLineParser.get_amino_lines"><code class="docutils literal notranslate"><span class="pre">PDBLineParser.get_amino_lines()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBLineParser.get_atom_lines"><code class="docutils literal notranslate"><span class="pre">PDBLineParser.get_atom_lines()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBLineParser.get_hetatm_lines"><code class="docutils literal notranslate"><span class="pre">PDBLineParser.get_hetatm_lines()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBLineParser.get_lines"><code class="docutils literal notranslate"><span class="pre">PDBLineParser.get_lines()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBLineParser.get_str_list"><code class="docutils literal notranslate"><span class="pre">PDBLineParser.get_str_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.common.PDBLineParser.save_pdb"><code class="docutils literal notranslate"><span class="pre">PDBLineParser.save_pdb()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.html#module-pyCADD.Dock.core">pyCADD.Dock.core module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.core.calc_admet"><code class="docutils literal notranslate"><span class="pre">calc_admet()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.core.calc_mmgbsa"><code class="docutils literal notranslate"><span class="pre">calc_mmgbsa()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.core.calc_volume"><code class="docutils literal notranslate"><span class="pre">calc_volume()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.core.dock"><code class="docutils literal notranslate"><span class="pre">dock()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.core.grid_generate"><code class="docutils literal notranslate"><span class="pre">grid_generate()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.core.minimize"><code class="docutils literal notranslate"><span class="pre">minimize()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.html#module-pyCADD.Dock.data">pyCADD.Dock.data module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.data.Reporter"><code class="docutils literal notranslate"><span class="pre">Reporter</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.data.Reporter.generate_report"><code class="docutils literal notranslate"><span class="pre">Reporter.generate_report()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.data.extra_admet_data"><code class="docutils literal notranslate"><span class="pre">extra_admet_data()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.data.extra_docking_data"><code class="docutils literal notranslate"><span class="pre">extra_docking_data()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.data.save_admet_data"><code class="docutils literal notranslate"><span class="pre">save_admet_data()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.data.save_docking_data"><code class="docutils literal notranslate"><span class="pre">save_docking_data()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.data.save_ensemble_docking_data"><code class="docutils literal notranslate"><span class="pre">save_ensemble_docking_data()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.data.save_redocking_data"><code class="docutils literal notranslate"><span class="pre">save_redocking_data()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.html#module-pyCADD.Dock.ensemble">pyCADD.Dock.ensemble module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.ensemble.split_ligand"><code class="docutils literal notranslate"><span class="pre">split_ligand()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.html#module-pyCADD.Dock.ui">pyCADD.Dock.ui module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.ui.UI_dock"><code class="docutils literal notranslate"><span class="pre">UI_dock</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dock.html#pyCADD.Dock.ui.UI_dock.run"><code class="docutils literal notranslate"><span class="pre">UI_dock.run()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.html#pycadd-dock-config-module">pyCADD.Dock.config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.html#pycadd-dock-console-module">pyCADD.Dock.console module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.html#pycadd-dock-core-module">pyCADD.Dock.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.html#pycadd-dock-data-module">pyCADD.Dock.data module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.html#pycadd-dock-ensemble-module">pyCADD.Dock.ensemble module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.html#pycadd-dock-ui-module">pyCADD.Dock.ui module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.html#module-pyCADD.Dock">Module contents</a></li>
 </ul>
 </li>
@@ -525,45 +451,10 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pyCADD.VSW.html">pyCADD.VSW package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pyCADD.VSW.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyCADD.VSW.html#module-pyCADD.VSW.base">pyCADD.VSW.base module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.base.VSW"><code class="docutils literal notranslate"><span class="pre">VSW</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.base.VSW.database_list"><code class="docutils literal notranslate"><span class="pre">VSW.database_list</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.base.VSW.genelist"><code class="docutils literal notranslate"><span class="pre">VSW.genelist</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.base.VSW.generate_input_file"><code class="docutils literal notranslate"><span class="pre">VSW.generate_input_file()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.base.VSW.get_gene"><code class="docutils literal notranslate"><span class="pre">VSW.get_gene()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.base.VSW.get_receptor_list"><code class="docutils literal notranslate"><span class="pre">VSW.get_receptor_list()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.base.VSW.read_databse"><code class="docutils literal notranslate"><span class="pre">VSW.read_databse()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.base.VSW.read_gene"><code class="docutils literal notranslate"><span class="pre">VSW.read_gene()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.base.VSW.required_dir"><code class="docutils literal notranslate"><span class="pre">VSW.required_dir</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.base.VSW.run"><code class="docutils literal notranslate"><span class="pre">VSW.run()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.base.VSW.select_database"><code class="docutils literal notranslate"><span class="pre">VSW.select_database()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.base.VSW.vsw_dir"><code class="docutils literal notranslate"><span class="pre">VSW.vsw_dir</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pyCADD.VSW.html#module-pyCADD.VSW.core">pyCADD.VSW.core module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.core.gen_input_file"><code class="docutils literal notranslate"><span class="pre">gen_input_file()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.core.read_database_config"><code class="docutils literal notranslate"><span class="pre">read_database_config()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.core.read_gene_config"><code class="docutils literal notranslate"><span class="pre">read_gene_config()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pyCADD.VSW.html#module-pyCADD.VSW.register">pyCADD.VSW.register module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.register.del_database"><code class="docutils literal notranslate"><span class="pre">del_database()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.register.del_gene"><code class="docutils literal notranslate"><span class="pre">del_gene()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.register.reg_database"><code class="docutils literal notranslate"><span class="pre">reg_database()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.register.reg_gene"><code class="docutils literal notranslate"><span class="pre">reg_gene()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="pyCADD.VSW.html#module-pyCADD.VSW.ui">pyCADD.VSW.ui module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.ui.UI_VSW"><code class="docutils literal notranslate"><span class="pre">UI_VSW</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.ui.UI_VSW.get_database"><code class="docutils literal notranslate"><span class="pre">UI_VSW.get_database()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.ui.UI_VSW.get_gene"><code class="docutils literal notranslate"><span class="pre">UI_VSW.get_gene()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.VSW.html#pyCADD.VSW.ui.UI_VSW.run"><code class="docutils literal notranslate"><span class="pre">UI_VSW.run()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.VSW.html#pycadd-vsw-base-module">pyCADD.VSW.base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.VSW.html#pycadd-vsw-core-module">pyCADD.VSW.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.VSW.html#pycadd-vsw-register-module">pyCADD.VSW.register module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.VSW.html#pycadd-vsw-ui-module">pyCADD.VSW.ui module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pyCADD.VSW.html#module-pyCADD.VSW">Module contents</a></li>
 </ul>
 </li>
@@ -571,14 +462,21 @@
 <li class="toctree-l2"><a class="reference internal" href="pyCADD.utils.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pyCADD.utils.html#module-pyCADD.utils.common">pyCADD.utils.common module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.BaseFile"><code class="docutils literal notranslate"><span class="pre">BaseFile</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.ChDir"><code class="docutils literal notranslate"><span class="pre">ChDir</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.File"><code class="docutils literal notranslate"><span class="pre">File</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.FixedConfig"><code class="docutils literal notranslate"><span class="pre">FixedConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.FixedConfig.optionxform"><code class="docutils literal notranslate"><span class="pre">FixedConfig.optionxform()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pyCADD.utils.html#module-pyCADD.utils.env">pyCADD.utils.env module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.env.check_virtual_environment"><code class="docutils literal notranslate"><span class="pre">check_virtual_environment()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.env.create_environment"><code class="docutils literal notranslate"><span class="pre">create_environment()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.env.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.FixedThread"><code class="docutils literal notranslate"><span class="pre">FixedThread</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.FixedThread.join"><code class="docutils literal notranslate"><span class="pre">FixedThread.join()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.FixedThread.run"><code class="docutils literal notranslate"><span class="pre">FixedThread.run()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.common.TimeoutError"><code class="docutils literal notranslate"><span class="pre">TimeoutError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.utils.html#pycadd-utils-env-module">pyCADD.utils.env module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pyCADD.utils.html#module-pyCADD.utils.log">pyCADD.utils.log module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.log.ModifiedFileHandler"><code class="docutils literal notranslate"><span class="pre">ModifiedFileHandler</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.log.ModifiedFileHandler.emit"><code class="docutils literal notranslate"><span class="pre">ModifiedFileHandler.emit()</span></code></a></li>
@@ -588,20 +486,15 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pyCADD.utils.html#module-pyCADD.utils.tool">pyCADD.utils.tool module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.tool.Myconfig"><code class="docutils literal notranslate"><span class="pre">Myconfig</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.tool.Myconfig.optionxform"><code class="docutils literal notranslate"><span class="pre">Myconfig.optionxform()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.tool.check_file_update_progress"><code class="docutils literal notranslate"><span class="pre">check_file_update_progress()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.tool.download_pdb"><code class="docutils literal notranslate"><span class="pre">download_pdb()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.tool.download_pdb_list"><code class="docutils literal notranslate"><span class="pre">download_pdb_list()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.tool.get_config"><code class="docutils literal notranslate"><span class="pre">get_config()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.tool.get_lib_dir"><code class="docutils literal notranslate"><span class="pre">get_lib_dir()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.tool.is_amber_available"><code class="docutils literal notranslate"><span class="pre">is_amber_available()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.tool.is_gaussian_available"><code class="docutils literal notranslate"><span class="pre">is_gaussian_available()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.tool.is_multiwfn_available"><code class="docutils literal notranslate"><span class="pre">is_multiwfn_available()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.tool.is_pmemd_cuda_available"><code class="docutils literal notranslate"><span class="pre">is_pmemd_cuda_available()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.tool.makedirs_from_list"><code class="docutils literal notranslate"><span class="pre">makedirs_from_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.tool.multiprocessing_run"><code class="docutils literal notranslate"><span class="pre">multiprocessing_run()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.tool.shell_run"><code class="docutils literal notranslate"><span class="pre">shell_run()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pyCADD.utils.html#pyCADD.utils.tool.timeit"><code class="docutils literal notranslate"><span class="pre">timeit()</span></code></a></li>
 </ul>
 </li>
@@ -627,7 +520,7 @@
 </div>
 </section>
 <section id="module-pyCADD">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyCADD" title="Permalink to this heading"></a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyCADD" title="Link to this heading"></a></h2>
 </section>
 </section>
 
@@ -642,7 +535,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Yuhang Wu.</p>
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

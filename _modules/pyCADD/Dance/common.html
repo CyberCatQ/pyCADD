@@ -1,20 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD.Dance.common &mdash; pyCADD 1.6.5 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>pyCADD.Dance.common &mdash; pyCADD 1.6.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
   
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=08abc459"></script>
-        <script src="../../../_static/doctools.js?v=888ff710"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f5333bb9"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -43,16 +43,13 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../README.html">pyCADD</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Dock Module input file format</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../input_file_fmt.html">构建Dock输入文件时的规范</a></li>
-</ul>
 <p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../dock.html">Dock Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dock.html">Dock User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../dance.html">Dance User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../gauss.html">Gauss Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../dynamic.html">Dynamic Quick User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../density.html">Density User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dynamic.html">Dynamic User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demand.html">Demand User Guide</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
@@ -112,7 +109,9 @@
 <span class="n">PARAMS_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_MINING_DIR</span><span class="p">,</span> <span class="s1">&#39;models_params&#39;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Dancer"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Dancer">[docs]</a><span class="k">class</span> <span class="nc">Dancer</span><span class="p">:</span>
+<div class="viewcode-block" id="Dancer">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Dancer">[docs]</a>
+<span class="k">class</span> <span class="nc">Dancer</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Data analyzer for CADD</span>
 <span class="sd">    数据预处理及分析器</span>
@@ -155,7 +154,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">current_datasets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">{</span><span class="s1">&#39;dataset&#39;</span><span class="p">:</span> <span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;activity&#39;</span><span class="p">:</span> <span class="n">activity</span><span class="p">})</span>
 
-<div class="viewcode-block" id="Dancer.add_pos_dataset"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Dancer.add_pos_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">add_pos_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Dancer.add_pos_dataset">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Dancer.add_pos_dataset">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_pos_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        增加正样本数据集</span>
 
@@ -166,7 +167,10 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_dataset</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="s1">&#39;positive&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Dancer.add_neg_dataset"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Dancer.add_neg_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">add_neg_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Dancer.add_neg_dataset">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Dancer.add_neg_dataset">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_neg_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        增加负样本数据集</span>
 
@@ -177,7 +181,10 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_dataset</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="s1">&#39;negative&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Dancer.add_dataset"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Dancer.add_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">add_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Dancer.add_dataset">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Dancer.add_dataset">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        增加数据集</span>
 
@@ -187,6 +194,7 @@
 <span class="sd">            数据集的csv文件路径</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_dataset</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">_add_label_col</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
@@ -211,11 +219,14 @@
             <span class="p">[</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_datasets</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">merged_data</span>
 
-<div class="viewcode-block" id="Dancer.get_merged_data"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Dancer.get_merged_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_merged_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
+<div class="viewcode-block" id="Dancer.get_merged_data">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Dancer.get_merged_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_merged_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        返回合并数据集</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">merged_data</span></div>
+
 
     <span class="k">def</span> <span class="nf">_fill_nan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fill_na_value</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">DataFrame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
@@ -236,7 +247,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">fill_na_value</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Dancer.prepare_data"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Dancer.prepare_data">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fill_nan</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Dancer.prepare_data">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Dancer.prepare_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">prepare_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fill_nan</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        准备数据集</span>
 
@@ -252,21 +265,30 @@
         <span class="k">if</span> <span class="n">fill_nan</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_fill_nan</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Dancer.save_pickle"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Dancer.save_pickle">[docs]</a>    <span class="k">def</span> <span class="nf">save_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">DataFrame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Dancer.save_pickle">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Dancer.save_pickle">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">DataFrame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        保存数据集</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span> <span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">merged_data</span>
         <span class="n">dataset</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PICKLE_DIR</span><span class="p">,</span> <span class="n">file_name</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Dancer.save_csv"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Dancer.save_csv">[docs]</a>    <span class="k">def</span> <span class="nf">save_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">DataFrame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Dancer.save_csv">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Dancer.save_csv">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">DataFrame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        保存数据集</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span> <span class="k">if</span> <span class="n">dataset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">merged_data</span>
         <span class="n">dataset</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_CSV_DIR</span><span class="p">,</span> <span class="n">file_name</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Dancer.save"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Dancer.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">DataFrame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Dancer.save">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Dancer.save">[docs]</a>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">DataFrame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        保存数据集</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -276,10 +298,14 @@
         <span class="k">elif</span> <span class="n">file_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.pickle&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">file_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.pkl&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">save_pickle</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;file_name must end with .csv or .pickle&#39;</span><span class="p">)</span></div></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;file_name must end with .csv or .pickle&#39;</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="Matrix"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Matrix">[docs]</a><span class="k">class</span> <span class="nc">Matrix</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Matrix">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Matrix">[docs]</a>
+<span class="k">class</span> <span class="nc">Matrix</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    结果矩阵</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -305,7 +331,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="Matrix.from_pickle"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Matrix.from_pickle">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Matrix.from_pickle">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Matrix.from_pickle">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_pickle</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Matrix&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        从pickle文件中读取结果矩阵</span>
@@ -319,7 +347,10 @@
         <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Matrix.from_csv"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Matrix.from_csv">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="Matrix.from_csv">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Matrix.from_csv">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_csv</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Matrix&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        从csv文件中读取结果矩阵</span>
@@ -332,7 +363,10 @@
         <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Matrix.from_splited_data"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Matrix.from_splited_data">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="Matrix.from_splited_data">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Matrix.from_splited_data">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_splited_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">train_data</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">test_data</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        从划分好的数据中读取结果矩阵</span>
@@ -350,7 +384,10 @@
         <span class="n">cls_instance</span><span class="o">.</span><span class="n">test_data</span> <span class="o">=</span> <span class="n">test_data</span>
         <span class="k">return</span> <span class="n">cls_instance</span></div>
 
-<div class="viewcode-block" id="Matrix.split_train_test_data"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Matrix.split_train_test_data">[docs]</a>    <span class="k">def</span> <span class="nf">split_train_test_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">label_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;activity&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Matrix.split_train_test_data">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Matrix.split_train_test_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">split_train_test_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">label_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;activity&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        划分训练集和测试集数据</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -369,7 +406,10 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span></div>
 
-<div class="viewcode-block" id="Matrix.get_train_data"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Matrix.get_train_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_train_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;activity&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Matrix.get_train_data">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Matrix.get_train_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_train_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;activity&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        获取训练集数据</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -377,16 +417,23 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">split_train_test_data</span><span class="p">(</span><span class="n">label_col</span><span class="o">=</span><span class="n">label_col</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_data</span></div>
 
-<div class="viewcode-block" id="Matrix.get_test_data"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Matrix.get_test_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_test_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;activity&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Matrix.get_test_data">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Matrix.get_test_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_test_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;activity&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        获取测试集数据</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">split_train_test_data</span><span class="p">(</span><span class="n">label_col</span><span class="o">=</span><span class="n">label_col</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span></div>
+</div>
 
 
-<div class="viewcode-block" id="Evaluator"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator">[docs]</a><span class="k">class</span> <span class="nc">Evaluator</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Evaluator">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator">[docs]</a>
+<span class="k">class</span> <span class="nc">Evaluator</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    模型性能评估器</span>
 <span class="sd">    仅适用于非神经网络模型</span>
@@ -435,7 +482,9 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="n">default_params</span><span class="o">.</span><span class="n">RF_DEFAULT_PARAMS</span>
 
-<div class="viewcode-block" id="Evaluator.get_weights"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.get_weights">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Evaluator.get_weights">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.get_weights">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_weights</span><span class="p">(</span><span class="n">y</span><span class="p">:</span> <span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Series</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        计算不平衡数据集中各类标签的权重</span>
@@ -447,25 +496,37 @@
             <span class="n">_weights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">label_to_count</span><span class="p">[</span><span class="n">label</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">_weights</span></div>
 
-<div class="viewcode-block" id="Evaluator.get_lr_default_params"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.get_lr_default_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_lr_default_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Evaluator.get_lr_default_params">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.get_lr_default_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_lr_default_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        获取默认LR参数空间</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lr_default_params</span></div>
 
-<div class="viewcode-block" id="Evaluator.get_rf_default_params"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.get_rf_default_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_rf_default_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Evaluator.get_rf_default_params">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.get_rf_default_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_rf_default_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        获取默认RF参数空间</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rf_default_params</span></div>
 
-<div class="viewcode-block" id="Evaluator.get_gbt_default_params"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.get_gbt_default_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_gbt_default_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Evaluator.get_gbt_default_params">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.get_gbt_default_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_gbt_default_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        获取默认GBT参数空间</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">gbt_default_params</span></div>
 
-<div class="viewcode-block" id="Evaluator.load_params"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.load_params">[docs]</a>    <span class="k">def</span> <span class="nf">load_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Evaluator.load_params">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.load_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        加载参数文件</span>
 
@@ -483,7 +544,10 @@
             <span class="n">params</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">params</span></div>
 
-<div class="viewcode-block" id="Evaluator.save_params"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.save_params">[docs]</a>    <span class="k">def</span> <span class="nf">save_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Evaluator.save_params">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.save_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        保存参数文件</span>
 
@@ -497,7 +561,10 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PARAMS_DIR</span><span class="p">,</span> <span class="n">file_name</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Evaluator.search_params"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.search_params">[docs]</a>    <span class="k">def</span> <span class="nf">search_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clf</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">params_grid</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;grid&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Evaluator.search_params">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.search_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">search_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clf</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">params_grid</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;grid&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        对模型实施最佳超参数搜索</span>
 
@@ -522,7 +589,10 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">params</span></div>
 
-<div class="viewcode-block" id="Evaluator.add_clf"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.add_clf">[docs]</a>    <span class="k">def</span> <span class="nf">add_clf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clf</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">clf_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Evaluator.add_clf">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.add_clf">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_clf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clf</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">clf_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        添加分类器实例到待评估的self.clfs字典属性中</span>
 <span class="sd">        同名分类器将被覆盖</span>
@@ -539,25 +609,37 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">clfs</span><span class="p">[</span><span class="n">clf_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">clf</span></div>
 
-<div class="viewcode-block" id="Evaluator.del_clf"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.del_clf">[docs]</a>    <span class="k">def</span> <span class="nf">del_clf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clf_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Evaluator.del_clf">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.del_clf">[docs]</a>
+    <span class="k">def</span> <span class="nf">del_clf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clf_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        删除分类器实例</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">clfs</span><span class="p">[</span><span class="n">clf_name</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Evaluator.get_clf"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.get_clf">[docs]</a>    <span class="k">def</span> <span class="nf">get_clf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clf_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Evaluator.get_clf">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.get_clf">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_clf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clf_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        使用名称索引 获取已添加的单个分类器实例</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clfs</span><span class="p">[</span><span class="n">clf_name</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Evaluator.get_clfs_dict"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.get_clfs_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_clfs_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Evaluator.get_clfs_dict">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.get_clfs_dict">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_clfs_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        获取分类器实例字典</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clfs</span></div>
 
-<div class="viewcode-block" id="Evaluator.print_classifier_info"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.print_classifier_info">[docs]</a>    <span class="k">def</span> <span class="nf">print_classifier_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Evaluator.print_classifier_info">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.print_classifier_info">[docs]</a>
+    <span class="k">def</span> <span class="nf">print_classifier_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        打印已添加的分类器参数信息</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -574,7 +656,10 @@
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Evaluator.repeat_cv"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.repeat_cv">[docs]</a>    <span class="k">def</span> <span class="nf">repeat_cv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_repeats</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">k_folds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">,</span> <span class="n">score_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">roc_auc_score</span><span class="p">,</span> <span class="n">use_train_set_only</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Evaluator.repeat_cv">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.repeat_cv">[docs]</a>
+    <span class="k">def</span> <span class="nf">repeat_cv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_repeats</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">k_folds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">,</span> <span class="n">score_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">roc_auc_score</span><span class="p">,</span> <span class="n">use_train_set_only</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        对所有添加的分类器执行多重交叉验证</span>
 
@@ -659,7 +744,10 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cv_results</span></div>
 
-<div class="viewcode-block" id="Evaluator.print_cv_results"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.print_cv_results">[docs]</a>    <span class="k">def</span> <span class="nf">print_cv_results</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Evaluator.print_cv_results">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.print_cv_results">[docs]</a>
+    <span class="k">def</span> <span class="nf">print_cv_results</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        打印交叉验证结果</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -684,6 +772,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="n">formatter</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">clf_name</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%.4f</span><span class="s1">&#39;</span> <span class="o">%</span>
                   <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">clf_cv_results</span><span class="p">)))</span>  <span class="c1"># 打印每个分类器的平均AUC</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;=&#39;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span></div>
+
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_eval_single_clf</span><span class="p">(</span><span class="n">y_test</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">y_proba</span><span class="p">:</span> <span class="n">Series</span><span class="p">):</span>
@@ -723,7 +812,9 @@
             <span class="s1">&#39;tpr&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">tpr</span><span class="p">),</span>
         <span class="p">}</span>
 
-<div class="viewcode-block" id="Evaluator.testset_eval"><a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.testset_eval">[docs]</a>    <span class="k">def</span> <span class="nf">testset_eval</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Evaluator.testset_eval">
+<a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.common.Evaluator.testset_eval">[docs]</a>
+    <span class="k">def</span> <span class="nf">testset_eval</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        使用测试集数据评估性能</span>
 
@@ -752,6 +843,7 @@
             <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">testset_eval_results</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">testset_eval_results</span></div>
+
 
     <span class="k">def</span> <span class="nf">_testset_eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clf_name</span><span class="p">,</span> <span class="n">clf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
@@ -817,6 +909,7 @@
         <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">MODELS_DIR</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">clf_name</span><span class="si">}</span><span class="s1">.pkl&#39;</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>
@@ -826,7 +919,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Yuhang Wu.</p>
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

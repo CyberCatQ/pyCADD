@@ -1,20 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD.Dynamic.template &mdash; pyCADD 1.6.7 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>pyCADD.Dynamic.template &mdash; pyCADD 1.6.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
   
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=9b2bca2a"></script>
-        <script src="../../../_static/doctools.js?v=888ff710"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f5333bb9"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -92,7 +92,9 @@
 <span class="c1">#########################</span>
 
 
-<div class="viewcode-block" id="BaseConstructor"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor">[docs]</a><span class="k">class</span> <span class="nc">BaseConstructor</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseConstructor">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor">[docs]</a>
+<span class="k">class</span> <span class="nc">BaseConstructor</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Base class for all the constructors.</span>
@@ -102,7 +104,9 @@
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state_keys</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
-<div class="viewcode-block" id="BaseConstructor.get_state_dict"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.get_state_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseConstructor.get_state_dict">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.get_state_dict">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the current state of the constructor as a dict.</span>
 
@@ -113,7 +117,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state_keys</span><span class="p">}</span></div>
 
-<div class="viewcode-block" id="BaseConstructor.to_string"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.to_string">[docs]</a>    <span class="nd">@abstractmethod</span>
+
+<div class="viewcode-block" id="BaseConstructor.to_string">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.to_string">[docs]</a>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the current state with formated template as a string.</span>
@@ -125,13 +132,19 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
-<div class="viewcode-block" id="BaseConstructor.to_str"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.to_str">[docs]</a>    <span class="k">def</span> <span class="nf">to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="BaseConstructor.to_str">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.to_str">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Same as to_string().</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="BaseConstructor.to_dict"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+
+<div class="viewcode-block" id="BaseConstructor.to_dict">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.to_dict">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the current state as a dict with current state.</span>
 
@@ -142,14 +155,20 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="BaseConstructor.save"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="BaseConstructor.save">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.save">[docs]</a>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the current state as a file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span></div>
 
-<div class="viewcode-block" id="BaseConstructor.add_attr"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.add_attr">[docs]</a>    <span class="k">def</span> <span class="nf">add_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="BaseConstructor.add_attr">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.add_attr">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add attributes to the constructor.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -160,13 +179,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_state_keys</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span></div>
 
-<div class="viewcode-block" id="BaseConstructor.get_attr"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.get_attr">[docs]</a>    <span class="k">def</span> <span class="nf">get_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="BaseConstructor.get_attr">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.get_attr">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the value of the attribute.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">()[</span><span class="n">attr_name</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="BaseConstructor.set_attr"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.set_attr">[docs]</a>    <span class="k">def</span> <span class="nf">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="BaseConstructor.set_attr">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.set_attr">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the value of the attribute.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -176,7 +201,10 @@
                     <span class="sa">f</span><span class="s2">&quot;Attribute </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> can not be found in the current state.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BaseConstructor.del_attr"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.del_attr">[docs]</a>    <span class="k">def</span> <span class="nf">del_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="BaseConstructor.del_attr">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.del_attr">[docs]</a>
+    <span class="k">def</span> <span class="nf">del_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Delete the attribute from the current state.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -184,7 +212,9 @@
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Attribute </span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2"> can not be found in the current state.&quot;</span><span class="p">)</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">attr_name</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_state_keys</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">attr_name</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state_keys</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">attr_name</span><span class="p">)</span></div>
+</div>
+
 
 <span class="n">_LEAP_BASE_TEMPLATE_APO</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 
@@ -216,7 +246,9 @@
 <span class="n">_LEAP_BASE_TEMPLATE</span> <span class="o">=</span> <span class="n">_LEAP_BASE_TEMPLATE_LIGAND</span> <span class="o">+</span> <span class="n">_LEAP_BASE_TEMPLATE_APO</span>
 
 
-<div class="viewcode-block" id="LeapConstructor"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.LeapConstructor">[docs]</a><span class="k">class</span> <span class="nc">LeapConstructor</span><span class="p">(</span><span class="n">BaseConstructor</span><span class="p">):</span>
+<div class="viewcode-block" id="LeapConstructor">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.LeapConstructor">[docs]</a>
+<span class="k">class</span> <span class="nc">LeapConstructor</span><span class="p">(</span><span class="n">BaseConstructor</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        LEaP 文件用于生成蛋白-配体复合物的拓扑和坐标文件。</span>
@@ -253,13 +285,19 @@
             <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;source leaprc.</span><span class="si">{</span><span class="n">ff</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">ff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">()[</span><span class="s2">&quot;force_field&quot;</span><span class="p">]])</span>
         <span class="k">return</span> <span class="n">_tmplate</span>
 
-<div class="viewcode-block" id="LeapConstructor.to_string"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.LeapConstructor.to_string">[docs]</a>    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="LeapConstructor.to_string">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.LeapConstructor.to_string">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">output_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_force_field_template</span><span class="p">()</span>
         <span class="n">output_str</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">())</span>
-        <span class="k">return</span> <span class="n">output_str</span></div></div>
+        <span class="k">return</span> <span class="n">output_str</span></div>
+</div>
 
 
-<div class="viewcode-block" id="SimulationConstructor"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.SimulationConstructor">[docs]</a><span class="k">class</span> <span class="nc">SimulationConstructor</span><span class="p">(</span><span class="n">BaseConstructor</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SimulationConstructor">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.SimulationConstructor">[docs]</a>
+<span class="k">class</span> <span class="nc">SimulationConstructor</span><span class="p">(</span><span class="n">BaseConstructor</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;cntrl&#39;</span><span class="p">,</span> <span class="s1">&#39;wt&#39;</span><span class="p">],</span> <span class="n">end_cfg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -282,7 +320,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_end_cfg</span> <span class="o">=</span> <span class="n">end_cfg</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
 
-<div class="viewcode-block" id="SimulationConstructor.to_string"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.SimulationConstructor.to_string">[docs]</a>    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="SimulationConstructor.to_string">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.SimulationConstructor.to_string">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">output_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="se">\n</span><span class="s2">&amp;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="k">else</span><span class="p">:</span>
@@ -292,10 +332,14 @@
         <span class="n">output_str</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">/</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_cfg</span><span class="p">:</span>
             <span class="n">output_str</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">END&#39;</span>
-        <span class="k">return</span> <span class="n">output_str</span></div></div>
+        <span class="k">return</span> <span class="n">output_str</span></div>
+</div>
 
 
-<div class="viewcode-block" id="AnalysisConstructor"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.AnalysisConstructor">[docs]</a><span class="k">class</span> <span class="nc">AnalysisConstructor</span><span class="p">(</span><span class="n">BaseConstructor</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AnalysisConstructor">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.AnalysisConstructor">[docs]</a>
+<span class="k">class</span> <span class="nc">AnalysisConstructor</span><span class="p">(</span><span class="n">BaseConstructor</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">,</span> <span class="s1">&#39;gb&#39;</span><span class="p">,</span> <span class="s1">&#39;pb&#39;</span><span class="p">,</span> <span class="s1">&#39;decomp&#39;</span><span class="p">,</span> <span class="s1">&#39;nmode&#39;</span><span class="p">],</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        MD 轨迹分析输入文件用于分析 MD 轨迹。</span>
@@ -305,16 +349,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="nb">type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
 
-<div class="viewcode-block" id="AnalysisConstructor.to_string"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.AnalysisConstructor.to_string">[docs]</a>    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="AnalysisConstructor.to_string">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.AnalysisConstructor.to_string">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">output_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;# </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="n">output_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&amp;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">output_str</span> <span class="o">+=</span> <span class="s2">&quot;,</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span>
                                  <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
         <span class="n">output_str</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">/</span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="k">return</span> <span class="n">output_str</span></div></div>
+        <span class="k">return</span> <span class="n">output_str</span></div>
+</div>
 
 
-<div class="viewcode-block" id="MultiConstructorManager"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager">[docs]</a><span class="k">class</span> <span class="nc">MultiConstructorManager</span><span class="p">:</span>
+
+<div class="viewcode-block" id="MultiConstructorManager">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager">[docs]</a>
+<span class="k">class</span> <span class="nc">MultiConstructorManager</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constructor_list</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">constructor_list</span> <span class="o">=</span> <span class="n">constructor_list</span> <span class="k">if</span> <span class="n">constructor_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span>
 
@@ -328,23 +378,39 @@
                 <span class="n">_state_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">constructor</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">())</span>
             <span class="k">return</span> <span class="n">_state_dict</span>
     
-<div class="viewcode-block" id="MultiConstructorManager.is_empty"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager.is_empty">[docs]</a>    <span class="k">def</span> <span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="MultiConstructorManager.is_empty">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager.is_empty">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constructor_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span></div>
 
-<div class="viewcode-block" id="MultiConstructorManager.add_constructor"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager.add_constructor">[docs]</a>    <span class="k">def</span> <span class="nf">add_constructor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constructor</span><span class="p">:</span> <span class="n">BaseConstructor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="MultiConstructorManager.add_constructor">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager.add_constructor">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_constructor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constructor</span><span class="p">:</span> <span class="n">BaseConstructor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">constructor_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constructor</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MultiConstructorManager.del_constructor"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager.del_constructor">[docs]</a>    <span class="k">def</span> <span class="nf">del_constructor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constructor</span><span class="p">:</span> <span class="n">BaseConstructor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="MultiConstructorManager.del_constructor">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager.del_constructor">[docs]</a>
+    <span class="k">def</span> <span class="nf">del_constructor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constructor</span><span class="p">:</span> <span class="n">BaseConstructor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">constructor_list</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">constructor</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MultiConstructorManager.to_string"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager.to_string">[docs]</a>    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="MultiConstructorManager.to_string">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager.to_string">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">output_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">tmp</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span>
                              <span class="k">for</span> <span class="n">tmp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">constructor_list</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">output_str</span></div>
 
-<div class="viewcode-block" id="MultiConstructorManager.save"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="MultiConstructorManager.save">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager.save">[docs]</a>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span></div></div>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span></div>
+</div>
+
 
 <span class="c1">#########################</span>
 <span class="c1"># Default Config</span>
@@ -421,7 +487,9 @@
 <span class="c1">#########################</span>
 
 
-<div class="viewcode-block" id="LeapInput"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.LeapInput">[docs]</a><span class="k">class</span> <span class="nc">LeapInput</span><span class="p">(</span><span class="n">LeapConstructor</span><span class="p">):</span>
+<div class="viewcode-block" id="LeapInput">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.LeapInput">[docs]</a>
+<span class="k">class</span> <span class="nc">LeapInput</span><span class="p">(</span><span class="n">LeapConstructor</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">protein_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -465,12 +533,15 @@
         <span class="n">state_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span></div>
 
+
 <span class="c1">#########################</span>
 <span class="c1"># MD Simulation Input File</span>
 <span class="c1">#########################</span>
 
 
-<div class="viewcode-block" id="MinimizeInput"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MinimizeInput">[docs]</a><span class="k">class</span> <span class="nc">MinimizeInput</span><span class="p">(</span><span class="n">SimulationConstructor</span><span class="p">):</span>
+<div class="viewcode-block" id="MinimizeInput">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MinimizeInput">[docs]</a>
+<span class="k">class</span> <span class="nc">MinimizeInput</span><span class="p">(</span><span class="n">SimulationConstructor</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -493,7 +564,10 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">state_dict</span><span class="p">,</span> <span class="s2">&quot;cntrl&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="RestrainedMinimizeInput"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.RestrainedMinimizeInput">[docs]</a><span class="k">class</span> <span class="nc">RestrainedMinimizeInput</span><span class="p">(</span><span class="n">SimulationConstructor</span><span class="p">):</span>
+
+<div class="viewcode-block" id="RestrainedMinimizeInput">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.RestrainedMinimizeInput">[docs]</a>
+<span class="k">class</span> <span class="nc">RestrainedMinimizeInput</span><span class="p">(</span><span class="n">SimulationConstructor</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">restraintmask</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">restraint_wt</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Restrained Minimization Input Config Constructor</span>
@@ -522,7 +596,10 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">state_dict</span><span class="p">,</span> <span class="s2">&quot;cntrl&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="NVTInput"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.NVTInput">[docs]</a><span class="k">class</span> <span class="nc">NVTInput</span><span class="p">(</span><span class="n">SimulationConstructor</span><span class="p">):</span>
+
+<div class="viewcode-block" id="NVTInput">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.NVTInput">[docs]</a>
+<span class="k">class</span> <span class="nc">NVTInput</span><span class="p">(</span><span class="n">SimulationConstructor</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end_cfg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        NVT System Input Config Constructor.</span>
@@ -559,7 +636,10 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">state_dict</span><span class="p">,</span> <span class="s2">&quot;cntrl&quot;</span><span class="p">,</span> <span class="n">end_cfg</span><span class="o">=</span><span class="n">end_cfg</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="HeatInput"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput">[docs]</a><span class="k">class</span> <span class="nc">HeatInput</span><span class="p">:</span>
+
+<div class="viewcode-block" id="HeatInput">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput">[docs]</a>
+<span class="k">class</span> <span class="nc">HeatInput</span><span class="p">:</span>
     <span class="n">HEAT_TEMPLATE</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\&#39;</span><span class="s2">TEMP0</span><span class="se">\&#39;</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="s2">&quot;ISTEP1&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
@@ -617,10 +697,15 @@
     <span class="k">def</span> <span class="nf">_state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">_state_dict</span>
     
-<div class="viewcode-block" id="HeatInput.get_state_dict"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.get_state_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<div class="viewcode-block" id="HeatInput.get_state_dict">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.get_state_dict">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state_dict</span></div>
+
     
-<div class="viewcode-block" id="HeatInput.add_nvt"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.add_nvt">[docs]</a>    <span class="k">def</span> <span class="nf">add_nvt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="HeatInput.add_nvt">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.add_nvt">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_nvt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">nvt_part</span> <span class="o">=</span> <span class="n">NVTInput</span><span class="p">(</span>
             <span class="n">end_cfg</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">imin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">irest</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ntx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -633,7 +718,10 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="n">nvt_part</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="HeatInput.add_heat"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.add_heat">[docs]</a>    <span class="k">def</span> <span class="nf">add_heat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="HeatInput.add_heat">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.add_heat">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_heat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">stage_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="n">SimulationConstructor</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">stage_1_dict</span><span class="p">,</span> <span class="s1">&#39;wt&#39;</span><span class="p">,</span> <span class="n">end_cfg</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
@@ -645,6 +733,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span>
                 <span class="n">SimulationConstructor</span><span class="p">(</span><span class="n">stage_dict</span><span class="p">,</span> <span class="s1">&#39;wt&#39;</span><span class="p">,</span> <span class="n">end_cfg</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
 
+
     <span class="k">def</span> <span class="nf">_default_workflow</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">restraint_wt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">restraintmask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -654,16 +743,25 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_nvt</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_heat</span><span class="p">()</span>
 
-<div class="viewcode-block" id="HeatInput.to_string"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.to_string">[docs]</a>    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="HeatInput.to_string">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.to_string">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default_workflow</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="HeatInput.save"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="HeatInput.save">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.save">[docs]</a>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_default_workflow</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="NPTInput"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.NPTInput">[docs]</a><span class="k">class</span> <span class="nc">NPTInput</span><span class="p">(</span><span class="n">SimulationConstructor</span><span class="p">):</span>
+
+<div class="viewcode-block" id="NPTInput">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.NPTInput">[docs]</a>
+<span class="k">class</span> <span class="nc">NPTInput</span><span class="p">(</span><span class="n">SimulationConstructor</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end_cfg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        NPT System Input Config Constructor.</span>
@@ -693,6 +791,7 @@
         <span class="n">state_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">state_dict</span><span class="p">,</span> <span class="s2">&quot;cntrl&quot;</span><span class="p">,</span> <span class="n">end_cfg</span><span class="o">=</span><span class="n">end_cfg</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span></div>
 
+
 <span class="c1">#########################</span>
 <span class="c1"># MD Trajectory Analysis Input File</span>
 <span class="c1">#########################</span>
@@ -701,7 +800,7 @@
 <span class="n">MMGBSA_GENERAL_DEFAULT</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;startframe&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="s2">&quot;endframe&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="s2">&quot;step_size&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="s2">&quot;interval&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
     <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
     <span class="s2">&quot;keep_files&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
     <span class="s2">&quot;netcdf&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
@@ -728,7 +827,9 @@
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="MMGBSAInput"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput">[docs]</a><span class="k">class</span> <span class="nc">MMGBSAInput</span><span class="p">:</span>
+<div class="viewcode-block" id="MMGBSAInput">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput">[docs]</a>
+<span class="k">class</span> <span class="nc">MMGBSAInput</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">start_frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -740,41 +841,63 @@
             <span class="n">startframe</span><span class="o">=</span><span class="n">start_frame</span><span class="p">,</span> <span class="n">endframe</span><span class="o">=</span><span class="n">end_frame</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="n">step_size</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">manager</span> <span class="o">=</span> <span class="n">MultiConstructorManager</span><span class="p">()</span>
 
-<div class="viewcode-block" id="MMGBSAInput.add_general"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.add_general">[docs]</a>    <span class="k">def</span> <span class="nf">add_general</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="MMGBSAInput.add_general">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.add_general">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_general</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">general_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">general_part</span> <span class="o">=</span> <span class="n">AnalysisConstructor</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">general_dict</span><span class="p">,</span> <span class="s1">&#39;general&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="n">general_part</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MMGBSAInput.add_gb"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.add_gb">[docs]</a>    <span class="k">def</span> <span class="nf">add_gb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="MMGBSAInput.add_gb">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.add_gb">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_gb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">gb_dict</span> <span class="o">=</span> <span class="n">MMGBSA_GB_DEFAULT</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">gb_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">gb_part</span> <span class="o">=</span> <span class="n">AnalysisConstructor</span><span class="p">(</span><span class="n">gb_dict</span><span class="p">,</span> <span class="s1">&#39;gb&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="n">gb_part</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MMGBSAInput.add_pb"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.add_pb">[docs]</a>    <span class="k">def</span> <span class="nf">add_pb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="MMGBSAInput.add_pb">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.add_pb">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_pb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">pb_dict</span> <span class="o">=</span> <span class="n">MMGBSA_PB_DEFAULT</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">pb_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">pb_part</span> <span class="o">=</span> <span class="n">AnalysisConstructor</span><span class="p">(</span><span class="n">pb_dict</span><span class="p">,</span> <span class="s1">&#39;pb&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="n">pb_part</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MMGBSAInput.add_decomp"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.add_decomp">[docs]</a>    <span class="k">def</span> <span class="nf">add_decomp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="MMGBSAInput.add_decomp">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.add_decomp">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_decomp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">decomp_dict</span> <span class="o">=</span> <span class="n">MMGBSA_DECOMP_DEFAULT</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">decomp_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">decomp_part</span> <span class="o">=</span> <span class="n">AnalysisConstructor</span><span class="p">(</span><span class="n">decomp_dict</span><span class="p">,</span> <span class="s1">&#39;decomp&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="n">decomp_part</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MMGBSAInput.add_nmode"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.add_nmode">[docs]</a>    <span class="k">def</span> <span class="nf">add_nmode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="MMGBSAInput.add_nmode">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.add_nmode">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_nmode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">nmode_dict</span> <span class="o">=</span> <span class="n">MMGBSA_NMODE_DEFAULT</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">nmode_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">nmode_part</span> <span class="o">=</span> <span class="n">AnalysisConstructor</span><span class="p">(</span><span class="n">nmode_dict</span><span class="p">,</span> <span class="s1">&#39;nmode&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="n">nmode_part</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="MMGBSAInput.to_string"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.to_string">[docs]</a>    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="MMGBSAInput.to_string">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.to_string">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="MMGBSAInput.save"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="MMGBSAInput.save">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.save">[docs]</a>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span></div>
+</div>
+
 </pre></div>
 
            </div>
@@ -784,7 +907,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Yuhang Wu.</p>
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

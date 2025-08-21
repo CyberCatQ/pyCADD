@@ -1,20 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD.Dynamic.core &mdash; pyCADD 1.6.8 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>pyCADD.Dynamic.core &mdash; pyCADD 1.6.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
   
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=733169e8"></script>
-        <script src="../../../_static/doctools.js?v=888ff710"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f5333bb9"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -89,7 +89,7 @@
 <span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
 
-<span class="kn">from</span> <span class="nn">pyCADD.Dynamic.template</span> <span class="kn">import</span> <span class="n">LeapInput</span>
+<span class="kn">from</span> <span class="nn">pyCADD.Dynamic.template</span> <span class="kn">import</span> <span class="n">LeapInput</span><span class="p">,</span> <span class="n">MMGBSAInput</span>
 <span class="kn">from</span> <span class="nn">pyCADD.utils.common</span> <span class="kn">import</span> <span class="n">BaseFile</span>
 <span class="kn">from</span> <span class="nn">pyCADD.utils.tool</span> <span class="kn">import</span> <span class="n">_get_progress</span><span class="p">,</span> <span class="n">makedirs_from_list</span><span class="p">,</span> <span class="n">timeit</span>
 
@@ -217,7 +217,9 @@
         <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">atom_end_idx</span><span class="p">:])</span>
 
 
-<div class="viewcode-block" id="protein_prepare"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.protein_prepare">[docs]</a><span class="k">def</span> <span class="nf">protein_prepare</span><span class="p">(</span><span class="n">protein_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">keep_water</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseFile</span><span class="p">:</span>
+<div class="viewcode-block" id="protein_prepare">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.protein_prepare">[docs]</a>
+<span class="k">def</span> <span class="nf">protein_prepare</span><span class="p">(</span><span class="n">protein_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">keep_water</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseFile</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    预处理蛋白质PDB文件</span>
 <span class="sd">        PDB文件格式化 for Amber | 去除原生H原子 | 使用rudece添加H原子 | 再次格式化</span>
@@ -265,7 +267,10 @@
     <span class="k">return</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">leap_file_path</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="molecule_prepare_resp2"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.molecule_prepare_resp2">[docs]</a><span class="k">def</span> <span class="nf">molecule_prepare_resp2</span><span class="p">(</span>
+
+<div class="viewcode-block" id="molecule_prepare_resp2">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.molecule_prepare_resp2">[docs]</a>
+<span class="k">def</span> <span class="nf">molecule_prepare_resp2</span><span class="p">(</span>
         <span class="n">ligand_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span>
         <span class="n">cpu_num</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">charge</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -273,7 +278,7 @@
         <span class="n">solvent</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">keep_origin_cood</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+        <span class="n">keep_origin_cood</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    预处理小分子文件</span>
 <span class="sd">        高斯坐标优化与RESP2(0.5)电荷计算</span>
@@ -295,7 +300,7 @@
 <span class="sd">    overwrite : bool, optional</span>
 <span class="sd">        是否覆盖已存在文件 默认为False</span>
 <span class="sd">    keep_origin_cood : bool, optional</span>
-<span class="sd">        是否在输出结构中保留原始坐标 而不使用高斯结构优化的坐标 默认为False</span>
+<span class="sd">        是否在输出结构中保留原始坐标 而不使用高斯结构优化的坐标 默认为True</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -370,7 +375,10 @@
     <span class="k">return</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">mol2_file_path</span><span class="p">),</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">frcmod_file_path</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="molecule_prepare_bcc"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.molecule_prepare_bcc">[docs]</a><span class="k">def</span> <span class="nf">molecule_prepare_bcc</span><span class="p">(</span>
+
+<div class="viewcode-block" id="molecule_prepare_bcc">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.molecule_prepare_bcc">[docs]</a>
+<span class="k">def</span> <span class="nf">molecule_prepare_bcc</span><span class="p">(</span>
         <span class="n">ligand_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span>
         <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -418,6 +426,7 @@
     <span class="k">return</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">mol2_file_path</span><span class="p">),</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">frcmod_file_path</span><span class="p">)</span></div>
 
 
+
 <span class="k">def</span> <span class="nf">_creat_leap_inputfile</span><span class="p">(</span>
         <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">protein_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -457,7 +466,9 @@
     <span class="k">return</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="leap_prepare"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.leap_prepare">[docs]</a><span class="k">def</span> <span class="nf">leap_prepare</span><span class="p">(</span><span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ligand_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">frcmod_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">protein_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">box_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">12.0</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="leap_prepare">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.leap_prepare">[docs]</a>
+<span class="k">def</span> <span class="nf">leap_prepare</span><span class="p">(</span><span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ligand_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">frcmod_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">protein_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">box_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">12.0</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    创建LEaP输入文件并执行tleap命令</span>
 
@@ -501,7 +512,10 @@
     <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">CWD</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="leap_prepare_for_apo"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.leap_prepare_for_apo">[docs]</a><span class="k">def</span> <span class="nf">leap_prepare_for_apo</span><span class="p">(</span><span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">protein_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">box_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">12.0</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="leap_prepare_for_apo">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.leap_prepare_for_apo">[docs]</a>
+<span class="k">def</span> <span class="nf">leap_prepare_for_apo</span><span class="p">(</span><span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">protein_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">box_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">12.0</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    创建Apo晶体的LEaP输入文件并执行tleap命令</span>
 
@@ -538,6 +552,7 @@
         <span class="sa">f</span><span class="s1">&#39;ambpdb -p </span><span class="si">{</span><span class="n">comsolvate_topfile_path</span><span class="si">}</span><span class="s1"> &lt; </span><span class="si">{</span><span class="n">comsolvate_crdfile_path</span><span class="si">}</span><span class="s1"> &gt; </span><span class="si">{</span><span class="n">comsolvate_pdbfile_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">CWD</span><span class="p">)</span></div>
+
 
 
 <span class="k">def</span> <span class="nf">_get_water_resnum</span><span class="p">(</span><span class="n">comsolvate_pdbfile</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
@@ -626,7 +641,9 @@
     <span class="k">return</span> <span class="n">output_list</span>
 
 
-<div class="viewcode-block" id="BaseProcess"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.BaseProcess">[docs]</a><span class="k">class</span> <span class="nc">BaseProcess</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseProcess">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.BaseProcess">[docs]</a>
+<span class="k">class</span> <span class="nc">BaseProcess</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="n">input_file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_name</span> <span class="o">=</span> <span class="n">process_name</span>
@@ -634,11 +651,17 @@
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
 
-<div class="viewcode-block" id="BaseProcess.run"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.BaseProcess.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+<div class="viewcode-block" id="BaseProcess.run">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.BaseProcess.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+</div>
 
 
-<div class="viewcode-block" id="MDProcess"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess">[docs]</a><span class="k">class</span> <span class="nc">MDProcess</span><span class="p">(</span><span class="n">BaseProcess</span><span class="p">):</span>
+
+<div class="viewcode-block" id="MDProcess">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess">[docs]</a>
+<span class="k">class</span> <span class="nc">MDProcess</span><span class="p">(</span><span class="n">BaseProcess</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">process_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -656,7 +679,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mdcrd_file_path</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mdrst_file_path</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="MDProcess.run"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">toplogy_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">inpcrd_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">reference_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">BaseFile</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">nohup</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;MDProcess&#39;</span><span class="p">:</span>
+<div class="viewcode-block" id="MDProcess.run">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">toplogy_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">inpcrd_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">reference_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">BaseFile</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">nohup</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;MDProcess&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Run MD process.</span>
 
@@ -720,24 +745,35 @@
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Process </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">process_name</span><span class="si">}</span><span class="s2"> finished.&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span></div>
+</div>
 
 
-<div class="viewcode-block" id="MinimizeProcess"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MinimizeProcess">[docs]</a><span class="k">class</span> <span class="nc">MinimizeProcess</span><span class="p">(</span><span class="n">MDProcess</span><span class="p">):</span>
+
+<div class="viewcode-block" id="MinimizeProcess">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MinimizeProcess">[docs]</a>
+<span class="k">class</span> <span class="nc">MinimizeProcess</span><span class="p">(</span><span class="n">MDProcess</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">process_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="NPTProcess"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.NPTProcess">[docs]</a><span class="k">class</span> <span class="nc">NPTProcess</span><span class="p">(</span><span class="n">MDProcess</span><span class="p">):</span>
+
+<div class="viewcode-block" id="NPTProcess">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.NPTProcess">[docs]</a>
+<span class="k">class</span> <span class="nc">NPTProcess</span><span class="p">(</span><span class="n">MDProcess</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">is_production</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">process_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_production</span> <span class="o">=</span> <span class="n">is_production</span></div>
 
 
-<div class="viewcode-block" id="NVTProcess"><a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.NVTProcess">[docs]</a><span class="k">class</span> <span class="nc">NVTProcess</span><span class="p">(</span><span class="n">MDProcess</span><span class="p">):</span>
+
+<div class="viewcode-block" id="NVTProcess">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.NVTProcess">[docs]</a>
+<span class="k">class</span> <span class="nc">NVTProcess</span><span class="p">(</span><span class="n">MDProcess</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">BaseFile</span><span class="p">,</span> <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">is_production</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">process_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_production</span> <span class="o">=</span> <span class="n">is_production</span></div>
+
 
 
 <span class="nd">@timeit</span>
@@ -903,32 +939,40 @@
 <span class="sd">        能量计算输入文件</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="k">if</span> <span class="n">save_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CWD</span>
-
+    <span class="n">mmgbsa_input</span> <span class="o">=</span> <span class="n">MMGBSAInput</span><span class="p">(</span><span class="n">start_frame</span><span class="o">=</span><span class="n">startframe</span><span class="p">,</span> <span class="n">end_frame</span><span class="o">=</span><span class="n">endframe</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="n">interval</span><span class="p">)</span>
+    <span class="n">mmgbsa_input</span><span class="o">.</span><span class="n">add_general</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">job_type</span> <span class="o">==</span> <span class="s1">&#39;pb/gb&#39;</span><span class="p">:</span>
+        <span class="n">mmgbsa_input</span><span class="o">.</span><span class="n">add_pb</span><span class="p">()</span>
+        <span class="n">mmgbsa_input</span><span class="o">.</span><span class="n">add_gb</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">decomp</span><span class="p">:</span>
-            <span class="n">template_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TEMPLATE_DIR</span><span class="p">,</span> <span class="s1">&#39;mmpb_gbsa_decom.in&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">template_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TEMPLATE_DIR</span><span class="p">,</span> <span class="s1">&#39;mmpb_gbsa_only.in&#39;</span><span class="p">)</span>
+            <span class="c1"># template_file = os.path.join(TEMPLATE_DIR, &#39;mmpb_gbsa_decom.in&#39;)</span>
+            <span class="n">mmgbsa_input</span><span class="o">.</span><span class="n">add_decomp</span><span class="p">()</span>
+        <span class="c1"># else:</span>
+        <span class="c1">#     template_file = os.path.join(TEMPLATE_DIR, &#39;mmpb_gbsa_only.in&#39;)</span>
     <span class="k">elif</span> <span class="n">job_type</span> <span class="o">==</span> <span class="s1">&#39;gb&#39;</span><span class="p">:</span>
+        <span class="n">mmgbsa_input</span><span class="o">.</span><span class="n">add_gb</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">decomp</span><span class="p">:</span>
-            <span class="n">template_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TEMPLATE_DIR</span><span class="p">,</span> <span class="s1">&#39;mmgbsa_decom.in&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">template_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TEMPLATE_DIR</span><span class="p">,</span> <span class="s1">&#39;mmgbsa_only.in&#39;</span><span class="p">)</span>
+            <span class="c1"># template_file = os.path.join(TEMPLATE_DIR, &#39;mmgbsa_decom.in&#39;)</span>
+            <span class="n">mmgbsa_input</span><span class="o">.</span><span class="n">add_decomp</span><span class="p">()</span>
+        <span class="c1"># else:</span>
+        <span class="c1">#     template_file = os.path.join(TEMPLATE_DIR, &#39;mmgbsa_only.in&#39;)</span>
     <span class="k">elif</span> <span class="n">job_type</span> <span class="o">==</span> <span class="s1">&#39;nmode&#39;</span><span class="p">:</span>
-        <span class="n">template_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TEMPLATE_DIR</span><span class="p">,</span> <span class="s1">&#39;nmode.in&#39;</span><span class="p">)</span>
+        <span class="c1"># template_file = os.path.join(TEMPLATE_DIR, &#39;nmode.in&#39;)</span>
+        <span class="n">mmgbsa_input</span><span class="o">.</span><span class="n">add_nmode</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid job_type: </span><span class="si">{</span><span class="n">job_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-    <span class="n">output_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">template_file</span><span class="p">))</span>
-    <span class="n">input_file</span> <span class="o">=</span> <span class="n">_creat_file_from_template</span><span class="p">(</span>
-        <span class="n">template_file</span><span class="p">,</span>
-        <span class="n">output_file</span><span class="p">,</span>
-        <span class="n">startframe</span><span class="o">=</span><span class="n">startframe</span><span class="p">,</span>
-        <span class="n">endframe</span><span class="o">=</span><span class="n">endframe</span><span class="p">,</span>
-        <span class="n">interval</span><span class="o">=</span><span class="n">interval</span>
-    <span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">input_file</span>
+    <span class="c1"># output_file = os.path.join(save_dir, os.path.basename(template_file))</span>
+    <span class="c1"># input_file = _creat_file_from_template(</span>
+    <span class="c1">#     template_file,</span>
+    <span class="c1">#     output_file,</span>
+    <span class="c1">#     startframe=startframe,</span>
+    <span class="c1">#     endframe=endframe,</span>
+    <span class="c1">#     interval=interval</span>
+    <span class="c1"># )</span>
+    <span class="n">input_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">job_type</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">.in&quot;</span><span class="p">)</span>
+    <span class="n">mmgbsa_input</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">BaseFile</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">)</span>
 
 
 <span class="nd">@timeit</span>
@@ -967,7 +1011,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Yuhang Wu.</p>
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -16,26 +16,40 @@ Demand 模块也能够为 Dock 模块开展 Ensemble Docking 快速生成必要�
 一旦您确定了uniprot ID, 可以通过下面的命令来快速检索当前蛋白的 PDB 数据。  
 
 ```bash
-pycadd-demand [options] UNIPROT_ID
+pycadd-demand [options] [UNIPROT_ID]
 ```
+- UNIPROT_ID: 您需要检索的蛋白的 Uniprot ID。
+- -f, --pdb_list_file: 查询指定csv文件中包含的PDB ID信息，而不是通过Uniprot ID查询。csv文件应该包含一个PDBID列。
+- -p, --pdb_column: 指定csv文件中包含PDB ID信息的列名，默认为`PDBID`。
+
 `Demand` 最初是为了生成 `Dock` 模块中用于 Ensemble Docking 功能输入文件而创造的，因此，下面的参数仅会影响 `Dock` 模块的输入文件生成，而不会影响 `Demand` 模块的运行。**无论如何设定可选参数，与当前蛋白相关的所有PDB数据都会被检索并保存。**
 
+- -g, --generate: 生成Dock输入文件。默认情况下，不生成Dock输入文件。如果您需要生成Dock输入文件，必须提供Uniprot ID，并使用该参数。
+- -o, --output_format: 设定生成输入文件的格式。Dock 支持 csv | in | ini | yml | yaml格式，但为了便于人类阅读，您可以选择所需的格式来输出，默认为yml。
+- -c, --cutoff FLOAT: 在生成输入文件时的结构分辨率截断值，单位为埃(Angstrom)，高于截断值的结构将被过滤。默认情况下，不进行分辨率过滤。如果您需要检索更高分辨率（即具有一个更低的Cutoff）的结构，请使用该参数，并提供一个具体的浮点数。
 - -m / --not_del_mutations: 在生成输入文件时不删除突变体。默认情况下，Demand 模块会删除突变的蛋白结构，只保留原始蛋白(Wild Type)的结构信息，突变体的分辨是根据PDB数据库返回信息确定的。如果您需要保留突变体的结构信息，请使用该参数。
 - -e / --not_del_ignore: 在生成输入文件时不删除小分子中的**忽略分子**。**忽略分子**指通常不属于常规小分子化合物或配体的分子、原子或离子，主要为各类溶剂分子(如乙醇、DMSO等)、金属离子(镁、钾、磷酸根离子等)。您可以在 pyCADD.Demand.config 中修改这些分子的列表，或者使用该参数来保留这些分子。目前的版本中，它们包括：
     ```
     # 非配体的小分子
     IGNORE_LIG = ['EDO', 'DMS', 'IPA', 'TBY', 'ARS', 'EU', 'MG', 'IOD', 'ACT', 'CA', 'CAC', 'K', 'FMT', 'BU3', 'PGO', 'PE4', 'PO4', 'BR', 'NO3', 'BCT', 'ZN', 'SO4', 'CL', 'NA', 'AU', 'GOL', 'NI', 'YT3', 'PEG', 'PGE']
     ```
-- -c, --cutoff FLOAT: 在生成输入文件时的结构分辨率截断值，单位为埃(Angstrom)，高于截断值的结构将被过滤。默认情况下，不进行分辨率过滤。如果您需要检索更高分辨率（即具有一个更低的Cutoff）的结构，请使用该参数，并提供一个具体的浮点数。
-- -o, --output_format: 设定生成输入文件的格式。Dock 支持 csv | in | ini | yml | yaml格式，但为了便于人类阅读，您可以选择所需的格式来输出，默认为yml。
+
 
 例如，如果您需要检索人类RXRα蛋白(Uniprot ID: P19793) 的PDB数据，可以使用下面的命令：
 
 ```bash
 pycadd-demand P19793
 ```
-随后将产生一个`query_data`文件夹和 `P19793.yml`文件。其中，`query_data`文件夹中包含了所有检索到的PDB数据，整合完毕的PDB信息被保存于 `query_data/pdb/P19793.csv` 中，使用其他工具便可在本地进行进一步的分析和研究。  
-`P19793.yml`文件仅用于作为 `pycadd-dock ensemble-dock` 的输入。
+随后将产生一个`query_data`目录，其中包含了所有检索到的PDB数据，整合完毕的PDB信息被保存于 `query_data/pdb/P19793.csv` 中，使用其他工具便可在本地进行进一步的分析和研究。  
+使用`-g`参数将生成`P19793.yml`文件，仅用于作为 `pycadd-dock ensemble-dock` 的输入。
+
+或者，您也可以自行收集需要特定查询的PDB ID，并通过一个包含了PDBID列的csv文件进行查询。例如，如果您有一个csv文件`pdb_list.csv`，其中包含了PDB ID信息，您可以使用下面的命令：
+
+```bash
+# 使用 -p 参数可指定PDBID的列名称 默认为'PDBID'
+pycadd-demand -f pdbid_list.csv [-p PDBID]
+```
+随后将生成与Uniprot ID查询方式相同的结果目录和文件。
 
 ### 通过 python 包检索 PDB 数据
 

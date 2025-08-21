@@ -1,20 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD.utils.tool &mdash; pyCADD 1.6.8 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>pyCADD.utils.tool &mdash; pyCADD 1.6.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
   
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=733169e8"></script>
-        <script src="../../../_static/doctools.js?v=888ff710"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f5333bb9"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -81,190 +81,61 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pyCADD.utils.tool</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">requests</span>
-<span class="kn">import</span> <span class="nn">multiprocessing</span>
-<span class="kn">import</span> <span class="nn">functools</span>
-<span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">randint</span>
-
-<span class="c1"># For Schrodinger 2021-2 or newer release</span>
+<span></span><span class="kn">import</span> <span class="nn">functools</span>
 <span class="kn">import</span> <span class="nn">importlib</span>
-<span class="n">importlib</span><span class="o">.</span><span class="n">reload</span><span class="p">(</span><span class="n">multiprocessing</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
 
-<span class="kn">from</span> <span class="nn">rich.progress</span> <span class="kn">import</span> <span class="n">SpinnerColumn</span><span class="p">,</span> <span class="n">TextColumn</span><span class="p">,</span> <span class="n">BarColumn</span><span class="p">,</span> <span class="n">Progress</span><span class="p">,</span> <span class="n">TimeElapsedColumn</span><span class="p">,</span> <span class="n">TimeRemainingColumn</span>
+<span class="c1"># for Schrodinger 2021-2 and higher version</span>
+<span class="n">importlib</span><span class="o">.</span><span class="n">reload</span><span class="p">(</span><span class="n">multiprocessing</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Pool</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">urllib3</span>
+<span class="kn">from</span> <span class="nn">rich.progress</span> <span class="kn">import</span> <span class="p">(</span><span class="n">BarColumn</span><span class="p">,</span> <span class="n">Progress</span><span class="p">,</span> <span class="n">SpinnerColumn</span><span class="p">,</span> <span class="n">TextColumn</span><span class="p">,</span>
+                           <span class="n">TimeElapsedColumn</span><span class="p">,</span> <span class="n">TimeRemainingColumn</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">rich.table</span> <span class="kn">import</span> <span class="n">Column</span>
-<span class="kn">from</span> <span class="nn">configparser</span> <span class="kn">import</span> <span class="n">ConfigParser</span>
-<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Thread</span>
-<span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">ProcessPoolExecutor</span><span class="p">,</span> <span class="n">Future</span>
-<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Manager</span><span class="p">,</span> <span class="n">Pool</span>
+
+<span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">FixedThread</span><span class="p">,</span> <span class="ne">TimeoutError</span>
 
 <span class="n">NUM_PARALLEL</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">//</span> <span class="mi">4</span> <span class="o">*</span> <span class="mi">3</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">DEBUG</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;PYCADD_DEBUG&#39;</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">_multiprocssing_run</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">_iterable</span><span class="p">:</span><span class="n">Iterable</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">job_name</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">num_parallel</span><span class="p">:</span><span class="nb">int</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    多进程运行函数 并自动生成进度条</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    func : function</span>
-<span class="sd">        运行函数</span>
-<span class="sd">    _iterable : Iterable</span>
-<span class="sd">        可迭代对象 即函数作用对象总集</span>
-<span class="sd">    *args</span>
-<span class="sd">        传入func函数的其他参数</span>
-<span class="sd">    job_name : str</span>
-<span class="sd">        进程名称</span>
-<span class="sd">    num_parallel : int</span>
-<span class="sd">        进程数量</span>
-<span class="sd">    </span>
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    List</span>
-<span class="sd">        所有成功完成任务的返回值</span>
-<span class="sd">    </span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">progress</span><span class="p">,</span> <span class="n">taskID</span> <span class="o">=</span> <span class="n">_get_progress</span><span class="p">(</span><span class="n">job_name</span><span class="p">,</span> <span class="s1">&#39;bold cyan&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">_iterable</span><span class="p">))</span>
-    <span class="n">returns</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">def</span> <span class="nf">success_handler</span><span class="p">(</span><span class="n">future</span><span class="p">:</span><span class="n">Future</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        处理完成的任务(成功/失败)</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">future</span><span class="o">.</span><span class="n">exception</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Multiprocessing Warnning: </span><span class="si">{</span><span class="n">future</span><span class="o">.</span><span class="n">exception</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">returns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">())</span>
-        <span class="c1"># 避免同时更新进度条</span>
-        <span class="c1"># time.sleep(randint(1000, 3000) / 1000)</span>
-        <span class="n">progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">taskID</span><span class="p">,</span> <span class="n">advance</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    def _error_handler(error:Exception):</span>
-<span class="sd">        </span>
-<span class="sd">        异常处理函数</span>
-<span class="sd">        </span>
-<span class="sd">        logger.debug(f&#39;Warnning: {error}&#39;)</span>
-<span class="sd">        progress.update(taskID, advance=1)</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">progress</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-    <span class="n">progress</span><span class="o">.</span><span class="n">start_task</span><span class="p">(</span><span class="n">taskID</span><span class="p">)</span>
+<div class="viewcode-block" id="makedirs_from_list">
+<a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.makedirs_from_list">[docs]</a>
+<span class="k">def</span> <span class="nf">makedirs_from_list</span><span class="p">(</span><span class="n">dir_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make directories from a list.</span>
 
-    <span class="k">with</span> <span class="n">ProcessPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">num_parallel</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">_iterable</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
-                <span class="n">future</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">item</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
-                <span class="n">future</span><span class="o">.</span><span class="n">add_done_callback</span><span class="p">(</span><span class="n">success_handler</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">future</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
-                <span class="n">future</span><span class="o">.</span><span class="n">add_done_callback</span><span class="p">(</span><span class="n">success_handler</span><span class="p">)</span>
+<span class="sd">    Args:</span>
+<span class="sd">        dir_list (list): list of required directory names</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="nb">dir</span> <span class="ow">in</span> <span class="n">dir_list</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
-    <span class="c1"># 当ligands数量较多时 父进程将卡死于pool.join()</span>
-    <span class="c1"># bug原因未知</span>
-    <span class="c1"># pool = multiprocessing.Pool(num_parallel, maxtasksperchild=1)</span>
-    <span class="c1"># for item in _iterable:</span>
-    <span class="c1">#    if isinstance(item, Iterable):</span>
-    <span class="c1">#        pool.apply_async(func, args=(*item, *args), callback=success_handler, error_callback=_error_handler)</span>
-    <span class="c1">#    else:</span>
-    <span class="c1">#        pool.apply_async(func, args=(item, *args), callback=success_handler, error_callback=_error_handler)</span>
-    <span class="c1"># pool.close()</span>
-    <span class="c1"># pool.join()</span>
 
-    <span class="n">progress</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">returns</span>
- 
-<div class="viewcode-block" id="get_lib_dir"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.get_lib_dir">[docs]</a><span class="k">def</span> <span class="nf">get_lib_dir</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    获取pyCADD库所在的Absolute PATH</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span></div>
 
-<div class="viewcode-block" id="download_pdb"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.download_pdb">[docs]</a><span class="k">def</span> <span class="nf">download_pdb</span><span class="p">(</span><span class="n">pdbid</span><span class="p">,</span> <span class="n">download_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    从RCSB服务器下载PDB文件</span>
+<span class="k">def</span> <span class="nf">_get_progress</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">total</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a progress bar.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    pdbid : str</span>
-<span class="sd">        PDB ID</span>
-<span class="sd">    download_dir : str</span>
-<span class="sd">        下载目录</span>
-<span class="sd">    overwrite : bool</span>
-<span class="sd">        是否覆盖已存在的文件</span>
+<span class="sd">    Args:</span>
+<span class="sd">        name (str): name of the progress bar</span>
+<span class="sd">        description (str): style description of the progress bar</span>
+<span class="sd">        total (int): total number of tasks</span>
+<span class="sd">        start (bool, optional): start the progress bar immediately. Defaults to False.</span>
 
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">base_url</span> <span class="o">=</span> <span class="s1">&#39;https://files.rcsb.org/download/&#39;</span>
-    <span class="n">pdbfile</span> <span class="o">=</span> <span class="n">pdbid</span> <span class="o">+</span> <span class="s1">&#39;.pdb&#39;</span>
-    <span class="n">download_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="k">if</span> <span class="n">download_dir</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">download_dir</span>
-    <span class="n">downloaded_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">download_dir</span><span class="p">,</span> <span class="n">pdbfile</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">downloaded_file</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
-        <span class="k">return</span>
-
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Downloading </span><span class="si">%s</span><span class="s1"> ...&#39;</span> <span class="o">%</span> <span class="n">pdbid</span><span class="p">)</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="o">+</span> <span class="n">pdbid</span> <span class="o">+</span> <span class="s1">&#39;.pdb&#39;</span>
-    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-    <span class="n">pdb_data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">downloaded_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pdb_data</span><span class="p">)</span>
-    
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.pdb downloaded.&#39;</span> <span class="o">%</span> <span class="n">pdbid</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="download_pdb_list"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.download_pdb_list">[docs]</a><span class="k">def</span> <span class="nf">download_pdb_list</span><span class="p">(</span><span class="n">pdblist</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span> <span class="n">download_dir</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    多线程下载PDB ID列表中的所有PDB文件</span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    pdblist : list</span>
-<span class="sd">        PDB列表</span>
-<span class="sd">    download_dir : str</span>
-<span class="sd">        下载目录</span>
-<span class="sd">    overwrite : bool</span>
-<span class="sd">        是否覆盖已存在的文件</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">download_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="k">if</span> <span class="n">download_dir</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">download_dir</span>
-    <span class="n">threads</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">pdbid</span> <span class="ow">in</span> <span class="n">pdblist</span><span class="p">:</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">download_pdb</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">pdbid</span><span class="p">,</span> <span class="n">download_dir</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">))</span>
-        <span class="n">threads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
-
-<div class="viewcode-block" id="makedirs_from_list"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.makedirs_from_list">[docs]</a><span class="k">def</span> <span class="nf">makedirs_from_list</span><span class="p">(</span><span class="n">path_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    输入包含多个PATH的列表 尝试创建列表中的所有目录</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    path_list : list</span>
-<span class="sd">        要创建的PATH列表</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">path_list</span><span class="p">:</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
-
-<span class="k">def</span> <span class="nf">_get_progress</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">total</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    创建Rich进度条</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    name : str</span>
-<span class="sd">        进度条进程名</span>
-<span class="sd">    description : str</span>
-<span class="sd">        进度条名称样式(example: &#39;bold red&#39;)</span>
-<span class="sd">    total : int</span>
-<span class="sd">        标志项目总进度为100%时的长度</span>
-
-<span class="sd">    Reture</span>
-<span class="sd">    ----------</span>
-<span class="sd">    rich.progress.Progress, task ID</span>
-<span class="sd">        进度条对象, 任务ID(用于update)</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-
+<span class="sd">    Returns:</span>
+<span class="sd">        rich.progress.Progress: Progress bar object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">disable</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">DEBUG</span> <span class="k">else</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">disable</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Progress bar disabled for </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> when testing.&quot;</span><span class="p">)</span>
     <span class="n">text_column</span> <span class="o">=</span> <span class="n">TextColumn</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{task.description}</span><span class="s2">&quot;</span><span class="p">,</span>
                              <span class="n">table_column</span><span class="o">=</span><span class="n">Column</span><span class="p">(),</span> <span class="n">justify</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
     <span class="n">percent_column</span> <span class="o">=</span> <span class="n">TextColumn</span><span class="p">(</span>
@@ -273,70 +144,199 @@
         <span class="s2">&quot;[bold purple]</span><span class="si">{task.completed}</span><span class="s2"> of </span><span class="si">{task.total}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="n">bar_column</span> <span class="o">=</span> <span class="n">BarColumn</span><span class="p">(</span><span class="n">bar_width</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">table_column</span><span class="o">=</span><span class="n">Column</span><span class="p">())</span>
     <span class="n">progress</span> <span class="o">=</span> <span class="n">Progress</span><span class="p">(</span><span class="n">SpinnerColumn</span><span class="p">(),</span> <span class="n">text_column</span><span class="p">,</span> <span class="s2">&quot;•&quot;</span><span class="p">,</span> <span class="n">TimeElapsedColumn</span><span class="p">(</span>
-    <span class="p">),</span> <span class="s2">&quot;•&quot;</span><span class="p">,</span> <span class="n">percent_column</span><span class="p">,</span> <span class="n">bar_column</span><span class="p">,</span> <span class="n">finished_column</span><span class="p">,</span> <span class="n">TimeRemainingColumn</span><span class="p">())</span>
+    <span class="p">),</span> <span class="s2">&quot;•&quot;</span><span class="p">,</span> <span class="n">percent_column</span><span class="p">,</span> <span class="n">bar_column</span><span class="p">,</span> <span class="n">finished_column</span><span class="p">,</span> <span class="n">TimeRemainingColumn</span><span class="p">(),</span>
+        <span class="n">disable</span><span class="o">=</span><span class="n">disable</span><span class="p">)</span>
 
-    <span class="n">task</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="s1">&#39;[</span><span class="si">%s</span><span class="s1">]</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
+    <span class="n">taskID</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span><span class="s1">&#39;[</span><span class="si">%s</span><span class="s1">]</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span>
         <span class="n">description</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span> <span class="n">total</span><span class="o">=</span><span class="n">total</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">progress</span><span class="p">,</span> <span class="n">task</span>
-
-<span class="c1"># 废弃</span>
-<div class="viewcode-block" id="check_file_update_progress"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.check_file_update_progress">[docs]</a><span class="k">def</span> <span class="nf">check_file_update_progress</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">progress</span><span class="p">:</span><span class="n">Progress</span><span class="p">,</span> <span class="n">task_ID</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">time_sleep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    定时检查文件是否存在 已存在则更新进度条</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    file_path : str</span>
-<span class="sd">        检查的文件路径</span>
-<span class="sd">    progress : rich.progress.Progress</span>
-<span class="sd">        进度条对象</span>
-<span class="sd">    task_ID : str</span>
-<span class="sd">        要更新的进度条任务ID</span>
-<span class="sd">    time_sleep : int</span>
-<span class="sd">        检查间隔时间</span>
-
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">while</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
-        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">time_sleep</span><span class="p">)</span>
-    
-    <span class="n">progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">task_ID</span><span class="p">,</span> <span class="n">advance</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">progress</span><span class="p">,</span> <span class="n">taskID</span>
 
 
-<div class="viewcode-block" id="Myconfig"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.Myconfig">[docs]</a><span class="k">class</span> <span class="nc">Myconfig</span><span class="p">(</span><span class="n">ConfigParser</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    重写以解决配置读取大小写修改问题</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="k">def</span> <span class="nf">_func_timeout</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run a function with a timeout.</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">ConfigParser</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="n">defaults</span><span class="p">)</span>
+<span class="sd">    Args:</span>
+<span class="sd">        func (Callable): the function to run</span>
+<span class="sd">        timeout (int, optional): timeout for the function. Defaults to 0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">timeout_handler</span><span class="p">(</span><span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TimeoutError</span><span class="p">()</span>
+    <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGALRM</span><span class="p">,</span> <span class="n">timeout_handler</span><span class="p">)</span>
+    <span class="n">signal</span><span class="o">.</span><span class="n">alarm</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TimeoutError</span><span class="p">:</span>
+        <span class="n">args_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
+        <span class="n">kwargs_list</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+        <span class="n">error_info</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Task timed out after </span><span class="si">{</span><span class="n">timeout</span><span class="si">}</span><span class="s2"> seconds: </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args_list</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">if</span> <span class="n">kwargs_list</span><span class="p">:</span>
+            <span class="n">error_info</span> <span class="o">=</span> <span class="n">error_info</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;, </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kwargs_list</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TimeoutError</span><span class="p">(</span><span class="n">error_info</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Myconfig.optionxform"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.Myconfig.optionxform">[docs]</a>    <span class="k">def</span> <span class="nf">optionxform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optionstr</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">optionstr</span></div></div>
 
-<div class="viewcode-block" id="get_config"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.get_config">[docs]</a><span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Myconfig</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    读取配置文件</span>
+<div class="viewcode-block" id="shell_run">
+<a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.shell_run">[docs]</a>
+<span class="k">def</span> <span class="nf">shell_run</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run a shell command.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    config_file : str</span>
-<span class="sd">        配置文件路径</span>
+<span class="sd">    Args:</span>
+<span class="sd">        command (str): shell command to run</span>
+<span class="sd">        timeout (int, optional): timeout for the command. Defaults to None.</span>
 
-<span class="sd">    Return</span>
-<span class="sd">    ----------</span>
-<span class="sd">    Myconfig</span>
-<span class="sd">        配置文件对象</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="n">Myconfig</span><span class="p">()</span>
-    <span class="n">config</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">config</span></div>
+<span class="sd">    Returns:</span>
+<span class="sd">        str: command output</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error running command: </span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">e</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">TimeoutExpired</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Timeout running command: </span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">e</span></div>
 
-<div class="viewcode-block" id="timeit"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.timeit">[docs]</a><span class="k">def</span> <span class="nf">timeit</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    计时装饰器</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+
+
+<div class="viewcode-block" id="multiprocessing_run">
+<a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.multiprocessing_run">[docs]</a>
+<span class="k">def</span> <span class="nf">multiprocessing_run</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">iterable</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">job_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_parallel</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">total_task_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run a function in parallel using multiprocessing.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        func (Callable): the function to run in parallel</span>
+<span class="sd">        iterable (Iterable): the iterable to pass to the function. e.g [1, 2, 3] or [(1, 2), (3, 4)]</span>
+<span class="sd">            Each item in the iterable will be considered as a single argument if it is not a tuple.\</span>
+<span class="sd">            Otherwise, the item will be unpacked to multiple arguments and passed to the function.</span>
+<span class="sd">        job_name (str): the job name to display in the progress bar</span>
+<span class="sd">        num_parallel (int): cpu core number</span>
+<span class="sd">        total_task_num (int, optional): total number of tasks. \</span>
+<span class="sd">            If None, it will be set to the length of the iterable, and raise an exception if the iterable has no len().</span>
+<span class="sd">        timeout (int, optional): timeout for each function call. Defaults to None.</span>
+<span class="sd">        kwargs: additional keyword arguments to pass to the function</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: a list of return values from the function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">timeout</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">timeout</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="n">total_task_num</span> <span class="k">if</span> <span class="n">total_task_num</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;The iterable has no len() and total_task_num is not provided.&quot;</span><span class="p">)</span>
+    <span class="n">progress</span><span class="p">,</span> <span class="n">taskID</span> <span class="o">=</span> <span class="n">_get_progress</span><span class="p">(</span><span class="n">job_name</span><span class="p">,</span> <span class="s1">&#39;bold cyan&#39;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="n">total</span><span class="p">)</span>
+    <span class="n">returns</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">progress</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">progress</span><span class="o">.</span><span class="n">start_task</span><span class="p">(</span><span class="n">taskID</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">success_handler</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+        <span class="n">returns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="n">progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">taskID</span><span class="p">,</span> <span class="n">advance</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">error_handler</span><span class="p">(</span><span class="n">exception</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">DEBUG</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Multiprocessing Run Failed: </span><span class="si">{</span><span class="n">exception</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Multiprocessing Run Warning: </span><span class="si">{</span><span class="n">exception</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">taskID</span><span class="p">,</span> <span class="n">advance</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">):</span>
+        <span class="n">iterable</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The iterable can not be a string.&quot;</span><span class="p">)</span>
+
+    <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="n">num_parallel</span><span class="p">,</span> <span class="n">maxtasksperchild</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># support for two type of func: single argument or multiple arguments</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="c1"># item is a argument tuple which can be unpacked to multiple arguments</span>
+            <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">_func_timeout</span><span class="p">,</span> <span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">item</span><span class="p">),</span> 
+                             <span class="n">kwds</span><span class="o">=</span><span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="n">timeout</span><span class="p">},</span> 
+                             <span class="n">callback</span><span class="o">=</span><span class="n">success_handler</span><span class="p">,</span> <span class="n">error_callback</span><span class="o">=</span><span class="n">error_handler</span>
+                             <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># item is a single argument, and the single argument can not be a tuple</span>
+            <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">_func_timeout</span><span class="p">,</span> <span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">item</span><span class="p">),</span> 
+                             <span class="n">kwds</span><span class="o">=</span><span class="p">{</span><span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="n">timeout</span><span class="p">},</span> 
+                             <span class="n">callback</span><span class="o">=</span><span class="n">success_handler</span><span class="p">,</span> <span class="n">error_callback</span><span class="o">=</span><span class="n">error_handler</span>
+                             <span class="p">)</span>
+    <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">progress</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">returns</span></div>
+
+
+
+<div class="viewcode-block" id="download_pdb">
+<a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.download_pdb">[docs]</a>
+<span class="k">def</span> <span class="nf">download_pdb</span><span class="p">(</span><span class="n">pdbid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download a PDB file from RCSB PDB.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pdbid (str): PDB ID to download</span>
+<span class="sd">        save_dir (str, optional): directory to save the pdb file. Defaults to current working directory.</span>
+<span class="sd">        overwrite (bool, optional): whether to overwrite the pdb file when it exists. Defaults to False.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">base_url</span> <span class="o">=</span> <span class="s1">&#39;https://files.rcsb.org/download/&#39;</span>
+    <span class="n">pdbfile</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">.pdb&#39;</span>
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="k">if</span> <span class="n">save_dir</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">save_dir</span>
+    <span class="n">downloaded_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">pdbfile</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">downloaded_file</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">url</span> <span class="o">=</span> <span class="n">base_url</span> <span class="o">+</span> <span class="n">pdbfile</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Downloading </span><span class="si">{</span><span class="n">pdbid</span><span class="si">}</span><span class="s1"> from URL </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">urllib3</span><span class="o">.</span><span class="n">disable_warnings</span><span class="p">()</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Failed to download </span><span class="si">{</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">.pdb&#39;</span><span class="p">)</span>
+    <span class="n">pdb_data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">downloaded_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pdb_data</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pdbid</span><span class="si">}</span><span class="s1">.pdb has been downloaded to </span><span class="si">{</span><span class="n">save_dir</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="download_pdb_list">
+<a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.download_pdb_list">[docs]</a>
+<span class="k">def</span> <span class="nf">download_pdb_list</span><span class="p">(</span><span class="n">pdblist</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download a list of PDB files from RCSB PDB.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pdblist (list): a list of PDB IDs to download</span>
+<span class="sd">        save_dir (str, optional): directory to save the pdb files. Defaults to current working directory.</span>
+<span class="sd">        overwrite (bool, optional): whether to overwrite the pdb files when they exist. Defaults to False.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="k">if</span> <span class="n">save_dir</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">save_dir</span>
+    <span class="n">threads</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">pdbid</span> <span class="ow">in</span> <span class="n">pdblist</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">FixedThread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">download_pdb</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">pdbid</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">))</span>
+        <span class="n">threads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="timeit">
+<a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.timeit">[docs]</a>
+<span class="k">def</span> <span class="nf">timeit</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator to measure the execution time of a function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        func (Callable): the function to measure the execution time</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        wrapper: a wrapper function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -346,68 +346,123 @@
             <span class="sa">f</span><span class="s1">&#39;Start: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">start</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="sa">f</span><span class="s1">&#39;End: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">end</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Duration: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H:%M:%S&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Duration: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%H:%M:%S&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
     <span class="k">return</span> <span class="n">wrapper</span></div>
 
-<span class="k">def</span> <span class="nf">_find_execu</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;which </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[31m</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> is not installed or not in PATH.</span><span class="se">\033</span><span class="s2">[0m&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_find_execu</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if an executable is available in the PATH.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path (str): executable path, e.g., &#39;g16&#39;, &#39;Multiwfn&#39;, &#39;pmemd.cuda&#39;, etc.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if the executable is available, False otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;which </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                       <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> is not installed or not in PATH.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
 
-<span class="k">def</span> <span class="nf">_check_execu_help</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> -h&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">)</span>
-    <span class="c1"># if os.system(f&quot;{path} -h &gt; /dev/null&quot;) == 0:</span>
+
+<span class="k">def</span> <span class="nf">_check_execu_help</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if an executable is available in the PATH by running the help command.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path (str): executable path</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if the executable is available, False otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> -h&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                       <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[31m</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> is not installed or not in PATH.</span><span class="se">\033</span><span class="s2">[0m&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> is not installed or not in PATH.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span>
-    
-<span class="k">def</span> <span class="nf">_check_execu_version</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> --version&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">)</span>
-    <span class="c1"># if os.system(f&quot;{path} --version &gt; /dev/null&quot;) == 0:</span>
+
+
+<span class="k">def</span> <span class="nf">_check_execu_version</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if an executable is available in the PATH by running the version command.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path (str): executable path</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if the executable is available, False otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> --version&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                       <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[31m</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> is not installed or not in PATH.</span><span class="se">\033</span><span class="s2">[0m&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> is not installed or not in PATH.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span>
-    
-<div class="viewcode-block" id="is_amber_available"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.is_amber_available">[docs]</a><span class="k">def</span> <span class="nf">is_amber_available</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    检查Amber/mberTools是否安装并配置好环境变量</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+
+
+<div class="viewcode-block" id="is_amber_available">
+<a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.is_amber_available">[docs]</a>
+<span class="k">def</span> <span class="nf">is_amber_available</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if AMBER is available in the PATH.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if AMBER is available, False otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span>
-    <span class="n">_check_execu_help</span><span class="p">(</span><span class="s1">&#39;tleap&#39;</span><span class="p">),</span>
-    <span class="n">_check_execu_version</span><span class="p">(</span><span class="s1">&#39;sander&#39;</span><span class="p">),</span>
-    <span class="n">_check_execu_version</span><span class="p">(</span><span class="s1">&#39;cpptraj&#39;</span><span class="p">),</span>
-    <span class="n">_check_execu_version</span><span class="p">(</span><span class="s1">&#39;parmed&#39;</span><span class="p">),</span>
-    <span class="n">_check_execu_version</span><span class="p">(</span><span class="s1">&#39;pdb4amber&#39;</span><span class="p">),</span>
-    <span class="n">_check_execu_help</span><span class="p">(</span><span class="s1">&#39;antechamber&#39;</span><span class="p">)]</span>
+        <span class="n">_check_execu_help</span><span class="p">(</span><span class="s1">&#39;tleap&#39;</span><span class="p">),</span>
+        <span class="n">_check_execu_version</span><span class="p">(</span><span class="s1">&#39;sander&#39;</span><span class="p">),</span>
+        <span class="n">_check_execu_version</span><span class="p">(</span><span class="s1">&#39;cpptraj&#39;</span><span class="p">),</span>
+        <span class="n">_check_execu_version</span><span class="p">(</span><span class="s1">&#39;parmed&#39;</span><span class="p">),</span>
+        <span class="n">_check_execu_version</span><span class="p">(</span><span class="s1">&#39;pdb4amber&#39;</span><span class="p">),</span>
+        <span class="n">_check_execu_help</span><span class="p">(</span><span class="s1">&#39;antechamber&#39;</span><span class="p">)]</span>
     <span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span></div>
-    
-<div class="viewcode-block" id="is_pmemd_cuda_available"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.is_pmemd_cuda_available">[docs]</a><span class="k">def</span> <span class="nf">is_pmemd_cuda_available</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    检查AMBER CUDA加速是否可用</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+
+
+
+<div class="viewcode-block" id="is_pmemd_cuda_available">
+<a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.is_pmemd_cuda_available">[docs]</a>
+<span class="k">def</span> <span class="nf">is_pmemd_cuda_available</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if pmemd.cuda is available in the PATH.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if pmemd.cuda is available, False otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_check_execu_version</span><span class="p">(</span><span class="s1">&#39;pmemd.cuda&#39;</span><span class="p">)</span></div>
-    
-<div class="viewcode-block" id="is_gaussian_available"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.is_gaussian_available">[docs]</a><span class="k">def</span> <span class="nf">is_gaussian_available</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    检查Gaussian 16是否安装并配置好环境变量</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+
+
+
+<div class="viewcode-block" id="is_gaussian_available">
+<a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.is_gaussian_available">[docs]</a>
+<span class="k">def</span> <span class="nf">is_gaussian_available</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if Gaussian is available in the PATH.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if Gaussian is available, False otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_find_execu</span><span class="p">(</span><span class="s1">&#39;g16&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="is_multiwfn_available"><a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.is_multiwfn_available">[docs]</a><span class="k">def</span> <span class="nf">is_multiwfn_available</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    检查Multiwfn是否安装并配置好环境变量</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+
+
+<div class="viewcode-block" id="is_multiwfn_available">
+<a class="viewcode-back" href="../../../pyCADD.utils.html#pyCADD.utils.tool.is_multiwfn_available">[docs]</a>
+<span class="k">def</span> <span class="nf">is_multiwfn_available</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if Multiwfn is available in the PATH.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if Multiwfn is available, False otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_find_execu</span><span class="p">(</span><span class="s1">&#39;Multiwfn&#39;</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>
@@ -417,7 +472,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Yuhang Wu.</p>
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

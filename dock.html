@@ -1,23 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dock User Guide &mdash; pyCADD 1.6.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=d749edf1"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
-        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f5333bb9"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -54,7 +52,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#download-pdb-file-s">Download PDB file(s)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#docking-of-many-to-many-ensemble-docking">Docking of Many-to-many (Ensemble Docking)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#generate-docking-reports">Generate Docking Reports</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#dock">为系综对接构建Dock输入文件的示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generate-input-files-for-ensemble-docking">Generate Input Files for Ensemble Docking</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="dance.html">Dance User Guide</a></li>
@@ -92,7 +90,7 @@
            <div itemprop="articleBody">
              
   <section id="dock-user-guide">
-<h1>Dock User Guide<a class="headerlink" href="#dock-user-guide" title="Permalink to this heading"></a></h1>
+<h1>Dock User Guide<a class="headerlink" href="#dock-user-guide" title="Link to this heading"></a></h1>
 <p>Dock 模块是通过串联分子对接软件 python API 来实现各类分子设计与评估功能、筛选等工作流的自动化模块。<br />目前, Dock 仅针对 Schrodinger Suites 进行开发，并计划在未来添加更多主流分子对接软件的支持。</p>
 <p><strong>关于Schrodinger虚拟环境</strong><br />由于Schrodinger Suite使用了闭源环境提供Python API调用, 使用 <code class="docutils literal notranslate"><span class="pre">Dock</span></code> 模块相关功能(包括CLI命令)脚本时, 应该保证您正处于由 Schrodinger 建立的虚拟环境中，并在该环境中安装 <code class="docutils literal notranslate"><span class="pre">pyCADD</span></code>。</p>
 <ul>
@@ -107,7 +105,7 @@ python3 -m pip install pycadd -U
 </li>
 </ul>
 <section id="download-pdb-file-s">
-<h2>Download PDB file(s)<a class="headerlink" href="#download-pdb-file-s" title="Permalink to this heading"></a></h2>
+<h2>Download PDB file(s)<a class="headerlink" href="#download-pdb-file-s" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 的 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">download</span></code> 提供了从PDB数据库进行多线程批量下载PDB结构文件的功能（需要互联网）。
 使用 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">download</span> <span class="pre">-i</span> <span class="pre">PDBID</span></code> 下载单一结构，或在一个文件 <code class="docutils literal notranslate"><span class="pre">example.csv</span></code> 中列出您想要下载的PDB ID：</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1</span><span class="n">FBY</span>
@@ -119,11 +117,11 @@ python3 -m pip install pycadd -U
 <p>然后使用 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">download</span> <span class="pre">-f</span> <span class="pre">example.csv</span> <span class="pre">[-s</span> <span class="pre">SAVE_DIR]</span></code> (在当前目录或指定目录SAVE_DIR) 批量下载它们。</p>
 </section>
 <section id="docking-of-many-to-many-ensemble-docking">
-<h2>Docking of Many-to-many (Ensemble Docking)<a class="headerlink" href="#docking-of-many-to-many-ensemble-docking" title="Permalink to this heading"></a></h2>
+<h2>Docking of Many-to-many (Ensemble Docking)<a class="headerlink" href="#docking-of-many-to-many-ensemble-docking" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 的 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">ensemble-dock</span></code> 提供了高性能多核并行系综对接 (Ensemble Docking) 计算及数据处理的CLI接口。</p>
 <p>请确保当前工作目录在您想要保存项目文件的目录中, 并在目录中额外准备：</p>
 <ul class="simple">
-<li><p>一个分行列出的, 包含所有受体蛋白所属 PDB ID的输入文件，支持的格式包括 <strong>.csv</strong> <strong>.ini</strong> <strong>.in</strong> <strong>.yaml</strong> <strong>.yml</strong>, 支持的输入文件格式请参阅 <a class="reference external" href="#%E4%B8%BA%E7%B3%BB%E7%BB%BC%E5%AF%B9%E6%8E%A5%E6%9E%84%E5%BB%BAdock%E8%BE%93%E5%85%A5%E6%96%87%E4%BB%B6%E7%9A%84%E7%A4%BA%E4%BE%8B">为系综对接构建Dock输入文件的示例</a>。该输入文件可由<code class="docutils literal notranslate"><span class="pre">Demand</span></code>模块自动生成，或由您手动创建;</p></li>
+<li><p>一个分行列出的, 包含所有受体蛋白所属 PDB ID的输入文件，支持的格式包括 <strong>.csv</strong> <strong>.ini</strong> <strong>.in</strong> <strong>.yaml</strong> <strong>.yml</strong>, 支持的输入文件格式请参阅 <a class="reference external" href="#generate-input-files-for-ensemble-docking">为系综对接构建Dock输入文件的示例</a>。该输入文件可由<code class="docutils literal notranslate"><span class="pre">Demand</span></code>模块自动生成，或由您手动创建;</p></li>
 <li><p>一个需要对接的化合物库 <strong>3D结构文件</strong> *<em>.pdb</em>  *<em>.mae</em> *<em>.sdf</em> 或其他Schrodinger支持的格式<br />如果晶体包含有多个不同名称(ID)的小分子配体, 请在文件中指明 (以逗号分隔) 以定义对接格点的中心;<br />如包含相同名称的多个小分子，则 <code class="docutils literal notranslate"><span class="pre">Dock</span></code> 会自动选择其中之一定义为对接格点的中心。</p></li>
 </ul>
 <p>以下是一个输入文件的示例 <em>example.csv</em>：</p>
@@ -160,7 +158,7 @@ python3 -m pip install pycadd -U
 </div>
 </section>
 <section id="generate-docking-reports">
-<h2>Generate Docking Reports<a class="headerlink" href="#generate-docking-reports" title="Permalink to this heading"></a></h2>
+<h2>Generate Docking Reports<a class="headerlink" href="#generate-docking-reports" title="Link to this heading"></a></h2>
 <p>CLI命令 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">generate-report</span></code> 提供了将若干重要分子对接于多个配体并生成对比报告的功能。<br />与Ensemble Docking相似，晶体被下载并预处理完成后，所有晶体的共晶配体分子会被首先对接回晶体自身，以完成回顾性对接(Self-Docking)，并得到共晶分子的参考分数。接下来，化合物库中的分子继续依次被对接到蛋白晶体中。<br />最后，将自动为化合物库中的每一个配体生成一个独立的EXCEL报告文件，以便于直观比较当前分子与共晶分子的得分情况；该分子及共晶分子的2D结构图也会被自动保存在报告文件中。</p>
 <p>使用命令</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-dock<span class="w"> </span>generate-report<span class="w"> </span>example.csv<span class="w"> </span>ligand_file.mae<span class="w"> </span>-n<span class="w"> </span><span class="m">24</span><span class="w"> </span>-p<span class="w"> </span>SP<span class="w"> </span><span class="o">[</span>--del_water<span class="o">]</span><span class="w"> </span><span class="o">[</span>-redock<span class="o">]</span><span class="w"> </span><span class="o">[</span>-O<span class="o">]</span>
@@ -170,8 +168,8 @@ python3 -m pip install pycadd -U
 <p>本质上，该接口运行与<code class="docutils literal notranslate"><span class="pre">ensemble-dock</span></code>相同的工作流，并在最后增加了EXCEL报告的生成。因此，如您已经完成了<code class="docutils literal notranslate"><span class="pre">ensemble-dock</span></code>的工作流，预计对接流程将被跳过，您可以直接使用 <code class="docutils literal notranslate"><span class="pre">generate-report</span></code> 接口来快速生成EXCEL报告。</p>
 <p>报告文件生成应该聚焦于少数重点分子，不建议为过多分子生成报告文件。</p>
 </section>
-<section id="dock">
-<h2>为系综对接构建Dock输入文件的示例<a class="headerlink" href="#dock" title="Permalink to this heading"></a></h2>
+<section id="generate-input-files-for-ensemble-docking">
+<h2>Generate Input Files for Ensemble Docking<a class="headerlink" href="#generate-input-files-for-ensemble-docking" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">ensemble-dock</span></code> 支持三种输入文件格式：</p>
 <ul class="simple">
 <li><p>csv</p></li>
@@ -210,7 +208,7 @@ python3 -m pip install pycadd -U
     <span class="mi">2</span><span class="n">YLP</span><span class="p">:</span> <span class="n">TES</span><span class="p">,</span><span class="mi">056</span>
 </pre></div>
 </div>
-<p><em>yaml | yml</em></p>
+<p><em>yaml | yml (Recommended)</em></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">P10275</span><span class="p">:</span>
     <span class="mi">1</span><span class="n">XJ7</span><span class="p">:</span> <span class="n">DHT</span>
     <span class="mi">1</span><span class="n">XQ3</span><span class="p">:</span> 
@@ -237,7 +235,7 @@ python3 -m pip install pycadd -U
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Yuhang Wu.</p>
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

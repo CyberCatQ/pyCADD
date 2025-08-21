@@ -1,20 +1,20 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD.Density.ui &mdash; pyCADD 1.6.7 documentation</title>
-      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>pyCADD.Density.ui &mdash; pyCADD 1.6.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
   
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=9b2bca2a"></script>
-        <script src="../../../_static/doctools.js?v=888ff710"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f5333bb9"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -91,7 +91,9 @@
 <span class="n">access_basis_set</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;6-31g*&#39;</span><span class="p">,</span> <span class="s1">&#39;6-311g*&#39;</span><span class="p">,</span> <span class="s1">&#39;def2SVP&#39;</span><span class="p">,</span> <span class="s1">&#39;def2TZVP&#39;</span><span class="p">,</span> <span class="s1">&#39;def2TZVPP&#39;</span><span class="p">]</span>
 <span class="n">access_solvent</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;water&#39;</span><span class="p">,</span> <span class="s1">&#39;methanol&#39;</span><span class="p">,</span> <span class="s1">&#39;ethanol&#39;</span><span class="p">,</span> <span class="s1">&#39;None&#39;</span><span class="p">]</span>
 
-<div class="viewcode-block" id="UI_Gauss"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.ui.UI_Gauss">[docs]</a><span class="k">class</span> <span class="nc">UI_Gauss</span><span class="p">(</span><span class="n">UI</span><span class="p">):</span>
+<div class="viewcode-block" id="UI_Gauss">
+<a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.ui.UI_Gauss">[docs]</a>
+<span class="k">class</span> <span class="nc">UI_Gauss</span><span class="p">(</span><span class="n">UI</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Gauss 计算脚本UI</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -154,7 +156,9 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">(</span><span class="n">additional_info</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;system&#39;</span><span class="p">:</span> <span class="s1">&#39;CPU: [bright_cyan]</span><span class="si">%s</span><span class="s1">[/]   Memory: [bright_cyan]</span><span class="si">%s</span><span class="s1">[/]&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mem</span><span class="p">)},</span> <span class="n">show_panel</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<div class="viewcode-block" id="UI_Gauss.set_system"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.ui.UI_Gauss.set_system">[docs]</a>    <span class="k">def</span> <span class="nf">set_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="UI_Gauss.set_system">
+<a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.ui.UI_Gauss.set_system">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        设定计算核心数量与内存大小</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -165,6 +169,7 @@
             <span class="s1">&#39;Enter the memory size to be used(GB)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;16&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;GB&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gauss</span><span class="o">.</span><span class="n">set_system</span><span class="p">(</span><span class="n">cpu_count</span><span class="p">,</span> <span class="n">mem</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_panel</span><span class="p">(</span><span class="n">additional_info</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;system&#39;</span> <span class="p">:</span> <span class="s1">&#39;CPU: [bright_cyan]</span><span class="si">%s</span><span class="s1">[/]   Memory: [bright_cyan]</span><span class="si">%s</span><span class="s1">[/]&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cpu_count</span><span class="p">,</span> <span class="n">mem</span><span class="p">)},</span> <span class="n">show_panel</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">_get_original_st</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
@@ -212,7 +217,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_method</span> <span class="o">=</span> <span class="kc">True</span>
 
-<div class="viewcode-block" id="UI_Gauss.run"><a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.ui.UI_Gauss.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
+<div class="viewcode-block" id="UI_Gauss.run">
+<a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.ui.UI_Gauss.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        业务逻辑</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -289,7 +296,9 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">mos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_input</span><span class="p">(</span><span class="s1">&#39;Enter the MO(s) need to be extracted(separated by comma)&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">mo</span> <span class="ow">in</span> <span class="n">mos</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">gauss</span><span class="o">.</span><span class="n">extract_cube</span><span class="p">(</span><span class="n">mo</span><span class="p">)</span></div></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">gauss</span><span class="o">.</span><span class="n">extract_cube</span><span class="p">(</span><span class="n">mo</span><span class="p">)</span></div>
+</div>
+
             <span class="c1">#self.create_panel()</span>
 </pre></div>
 
@@ -300,7 +309,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Yuhang Wu.</p>
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

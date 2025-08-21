@@ -1,23 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Demand User Guide &mdash; pyCADD 1.6.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=d749edf1"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
-        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f5333bb9"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -94,22 +92,30 @@
            <div itemprop="articleBody">
              
   <section id="demand-user-guide">
-<h1>Demand User Guide<a class="headerlink" href="#demand-user-guide" title="Permalink to this heading"></a></h1>
+<h1>Demand User Guide<a class="headerlink" href="#demand-user-guide" title="Link to this heading"></a></h1>
 <p>pyCADD-Demand 是快速检索PDB数据库的工具，它可以根据用户输入的蛋白Uniprot ID，快速检索该蛋白在PDB数据库中符合条件的结构，并对检索结果进行下载、合并。<br />Demand 模块需要互联网连接，但并非使用爬虫技术，而是直接通过 PDB 数据库所提供的 RESTful API 接口进行检索，同一时间下所得数据应该与您在PDB web 所获得的数据一致。因此，您无需担心数据质量。<br />Demand 模块也能够为 Dock 模块开展 Ensemble Docking 快速生成必要的输入文件。</p>
 <section id="uniprot-id">
-<h2>检索蛋白 Uniprot ID<a class="headerlink" href="#uniprot-id" title="Permalink to this heading"></a></h2>
+<h2>检索蛋白 Uniprot ID<a class="headerlink" href="#uniprot-id" title="Link to this heading"></a></h2>
 <p>为了收集蛋白信息，您需要在 <a class="reference external" href="https://www.uniprot.org/">Uniprot</a> 数据库中确定所需研究的蛋白 Uniprot ID，它是蛋白的唯一识别号。<br />如果有多个蛋白需要检索信息，请为其分别运行一次 Demand 模块。</p>
 </section>
 <section id="pdb">
-<h2>检索 PDB 数据<a class="headerlink" href="#pdb" title="Permalink to this heading"></a></h2>
+<h2>检索 PDB 数据<a class="headerlink" href="#pdb" title="Link to this heading"></a></h2>
 <section id="cli-pdb">
-<h3>通过 CLI 命令快速检索 PDB 数据<a class="headerlink" href="#cli-pdb" title="Permalink to this heading"></a></h3>
+<h3>通过 CLI 命令快速检索 PDB 数据<a class="headerlink" href="#cli-pdb" title="Link to this heading"></a></h3>
 <p>一旦您确定了uniprot ID, 可以通过下面的命令来快速检索当前蛋白的 PDB 数据。</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-demand<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span>UNIPROT_ID
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-demand<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span><span class="o">[</span>UNIPROT_ID<span class="o">]</span>
 </pre></div>
 </div>
+<ul class="simple">
+<li><p>UNIPROT_ID: 您需要检索的蛋白的 Uniprot ID。</p></li>
+<li><p>-f, –pdb_list_file: 查询指定csv文件中包含的PDB ID信息，而不是通过Uniprot ID查询。csv文件应该包含一个PDBID列。</p></li>
+<li><p>-p, –pdb_column: 指定csv文件中包含PDB ID信息的列名，默认为<code class="docutils literal notranslate"><span class="pre">PDBID</span></code>。</p></li>
+</ul>
 <p><code class="docutils literal notranslate"><span class="pre">Demand</span></code> 最初是为了生成 <code class="docutils literal notranslate"><span class="pre">Dock</span></code> 模块中用于 Ensemble Docking 功能输入文件而创造的，因此，下面的参数仅会影响 <code class="docutils literal notranslate"><span class="pre">Dock</span></code> 模块的输入文件生成，而不会影响 <code class="docutils literal notranslate"><span class="pre">Demand</span></code> 模块的运行。<strong>无论如何设定可选参数，与当前蛋白相关的所有PDB数据都会被检索并保存。</strong></p>
 <ul>
+<li><p>-g, –generate: 生成Dock输入文件。默认情况下，不生成Dock输入文件。如果您需要生成Dock输入文件，必须提供Uniprot ID，并使用该参数。</p></li>
+<li><p>-o, –output_format: 设定生成输入文件的格式。Dock 支持 csv | in | ini | yml | yaml格式，但为了便于人类阅读，您可以选择所需的格式来输出，默认为yml。</p></li>
+<li><p>-c, –cutoff FLOAT: 在生成输入文件时的结构分辨率截断值，单位为埃(Angstrom)，高于截断值的结构将被过滤。默认情况下，不进行分辨率过滤。如果您需要检索更高分辨率（即具有一个更低的Cutoff）的结构，请使用该参数，并提供一个具体的浮点数。</p></li>
 <li><p>-m / –not_del_mutations: 在生成输入文件时不删除突变体。默认情况下，Demand 模块会删除突变的蛋白结构，只保留原始蛋白(Wild Type)的结构信息，突变体的分辨是根据PDB数据库返回信息确定的。如果您需要保留突变体的结构信息，请使用该参数。</p></li>
 <li><p>-e / –not_del_ignore: 在生成输入文件时不删除小分子中的<strong>忽略分子</strong>。<strong>忽略分子</strong>指通常不属于常规小分子化合物或配体的分子、原子或离子，主要为各类溶剂分子(如乙醇、DMSO等)、金属离子(镁、钾、磷酸根离子等)。您可以在 pyCADD.Demand.config 中修改这些分子的列表，或者使用该参数来保留这些分子。目前的版本中，它们包括：</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># 非配体的小分子</span>
@@ -117,17 +123,21 @@
 </pre></div>
 </div>
 </li>
-<li><p>-c, –cutoff FLOAT: 在生成输入文件时的结构分辨率截断值，单位为埃(Angstrom)，高于截断值的结构将被过滤。默认情况下，不进行分辨率过滤。如果您需要检索更高分辨率（即具有一个更低的Cutoff）的结构，请使用该参数，并提供一个具体的浮点数。</p></li>
-<li><p>-o, –output_format: 设定生成输入文件的格式。Dock 支持 csv | in | ini | yml | yaml格式，但为了便于人类阅读，您可以选择所需的格式来输出，默认为yml。</p></li>
 </ul>
 <p>例如，如果您需要检索人类RXRα蛋白(Uniprot ID: P19793) 的PDB数据，可以使用下面的命令：</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-demand<span class="w"> </span>P19793
 </pre></div>
 </div>
-<p>随后将产生一个<code class="docutils literal notranslate"><span class="pre">query_data</span></code>文件夹和 <code class="docutils literal notranslate"><span class="pre">P19793.yml</span></code>文件。其中，<code class="docutils literal notranslate"><span class="pre">query_data</span></code>文件夹中包含了所有检索到的PDB数据，整合完毕的PDB信息被保存于 <code class="docutils literal notranslate"><span class="pre">query_data/pdb/P19793.csv</span></code> 中，使用其他工具便可在本地进行进一步的分析和研究。<br /><code class="docutils literal notranslate"><span class="pre">P19793.yml</span></code>文件仅用于作为 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">ensemble-dock</span></code> 的输入。</p>
+<p>随后将产生一个<code class="docutils literal notranslate"><span class="pre">query_data</span></code>目录，其中包含了所有检索到的PDB数据，整合完毕的PDB信息被保存于 <code class="docutils literal notranslate"><span class="pre">query_data/pdb/P19793.csv</span></code> 中，使用其他工具便可在本地进行进一步的分析和研究。<br />使用<code class="docutils literal notranslate"><span class="pre">-g</span></code>参数将生成<code class="docutils literal notranslate"><span class="pre">P19793.yml</span></code>文件，仅用于作为 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">ensemble-dock</span></code> 的输入。</p>
+<p>或者，您也可以自行收集需要特定查询的PDB ID，并通过一个包含了PDBID列的csv文件进行查询。例如，如果您有一个csv文件<code class="docutils literal notranslate"><span class="pre">pdb_list.csv</span></code>，其中包含了PDB ID信息，您可以使用下面的命令：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 使用 -p 参数可指定PDBID的列名称 默认为&#39;PDBID&#39;</span>
+pycadd-demand<span class="w"> </span>-f<span class="w"> </span>pdbid_list.csv<span class="w"> </span><span class="o">[</span>-p<span class="w"> </span>PDBID<span class="o">]</span>
+</pre></div>
+</div>
+<p>随后将生成与Uniprot ID查询方式相同的结果目录和文件。</p>
 </section>
 <section id="python-pdb">
-<h3>通过 python 包检索 PDB 数据<a class="headerlink" href="#python-pdb" title="Permalink to this heading"></a></h3>
+<h3>通过 python 包检索 PDB 数据<a class="headerlink" href="#python-pdb" title="Link to this heading"></a></h3>
 <p>您也可以通过 python 包来检索 PDB 数据，这样可以更加灵活地使用 Demand 模块。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 导入 Demand 模块</span>
 <span class="kn">from</span> <span class="nn">pyCADD</span> <span class="kn">import</span> <span class="n">Demand</span>
@@ -168,7 +178,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Yuhang Wu.</p>
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

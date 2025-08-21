@@ -1,23 +1,21 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dynamic User Guide &mdash; pyCADD 1.6.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=d749edf1"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
-        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f5333bb9"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -112,11 +110,11 @@
            <div itemprop="articleBody">
              
   <section id="dynamic-user-guide">
-<h1>Dynamic User Guide<a class="headerlink" href="#dynamic-user-guide" title="Permalink to this heading"></a></h1>
+<h1>Dynamic User Guide<a class="headerlink" href="#dynamic-user-guide" title="Link to this heading"></a></h1>
 <p>pyCADD.Dynamic 模块是为分子动力学模拟的自动化准备与运行而开发的功能模块，目的是为了让研究者专注在分子动力学模拟结果以及少数关键参数上，而无需关心和学习分子动力学模拟准备与执行的具体代码和流程或管道，以期能够提高学术问题的研究效率。</p>
 <p>pyCADD提供了Python包调用和CLI(命令行工具)调用两种方式，其中CLI调用方式更加方便，但是Python包调用方式更加灵活。</p>
 <section id="id1">
-<h2>文件准备<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
+<h2>文件准备<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
 <p>Dynamic模块只需要最少的必要输入和几个关键参数调节即可快速开始模拟过程。</p>
 <p>要快速执行蛋白-小分子相互作用的分子动力学模拟，首先，您需要准备好一个开展模拟的蛋白结构文件 <code class="docutils literal notranslate"><span class="pre">protein_file</span></code> ，以及一个需要模拟的小分子文件 <code class="docutils literal notranslate"><span class="pre">molecule_file</span></code>, 2个文件都必须是PDB格式(<code class="docutils literal notranslate"><span class="pre">.pdb</span></code>)。</p>
 <ul class="simple">
@@ -127,7 +125,7 @@
 </ul>
 </section>
 <section id="cli-dynamic-md">
-<h2>CLI 调用 Dynamic 模块进行MD模拟<a class="headerlink" href="#cli-dynamic-md" title="Permalink to this heading"></a></h2>
+<h2>CLI 调用 Dynamic 模块进行MD模拟<a class="headerlink" href="#cli-dynamic-md" title="Link to this heading"></a></h2>
 <p>使用命令</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-dynamic<span class="w"> </span>auto<span class="w"> </span>PROTEIN_FILE<span class="w"> </span><span class="o">[</span>MOLECULE_FILE<span class="o">]</span>
 </pre></div>
@@ -136,7 +134,7 @@
 <p>了解具体步骤或需自定义准备、模拟过程，请参见下述python包调用部分。</p>
 <p>未提供小分子化合物结构 MOLECULE_FILE 时，将为Apo结构进行模拟。</p>
 <section id="id2">
-<h3>部分参数说明<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<h3>部分参数说明<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">-p</span> <span class="pre">/</span> <span class="pre">--prefix</span></code>: 指定生成的leap所需文件的前缀名，默认为当前工作目录的名称。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-g</span> <span class="pre">/</span> <span class="pre">--with-gpu</span></code>: 指定 <code class="docutils literal notranslate"><span class="pre">pmemd.cuda</span></code> 使用的GPU编号，默认为0。当系统中有多个GPU时，可以通过该参数指定使用的GPU编号。</p></li>
@@ -151,7 +149,6 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">-s</span> <span class="pre">/</span> <span class="pre">--solvent</span></code>: 指定计算RESP2(0.5)电荷时液相的溶剂分子的种类，默认为水(water)。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">/</span> <span class="pre">--parallel</span></code>: 指定计算RESP2电荷时所用的CPU核心数量。默认为最大可用核心数。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-bcc</span></code>: 使用AM1-bcc方法计算原子电荷，而不是RESP。此时不需要安装Gaussian及Multiwfn。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-k</span> <span class="pre">/</span> <span class="pre">--keep-cood</span></code>: 保留小分子的输入原始坐标用于模拟，而不使用高斯结构优化产生的坐标。需要维持小分子的姿势或坐标不变时，可以使用该参数。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-O</span> <span class="pre">/</span> <span class="pre">--overwrire</span></code>: 覆盖已存在的文件。默认将跳过先前已完成的小分子准备等过程，当需要从头重新运行模拟时，可以使用该参数。</p></li>
 </ul>
 <p>A simple demo:</p>
@@ -174,7 +171,7 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 </section>
 </section>
 <section id="python-dynamic">
-<h2>Python 包调用 Dynamic 模块<a class="headerlink" href="#python-dynamic" title="Permalink to this heading"></a></h2>
+<h2>Python 包调用 Dynamic 模块<a class="headerlink" href="#python-dynamic" title="Link to this heading"></a></h2>
 <p>首先 从模块中导入结构预处理器 <code class="docutils literal notranslate"><span class="pre">Processor</span></code> 及实施分子动力学模拟的模拟器 <code class="docutils literal notranslate"><span class="pre">Simulator</span></code>, 然后创建一个预处理器实例 <code class="docutils literal notranslate"><span class="pre">processor</span></code></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 如果AMBER 或 Ambertools安装不正确，导入时将收到额外提示</span>
 <span class="kn">from</span> <span class="nn">pyCADD.Dynamic</span> <span class="kn">import</span> <span class="n">Processor</span><span class="p">,</span> <span class="n">Simulator</span>
@@ -183,7 +180,7 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 </pre></div>
 </div>
 <section id="id3">
-<h3>蛋白结构准备<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<h3>蛋白结构准备<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <p>使用processor的protein_prepare()方法 对蛋白结构文件进行自动预处理工作。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">processor</span><span class="o">.</span><span class="n">protein_prepare</span><span class="p">(</span><span class="n">protein_file</span><span class="p">,</span> <span class="n">keep_water</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
@@ -197,29 +194,29 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 <p>所有此步骤的过程文件保存在 <code class="docutils literal notranslate"><span class="pre">protein</span></code>目录中。</p>
 </section>
 <section id="id4">
-<h3>小分子结构准备<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
+<h3>小分子结构准备<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <p>使用 <code class="docutils literal notranslate"><span class="pre">processor</span></code> 对小分子结构文件进行自动预处理工作。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
 <span class="c1"># charge指定小分子结构的电荷量 根据实际情况改变 </span>
 <span class="c1"># 当charge与实际不符时 Gaussian将报错 默认为0</span>
 <span class="c1"># multiplicity指定小分子自旋多重度 默认为1</span>
 
-<span class="n">processor</span><span class="o">.</span><span class="n">molecule_prepare</span><span class="p">(</span><span class="n">molecule_file</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">multiplicity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;resp&#39;</span><span class="p">,</span> <span class="n">keep_origin_cood</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">processor</span><span class="o">.</span><span class="n">molecule_prepare</span><span class="p">(</span><span class="n">molecule_file</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">multiplicity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;resp2&#39;</span><span class="p">,</span> <span class="n">keep_origin_cood</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="c1"># processor.molecule_prepare(molecule_file, charge=0, multiplicity=1, method=&#39;bcc&#39;)</span>
 </pre></div>
 </div>
 <p>这一过程包括以下几个步骤：</p>
 <ol class="simple">
-<li><p>高斯结构优化 (需要Gaussian 16, 使用泛函B3LYP、基组def2SVP、色散矫正em=GD3BJ、loose收敛限)，如果您不想因高斯结构优化改变您的配体分子坐标，可使用参数 <code class="docutils literal notranslate"><span class="pre">keep_origin_cood=True</span></code></p></li>
+<li><p>高斯结构优化 (需要Gaussian 16, 使用泛函B3LYP、基组def2SVP、色散矫正em=GD3BJ、loose收敛限)，现在，高斯优化后的坐标将仅用于计算RESP电荷，不会被用于模拟；除非设定<code class="docutils literal notranslate"><span class="pre">keep_origin_cood=False</span></code>，否则模拟过程中将维持原始的PDB结构坐标。</p></li>
 <li><p>计算小分子的RESP2电荷 (需要Multiwfn) 并生成输出PDB结构<code class="docutils literal notranslate"><span class="pre">_out.pdb</span></code> 关于RESP2(0.5)电荷的更多信息，参阅<a class="reference external" href="http://sobereva.com/531">RESP2(0.5)电荷</a></p></li>
 <li><p>antechamber (需要AmberTools) 生成Amber模拟力场参数文件<code class="docutils literal notranslate"><span class="pre">.prepin</span></code></p></li>
 <li><p>parmchk2 (需要AmberTools) 生成Amber模拟力场参数文件<code class="docutils literal notranslate"><span class="pre">.frcmod</span></code></p></li>
 </ol>
-<p>可以通过设定 <code class="docutils literal notranslate"><span class="pre">method='bcc'</span></code> 来使用AM1-bcc方法生成电荷而不是resp, 此时1、2步不再执行，也不需要安装Guassian及Multiwfn。</p>
+<p>如果您<strong>不希望安装Guassian及Multiwfn</strong>，可以通过设定 <code class="docutils literal notranslate"><span class="pre">method='bcc'</span></code> 来使用AM1-bcc方法生成电荷而不是resp, 此时1、2步不再执行。</p>
 <p>所有此步骤的过程文件保存在<code class="docutils literal notranslate"><span class="pre">molecule</span></code>目录中。</p>
 </section>
 <section id="amber-leap">
-<h3>Amber 模拟前准备 - LEaP<a class="headerlink" href="#amber-leap" title="Permalink to this heading"></a></h3>
+<h3>Amber 模拟前准备 - LEaP<a class="headerlink" href="#amber-leap" title="Link to this heading"></a></h3>
 <p>在蛋白与小分子都准备就绪后，使用LEaP来完成最终的模拟准备文件生成。</p>
 <p>为了方便识别生成文件，选择一个任意名称作为生成文件前缀名 <code class="docutils literal notranslate"><span class="pre">prefix</span></code> ，这通常可以是PDBID或配体小分子名等。例如：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;1FBY&#39;</span>
@@ -235,7 +232,7 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 <p>所有此步骤的过程文件保存在<code class="docutils literal notranslate"><span class="pre">leap</span></code>目录中，并具有<code class="docutils literal notranslate"><span class="pre">prefix</span></code>前缀。模拟后处理及分析过程可能会再次使用它们。</p>
 </section>
 <section id="id5">
-<h3>检查输入文件（可选）<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
+<h3>检查输入文件（可选）<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <p>现在，如果没有产生预料之外的错误，预处理阶段已经完成。</p>
 <p>您可以在各步骤的目录中检查生成的文件是否符合预期，并进行必要的修改（如果您知道自己在做什么）。
 例如，若您想要使用八面体而非立方体水箱，则可修改<code class="docutils literal notranslate"><span class="pre">leap/prefix_tleap.in</span></code>中的如下部分：</p>
@@ -245,7 +242,7 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 <p>在<code class="docutils literal notranslate"><span class="pre">simulator.run_simulation()</span></code>命令之前，修改过程文件中的任何内容都是安全的。</p>
 </section>
 <section id="md">
-<h3>构建MD工作流并执行模拟<a class="headerlink" href="#md" title="Permalink to this heading"></a></h3>
+<h3>构建MD工作流并执行模拟<a class="headerlink" href="#md" title="Link to this heading"></a></h3>
 <p>为了开始模拟阶段，首先需要此前的预处理器实例 <code class="docutils literal notranslate"><span class="pre">processor</span></code> 来完成工作流构造。</p>
 <p>首先在工作流中添加能量最小化步骤。<code class="docutils literal notranslate"><span class="pre">process_name</span></code> 仅用于命名各工作流模块，不影响模块功能。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">processor</span><span class="o">.</span><span class="n">add_minimize_process</span><span class="p">(</span>
@@ -326,10 +323,10 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 </section>
 </section>
 <section id="id6">
-<h2>模拟结果分析<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h2>
+<h2>模拟结果分析<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
 <p>Dynamic 的 <code class="docutils literal notranslate"><span class="pre">Analyzer</span></code> 类提供了一些常规的自动化分析工具，用于分析 Amber MD 模拟结果并快速导出分析数据用于绘制图表。</p>
 <section id="id7">
-<h3>分析环境准备<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<h3>分析环境准备<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
 <p>模拟结果的分析工具需要当前的python环境可以导入 <code class="docutils literal notranslate"><span class="pre">pytraj</span></code> 包，即 cpptraj 的 python bindings。<br />为此，请确保已经执行过命令 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">$AMBERHOME/amber.sh</span></code>，其中 <code class="docutils literal notranslate"><span class="pre">$AMBERHOME</span></code> 是您的 AMBER 安装根目录</p>
 <p>或将 Ambertools 安装到当前环境中:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span><span class="nv">ambertools</span><span class="o">=</span><span class="m">23</span><span class="w"> </span>-c<span class="w"> </span>conda-forge
@@ -341,7 +338,7 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 </div>
 </section>
 <section id="cli">
-<h3>CLI快速分析<a class="headerlink" href="#cli" title="Permalink to this heading"></a></h3>
+<h3>CLI快速分析<a class="headerlink" href="#cli" title="Link to this heading"></a></h3>
 <p>使用 <code class="docutils literal notranslate"><span class="pre">pycadd-dynamic</span> <span class="pre">analysis</span></code> 命令可以快速开展常规的轨迹分析，并将结果保存至 <code class="docutils literal notranslate"><span class="pre">md_analysis/</span></code> 目录中。分析轨迹需要提供必要的拓扑及轨迹文件。</p>
 <p>使用 <code class="docutils literal notranslate"><span class="pre">pyCADD-Dynamic</span></code> 模块完成的模拟，这些文件通常位于 <code class="docutils literal notranslate"><span class="pre">leap/</span></code> 及 <code class="docutils literal notranslate"><span class="pre">md_result/</span></code> 目录中。即使模拟并非由 <code class="docutils literal notranslate"><span class="pre">pyCADD-Dynamic</span></code> 完成，在提供必要文件的路径后，您也可以尝试使用该命令进行分析。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-dynamic<span class="w"> </span>analysis<span class="w"> </span>-y<span class="w"> </span>TRAJ_FILE<span class="w"> </span>-ro<span class="w"> </span>OUTPUT_FILE<span class="w"> </span>-sp<span class="w"> </span>SOL_COM_TOP_FILE<span class="w"> </span>-cp<span class="w"> </span>COM_TOP_FILE<span class="w"> </span>-lp<span class="w"> </span>LIG_TOP_FILE<span class="w"> </span>-rp<span class="w"> </span>PRO_TOP_FILE<span class="w"> </span><span class="o">[</span>--no-hbond<span class="o">]</span><span class="w"> </span><span class="o">[</span>--no-rmsd<span class="o">]</span><span class="w"> </span><span class="o">[</span>--no-rmsf<span class="o">]</span><span class="w"> </span><span class="o">[</span>-h/--help<span class="o">]</span><span class="w"> </span><span class="o">[</span>-d<span class="w"> </span>START_FRAME<span class="w"> </span>END_FRAME<span class="w"> </span>STEP_SIZE<span class="o">]</span>
@@ -370,7 +367,7 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 </ul>
 <p>可选参数：</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">/</span> <span class="pre">--decomp</span> <span class="pre">INT1</span> <span class="pre">INT2</span> <span class="pre">INT3</span></code>: 计算MM-GBSA结合自由能及能量分解。使用该参数时必须提供3个整数 <code class="docutils literal notranslate"><span class="pre">START_FRAME</span></code> <code class="docutils literal notranslate"><span class="pre">END_FRAME</span></code> <code class="docutils literal notranslate"><span class="pre">STEP_SIZE</span></code>。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">/</span> <span class="pre">--decomp</span> <span class="pre">INT1</span> <span class="pre">INT2</span> <span class="pre">INT3</span></code>: 计算MM-GBSA结合自由能及能量分解。使用该参数时必须提供3个整数 <code class="docutils literal notranslate"><span class="pre">START_FRAME</span></code> <code class="docutils literal notranslate"><span class="pre">END_FRAME</span></code> <code class="docutils literal notranslate"><span class="pre">STEP_SIZE</span></code>，即分析起始帧，结束帧及步长。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-n</span> <span class="pre">/</span> <span class="pre">--parallel</span> <span class="pre">INT</span></code>: 计算MM-GBSA结合自由能时，指定并行计算所用的CPU核心数量，默认为最大可用核心数。</p></li>
 </ul>
 <p>例如</p>
@@ -379,7 +376,7 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 </div>
 </section>
 <section id="python-analyzer">
-<h3>python 包调用 Analyzer 分析工具<a class="headerlink" href="#python-analyzer" title="Permalink to this heading"></a></h3>
+<h3>python 包调用 Analyzer 分析工具<a class="headerlink" href="#python-analyzer" title="Link to this heading"></a></h3>
 <p>除了使用CLI中固定的工作流进行快速分析外，也可以从 <code class="docutils literal notranslate"><span class="pre">pyCADD.Dynamic</span></code> 中导入 <code class="docutils literal notranslate"><span class="pre">Analyzer</span></code> 类并在python中定制化分析过程。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 如果AMBER 或 Ambertools安装不正确，导入时将收到额外提示</span>
 <span class="kn">from</span> <span class="nn">pyCADD.Dynamic</span> <span class="kn">import</span> <span class="n">Analyzer</span>
@@ -406,7 +403,7 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 </pre></div>
 </div>
 <section id="rmsd-rmsf">
-<h4>RMSD &amp; RMSF 分析<a class="headerlink" href="#rmsd-rmsf" title="Permalink to this heading"></a></h4>
+<h4>RMSD &amp; RMSF 分析<a class="headerlink" href="#rmsd-rmsf" title="Link to this heading"></a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 默认以αC计算RMSD与RMSF 也可以通过Amber MASK格式指定其他原子</span>
 <span class="c1"># 默认参考帧ref为0帧（即第一帧）</span>
 <span class="n">analyzer</span><span class="o">.</span><span class="n">calc_rmsd</span><span class="p">(</span><span class="n">mask</span><span class="o">=</span><span class="s1">&#39;@CA&#39;</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -415,17 +412,17 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 </div>
 </section>
 <section id="id8">
-<h4>氢键分析<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h4>
+<h4>氢键分析<a class="headerlink" href="#id8" title="Link to this heading"></a></h4>
 <p>分析器将检测并追踪模拟全过程中指定条件下的氢键（默认为包括蛋白残基间及蛋白残基-配体小分子间的全部氢键），然后统计氢键的数量、键长、键角等信息，及模拟过程的氢键存续(Lifetime)。</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span># 默认分析所有可能存在的氢键
-analyzer.calc_hbond(
-    mask = &#39;:*&#39;,
-    distance = 3.0,
-    angle = 135.0,
-    solvent_donor=None,
-    solvent_acceptor=None，
-    options=None
-)
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 默认分析所有可能存在的氢键</span>
+<span class="n">analyzer</span><span class="o">.</span><span class="n">calc_hbond</span><span class="p">(</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="s1">&#39;:*&#39;</span><span class="p">,</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span>
+    <span class="n">angle</span> <span class="o">=</span> <span class="mf">135.0</span><span class="p">,</span>
+    <span class="n">solvent_donor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">solvent_acceptor</span><span class="o">=</span><span class="kc">None</span><span class="err">，</span>
+    <span class="n">options</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <ul class="simple">
@@ -438,7 +435,7 @@ analyzer.calc_hbond(
 </ul>
 </section>
 <section id="mm-gbsa">
-<h4>MM-GBSA 结合自由能计算与能量分解<a class="headerlink" href="#mm-gbsa" title="Permalink to this heading"></a></h4>
+<h4>MM-GBSA 结合自由能计算与能量分解<a class="headerlink" href="#mm-gbsa" title="Link to this heading"></a></h4>
 <p>Dynamic Analyzer 使用 Amber 官方的 <code class="docutils literal notranslate"><span class="pre">MMPBSA.py.MPI</span></code> 进行结合自由能计算。</p>
 <p>为了使用<code class="docutils literal notranslate"><span class="pre">MMPBSA.py.MPI</span></code>，需要安装 <code class="docutils literal notranslate"><span class="pre">openmpi</span></code> 及 <code class="docutils literal notranslate"><span class="pre">mpi4py</span></code>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>openmpi<span class="w"> </span>mpi4py<span class="w"> </span>-c<span class="w"> </span>conda-forge
@@ -473,7 +470,7 @@ analyzer.calc_hbond(
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Yuhang Wu.</p>
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
