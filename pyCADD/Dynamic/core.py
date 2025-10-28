@@ -1,606 +1,521 @@
-import os
-import subprocess
-import sys
-import re
+"""Core molecular dynamics simulation preparation and execution functions.
+
+This module provides the main functionality for preparing molecular systems and
+running molecular dynamics simulations using Amber tools. It includes protein
+preparation, ligand parameterization, system building, and simulation execution.
+"""
+
 import logging
-from time import sleep
-from typing import Union
+import os
+import re
+from typing import Literal
 
 from pyCADD.Dynamic.template import LeapInput, MMGBSAInput
-from pyCADD.utils.common import BaseFile
-from pyCADD.utils.tool import _get_progress, makedirs_from_list, timeit
-
-CWD = os.getcwd()
-CPU_NUM = os.cpu_count() or 2
-PMEMD = 'pmemd.cuda'
-SANDER = f'mpirun -np {str(int(CPU_NUM / 2))} sander.MPI'
-
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-TEMPLATE_DIR = os.path.join(SCRIPT_DIR, 'template')
+from pyCADD.Dynamic.utils import _trace_progress, calc_am1bcc, run_parmchk2
+from pyCADD.Dynamic.constant import CPU_NUM, PMEMD, SANDER
+from pyCADD.utils.common import File
+from pyCADD.utils.tool import read_file, shell_run, timeit
 
 logger = logging.getLogger(__name__)
 
 
-def _system_call(cmd: str, output: bool = True) -> None:
-    '''
-    系统shell命令调用
+def protein_prepare(
+    protein_file: File | str,
+    save_dir: str = None,
+    keep_water: bool = False,
+    overwrite: bool = False,
+) -> File:
+    """Prepares protein structure for molecular dynamics simulation.
 
-    Parameters
-    ----------
-    cmd : str
-        命令行
-    output : bool, optional
-        是否输出命令行结果 默认为True
-    '''
+    Processes a protein PDB file using pdb4amber to clean up the structure,
+    add missing atoms, and prepare it for Amber force field parameterization.
+    The preparation includes removing/adding atoms and fixing structural issues.
 
-    # return_code = os.system(cmd)
-    process = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    if process.returncode != 0:
-        # raise RuntimeError(f'System call failed: {cmd}') from None
-        print(f"\033[1;31mShell command failed:\033[0m {cmd}")
-        print('\033[1mPlease check the error messages below and try again.\033[0m')
-        print(process.stdout.decode('utf-8'))
-        sys.exit(1)
-    else:
-        logger.debug(f'Command success: {cmd}')
-        if output:
-            print(process.stdout.decode('utf-8'))
+    Args:
+        protein_file (File | str): Input protein PDB file to be processed.
+        save_dir (str, optional): Directory to save processed files. 
+            Defaults to current working directory.
+        keep_water (bool, optional): Whether to retain water molecules in final structure. 
+            Defaults to False.
+        overwrite (bool, optional): Whether to overwrite existing prepared files. 
+            Defaults to False.
 
-def _convert_mae_to_pdb(mae_file_path: str) -> None:
-    '''
-    转换MAE文件为PDB文件
+    Returns:
+        File: Processed protein file ready for MD simulation setup.
 
-    Parameters
-    ----------
-    mae_file_path : str
-        mae文件路径
-    '''
-    script_path = os.path.join(SCRIPT_DIR, 'mae2pdb.sh')
-    _system_call(f'{script_path} {mae_file_path}')
+    Note:
+        The preparation process involves multiple steps:
+        1. Remove water and add missing atoms (dry step)
+        2. Remove all hydrogens (noH step)  
+        3. Final cleanup and preparation
+        If keep_water=True, water molecules from original file are preserved.
 
-
-def _creat_file_from_template(template_file_path: str, output_file_path: str, **kwarg):
-    '''
-    从模板文件中读取模板信息
-    并替换为指定内容 从而创建定制文件
-    '''
-    with open(template_file_path, 'r') as f:
-        template = f.read()
-
-    output_file_text = template.format(**kwarg)
-
-    with open(output_file_path, 'w') as f:
-        f.write(output_file_text)
-
-    return BaseFile(output_file_path)
-
-
-def _get_atom_lines(mol2file):
-    '''
-    从mol2文件中获取原子行信息
-
-    Parameters
-    ----------
-    mol2file : str
-        mol2文件路径
-
-    Returns
-    -------
-    list
-        原子行信息列表 
-        [
-            [原子序号, 原子名, x, y, z, 原子类型, 残基序号, 残基名, 电荷量],
-            ...
-        ]
-    '''
-    with open(mol2file) as f:
-        lines = f.read().splitlines()
-    start_idx = lines.index('@<TRIPOS>ATOM')
-    end_idx = lines.index('@<TRIPOS>BOND')
-    atom_lines = lines[start_idx+1:end_idx]
-    return [line.split() for line in atom_lines]
-
-
-def _merge_charge(charge_mol2, origin_mol2, output_mol2):
-    '''
-    合并mol2原始坐标与计算得到的电荷量
-
-    Parameters
-    ----------
-    charge_mol2 : str
-        计算得到电荷量的mol2文件路径(原子顺序需与origin_mol2一致)
-    origin_mol2 : str
-        原始mol2文件路径
-    output_mol2 : str
-        合并后的mol2文件路径
-
-    '''
-    mol2_line_fmt = "{:>7} {:<10} {:>10} {:>10} {:>10} {:<5} {:>4} {:<7} {:>10}\n"
-    ori_atom_lines = _get_atom_lines(origin_mol2)
-    chg_atom_lines = _get_atom_lines(charge_mol2)
-    result_lines = ori_atom_lines.copy()
-    for i, line in enumerate(result_lines):
-        result_lines[i][8] = chg_atom_lines[i][8]
-    result_lines = [mol2_line_fmt.format(*line) for line in result_lines]
-
-    with open(origin_mol2) as f:
-        lines = f.readlines()
-    atom_start_idx = lines.index('@<TRIPOS>ATOM\n')
-    atom_end_idx = lines.index('@<TRIPOS>BOND\n')
-
-    with open(output_mol2, 'w') as f:
-        f.writelines(lines[:atom_start_idx+1])
-        f.writelines(result_lines)
-        f.writelines(lines[atom_end_idx:])
-
-
-def protein_prepare(protein_file: BaseFile, save_dir: Union[str, None] = None, keep_water: bool = False) -> BaseFile:
-    '''
-    预处理蛋白质PDB文件
-        PDB文件格式化 for Amber | 去除原生H原子 | 使用rudece添加H原子 | 再次格式化
-
-    Parameters
-    ----------
-    protein_file : BaseFile
-        蛋白质PDB文件
-    save_dir : str, optional
-        保存路径 过程及结果文件保存至该目录 如为None则保存至当前目录
-    keep_water : bool, optional
-        是否保留输入结构中的水分子, 默认为 False
-
-    Returns
-    -------
-    str
-        处理完成的蛋白质PDB文件
-    '''
-
-    save_dir = save_dir if save_dir is not None else CWD
+    Raises:
+        FileNotFoundError: If the input protein file doesn't exist.
+        RuntimeError: If pdb4amber processing fails.
+    """
+    protein_file = File(protein_file)
+    save_dir = save_dir or os.getcwd()
+    os.makedirs(save_dir, exist_ok=True)
     file_path = protein_file.file_path
     file_prefix = protein_file.file_prefix
 
-    dry_file_path = os.path.join(save_dir, file_prefix + '_dry.pdb')
-    noH_file_path = os.path.join(save_dir, file_prefix + '_noH.pdb')
-    leap_file_path = os.path.join(save_dir, file_prefix + '_leap.pdb')
+    dry_file_path = os.path.join(save_dir, file_prefix + "_dry.pdb")
+    noH_file_path = os.path.join(save_dir, file_prefix + "_noH.pdb")
+    prepared_file_path = os.path.join(save_dir, file_prefix + "_prepared.pdb")
+    if not overwrite and os.path.exists(prepared_file_path):
+        return File(prepared_file_path)
 
-    # 去除水分子
-    _system_call(
-        f'pdb4amber -i {file_path} -o {dry_file_path} -p --dry --add-missing-atoms ')
-    # 去除原生H原子
-    _system_call(f'pdb4amber -i {dry_file_path} -o {noH_file_path} -y')
-    # 重新格式化
-    _system_call(f'pdb4amber -i {noH_file_path} -o {leap_file_path}')
+    shell_run(f"pdb4amber -i {file_path} -o {dry_file_path} -p --dry --add-missing-atoms ")
+    shell_run(f"pdb4amber -i {dry_file_path} -o {noH_file_path} -y")
+    shell_run(f"pdb4amber -i {noH_file_path} -o {prepared_file_path}")
 
     if keep_water:
-        _system_call(f'pdb4amber -i {file_path} -o tmp.pdb')
-        _system_call(f'cat tmp.pdb | grep "HOH" > water.pdb')
-        _system_call(
-            f'cat {leap_file_path} | grep -v "END" > tmp.pdb && \
+        shell_run(f"pdb4amber -i {file_path} -o tmp.pdb")
+        shell_run(f'cat tmp.pdb | grep "HOH" > water.pdb')
+        shell_run(
+            f'cat {prepared_file_path} | grep -v "END" > tmp.pdb && \
             cat water.pdb | sed "s/HOH/WAT/" >> tmp.pdb && \
-            echo END >> tmp.pdb')
-        _system_call(f'pdb4amber -i tmp.pdb -o {leap_file_path}')
-        _system_call(f'rm tmp.pdb water.pdb')
-    return BaseFile(leap_file_path)
+            echo END >> tmp.pdb'
+        )
+        shell_run(f"pdb4amber -i tmp.pdb -o {prepared_file_path}")
+        shell_run(f"rm tmp.pdb water.pdb")
+    return File(prepared_file_path)
 
 
-def molecule_prepare_resp2(
-        ligand_file: BaseFile,
-        cpu_num: Union[int, None] = None,
-        charge: Union[int, None] = None,
-        multiplicity: Union[int, None] = None,
-        solvent: Union[str, None] = None,
-        save_dir: Union[str, None] = None,
-        overwrite: bool = False,
-        keep_origin_cood: bool = True) -> tuple:
-    '''
-    预处理小分子文件
-        高斯坐标优化与RESP2(0.5)电荷计算
+def molecule_prepare(
+    ligand_file: File,
+    charge_method: Literal["resp", "bcc", "resp2"] = "resp",
+    charge: int = None,
+    multiplicity: int = None,
+    dft: str = "B3LYP",
+    basis_set: str = "6-31g*",
+    cpu_num: int = 4,
+    mem_use: str = "8GB",
+    solvent: str = "water",
+    delta: float = 0.5,
+    save_dir: str = None,
+    overwrite: bool = False,
+) -> tuple[File, File]:
+    """Prepares small molecule/ligand for molecular dynamics simulation.
 
-    Parameters
-    ----------
-    ligand_file : BaseFile
-        小分子文件
-    cpu_num : int, optional
-        CPU数量 默认为CPU总数
-    charge : int, optional
-        电荷数 默认为电荷数为0
-    multiplicity : int, optional
-        自旋多重度 默认为复数为1
-    solvent : str, optional
-        计算溶剂 默认为水
-    save_dir : str, optional
-        保存路径 过程及结果文件保存至该目录 如为None则保存至当前目录
-    overwrite : bool, optional
-        是否覆盖已存在文件 默认为False
-    keep_origin_cood : bool, optional
-        是否在输出结构中保留原始坐标 而不使用高斯结构优化的坐标 默认为True
+    Generates Amber-compatible parameter and coordinate files for a small molecule
+    by calculating partial charges using quantum mechanical methods (RESP, AM1-BCC, 
+    or RESP2) and creating force field parameters using GAFF.
 
-    Returns
-    -------
-    BaseFile, BaseFile
-        已计算电荷的mol2文件, frcmod文件
-    '''
+    Args:
+        ligand_file (File): Input ligand structure file (SDF, MOL2, PDB, etc.).
+        charge_method (Literal["resp", "bcc", "resp2"], optional): Method for charge calculation.
+            Defaults to "resp".
+        charge (int, optional): Net charge of the molecule. If None, will be determined automatically.
+        multiplicity (int, optional): Spin multiplicity. If None, will be determined automatically.
+        dft (str, optional): DFT functional for quantum calculations. Defaults to "B3LYP".
+        basis_set (str, optional): Basis set for quantum calculations. Defaults to "6-31g*".
+        cpu_num (int, optional): Number of CPUs for quantum calculations. Defaults to 4.
+        mem_use (str, optional): Memory allocation for quantum calculations. Defaults to "8GB".
+        solvent (str, optional): Solvent for implicit solvation in quantum calculations. 
+            Defaults to "water".
+        delta (float, optional): Interpolation parameter for RESP2 method. Defaults to 0.5.
+        save_dir (str, optional): Directory to save generated files. 
+            Defaults to current working directory.
+        overwrite (bool, optional): Whether to overwrite existing parameter files. 
+            Defaults to False.
 
-    save_dir = save_dir if save_dir is not None else CWD
+    Returns:
+        tuple[File, File]: Tuple containing (parameter_file, coordinate_file) where:
+            - parameter_file: Amber parameter file (.prmtop)
+            - coordinate_file: Amber coordinate file (.inpcrd)
+
+    Raises:
+        ValueError: If unsupported charge method is specified.
+        RuntimeError: If antechamber or other Amber tools fail.
+        FileNotFoundError: If input ligand file doesn't exist.
+
+    Note:
+        The function automatically handles:
+        - Charge and multiplicity determination if not provided
+        - GAFF parameter assignment using antechamber
+        - Missing parameter generation using parmchk2
+        - System building using tleap
+    """
+
+    save_dir = save_dir or os.getcwd()
+    os.makedirs(save_dir, exist_ok=True)
     file_path = ligand_file.file_path
-    file_prefix = ligand_file.file_prefix
-
-    os.chdir(save_dir)
-
-    cpu_num = cpu_num if cpu_num is not None else CPU_NUM
-    charge = charge if charge is not None else 0
-    multiplicity = multiplicity if multiplicity is not None else 1
-    solvent = solvent if solvent is not None else 'water'
-    script_resp2_path = os.path.join(SCRIPT_DIR, 'RESP2.sh')
-
-    # 参数生成过程文件
-    pqr_file_path = os.path.join(save_dir, file_prefix + '.pqr')
-    mol2_file_path = os.path.join(save_dir, file_prefix + '.mol2')
-    frcmod_file_path = os.path.join(save_dir, file_prefix + '.frcmod')
+    file_prefix = f"{ligand_file.file_prefix}_{charge_method.lower()}"
+    cpu_num = cpu_num or CPU_NUM
+    charge = charge or 0
+    multiplicity = multiplicity or 1
+    solvent = solvent or "water"
+    mol2_file_path = os.path.join(save_dir, f"{file_prefix}.mol2")
 
     if os.path.exists(mol2_file_path) and not overwrite:
-        _system_call(
-            f'parmchk2 -i {mol2_file_path} -f mol2 -o {frcmod_file_path}')
-        os.chdir(CWD)
-        return BaseFile(mol2_file_path), BaseFile(frcmod_file_path)
-    
-    from pyCADD.Density.base import Gauss
-    if Gauss.gauss is None:
-        raise RuntimeError('Gaussian may not be installed.\nPlease calculate QM charges with AM1-BCC.')
-    Gauss(file_path).set_system(cpu_num, '16GB')
+        return File(mol2_file_path), run_parmchk2(mol2_file_path, save_dir=save_dir)
 
-    if os.popen('which obabel').read().strip() == '':
-        raise RuntimeError('Openbabel may not be installed.\nPlease install Openbabel first.')
-    print('Optimizing ligand structure...')
-    # 高斯坐标优化与RESP2电荷计算
-    # 完成时 生成.pqr文件
-    _system_call(
-        f'chmod 777 {script_resp2_path} && {script_resp2_path} {file_path} {charge} {multiplicity} {solvent}'
-    )
+    logger.info("Calculating the net charge of ligand...")
+    if charge_method.lower() == "bcc":
+        calc_method = calc_am1bcc
+        kwargs = {
+            "save_dir": save_dir,
+            "charge": charge,
+            "multiplicity": multiplicity,
+        }
+    else:
+        from pyCADD.Density.base import Gauss
 
-    # Openbabel格式转换 pqr -> mol2 电荷信息传递至mol2文件
-    _system_call(f'obabel -ipqr {pqr_file_path} -omol2 -O tmp.mol2')
-    # Openbabel生成的mol2文件无法被parmchk2直接使用 需要antechamber转换
-    # mol2文件带有RESP2电荷信息 但坐标已经高斯优化而改变
-    _system_call(
-        f'antechamber -fi mol2 -i tmp.mol2 -fo mol2 -o {mol2_file_path} && rm tmp.mol2')
-
-    if keep_origin_cood:
-        # 维持对接结果的坐标 并将RESP2电荷信息合并至mol2文件
-        origin_file = ligand_file.file_path
-        file_ext = ligand_file.file_ext
-
-        if file_ext == 'pdb':
-            _system_call(f'pdb4amber -i {file_path} -o origin.pdb')
-            _system_call(
-                f'antechamber -fi pdb -i origin.pdb -fo mol2 -o origin.mol2 && rm origin.pdb')
+        gauss = Gauss()
+        kwargs = {
+            "charge": charge,
+            "multiplicity": multiplicity,
+            "dft": dft,
+            "basis_set": basis_set,
+            "mem_use": mem_use,
+            "cpu_num": cpu_num,
+            "save_dir": save_dir,
+        }
+        if charge_method.lower() == "resp2":
+            calc_method = gauss.calc_resp2
+            kwargs.update({"delta": delta})
+        elif charge_method.lower() == "resp":
+            calc_method = gauss.calc_resp
+            kwargs.update({"solvent": solvent})
         else:
-            _system_call(
-                f'antechamber -fi {file_ext} -i {file_path} -fo mol2 -o origin.mol2')
-        _merge_charge(mol2_file_path, 'origin.mol2', mol2_file_path)
-
-    # 生成Amber Gaff Force Filed Parameters文件
-    _system_call(
-        f'parmchk2 -i {mol2_file_path} -f mol2 -o {frcmod_file_path}')
-
-    os.chdir(CWD)
-
-    return BaseFile(mol2_file_path), BaseFile(frcmod_file_path)
+            raise ValueError(f"Unsupported charge calculation type: {charge_method}")
+    charged_mol2_file = File(calc_method(file_path, **kwargs))
+    frcmod_file = run_parmchk2(charged_mol2_file, save_dir=save_dir)
+    return charged_mol2_file, frcmod_file
 
 
-def molecule_prepare_bcc(
-        ligand_file: BaseFile,
-        charge: int,
-        save_dir: Union[str, None] = None,
-        overwrite: bool = False) -> tuple:
-    '''
-    使用AM1-BCC快速计算原子电荷 并完成配体预处理
+def _create_leap_inputfile(
+    protein_file_path: str,
+    ligand_file_path: File | str = None,
+    frcmod_file_path: File | str = None,
+    file_prefix: str = None,
+    box_size: float = 10.0,
+    box_type: str = "TIP3PBOX",
+    solvatebox: str = "solvatebox",
+    save_dir: str = None,
+) -> File:
+    """Creates a tLEaP input file for system preparation.
 
-    Parameters
-    ----------
-    ligand_file : BaseFile
-        小分子文件
-    charge : int
-        电荷数
-    save_dir : str, optional
-        保存路径 过程及结果文件保存至该目录 如为None则保存至当前目录
-    overwrite : bool, optional
-        是否覆盖已存在的mol2结果文件 默认为False
-    '''
+    Generates a tLEaP input script for building an Amber molecular system
+    including protein, ligand (optional), solvent box, and counter ions.
 
-    save_dir = save_dir if save_dir is not None else CWD
-    file_path = ligand_file.file_path
-    file_prefix = ligand_file.file_prefix
+    Args:
+        protein_file_path (str): Path to the prepared protein PDB file.
+        ligand_file_path (File | str, optional): Path to the ligand MOL2 file. 
+            Defaults to None for protein-only systems.
+        frcmod_file_path (File | str, optional): Path to additional force field 
+            parameters file. Defaults to None.
+        file_prefix (str, optional): Prefix for output files. Defaults to "Untitled".
+        box_size (float, optional): Distance from solute to box edge in Angstroms. 
+            Defaults to 10.0.
+        box_type (str, optional): Type of water box model. Defaults to "TIP3PBOX".
+        solvatebox (str, optional): Solvation command type. Defaults to "solvatebox".
+        save_dir (str, optional): Directory to save the input file. 
+            Defaults to current working directory.
 
-    # 参数生成过程文件
-    mol2_file_path = os.path.join(save_dir, file_prefix + '.mol2')
-    frcmod_file_path = os.path.join(save_dir, file_prefix + '.frcmod')
+    Returns:
+        File: Generated tLEaP input file object.
 
-    if os.path.exists(mol2_file_path) and not overwrite:
-        _system_call(
-            f'parmchk2 -i {mol2_file_path} -f mol2 -o {frcmod_file_path}')
-        return BaseFile(mol2_file_path), BaseFile(frcmod_file_path)
-
-    _system_call(
-        f'pdb4amber -i {ligand_file.file_path} -o tmp.pdb'
+    Note:
+        The generated input file includes commands for:
+        - Loading appropriate force fields
+        - Loading protein and ligand structures  
+        - Adding solvent box and neutralizing ions
+        - Saving parameter and coordinate files
+    """
+    file_prefix = file_prefix or "Untitled"
+    protein_file = File(protein_file_path)
+    ligand_file = File(ligand_file_path) if ligand_file_path else None
+    frcmod_file = File(frcmod_file_path) if frcmod_file_path else None
+    save_dir = save_dir or os.getcwd()
+    os.makedirs(save_dir, exist_ok=True)
+    input_file_path = os.path.join(save_dir, f"{file_prefix}_tleap.in")
+    leap_input = LeapInput(
+        protein_file_path=protein_file,
+        ligand_file_path=ligand_file,
+        frcmod_file_path=frcmod_file,
+        file_prefix=file_prefix,
+        box_size=box_size,
+        box_type=box_type,
+        solvatebox=solvatebox,
     )
+    leap_input.save(input_file_path)
+    return File(input_file_path)
 
-    _system_call(
-        f'antechamber -fi pdb -i tmp.pdb -fo mol2 -o {mol2_file_path} -c bcc -nc {charge} && rm tmp.pdb'
+
+def leap_prepare(
+    protein_file: File,
+    ligand_file: File = None,
+    frcmod_file: File = None,
+    box_size: float = 10.0,
+    box_type: str = "TIP3PBOX",
+    solvatebox: str = "solvatebox",
+    save_dir: str = None,
+) -> tuple[File, File, File]:
+    """Prepares solvated molecular system using tLEaP.
+
+    Builds a complete molecular dynamics system by combining protein, ligand (optional),
+    solvent, and counter ions using Amber's tLEaP program. Generates topology and
+    coordinate files ready for MD simulation.
+
+    Args:
+        protein_file (File): Prepared protein structure file.
+        ligand_file (File, optional): Ligand MOL2 file with parameters. Defaults to None.
+        frcmod_file (File, optional): Additional force field parameter file. Defaults to None.
+        box_size (float, optional): Distance from solute to box boundary in Angstroms. 
+            Defaults to 10.0.
+        box_type (str, optional): Water model for solvation. Defaults to "TIP3PBOX".
+        solvatebox (str, optional): Solvation command type. Defaults to "solvatebox".
+        save_dir (str, optional): Directory to save output files. 
+            Defaults to current working directory.
+
+    Returns:
+        tuple[File, File, File]: Tuple containing (topology_file, coordinate_file, pdb_file):
+            - topology_file: Amber parameter/topology file (.prmtop)
+            - coordinate_file: Amber coordinate file (.inpcrd)  
+            - pdb_file: PDB file of the solvated system
+
+    Raises:
+        RuntimeError: If tLEaP execution fails.
+        FileNotFoundError: If input files don't exist.
+
+    Note:
+        The function automatically:
+        - Generates appropriate file prefixes based on input files
+        - Creates tLEaP input script and executes it
+        - Converts coordinates to PDB format for visualization
+        - Handles both protein-only and protein-ligand systems
+    """
+    save_dir = save_dir or os.getcwd()
+    os.makedirs(save_dir, exist_ok=True)
+    file_prefix = (
+        f"{protein_file.file_prefix}_{ligand_file.file_prefix}"
+        if ligand_file
+        else protein_file.file_prefix
     )
-
-    _system_call(
-        f'parmchk2 -i {mol2_file_path} -f mol2 -o {frcmod_file_path}'
+    leap_inputfile = _create_leap_inputfile(
+        protein_file_path=protein_file,
+        ligand_file_path=ligand_file,
+        frcmod_file_path=frcmod_file,
+        file_prefix=file_prefix,
+        box_size=box_size,
+        box_type=box_type,
+        solvatebox=solvatebox,
+        save_dir=save_dir,
     )
+    shell_run(f"tleap -f {leap_inputfile.file_path}")
 
-    return BaseFile(mol2_file_path), BaseFile(frcmod_file_path)
-
-
-def _creat_leap_inputfile(
-        prefix: str,
-        protein_file_path: str,
-        ligand_file_path: Union[str, None] = None,
-        frcmod_file_path: Union[str, None] = None,
-        box_size: float = 12.0,
-        save_dir: Union[str, None] = None) -> BaseFile:
-    '''
-    创建LEaP输入文件
-
-    Parameters
-    -----------
-    prefix : str
-        文件名前缀
-    ligand_file_path : str
-        小分子文件路径
-    frcmod_file_path : str
-        Amber Parameters文件路径
-    protein_file_path : str
-        蛋白质PDB文件路径
-    save_dir : str, optional
-        保存路径
-    '''
-    save_dir = save_dir if save_dir is not None else CWD
-
-    # tamplete_file_path = os.path.join(TEMPLATE_DIR, 'leap_template.in')
-    input_file_path = os.path.join(save_dir, prefix + '_leap.in')
-
-    input_file = LeapInput(
-        protein_file_path=protein_file_path,
-        ligand_file_path=ligand_file_path,
-        frcmod_file_path=frcmod_file_path,
-        file_prefix=prefix,
-        box_size=box_size
+    comsolvate_topfile_path = os.path.join(save_dir, f"{file_prefix}_comsolvate.prmtop")
+    comsolvate_crdfile_path = os.path.join(save_dir, f"{file_prefix}_comsolvate.inpcrd")
+    comsolvate_pdbfile_path = os.path.join(save_dir, f"{file_prefix}_comsolvate.pdb")
+    shell_run(
+        f"ambpdb -p {comsolvate_topfile_path} < {comsolvate_crdfile_path} > {comsolvate_pdbfile_path}"
     )
-    input_file.save(input_file_path)
-    return BaseFile(input_file_path)
-
-
-def leap_prepare(prefix: str, ligand_file: BaseFile, frcmod_file: BaseFile, protein_file: BaseFile, box_size: float = 12.0, save_dir: Union[str, None] = None) -> None:
-    '''
-    创建LEaP输入文件并执行tleap命令
-
-    Parameters
-    -----------
-    prefix : str
-        生成文件的文件名前缀
-    ligand_file : BaseFile
-        小分子文件
-    frcmod_file : BaseFile
-        Amber Parameters文件
-    protein_file : BaseFile
-        蛋白质PDB文件
-    box_size : float, optional
-        水箱大小 默认为12.0 Angstrom
-    save_dir : str, optional
-        保存路径 默认为当前目录
-    '''
-    ligand_file_path = ligand_file.file_path
-    frcmod_file_path = frcmod_file.file_path
-    protein_file_path = protein_file.file_path
-
-    save_dir = save_dir if save_dir is not None else CWD
-    os.chdir(save_dir)
-
-    leap_inputfile = _creat_leap_inputfile(
-        prefix, ligand_file_path=ligand_file_path, frcmod_file_path=frcmod_file_path, protein_file_path=protein_file_path, box_size=box_size, save_dir=save_dir)
-    # 调用tleap命令
-    _system_call(f'tleap -f {leap_inputfile.file_path}')
-
-    # 生成水箱复合物PDB文件
-    comsolvate_topfile_path = os.path.join(
-        save_dir, prefix + '_comsolvate.prmtop')
-    comsolvate_crdfile_path = os.path.join(
-        save_dir, prefix + '_comsolvate.inpcrd')
-    comsolvate_pdbfile_path = os.path.join(
-        save_dir, prefix + '_comsolvate.pdb')
-    _system_call(
-        f'ambpdb -p {comsolvate_topfile_path} < {comsolvate_crdfile_path} > {comsolvate_pdbfile_path}')
-
-    os.chdir(CWD)
-
-
-def leap_prepare_for_apo(prefix: str, protein_file: BaseFile, box_size: float = 12.0, save_dir: Union[str, None] = None) -> None:
-    '''
-    创建Apo晶体的LEaP输入文件并执行tleap命令
-
-    Parameters
-    -----------
-    prefix : str
-        生成文件的文件名前缀
-    protein_file : BaseFile
-        蛋白质PDB文件
-    box_size : float, optional
-        水箱大小 默认为12.0 Angstrom
-    save_dir : str, optional
-        保存路径 默认为当前目录
-    '''
-
-    protein_file_path = protein_file.file_path
-
-    save_dir = save_dir if save_dir is not None else CWD
-    os.chdir(save_dir)
-
-    leap_inputfile = _creat_leap_inputfile(
-        prefix=prefix, protein_file_path=protein_file_path, box_size=box_size, save_dir=save_dir)
-    # 调用tleap命令
-    _system_call(f'tleap -f {leap_inputfile.file_path}')
-
-    # 生成水箱复合物PDB文件
-    comsolvate_topfile_path = os.path.join(
-        save_dir, prefix + '_comsolvate.prmtop')
-    comsolvate_crdfile_path = os.path.join(
-        save_dir, prefix + '_comsolvate.inpcrd')
-    comsolvate_pdbfile_path = os.path.join(
-        save_dir, prefix + '_comsolvate.pdb')
-    _system_call(
-        f'ambpdb -p {comsolvate_topfile_path} < {comsolvate_crdfile_path} > {comsolvate_pdbfile_path}')
-
-    os.chdir(CWD)
-
-
-def _get_water_resnum(comsolvate_pdbfile: BaseFile) -> list:
-    '''
-    获取水箱复合物的全部水分子Residue Number
-
-    Parameters
-    -----------
-    comsolvate_pdbfile : BaseFile
-        水箱复合物PDB文件
-
-    Returns
-    -----------
-    list
-        水分子Residue Number列表
-    '''
-    return os.popen(
-        "cat %s | grep WAT -w | awk '{print $5}'" % comsolvate_pdbfile.file_path).read().splitlines()
-
-
-def _trace_progress(output_file_path: str, step: int):
-    '''
-    追踪分子动力学模拟进程
-
-    Parameters
-    -----------
-    output_file_path : str
-        分子动力学模拟过程的输出文件路径
-    step : int, optional
-        模拟步数 默认为50000000
-    '''
-    progress, taskID = _get_progress(
-        'Molecule Dynamics Simulation', 'bold cyan', total=step)
-    progress.start()
-    progress.start_task(taskID)
-    while not progress.finished:
-        _current = os.popen(
-            f'tail -n 10 {output_file_path} | grep NSTEP').read()
-        _finished = os.popen(
-            f'tail -n 20 {output_file_path} | grep Final').read()
-        if _current:
-            current_step = re.findall(r'\d+', _current)[0]
-            progress.update(taskID, completed=int(current_step))
-        elif _finished:
-            progress.update(taskID, completed=step)
-            break
-        sleep(1)
-    progress.stop()
-
-
-def _get_input_config(input_file: str) -> list:
-    '''
-    获取分子动力学模拟过程的输入文件配置
-
-    Parameters
-    -----------
-    input_file : str
-        分子动力学模拟过程的输入文件路径
-
-    Returns
-    -----------
-    dict
-        分子动力学模拟过程的输入文件配置
-    '''
-    output_list = []
-    type_pattern = r'&(.*?)\n'
-    config_pattern = "(?<=&{_type}\n).*"
-    item_pattern = r'(\w+)=(.*?)(?=(?:,\s*\w+=|$))'
-
-    with open(input_file, 'r') as f:
-        context = f.read()
-
-    config_list = context.split('/')
-
-    for index, config in enumerate(config_list):
-        config = config.strip()
-        if config == '' or config == 'END':
-            continue
-        _type = re.findall(type_pattern, config)[0]
-        _config_list = re.findall(config_pattern.format(
-            _type=_type), config, re.S)[0].replace('\n', '')
-        config_dict = {"_index": index, "_type": _type}
-        for k, v in re.findall(item_pattern, _config_list):
-            config_dict[k] = v
-        output_list.append(config_dict)
-    return output_list
+    return (
+        File(comsolvate_topfile_path),
+        File(comsolvate_crdfile_path),
+        File(comsolvate_pdbfile_path),
+    )
 
 
 class BaseProcess:
-    def __init__(self, input_file: BaseFile, process_name: str, **kwargs) -> None:
-        self.input_file = input_file
+    """Base class for molecular dynamics simulation processes.
+
+    Provides common functionality for parsing MD input files and managing
+    simulation process parameters. This is an abstract base class that
+    defines the interface for all MD simulation processes.
+
+    Attributes:
+        input_file (File): MD input file containing simulation parameters.
+        process_name (str): Name identifier for this simulation process.
+        cfg (list): Parsed configuration from the input file.
+    """
+
+    def __init__(self, input_file: File, process_name: str, **kwargs) -> None:
+        """Initializes the base MD process.
+
+        Args:
+            input_file (File): Amber MD input file with simulation parameters.
+            process_name (str): Unique name for this simulation process.
+            **kwargs: Additional attributes to set on the process instance.
+
+        Note:
+            The input file is automatically parsed to extract configuration
+            sections and parameters. Additional keyword arguments are set
+            as instance attributes for process customization.
+        """
+        self.input_file = File(input_file)
         self.name = self.process_name = process_name
-        self.cfg = _get_input_config(input_file.file_path)
+        self.cfg = self._get_input_config(input_file.file_path)
         for k, v in kwargs.items():
             setattr(self, k, v)
 
+    @staticmethod
+    def _get_input_config(input_file: str) -> list:
+        """Parses Amber MD input file to extract configuration sections.
+
+        Analyzes an Amber MD input file and extracts all configuration sections
+        (namelist sections like &cntrl, &ewald, etc.) along with their parameters.
+
+        Args:
+            input_file (str): Path to the Amber MD input file to parse.
+
+        Returns:
+            list: List of dictionaries, each containing a configuration section with:
+                - _index: Section order in the file
+                - _type: Section type (e.g., 'cntrl', 'ewald')
+                - parameter_name: parameter_value pairs from the section
+
+        Note:
+            The parser handles Amber's namelist format where sections start with
+            & and end with /, and parameters are specified as key=value pairs.
+            Empty sections and END markers are automatically skipped.
+        """
+        output_list = []
+        type_pattern = r"&(.*?)\n"
+        config_pattern = "(?<=&{_type}\n).*"
+        item_pattern = r"(\w+)=(.*?)(?=(?:,\s*\w+=|$))"
+
+        config_list = read_file(input_file).split("/")
+        for index, config in enumerate(config_list):
+            config = config.strip()
+            if not config or config == "END":
+                continue
+            _type = re.findall(type_pattern, config)[0]
+            config_dict = {"_index": index, "_type": _type}
+            _config_list = re.findall(config_pattern.format(_type=_type), config, re.S)[0].replace(
+                "\n", ""
+            )
+            for k, v in re.findall(item_pattern, _config_list):
+                config_dict[k] = v
+            output_list.append(config_dict)
+        return output_list
+
     def run(self, **kwargs) -> None:
+        """Executes the simulation process.
+
+        Args:
+            **kwargs: Process-specific arguments required for execution.
+
+        Raises:
+            NotImplementedError: This method must be implemented by subclasses.
+
+        Note:
+            Subclasses must override this method to implement the specific
+            execution logic for their simulation type.
+        """
         raise NotImplementedError
 
 
 class MDProcess(BaseProcess):
-    def __init__(self, input_file: BaseFile, process_name: str, **kwargs) -> None:
+    """Molecular dynamics simulation process implementation.
 
+    Handles execution of Amber MD simulations including minimization, heating,
+    equilibration, and production runs. Automatically parses input parameters
+    and manages file paths for simulation output.
+
+    Attributes:
+        control_cfg (dict): Parsed &cntrl section from input file.
+        is_minimize (bool): Whether this is a minimization process.
+        is_restrained (bool): Whether restraints are applied.
+        is_production (bool): Whether this is a production run.
+        total_step (int): Total number of simulation steps.
+        step_size (float): Time step size in picoseconds.
+        cmd (str): Command string for simulation execution.
+        toplogy_file (File): Topology file for the system.
+        inpcrd_file (File): Input coordinate file.
+        mdout_file_path (str): Path to simulation output file.
+        mdcrd_file_path (str): Path to trajectory coordinate file.
+        mdrst_file_path (str): Path to restart coordinate file.
+    """
+
+    def __init__(self, input_file: File, process_name: str, **kwargs) -> None:
+        """Initializes the MD process with input parameters.
+
+        Args:
+            input_file (File): Amber MD input file with simulation parameters.
+            process_name (str): Unique name for this simulation process.
+            **kwargs: Additional attributes for process customization.
+
+        Note:
+            Automatically determines simulation type (minimization vs dynamics)
+            based on the 'imin' parameter in the input file. Step size and
+            total steps are extracted from appropriate input parameters.
+        """
         super().__init__(input_file, process_name, **kwargs)
-        self.control_cfg = [
-            cfg for cfg in self.cfg if cfg['_type'] == 'cntrl'][0]
-        self.is_minimize = bool(int(self.control_cfg.get('imin') or 0))
-        self.is_restrained = bool(int(self.control_cfg.get('ntr') or 0))
+        self.control_cfg = [cfg for cfg in self.cfg if cfg["_type"] == "cntrl"][0]
+        self.is_minimize = bool(int(self.control_cfg.get("imin") or 0))
+        self.is_restrained = bool(int(self.control_cfg.get("ntr") or 0))
         self.is_production = False
-        self.total_step = int(self.control_cfg.get('nstlim') or self.control_cfg.get('maxcyc'))
-        self.step_size = float(self.control_cfg.get('dt')) if not self.is_minimize else 1
-
+        self.total_step = int(self.control_cfg.get("nstlim") or self.control_cfg.get("maxcyc"))
+        self.step_size = float(self.control_cfg.get("dt")) if not self.is_minimize else 1
+        self.cmd = ""
         self.toplogy_file = None
         self.inpcrd_file = None
         self.mdout_file_path = None
         self.mdcrd_file_path = None
         self.mdrst_file_path = None
 
-    def run(self, toplogy_file: BaseFile, inpcrd_file: BaseFile, reference_file: Union[BaseFile, None] = None, save_dir: Union[str, None] = None, nohup: bool = False) -> 'MDProcess':
-        '''
-        Run MD process.
+    def run(
+        self,
+        toplogy_file: File,
+        inpcrd_file: File,
+        reference_file: File | str = None,
+        save_dir: str = None,
+        nohup: bool = False,
+    ) -> "MDProcess":
+        """Executes the molecular dynamics simulation.
 
-        Parameters
-        -----------
-        save_dir : str, optional
-            Save directory. Default is CWD.
-        '''
+        Runs the MD simulation using either PMEMD (for dynamics) or SANDER (for minimization)
+        with the specified topology and coordinate files. Handles output file management
+        and progress tracking.
+
+        Args:
+            toplogy_file (File): Amber topology file (.prmtop) for the system.
+            inpcrd_file (File): Input coordinate file (.inpcrd or .rst).
+            reference_file (File | str, optional): Reference structure for restrained simulations.
+                Defaults to None.
+            save_dir (str, optional): Directory to save simulation outputs.
+                Defaults to current working directory.
+            nohup (bool, optional): Whether to run in background with progress tracking.
+                Defaults to False.
+
+        Returns:
+            MDProcess: Self-reference with updated file paths and execution status.
+
+        Note:
+            The method automatically:
+            - Selects appropriate MD engine (PMEMD/SANDER) based on simulation type
+            - Generates output file paths based on process name
+            - Logs simulation parameters (steps, time step, total time)
+            - Provides real-time progress tracking for background runs
+            - Handles reference files for restrained simulations
+
+        Raises:
+            RuntimeError: If the simulation execution fails.
+            FileNotFoundError: If required input files don't exist.
+        """
         self.toplogy_file = toplogy_file
         self.inpcrd_file = inpcrd_file
-        save_dir = save_dir if save_dir is not None else CWD
+        save_dir = save_dir or os.getcwd()
         os.makedirs(save_dir, exist_ok=True)
 
-        self.mdout_file_path = os.path.join(
-            save_dir, self.process_name + '.out')
-        self.mdcrd_file_path = os.path.join(
-            save_dir, self.process_name + '.nc')
-        self.mdrst_file_path = os.path.join(
-            save_dir, self.process_name + '.rst')
+        self.mdout_file_path = os.path.join(save_dir, f"{self.process_name}.out")
+        self.mdcrd_file_path = os.path.join(save_dir, f"{self.process_name}.nc")
+        self.mdrst_file_path = os.path.join(save_dir, f"{self.process_name}.rst")
         simulation_time = self.total_step * self.step_size / 1000
 
         if not self.is_minimize:
-            logger.info(f'Simulation total steps: {self.total_step}')
-            logger.info(f'Simulation step size: {self.step_size} ps')
-            logger.info(f'Simulation total time: {simulation_time} ns')
+            pmemd = PMEMD
+            logger.info(f"Simulation total steps: {self.total_step}")
+            logger.info(f"Simulation step size: {self.step_size} ps")
+            logger.info(f"Simulation total time: {simulation_time} ns")
+        else:
+            pmemd = SANDER
 
-        self.cmd = f"{PMEMD} -O"
+        self.cmd = f"{pmemd} -O"
         self.cmd += f" -i {self.input_file.file_path}"
         self.cmd += f" -o {self.mdout_file_path}"
         self.cmd += f" -c {self.inpcrd_file.file_path}"
@@ -612,67 +527,148 @@ class MDProcess(BaseProcess):
         else:
             if reference_file is not None:
                 self.cmd += f" -ref {reference_file.file_path}"
-
         if nohup:
-            self.cmd = f'nohup {self.cmd} > /dev/null 2>&1 &'
+            self.cmd = f"nohup {self.cmd} > /dev/null 2>&1 &"
 
-        logger.debug(
-            f'Process {self.process_name} running command: {self.cmd}')
-        logger.info(f'Running process {self.process_name} ...')
-        _system_call(self.cmd)
+        logger.debug(f"Process {self.process_name} running command: {self.cmd}")
+        logger.info(f"Running process {self.process_name}...")
+        shell_run(self.cmd)
         if nohup:
             _trace_progress(self.mdout_file_path, self.total_step)
-        # try:
-        #     _system_call(self.cmd)
-        #     if nohup:
-        #         _trace_progress(self.mdout_file_path, self.total_step)
-        # except RuntimeError:
-        #     logger.warning(
-        #     'GPU version of PMEMD failed, trying CPU version sander.MPI ...')
-        #     cmd_cpu = self.cmd.replace(PMEMD, SANDER)
-        #     logger.info(f'Using CMD: {cmd_cpu}')
-        #     _system_call(cmd_cpu)
-        #     if not self.is_minimize:
-        #         _trace_progress(self.mdout_file_path, self.total_step)
-
         logger.info(f"Process {self.process_name} finished.")
-
         return self
 
 
 class MinimizeProcess(MDProcess):
-    def __init__(self, input_file: BaseFile, process_name: str, **kwargs) -> None:
+    """Energy minimization simulation process.
+
+    Specialized MD process for performing energy minimization using SANDER.
+    Inherits all functionality from MDProcess but is specifically configured
+    for minimization calculations.
+
+    Note:
+        Minimization processes use SANDER engine and don't generate trajectory
+        files. The process automatically detects minimization mode from the
+        input file's 'imin=1' parameter.
+    """
+
+    def __init__(self, input_file: File, process_name: str, **kwargs) -> None:
+        """Initializes the minimization process.
+
+        Args:
+            input_file (File): Amber minimization input file with imin=1.
+            process_name (str): Unique name for this minimization process.
+            **kwargs: Additional attributes for process customization.
+        """
         super().__init__(input_file, process_name, **kwargs)
 
 
 class NPTProcess(MDProcess):
-    def __init__(self, input_file: BaseFile, process_name: str, is_production: bool = False, **kwargs) -> None:
+    """Isothermal-isobaric (NPT) molecular dynamics process.
+
+    Performs MD simulation in the NPT ensemble where temperature and pressure
+    are held constant. Commonly used for equilibration and production phases
+    to maintain realistic density and pressure conditions.
+
+    Attributes:
+        is_production (bool): Whether this is a production run requiring
+            background execution with progress tracking.
+    """
+
+    def __init__(
+        self, input_file: File, process_name: str, is_production: bool = False, **kwargs
+    ) -> None:
+        """Initializes the NPT simulation process.
+
+        Args:
+            input_file (File): Amber MD input file configured for NPT simulation.
+            process_name (str): Unique name for this NPT process.
+            is_production (bool, optional): Whether this is a production run.
+                Production runs use background execution. Defaults to False.
+            **kwargs: Additional attributes for process customization.
+
+        Note:
+            NPT simulations require appropriate barostat and thermostat settings
+            in the input file (ntp>0, ntt>0). Production runs automatically
+            use nohup execution for long simulations.
+        """
         super().__init__(input_file, process_name, **kwargs)
         self.is_production = is_production
 
 
 class NVTProcess(MDProcess):
-    def __init__(self, input_file: BaseFile, process_name: str, is_production: bool = False, **kwargs) -> None:
+    """Canonical (NVT) molecular dynamics process.
+
+    Performs MD simulation in the NVT ensemble where temperature and volume
+    are held constant. Typically used for heating phases and some equilibration
+    steps before switching to NPT conditions.
+
+    Attributes:
+        is_production (bool): Whether this is a production run requiring
+            background execution with progress tracking.
+    """
+
+    def __init__(
+        self, input_file: File, process_name: str, is_production: bool = False, **kwargs
+    ) -> None:
+        """Initializes the NVT simulation process.
+
+        Args:
+            input_file (File): Amber MD input file configured for NVT simulation.
+            process_name (str): Unique name for this NVT process.
+            is_production (bool, optional): Whether this is a production run.
+                Production runs use background execution. Defaults to False.
+            **kwargs: Additional attributes for process customization.
+
+        Note:
+            NVT simulations require thermostat settings in the input file (ntt>0)
+            but no barostat (ntp=0). Commonly used for gradual heating from
+            0 K to target temperature.
+        """
         super().__init__(input_file, process_name, **kwargs)
         self.is_production = is_production
 
 
 @timeit
-def _run_simulation(
-        comsolvate_topfile: BaseFile,
-        comsolvate_crdfile: BaseFile,
-        process_list: list,
-        save_dir: Union[str, None] = None) -> None:
-    '''
-    执行分子动力学模拟工作流
-    '''
-    save_dir = save_dir if save_dir is not None else CWD
+def run_simulation(
+    comsolvate_topfile: File,
+    comsolvate_crdfile: File,
+    process_list: list[MDProcess],
+    save_dir: str = None,
+) -> None:
+    """Executes a series of molecular dynamics simulation processes.
+
+    Runs a complete MD simulation workflow by sequentially executing a list
+    of simulation processes (minimization, heating, equilibration, production).
+    Each process uses the output coordinates from the previous step as input.
+
+    Args:
+        comsolvate_topfile (File): Amber topology file for the solvated system.
+        comsolvate_crdfile (File): Initial coordinate file for the solvated system.
+        process_list (list[MDProcess]): List of MD processes to execute in order.
+            Each process contains its own input parameters and settings.
+        save_dir (str, optional): Base directory to save all simulation outputs.
+            Defaults to current working directory.
+
+    Note:
+        The function automatically:
+        - Creates separate subdirectories for each simulation process
+        - Chains coordinates between processes (output → input)
+        - Handles restrained simulations with appropriate reference structures
+        - Uses nohup for production runs to allow background execution
+        - Provides progress tracking for long simulations
+
+    Raises:
+        RuntimeError: If any simulation process fails.
+        FileNotFoundError: If input topology or coordinate files don't exist.
+    """
+    save_dir = save_dir or os.getcwd()
+    os.makedirs(save_dir, exist_ok=True)
 
     for index, process in enumerate(process_list):
-
         process_output_dir = os.path.join(save_dir, process.process_name)
-        inpcrd_file = comsolvate_crdfile if index == 0 else BaseFile(
-            finished_process.mdrst_file_path)
+        os.makedirs(process_output_dir, exist_ok=True)
+        inpcrd_file = comsolvate_crdfile if index == 0 else File(finished_process.mdrst_file_path)
         reference_file = inpcrd_file if process.is_restrained else None
         nohup = True if process.is_production else False
         finished_process = process.run(
@@ -680,206 +676,139 @@ def _run_simulation(
             inpcrd_file=inpcrd_file,
             save_dir=process_output_dir,
             reference_file=reference_file,
-            nohup=nohup
+            nohup=nohup,
         )
-        sleep(1)
-
-    # step_a_dir = os.path.join(save_dir, 'step_a')
-    # step_b_dir = os.path.join(save_dir, 'step_b')
-    # step_c_dir = os.path.join(save_dir, 'step_c')
-    # step_nvt_dir = os.path.join(save_dir, 'step_nvt')
-    # step_npt_dir = os.path.join(save_dir, 'step_npt')
-
-    # nvt_cfg = _get_input_config(step_nvt_inputfile.file_path)
-    # npt_cfg = _get_input_config(step_npt_inputfile.file_path)
-
-    # step_num = int(npt_cfg['nstlim'])
-    # step_size = float(npt_cfg['dt'])
-    # simulate_time = step_num * step_size / 1000
-
-    # logger.info(f'Simulate steps: {step_num}')
-    # logger.info(f'Simulate step size: {step_size}')
-    # logger.info(f'Simulate time: {simulate_time} ns')
-
-    # makedirs_from_list(
-    #     [
-    #         step_a_dir,
-    #         step_b_dir,
-    #         step_c_dir,
-    #         step_nvt_dir,
-    #         step_npt_dir
-    #     ]
-    # )
-
-    # step_a_outfile = os.path.join(step_a_dir, 'step_a.out')
-    # step_b_outfile = os.path.join(step_b_dir, 'step_b.out')
-    # step_c_outfile = os.path.join(step_c_dir, 'step_c.out')
-    # step_nvt_outfile = os.path.join(step_nvt_dir, 'step_nvt.out')
-    # step_npt_outfile = os.path.join(step_npt_dir, 'step_npt.out')
-
-    # step_a_rstfile = os.path.join(step_a_dir, 'step_a.rst')
-    # step_b_rstfile = os.path.join(step_b_dir, 'step_b.rst')
-    # step_c_rstfile = os.path.join(step_c_dir, 'step_c.rst')
-    # step_nvt_rstfile = os.path.join(step_nvt_dir, 'step_nvt.rst')
-    # step_npt_rstfile = os.path.join(step_npt_dir, 'step_npt.rst')
-
-    # step_nvt_crdfile = os.path.join(step_nvt_dir, 'step_nvt.crd')
-    # step_npt_crdfile = os.path.join(step_npt_dir, 'step_npt.crd')
-
-    # # Get more information from AMBER USER PROFILE
-    # step_a_cmd = f'{PMEMD} -O '
-    # step_a_cmd += f'-i {step_a_inputfile.file_path} '
-    # step_a_cmd += f'-o {step_a_outfile} '
-    # step_a_cmd += f'-c {comsolvate_crdfile.file_path} -p {comsolvate_topfile.file_path} '
-    # step_a_cmd += f'-r {step_a_rstfile} '
-    # step_a_cmd += f'-ref {comsolvate_crdfile.file_path}'
-
-    # step_b_cmd = f'{PMEMD} -O '
-    # step_b_cmd += f'-i {step_b_inputfile.file_path} '
-    # step_b_cmd += f'-o {step_b_outfile} '
-    # step_b_cmd += f'-c {step_a_rstfile} -p {comsolvate_topfile.file_path} '
-    # step_b_cmd += f'-r {step_b_rstfile} '
-    # step_b_cmd += f'-ref {step_a_rstfile}'
-
-    # step_c_cmd = f'{PMEMD} -O '
-    # step_c_cmd += f'-i {step_c_inputfile.file_path} '
-    # step_c_cmd += f'-o {step_c_outfile} '
-    # step_c_cmd += f'-c {step_b_rstfile} -p {comsolvate_topfile.file_path} '
-    # step_c_cmd += f'-r {step_c_rstfile} '
-
-    # step_nvt_cmd = f'{PMEMD} -O '
-    # step_nvt_cmd += f'-i {step_nvt_inputfile.file_path} '
-    # step_nvt_cmd += f'-o {step_nvt_outfile} '
-    # step_nvt_cmd += f'-c {step_c_rstfile} -p {comsolvate_topfile.file_path} '
-    # step_nvt_cmd += f'-r {step_nvt_rstfile} '
-    # step_nvt_cmd += f'-x {step_nvt_crdfile}'
-
-    # step_nvt_cmd_cpu = f'{SANDER} -O '
-    # step_nvt_cmd_cpu += f'-i {step_nvt_inputfile.file_path} '
-    # step_nvt_cmd_cpu += f'-o {step_nvt_outfile} '
-    # step_nvt_cmd_cpu += f'-c {step_c_rstfile} -p {comsolvate_topfile.file_path} '
-    # step_nvt_cmd_cpu += f'-r {step_nvt_rstfile} '
-    # step_nvt_cmd_cpu += f'-x {step_nvt_crdfile}'
-
-    # step_npt_cmd = f'nohup {PMEMD} -O '
-    # step_npt_cmd += f'-i {step_npt_inputfile.file_path} '
-    # step_npt_cmd += f'-o {step_npt_outfile} '
-    # step_npt_cmd += f'-c {step_nvt_rstfile} -p {comsolvate_topfile.file_path} '
-    # step_npt_cmd += f'-r {step_npt_rstfile} '
-    # step_npt_cmd += f'-x {step_npt_crdfile} > /dev/null 2>&1 &'
-
-    # logger.info('Running Minimize Progress A...')
-    # _system_call(step_a_cmd)
-    # logger.info('Running Minimize Progress B...')
-    # _system_call(step_b_cmd)
-    # logger.info('Running Minimize Progress C...')
-    # _system_call(step_c_cmd)
-    # logger.info('Running 100ps Heating Progress...')
-
-    # try:
-    #     _system_call(step_nvt_cmd)
-    # except RuntimeError:
-    #     logger.warning(
-    #         'GPU version of PMEMD failed, trying CPU version sander.MPI ...')
-    #     logger.info(f'Using CMD: {SANDER}')
-    #     _system_call(step_nvt_cmd_cpu)
-    #     _trace_progress(step_nvt_outfile, 50000)
-
-    # logger.info(f'Running {simulate_time} ns Molecular Dynamics Simulation...')
-    # _system_call(step_npt_cmd)
-    # _trace_progress(step_npt_outfile, step_num)
-
-    # logger.info('Simulation Finished.')
 
 
-def _creat_energy_inputfile(job_type: str, startframe: int, endframe: int, interval: int, decomp: bool = False, save_dir: Union[str, None] = None) -> BaseFile:
-    '''
-    创建能量计算相关输入文件
+def create_energy_inputfile(
+    job_type: str,
+    startframe: int,
+    endframe: int,
+    step_size: int,
+    decomp: bool = False,
+    save_dir: str = None,
+) -> File:
+    """Creates MM-PBSA/MM-GBSA input file for binding energy calculations.
 
-    Parameters
-    ----------
-    job_type : str
-        能量计算类型，可选值为：
-        'pb/gb': 同时进行MM-PB/GBSA自由能计算
-        'gb': 进行MM-GBSA自由能计算
-        'nmode': 进行 Normal Mode 熵变计算
-    startframe : int
-        计算分析起始帧
-    endframe : int
-        计算分析结束帧
-    interval : int
-        计算分析帧间隔
-    decomp : bool, optional
-        是否进行能量分解计算 默认为False
-    save_dir : str, optional
-        计算结果保存目录 默认为当前目录
+    Generates an input file for Amber's MM-PBSA or MM-GBSA calculations to
+    analyze protein-ligand binding energies from MD trajectory data.
 
-    Returns
-    -------
-    BaseFile
-        能量计算输入文件
-    '''
-    save_dir = save_dir if save_dir is not None else CWD
-    mmgbsa_input = MMGBSAInput(start_frame=startframe, end_frame=endframe, step_size=interval)
+    Args:
+        job_type (str): Type of energy calculation. Valid options:
+            - "pb/gb": Both Poisson-Boltzmann and Generalized Born calculations
+            - "gb": Generalized Born calculation only  
+            - "nmode": Normal mode entropy calculation
+        startframe (int): Starting frame number from trajectory (1-indexed).
+        endframe (int): Ending frame number from trajectory (1-indexed).
+        step_size (int): Frame interval for analysis (e.g., 10 = every 10th frame).
+        decomp (bool, optional): Whether to perform per-residue energy decomposition.
+            Defaults to False.
+        save_dir (str, optional): Directory to save the input file.
+            Defaults to current working directory.
+
+    Returns:
+        File: Generated MM-PBSA/MM-GBSA input file.
+
+    Raises:
+        ValueError: If an invalid job_type is specified.
+
+    Note:
+        The function automatically configures appropriate calculation sections
+        based on the job type. Energy decomposition provides detailed per-residue
+        contributions but significantly increases computation time.
+    """
+    save_dir = save_dir or os.getcwd()
+    os.makedirs(save_dir, exist_ok=True)
+    mmgbsa_input = MMGBSAInput(start_frame=startframe, end_frame=endframe, step_size=step_size)
     mmgbsa_input.add_general()
-    if job_type == 'pb/gb':
-        mmgbsa_input.add_pb()
-        mmgbsa_input.add_gb()
-        if decomp:
-            # template_file = os.path.join(TEMPLATE_DIR, 'mmpb_gbsa_decom.in')
-            mmgbsa_input.add_decomp()
-        # else:
-        #     template_file = os.path.join(TEMPLATE_DIR, 'mmpb_gbsa_only.in')
-    elif job_type == 'gb':
-        mmgbsa_input.add_gb()
-        if decomp:
-            # template_file = os.path.join(TEMPLATE_DIR, 'mmgbsa_decom.in')
-            mmgbsa_input.add_decomp()
-        # else:
-        #     template_file = os.path.join(TEMPLATE_DIR, 'mmgbsa_only.in')
-    elif job_type == 'nmode':
-        # template_file = os.path.join(TEMPLATE_DIR, 'nmode.in')
-        mmgbsa_input.add_nmode()
-    else:
-        raise ValueError(f'Invalid job_type: {job_type}')
-
-    # output_file = os.path.join(save_dir, os.path.basename(template_file))
-    # input_file = _creat_file_from_template(
-    #     template_file,
-    #     output_file,
-    #     startframe=startframe,
-    #     endframe=endframe,
-    #     interval=interval
-    # )
+    match job_type.lower():
+        case "pb/gb":
+            mmgbsa_input.add_pb()
+            mmgbsa_input.add_gb()
+            if decomp:
+                mmgbsa_input.add_decomp()
+        case "gb":
+            mmgbsa_input.add_gb()
+            if decomp:
+                mmgbsa_input.add_decomp()
+        case "nmode":
+            mmgbsa_input.add_nmode()
+        case _:
+            raise ValueError(f"Invalid job_type: {job_type}")
     input_file_path = os.path.join(save_dir, f"{job_type.replace('/', '_')}.in")
     mmgbsa_input.save(input_file_path)
-    return BaseFile(input_file_path)
+    return File(input_file_path)
 
 
 @timeit
-def _run_energy_calculation(
-    input_file: BaseFile, comsolvate_topfile: BaseFile, com_topfile: BaseFile,
-    receptor_topfile: BaseFile, ligand_topfile: BaseFile, traj_file: BaseFile,
-    output_filepath: Union[str, None] = None, decom_output_filepath: Union[str, None] = None, cpu_num: Union[int, None] = None
-) -> None:
-    
-    _system_call('mpirun -V', output=False)
-    cpu_num = cpu_num if cpu_num is not None else CPU_NUM
-    energy_cmd = f'mpirun -np {cpu_num} --host localhost:{cpu_num} MMPBSA.py.MPI -O '
-    energy_cmd += f'-i {input_file.file_path} '
-    energy_cmd += f'-sp {comsolvate_topfile.file_path} '
-    energy_cmd += f'-cp {com_topfile.file_path} '
-    energy_cmd += f'-rp {receptor_topfile.file_path} '
-    energy_cmd += f'-lp {ligand_topfile.file_path} '
-    energy_cmd += f'-y {traj_file.file_path} '
+def run_energy_calculation(
+    input_file: File,
+    comsolvate_topfile: File,
+    com_topfile: File,
+    receptor_topfile: File,
+    ligand_topfile: File,
+    traj_file: File,
+    save_dir: str = None,
+    energy_decompose: bool = False,
+    cpu_num: int = None,
+) -> tuple[File, File]:
+    """Executes MM-PBSA/MM-GBSA binding energy calculations.
 
-    if output_filepath is not None:
-        energy_cmd += f'-o {output_filepath} '
-    if decom_output_filepath is not None:
-        energy_cmd += f'-do {decom_output_filepath} '
+    Performs comprehensive binding energy analysis using Amber's MMPBSA.py.MPI
+    program with parallel processing. Calculates binding free energies and
+    optionally performs per-residue energy decomposition.
 
-    energy_cmd += f'> {input_file.file_prefix}.log '
+    Args:
+        input_file (File): MM-PBSA input file with calculation parameters.
+        comsolvate_topfile (File): Topology file for the complete solvated system.
+        com_topfile (File): Topology file for the protein-ligand complex (no solvent).
+        receptor_topfile (File): Topology file for the receptor/protein only.
+        ligand_topfile (File): Topology file for the ligand only.
+        traj_file (File): MD trajectory file (.nc or .dcd format).
+        save_dir (str, optional): Directory to save calculation results.
+            Defaults to current working directory.
+        energy_decompose (bool, optional): Whether per-residue decomposition was requested.
+            Defaults to False.
+        cpu_num (int, optional): Number of CPU cores for parallel calculation.
+            Defaults to system CPU_NUM constant.
 
-    print('Running Energy Calculation...')
-    _system_call(energy_cmd)
-    print('Energy Calculation Finished.')
+    Returns:
+        tuple[File, File]: Tuple containing (energy_results, decomp_results):
+            - energy_results: CSV file with binding energy results
+            - decomp_results: CSV file with per-residue decomposition (if requested)
+
+    Raises:
+        RuntimeError: If MPI is not available or calculation fails.
+        FileNotFoundError: If required input files don't exist.
+
+    Note:
+        The calculation requires:
+        - MPI installation for parallel processing
+        - Proper trajectory format compatibility with topology files
+        - Sufficient memory for large trajectory analysis
+        - All topology files must be consistent with the trajectory
+    """
+    save_dir = save_dir or os.getcwd()
+    os.makedirs(save_dir, exist_ok=True)
+    output_file_path = os.path.join(save_dir, f"{input_file.file_prefix}_FINAL_RESULTS_MMPBSA.csv")
+    decom_output_file_path = os.path.join(
+        save_dir, f"{input_file.file_prefix}_FINAL_RESULTS_DECOMP.csv"
+    )
+    logger.info("Checking MPI available...")
+    shell_run("mpirun -V", output=False)
+    cpu_num = cpu_num or CPU_NUM
+    energy_cmd = f"mpirun -np {cpu_num} --host localhost:{cpu_num} MMPBSA.py.MPI -O "
+    energy_cmd += f"-i {input_file.file_path} "
+    energy_cmd += f"-sp {comsolvate_topfile.file_path} "
+    energy_cmd += f"-cp {com_topfile.file_path} "
+    energy_cmd += f"-rp {receptor_topfile.file_path} "
+    energy_cmd += f"-lp {ligand_topfile.file_path} "
+    energy_cmd += f"-y {traj_file.file_path} "
+    energy_cmd += f"-o {output_file_path} "
+    if energy_decompose:
+        energy_cmd += f"-do {decom_output_file_path} "
+    energy_cmd += f"> {input_file.file_prefix}.log "
+    print("Running Energy Calculation...")
+    shell_run(energy_cmd)
+    print("Energy Calculation Finished.")
+    return File(output_file_path), File(decom_output_file_path, exist=energy_decompose)

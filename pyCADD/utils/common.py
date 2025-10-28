@@ -20,7 +20,8 @@ class BaseFile:
         Args:
             path (str): file path string
         """
-
+        if isinstance(path, BaseFile):
+            path = path.file_path
         self.file_path = os.path.abspath(path)
         self.file_name = os.path.basename(self.file_path)
         self.file_dir = os.path.split(self.file_path)[0]
@@ -44,19 +45,44 @@ class File(BaseFile):
         Args:
             path (str): file path string
             exist (bool, optional): Check if the file exists. Defaults to True.
+        
+        Example:
+            >>> f = File("dir_name/example.txt")
+            >>> f.file_path
+            '/home/user/dir_name/example.txt'
+            >>> f.file_name
+            'example.txt'
+            >>> f.file_dir
+            '/home/user/dir_name'
+            >>> f.file_ext
+            'txt'
+            >>> f.file_prefix
+            'example'
+            >>> f.file_suffix
+            'txt'
 
         Raises:
             FileNotFoundError: If the file does not exist and exist is True
         """
-        if exist and not os.path.exists(path):
-            raise FileNotFoundError(f'File not found: {path}')
         super().__init__(path)
+        if exist and not os.path.exists(self.file_path):
+            raise FileNotFoundError(f'File not found: {self.file_path}')
+        
     
     def __str__(self) -> str:
         return f"<File at {self.file_path} exist={os.path.exists(self.file_path)}>"
     
     def __repr__(self) -> str:
         return self.__str__()
+
+    def read(self, binary: bool = False) -> str:
+        """Read the file content
+
+        Returns:
+            str: File content string
+        """
+        with open(self.file_path, 'rb' if binary else 'r') as f:
+            return f.read()
 
 
 class FixedConfig(ConfigParser):

@@ -1,3 +1,10 @@
+import os
+
+CPU_NUM = os.cpu_count() // 2
+PMEMD = "pmemd.cuda"
+SANDER = f"mpirun -np {CPU_NUM} sander.MPI"
+
+PROCESS_MDOUT_PERL = """
 #!/usr/bin/perl
 
 
@@ -259,6 +266,4 @@ sub process_input {
 	}
     }
 }
-
-
-
+"""

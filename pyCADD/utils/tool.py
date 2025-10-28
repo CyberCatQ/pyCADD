@@ -1,21 +1,29 @@
 import functools
 import importlib
+import json
 import logging
 import multiprocessing
-
-# for Schrodinger 2021-2 and higher version
-importlib.reload(multiprocessing)
 import os
 import signal
 import subprocess
 import time
-from multiprocessing import Pool
 from typing import Callable, Iterable, Iterator
+
+# for Schrodinger 2021-2 and higher version
+importlib.reload(multiprocessing)
+
+from multiprocessing import Pool
 
 import requests
 import urllib3
-from rich.progress import (BarColumn, Progress, SpinnerColumn, TextColumn,
-                           TimeElapsedColumn, TimeRemainingColumn)
+from rich.progress import (
+    BarColumn,
+    Progress,
+    SpinnerColumn,
+    TextColumn,
+    TimeElapsedColumn,
+    TimeRemainingColumn,
+)
 from rich.table import Column
 
 from .common import FixedThread, TimeoutError
@@ -23,6 +31,20 @@ from .common import FixedThread, TimeoutError
 NUM_PARALLEL = multiprocessing.cpu_count() // 4 * 3
 logger = logging.getLogger(__name__)
 DEBUG = os.getenv('PYCADD_DEBUG')
+
+
+def read_file(file_path: str, as_json: bool = False) -> str:
+    with open(file_path, 'r') as f:
+        if as_json:
+            return json.load(f)
+        return f.read()
+
+
+def write_file(file_path: str, content: str) -> str:
+    file_path = os.path.abspath(file_path)
+    with open(file_path, 'w') as f:
+        f.write(content)
+    return file_path
 
 
 def makedirs_from_list(dir_list: list) -> None:
@@ -102,10 +124,11 @@ def shell_run(command: str, timeout: int = None) -> str:
     """
     try:
         result = subprocess.run(command, shell=True, check=True,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
+                                timeout=timeout)
         return result.stdout.decode('utf-8').strip()
     except subprocess.CalledProcessError as e:
-        logger.error(f"Error running command: {command}")
+        logger.error(f"Error running command: {command}\n{e.stderr.decode('utf-8')}")
         raise e
     except subprocess.TimeoutExpired as e:
         logger.error(f"Timeout running command: {command}")
@@ -252,22 +275,25 @@ def timeit(func: Callable):
     return wrapper
 
 
-def _find_execu(path: str) -> bool:
+def _find_execu(path: str) -> str | None:
     """Check if an executable is available in the PATH.
 
     Args:
         path (str): executable path, e.g., 'g16', 'Multiwfn', 'pmemd.cuda', etc.
 
     Returns:
-        bool: True if the executable is available, False otherwise
+        str | None: The path to the executable if found, None otherwise
     """
     p = subprocess.run(f"which {path}", shell=True,
-                       stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-    if not os.path.exists(p.stdout.decode('utf-8').strip()):
+                       stdout=subprocess.PIPE, 
+                       stderr=subprocess.DEVNULL
+                    )
+    exe_path = p.stdout.decode('utf-8').strip()
+    if not os.path.exists(exe_path):
         logger.warning(f"{path} is not installed or not in PATH.")
-        return False
+        return None
     else:
-        return True
+        return exe_path
 
 
 def _check_execu_help(path: str) -> bool:
@@ -343,10 +369,10 @@ def is_gaussian_available() -> bool:
     return _find_execu('g16')
 
 
-def is_multiwfn_available() -> bool:
-    """Check if Multiwfn is available in the PATH.
+def is_obabel_available() -> bool:
+    """Check if Openbabel is available in the PATH.
 
     Returns:
-        bool: True if Multiwfn is available, False otherwise
+        bool: True if Openbabel is available, False otherwise
     """
-    return _find_execu('Multiwfn')
+    return _find_execu('obabel')
