@@ -213,7 +213,7 @@ class LigandSearched(Ligand):
 class MaestroFile(BaseMaestroFile):
 
     def __init__(self, path: str, metadata: MetaData = None, **kwargs) -> None:
-        """Mastro file class
+        """Maestro file class
 
         Args:
             path (str): file path

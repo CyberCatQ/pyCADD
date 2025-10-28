@@ -79,7 +79,7 @@ def collect_structures(list_file: str, output_file: str = None, data_dir: str = 
         writer.extend(required_sts)
 
 
-def convert_format(file_path: str, output_file:str, to_format: str = None, save_dir: str = None, overwrite: bool = False) -> str:
+def convert_format(file_path: str, output_file: str, to_format: str = None, save_dir: str = None, overwrite: bool = False) -> str:
     """Convert the file to another format using Schrodinger API.
 
     Args:
