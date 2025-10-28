@@ -1,4 +1,2 @@
 include pyCADD/README.md
-include pyCADD/Dynamic/*.sh
-include pyCADD/Dynamic/*.perl
 include pyCADD/LICENSE
