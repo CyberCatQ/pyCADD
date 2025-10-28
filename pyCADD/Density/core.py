@@ -1,483 +1,333 @@
-import atexit
+"""Core utilities for Gaussian quantum chemistry calculations and molecular density analysis.
+
+This module provides core functions for generating Gaussian input files, processing molecular
+structures, and handling charge calculations for quantum chemistry workflows.
+"""
+
 import logging
 import os
-import re
-import signal
-import subprocess
-import sys
+import tempfile
 
-from rich.prompt import Confirm
-
-from pyCADD.utils.tool import is_gaussian_available
-
-if not is_gaussian_available():
-    print('Gaussian 16 is not installed or not in PATH.\nDensity module may not work properly.')
+from pyCADD.utils.common import ChDir, File
+from pyCADD.utils.tool import read_file, shell_run
 
 logger = logging.getLogger(__name__)
-RATIO = 27.2114313131
 
-def generate_opt(original_st: str, charge: int, multiplicity: int, dft: str = 'B3LYP', basis_set: str = '6-31g*', solvent: str = 'water', loose: bool = True, correct: bool = True, td: bool = False, freq:bool=False):
-    '''
-    生成Gaussian结构优化输入文件
+# MOL2 file format string for atom line formatting
+MOL2_LINE_FMT = "{:>7} {:<10} {:>10} {:>10} {:>10} {:<5} {:>4} {:<7} {:>10}"
 
-    Parameters
-    ----------
-    original_st : str
-        原始分子结构文件路径
-    charge : int 
-        电荷量
-    multiplicity : int 
-        自旋多重度
-    dft : str
-        泛函数
-    basis_set : str
-        基组
-    solvent : str
-        PCM模型溶剂
-    loose : bool
-        是否提高优化任务中的收敛限 更快收敛
-    td : bool
-        是否为激发态结构优化计算(计算荧光/磷光发射能用)
-    freq : bool
-        是否计算频率
+# Template script for generating Gaussian input files using OpenBabel
+GAUSS_SCRIPT_TEMP = """
+cat << EOF > {gauss_file}
+%chk={chk_file}
+%mem={mem_use}
+%nproc={cpu_num}
+{keyword}
 
-    Return
-    ----------
-    str
-        生成的输入文件名称
-    '''
-    molname = os.path.basename(os.path.abspath(original_st)).split('.')[0]
-    if td:
-        td_suffix = '_td'
-    else:
-        td_suffix = ''
+{title}
 
-    opt_file = molname + '_opt%s.gjf' % td_suffix
-    chk_file = molname + '_opt%s.chk' % td_suffix
-
-    if os.path.exists(opt_file):
-        if not Confirm.ask('%s is existed. Overwrite?' % opt_file, default=True):
-            return opt_file, chk_file
-
-    # 调用Multiwfn预生成输入文件
-    os.system('''
-    Multiwfn %s > /dev/null << EOF
-    100
-    2
-    10
-    tmp.gjf
-    0
-    q
-    EOF
-    ''' % original_st)
-    # 溶剂可为None
-    if solvent == 'None':
-        scrf = ''
-    else:
-        scrf = ' scrf(solvent=%s)' % solvent
-    # 提高收敛限
-    if loose:
-        opt_config = 'opt=loose'
-    else:
-        opt_config = 'opt'
-    # 激发态
-    if td:
-        TD = ' TD'
-    else:
-        TD = ''
-    # 色散矫正
-    if correct:
-        correct_cofig = ' em=GD3BJ'
-    else:
-        correct_cofig = ''
-    # 频率
-    if freq:
-        freq_kw = ' freq'
-    else:
-        freq_kw = ''
-
-    keyword = '# %s %s/%s%s%s%s%s' % (opt_config,
-                                    dft, basis_set, correct_cofig, TD, scrf, freq_kw)
-
-    os.system('''
-    cat << EOF > %s
-%s=%s
-%s
-
-%s optimize
-
-  %s %s
+  {charge} {multiplicity}
 EOF
-''' % (opt_file, r"%chk", chk_file, keyword, molname + td_suffix, charge, multiplicity))
-
-    os.system('''awk '{if (NR>5 && $1 !~ "[0-9]") print }' tmp.gjf >> %s''' % opt_file)
-    os.remove('tmp.gjf')
-
-    return opt_file, chk_file
+obabel -i{file_ext} {mol_file} -ogjf | awk '{{if (NR>5 && $1 !~ "[0-9]") print }}' >> {gauss_file}
+"""
 
 
-def generate_energy(original_st: str, charge: int, multiplicity: int, dft: str = 'B3LYP', basis_set: str = '6-31g*', solvent: str = 'water', correct: bool = True, td: bool = False):
-    '''
-    生成Gaussian单点能计算输入文件
+def generate_gauss_input(
+    structure_file: str | File,
+    keyword: str,
+    chk_file: str = None,
+    title: str = None,
+    charge: int = 0,
+    multiplicity: int = 1,
+    mem_use: str = "4GB",
+    cpu_num: int = 4,
+):
+    """Generates a Gaussian input file from a molecular structure.
 
-    Parameters
-    ----------
-    original_st : str
-        原始分子结构文件路径
-    charge : int 
-        电荷量
-    multiplicity : int 
-        自旋多重度
-    dft : str
-        泛函数
-    basis_set : str
-        基组
-    solvent : str
-        PCM模型溶剂
+    Creates a Gaussian input (.gjf) file by combining molecular geometry from
+    OpenBabel with specified quantum chemistry parameters.
 
-    Return
-    ----------
-    str
-        生成的输入文件名称
-    '''
-    molname = os.path.basename(os.path.abspath(original_st)).split('.')[0]
-    if td:
-        td_suffix = '_td'
-    else:
-        td_suffix = ''
+    Args:
+        structure_file (str | File): Path to the input molecular structure file or File object.
+        keyword (str): Gaussian calculation keywords (e.g., "# opt B3LYP/6-31G*").
+        chk_file (str, optional): Name of the checkpoint file. Defaults to structure_file prefix + ".chk".
+        title (str, optional): Title for the calculation. Defaults to structure_file prefix + " Gaussian Input".
+        charge (int, optional): Molecular charge. Defaults to 0.
+        multiplicity (int, optional): Spin multiplicity. Defaults to 1.
+        mem_use (str, optional): Memory allocation string. Defaults to "4GB".
+        cpu_num (int, optional): Number of processors to use. Defaults to 4.
 
-    energy_file = molname + '_energy%s.gjf' % td_suffix
-    chk_file = molname + '_energy%s.chk' % td_suffix
-    if os.path.exists(energy_file):
-        if not Confirm.ask('%s is existed. Overwrite?' % energy_file, default=True):
-            return energy_file, chk_file
+    Returns:
+        str: Content of the generated Gaussian input file.
 
-    # 调用Multiwfn预生成输入文件
-    os.system('''
-    Multiwfn %s > /dev/null << EOF
-    100
-    2
-    10
-    tmp.gjf
-    0
-    q
-    EOF
-    ''' % original_st)
-
-    # 溶剂可为None
-    if solvent == 'None':
-        scrf = ''
-    else:
-        scrf = ' scrf(solvent=%s)' % solvent
-    # 激发态
-    if td:
-        TD = ' TD'
-    else:
-        TD = ''
-    # 色散矫正
-    if correct:
-        correct_cofig = ' em=GD3BJ'
-    else:
-        correct_cofig = ''
-
-    keyword = '# %s/%s%s%s%s' % (dft, basis_set, correct_cofig, TD, scrf)
-
-    os.system('''
-    cat << EOF > %s
-%s=%s
-%s
-
-%s Single Point Energy
-
-  %s %s
-EOF
-''' % (energy_file, r"%chk", chk_file, keyword, molname + td_suffix, charge, multiplicity))
-
-    os.system('''awk '{if (NR>5 && $1 !~ "[0-9]") print }' tmp.gjf >> %s''' % energy_file)
-    os.remove('tmp.gjf')
-
-    return energy_file, chk_file
+    Raises:
+        FileNotFoundError: If the structure file doesn't exist.
+        RuntimeError: If OpenBabel conversion fails.
+    """
+    file = File(structure_file)
+    chk_file = chk_file or f"{file.file_prefix}.chk"
+    title = title or f"{file.file_prefix} Gaussian Input"
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with ChDir(tmpdir):
+            shell_run(
+                GAUSS_SCRIPT_TEMP.format(
+                    file_ext=file.file_ext.replace("out", "g16"),
+                    mol_file=file.file_path,
+                    gauss_file="tmp.gjf",
+                    chk_file=chk_file,
+                    keyword=keyword,
+                    title=title,
+                    charge=charge,
+                    multiplicity=multiplicity,
+                    mem_use=mem_use,
+                    cpu_num=cpu_num,
+                )
+            )
+            return read_file("tmp.gjf")
 
 
-def get_gaussian():
-    '''
-    获取高斯可执行文件路径
-    Return
-    ---------
-    str
-        高斯可执行文件路径
-    '''
+def generate_opt_input(
+    structure_file: str | File,
+    charge: int,
+    multiplicity: int = 1,
+    dft: str = "B3LYP",
+    basis_set: str = "6-31g*",
+    solvent: str = "water",
+    loose: bool = True,
+    dispersion_correct: bool = True,
+    td: bool = False,
+    freq: bool = False,
+    mem_use: str = "4GB",
+    cpu_num: int = 4,
+):
+    """Generates Gaussian input for geometry optimization calculations.
 
-    g16 = os.popen('which g16').read().strip()
-    g09 = os.popen('which g09').read().strip()
-    if g16:
-        gaussian = g16
-    elif g09:
-        logger.warning(
-            'You are using gaussian 09, which may cause some unknown errors.\nGaussian 16 is recommended.')
-        gaussian = g09
-    else:
-        logger.error('Gaussian is not installed.')
-        return None
-    return gaussian
+    Creates a Gaussian input file optimized for geometry optimization with
+    customizable DFT method, basis set, and calculation options.
 
+    Args:
+        structure_file (str | File): Path to the input molecular structure file or File object.
+        charge (int): Molecular charge (required parameter).
+        multiplicity (int, optional): Spin multiplicity. Defaults to 1.
+        dft (str, optional): DFT functional name. Defaults to "B3LYP".
+        basis_set (str, optional): Basis set specification. Defaults to "6-31g*".
+        solvent (str, optional): Solvent for implicit solvation model. Defaults to "water".
+        loose (bool, optional): Whether to use loose convergence criteria. Defaults to True.
+        dispersion_correct (bool, optional): Whether to apply dispersion correction (GD3BJ). Defaults to True.
+        td (bool, optional): Whether to perform time-dependent DFT calculation. Defaults to False.
+        freq (bool, optional): Whether to calculate vibrational frequencies. Defaults to False.
+        mem_use (str, optional): Memory allocation string. Defaults to "4GB".
+        cpu_num (int, optional): Number of processors to use. Defaults to 4.
 
-def system_default(gauss_path: str, cpu_count: int, memory: str):
-    '''
-    修改系统计算资源占用设定
+    Returns:
+        str: Content of the generated Gaussian optimization input file.
 
-    Parameters
-    ----------
-    gauss_path : str
-        高斯可执行文件路径
-    cpu_count : int 
-        CPU核心使用数量
-    memory : str
-        内存占用大小(MB/GB)
+    Note:
+        The checkpoint file is automatically named as "{structure_prefix}_opt.chk" or
+        "{structure_prefix}_opt_td.chk" if TD-DFT is enabled.
+    """
+    mol_file = File(structure_file)
+    mol_name = mol_file.file_prefix
+    td_suffix = "_td" if td else ""
+    chk_file_path = f"{mol_name}_opt{td_suffix}.chk"
 
-    Return
-    ----------
-    str
-        Gaussian 可执行文件路径
-    '''
-
-    default_route = os.path.dirname(gauss_path) + '/Default.Route'
-    with open(default_route, 'w') as f:
-        f.write('-P- %s\n' % cpu_count)
-        f.write('-M- %s\n' % memory)
-    logger.debug('Default system setting changed: CPU = %s  Mem = %s' %
-                 (cpu_count, memory))
-
-
-def generate_fchk(chk_file: str):
-    '''
-    生成fchk文件
-
-    Return
-    ----------
-    str
-        生成的fchk文件
-    '''
-    fchk_file = chk_file.split('.')[0] + '.fchk'
-    os.system('formchk %s > /dev/null' % chk_file)
-    logger.debug('fchk file %s is saved.' % fchk_file)
-    return fchk_file
-
-def _check_gauss_finished(line: str):
-    '''
-    检查高斯计算任务是否结束
-
-    Parameter
-    ---------
-    line : str
-        高斯输出文件单行内容
-
-    Return
-    ---------
-    bool
-        任务结束返回True 否则返回False
-    '''
-
-    if 'Normal termination of Gaussian' in line:
-        return True
-    else:
-        return False
-
-def _get_system_info(gauss_path: str):
-    '''
-    读取当前高斯计算资源文件设定
-
-    Parameter
-    ---------
-    gauss_path : str
-        高斯可执行文件路径
-    Return
-    ---------
-    tuple[str, str]
-        CPU, memory
-    '''
-
-    default_route = os.path.dirname(gauss_path) + '/Default.Route'
-    if not os.path.exists(default_route):
-        with open(default_route, 'w') as f:
-            f.write('-P- 8\n')
-            f.write('-M- 4GB')
-    with open(default_route, 'r') as f:
-        cpu_info, mem_info = f.read().splitlines()
-
-    return cpu_info[4:], mem_info[4:]
+    scrf_kw = f" scrf(solvent={solvent})" if solvent else ""
+    opt_kw = "opt=loose" if loose else "opt"
+    td_kw = " TD" if td else ""
+    correct_kw = " em=GD3BJ" if dispersion_correct else ""
+    freq_kw = " freq" if freq else ""
+    keyword = f"# {opt_kw} {dft}/{basis_set}{correct_kw}{td_kw}{scrf_kw}{freq_kw}"
+    title = f"{mol_name}{td_suffix} Optimization"
+    return generate_gauss_input(
+        structure_file=structure_file,
+        keyword=keyword,
+        chk_file=chk_file_path,
+        mem_use=mem_use,
+        cpu_num=cpu_num,
+        title=title,
+        charge=charge,
+        multiplicity=multiplicity,
+    )
 
 
-def get_mo(fchk_file: str):
-    '''
-    获取HOMO/LUMO分子轨道信息
+def generate_energy_input(
+    structure_file: str | File,
+    charge: int,
+    multiplicity: int,
+    dft: str = "B3LYP",
+    basis_set: str = "6-31g*",
+    solvent: str = "water",
+    dispersion_correct: bool = True,
+    td: bool = False,
+    esp_calculate: bool = False,
+    mem_use: str = "4GB",
+    cpu_num: int = 4,
+):
+    """Generates Gaussian input for single-point energy calculations.
 
-    Parameters
-    ----------
-    fchk_file : str
-        高斯计算检查点文件(非二进制)
+    Creates a Gaussian input file for single-point energy calculations with
+    options for electrostatic potential (ESP) calculation and TD-DFT.
 
-    Return
-    ----------
-    dict[str, dict]
-        HOMO, LUMO分子轨道相关信息, gap值  
+    Args:
+        structure_file (str | File): Path to the input molecular structure file or File object.
+        charge (int): Molecular charge (required parameter).
+        multiplicity (int): Spin multiplicity (required parameter).
+        dft (str, optional): DFT functional name. Defaults to "B3LYP".
+        basis_set (str, optional): Basis set specification. Defaults to "6-31g*".
+        solvent (str, optional): Solvent for implicit solvation model. Defaults to "water".
+        dispersion_correct (bool, optional): Whether to apply dispersion correction (GD3BJ). Defaults to True.
+        td (bool, optional): Whether to perform time-dependent DFT calculation. Defaults to False.
+        esp_calculate (bool, optional): Whether to calculate electrostatic potential for RESP charges. Defaults to False.
+        mem_use (str, optional): Memory allocation string. Defaults to "4GB".
+        cpu_num (int, optional): Number of processors to use. Defaults to 4.
 
-        {
-        'homo': 
-                {'index': homo_index, 
-                'energy': homo_energy}, 
-                
-        'lumo': 
-            {'index': lumo_index, 
-            'energy': lumo_energy}, 
+    Returns:
+        str: Content of the generated Gaussian single-point energy input file.
 
-        'gap': gap value
-        }
-    '''
-    mo_pipe = subprocess.Popen('Multiwfn %s ' % fchk_file, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    mo_info = ''
-
-    for line in iter(mo_pipe.stdout.readline, b''):
-        if re.search(r'Ghost atoms', line.decode('utf-8')):
-            logger.warning('Ghost atoms (Bq) are found in this file')
-            mo_pipe.stdin.write(b'y\n')
-            mo_pipe.stdin.flush()
-        if re.search(r'300 Other functions', line.decode('utf-8')):
-            mo_pipe.stdin.write(b'0\n')
-            mo_pipe.stdin.write(b'q\n')
-            mo_pipe.stdin.flush()
-        mo_info += line.decode('utf-8')
-    mo_pipe.stdin.close()
-    mo_pipe.stdout.close()
-        
-    homo_index = int(re.search(r'[ \d]+(?=is HOMO)', mo_info).group().strip())
-    homo_energy = '%.6f' % (float(re.search(r'(?<=is HOMO, energy:)[-\d. ]+', mo_info).group().strip()) * RATIO)
-    lumo_index = int(re.search(r'[ \d]+(?=is LUMO)', mo_info).group().strip())
-    lumo_energy = '%.6f' % (float(re.search(r'(?<=is LUMO, energy:)[-\d. ]+', mo_info).group().strip()) * RATIO)
-    gap = '%.6f' % (float(re.search(r'(?<=HOMO-LUMO gap:)[-\d. ]+', mo_info).group().strip()) * RATIO)
-
-    return {'homo': {'index': homo_index, 'energy': homo_energy}, 'lumo': {'index': lumo_index, 'energy': lumo_energy}, 'gap': gap}
+    Note:
+        When esp_calculate is True, the calculation includes "pop=MK IOp(6/33=2,6/42=6)"
+        keywords for Merz-Kollman population analysis suitable for RESP charge fitting.
+    """
+    mol_file = File(structure_file)
+    mol_name = mol_file.file_prefix
+    td_suffix = "_td" if td else ""
+    chk_file_path = f"{mol_name}_energy{td_suffix}.chk"
+    scrf_kw = f" scrf(solvent={solvent})" if solvent else ""
+    td_kw = " TD" if td else ""
+    correct_kw = " em=GD3BJ" if dispersion_correct else ""
+    esp_kw = " pop=MK IOp(6/33=2,6/42=6)" if esp_calculate else ""
+    keyword = f"# {dft}/{basis_set}{correct_kw}{td_kw}{scrf_kw}{esp_kw}"
+    title = f"{mol_name}{td_suffix} Single Point Energy"
+    return generate_gauss_input(
+        structure_file=structure_file,
+        keyword=keyword,
+        chk_file=chk_file_path,
+        mem_use=mem_use,
+        cpu_num=cpu_num,
+        title=title,
+        charge=charge,
+        multiplicity=multiplicity,
+    )
 
 
-def cube_file_generate(fchk_file: str, mo: int):
-    '''
-    生成分子轨道cube Grid文件
+def generate_fchk(chk_file_path: str | File):
+    """Converts a Gaussian checkpoint file to formatted checkpoint file.
 
-    Parameters
-    ----------
-    fchk_file : str
-        高斯计算检查点文件(非二进制)
-    mo : int
-        分子轨道(MO)编号
+    Uses the Gaussian formchk utility to convert a binary checkpoint (.chk) file
+    to a formatted checkpoint (.fchk) file that can be read by other programs.
 
-    Return
-    ----------
-    str
-        生成的Grid文件名
-    '''
+    Args:
+        chk_file_path (str | File): Path to the Gaussian checkpoint file or File object.
 
-    logger.debug('Extracting MO %s from %s' % (mo, fchk_file))
-    _excute_pipe = subprocess.Popen('Multiwfn %s ' % fchk_file, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    Returns:
+        str: Path to the generated formatted checkpoint file (.fchk).
 
-    for line in iter(_excute_pipe.stdout.readline, b''):
-        if re.search(r'Ghost atoms', line.decode('utf-8')):
-            _excute_pipe.stdin.write(b'y\n')
-            _excute_pipe.stdin.flush()
-        if re.search(r'300 Other functions', line.decode('utf-8')):
-            _excute_pipe.stdin.write(b'200\n')
-            _excute_pipe.stdin.write(b'3\n')
-            _excute_pipe.stdin.write(b'%s\n' % bytes(str(mo), 'utf-8'))
-            _excute_pipe.stdin.write(b'2\n')
-            _excute_pipe.stdin.write(b'1\n')
-            _excute_pipe.stdin.write(b'0\n')
-            _excute_pipe.stdin.write(b'q\n')
-            _excute_pipe.stdin.flush()
+    Raises:
+        RuntimeError: If the formchk command fails.
+        FileNotFoundError: If the checkpoint file doesn't exist.
 
-    return 'orb' + str(mo).rjust(6, '0') + '.cub'
+    Note:
+        The output .fchk file is created in the same directory as the input .chk file
+        with the same base name but .fchk extension.
+    """
+    chk_file = File(chk_file_path)
+    fchk_file_path = os.path.join(chk_file.file_dir, chk_file.file_prefix + ".fchk")
+    shell_run(f"formchk {chk_file_path} > /dev/null")
+    logger.debug(f"fchk file {fchk_file_path} is saved.")
+    return fchk_file_path
 
-class Daemon:
-    def __init__(self, cmd, pidfile='/tmp/daemon.pid', stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
-        self.stdin = stdin
-        self.stdout = stdout
-        self.stderr = stderr
-        self.pidfile = pidfile
-        self.cmd = cmd
 
-    def daemonize(self):
-        if os.path.exists(self.pidfile):
-            raise RuntimeError('Already running.')
-        pid = os.fork()
-        # First fork (detaches from parent)
-        try:
-            if pid > 0:
-                raise SystemExit(0)
-        except OSError as e:
-            raise RuntimeError('fork #1 faild: {0} ({1})\n'.format(e.errno, e.strerror))
+def _get_atom_lines(mol2_block: str):
+    """Extracts and parses atom lines from a MOL2 format block.
 
-        #os.chdir('/')
-        os.setsid()
-        os.umask(0o22)
+    Parses the atom section of a MOL2 format string and returns the atom
+    information as a list of tokenized lines.
 
-        # Second fork (relinquish session leadership)
-        _pid = os.fork()
-        try:
-            if _pid > 0:
-                raise SystemExit(0)
-        except OSError as e:
-            raise RuntimeError('fork #2 faild: {0} ({1})\n'.format(e.errno, e.strerror))
+    Args:
+        mol2_block (str): Complete MOL2 format string containing molecular data.
 
-        # Flush I/O buffers
-        sys.stdout.flush()
-        sys.stderr.flush()
+    Returns:
+        List[List[str]]: List of atom lines where each line is split into tokens.
+            Each atom line contains at least 9 fields including coordinates and charges.
 
-        # Replace file descriptors for stdin, stdout, and stderr
-        '''        
-        with open(self.stdin, 'rb', 0) as f:
-            os.dup2(f.fileno(), sys.stdin.fileno())
-        with open(self.stdout, 'ab', 0) as f:
-            os.dup2(f.fileno(), sys.stdout.fileno())
-        with open(self.stderr, 'ab', 0) as f:
-            os.dup2(f.fileno(), sys.stderr.fileno())
-        '''
-        # Write the PID file
-        with open(self.pidfile, 'w') as f:
-            print(os.getpid(), file=f)
-        
-        # Arrange to have the PID file removed on exit/signal
-        atexit.register(lambda: os.remove(self.pidfile))
+    Raises:
+        ValueError: If the MOL2 block doesn't contain required @<TRIPOS>ATOM or
+            @<TRIPOS>BOND sections.
 
-        signal.signal(signal.SIGTERM, self.__sigterm_handler)
-        
+    Note:
+        Only returns atom lines that have at least 9 fields to ensure complete
+        atomic information including partial charges.
+    """
+    lines = mol2_block.splitlines()
+    start_idx = lines.index("@<TRIPOS>ATOM")
+    end_idx = lines.index("@<TRIPOS>BOND")
+    atom_lines = lines[start_idx + 1 : end_idx]
+    return [line.split() for line in atom_lines if len(line.split()) >= 9]
 
-    # Signal handler for termination (required)
-    @staticmethod
-    def __sigterm_handler(signo, frame):
-        raise SystemExit(1)
 
-    def start(self):
-        try:
-            self.daemonize()
-        except RuntimeError as e:
-            print(e, file=sys.stderr)
-            raise SystemExit(1)
+def _get_mol2_lines_with_charge(mol2_block: str, charge_list: list[float]):
+    """Updates partial charges in a MOL2 format block with new charge values.
 
-        self.run()
+    Replaces the partial charges (9th column) in the atom section of a MOL2 format
+    string with values from the provided charge list.
 
-    def stop(self):
-        try:
-            if os.path.exists(self.pidfile):
-                with open(self.pidfile) as f:
-                    os.kill(int(f.read()), signal.SIGTERM)
-            else:
-                print('Not running.', file=sys.stderr)
-                raise SystemExit(1)
-        except OSError as e:
-            if 'No such process' in str(e) and os.path.exists(self.pidfile): 
-                os.remove(self.pidfile)
+    Args:
+        mol2_block (str): Complete MOL2 format string containing molecular data.
+        charge_list (list[float]): List of new partial charges to assign to atoms. The list is
+            consumed (modified) during processing via pop(0) operations.
 
-    def restart(self):
-        self.stop()
-        self.start()
+    Returns:
+        str: Modified MOL2 format string with updated partial charges.
 
-    def run(self):
-        subprocess.Popen(self.cmd, shell=True, bufsize=1)
+    Raises:
+        IndexError: If charge_list has fewer charges than atoms in the MOL2 block.
+        ValueError: If the MOL2 block format is invalid.
+
+    Note:
+        The charge_list is modified during execution as charges are consumed.
+        Only atoms with complete information (≥9 fields) have their charges updated.
+        The formatting follows MOL2_LINE_FMT specification for proper alignment.
+    """
+    result_lines = []
+    atom_line_flag = False
+    for line in mol2_block.splitlines():
+        if line.startswith("@<TRIPOS>ATOM"):
+            atom_line_flag = True
+            result_lines.append(line)
+            continue
+        elif line.startswith("@<TRIPOS>BOND"):
+            atom_line_flag = False
+        if atom_line_flag:
+            line_contents = line.split()
+            if len(line_contents) >= 9:
+                line_contents[8] = str(charge_list.pop(0))
+                line = MOL2_LINE_FMT.format(*line_contents)
+        result_lines.append(line)
+    return "\n".join(result_lines) + "\n"
+
+
+def merge_mol2_charge(charge_mol2_block: str, origin_mol2_block: str) -> str:
+    """Merges partial charges from one MOL2 block into another MOL2 block.
+
+    Extracts partial charges from the charge_mol2_block and applies them to the
+    corresponding atoms in the origin_mol2_block, preserving the original structure
+    and connectivity while updating the charges.
+
+    Args:
+        charge_mol2_block (str): MOL2 format string containing the source charges.
+        origin_mol2_block (str): MOL2 format string to receive the new charges.
+
+    Returns:
+        str: Modified MOL2 format string with charges from charge_mol2_block
+            applied to the structure from origin_mol2_block.
+
+    Raises:
+        IndexError: If the number of atoms differs between the two MOL2 blocks.
+        ValueError: If either MOL2 block has invalid format.
+
+    Note:
+        Both MOL2 blocks must have the same number of atoms with complete
+        atomic information for proper charge transfer.
+    """
+    chg_list = [line[8] for line in _get_atom_lines(charge_mol2_block)]
+    return _get_mol2_lines_with_charge(origin_mol2_block, chg_list)
