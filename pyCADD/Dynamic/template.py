@@ -231,8 +231,8 @@ class LeapConstructor(BaseConstructor):
             Force fields are loaded in the order specified in the force_field list.
             Common force fields include protein.ff14SB, gaff2, water.tip3p, etc.
         """
-        _tmplate = "\n".join([f"source leaprc.{ff}" for ff in self.get_state_dict()["force_field"]])
-        return _tmplate
+        _template = "\n".join([f"source leaprc.{ff}" for ff in self.get_state_dict()["force_field"]])
+        return _template
 
     def to_string(self) -> str:
         """Generates the complete tLEaP input file content.
@@ -628,9 +628,9 @@ class LeapInput(LeapConstructor):
         state_dict = LEAP_DEFAULT.copy()
         state_dict.update(
             {
-                "ligand_file_path": ligand_file_path,
-                "frcmod_file_path": frcmod_file_path,
-                "protein_file_path": protein_file_path,
+                "ligand_file_path": File(ligand_file_path).file_path if ligand_file_path else None,
+                "frcmod_file_path": File(frcmod_file_path).file_path if frcmod_file_path else None,
+                "protein_file_path": File(protein_file_path).file_path,
                 "file_prefix": file_prefix,
                 "box_size": str(box_size),
                 "box_type": box_type,

@@ -13,7 +13,7 @@ from typing import Literal
 from pyCADD.Dynamic.template import LeapInput, MMGBSAInput
 from pyCADD.Dynamic.utils import _trace_progress, calc_am1bcc, run_parmchk2
 from pyCADD.Dynamic.constant import CPU_NUM, PMEMD, SANDER
-from pyCADD.utils.common import File
+from pyCADD.utils.common import File, ChDir
 from pyCADD.utils.tool import read_file, shell_run, timeit
 
 logger = logging.getLogger(__name__)
@@ -33,11 +33,11 @@ def protein_prepare(
 
     Args:
         protein_file (File | str): Input protein PDB file to be processed.
-        save_dir (str, optional): Directory to save processed files. 
+        save_dir (str, optional): Directory to save processed files.
             Defaults to current working directory.
-        keep_water (bool, optional): Whether to retain water molecules in final structure. 
+        keep_water (bool, optional): Whether to retain water molecules in final structure.
             Defaults to False.
-        overwrite (bool, optional): Whether to overwrite existing prepared files. 
+        overwrite (bool, optional): Whether to overwrite existing prepared files.
             Defaults to False.
 
     Returns:
@@ -46,7 +46,7 @@ def protein_prepare(
     Note:
         The preparation process involves multiple steps:
         1. Remove water and add missing atoms (dry step)
-        2. Remove all hydrogens (noH step)  
+        2. Remove all hydrogens (noH step)
         3. Final cleanup and preparation
         If keep_water=True, water molecules from original file are preserved.
 
@@ -100,7 +100,7 @@ def molecule_prepare(
     """Prepares small molecule/ligand for molecular dynamics simulation.
 
     Generates Amber-compatible parameter and coordinate files for a small molecule
-    by calculating partial charges using quantum mechanical methods (RESP, AM1-BCC, 
+    by calculating partial charges using quantum mechanical methods (RESP, AM1-BCC,
     or RESP2) and creating force field parameters using GAFF.
 
     Args:
@@ -113,12 +113,12 @@ def molecule_prepare(
         basis_set (str, optional): Basis set for quantum calculations. Defaults to "6-31g*".
         cpu_num (int, optional): Number of CPUs for quantum calculations. Defaults to 4.
         mem_use (str, optional): Memory allocation for quantum calculations. Defaults to "8GB".
-        solvent (str, optional): Solvent for implicit solvation in quantum calculations. 
+        solvent (str, optional): Solvent for implicit solvation in quantum calculations.
             Defaults to "water".
         delta (float, optional): Interpolation parameter for RESP2 method. Defaults to 0.5.
-        save_dir (str, optional): Directory to save generated files. 
+        save_dir (str, optional): Directory to save generated files.
             Defaults to current working directory.
-        overwrite (bool, optional): Whether to overwrite existing parameter files. 
+        overwrite (bool, optional): Whether to overwrite existing parameter files.
             Defaults to False.
 
     Returns:
@@ -152,7 +152,7 @@ def molecule_prepare(
     if os.path.exists(mol2_file_path) and not overwrite:
         return File(mol2_file_path), run_parmchk2(mol2_file_path, save_dir=save_dir)
 
-    logger.info("Calculating the net charge of ligand...")
+    logger.info("Calculating the partial charge of ligand...")
     if charge_method.lower() == "bcc":
         calc_method = calc_am1bcc
         kwargs = {
@@ -203,16 +203,16 @@ def _create_leap_inputfile(
 
     Args:
         protein_file_path (str): Path to the prepared protein PDB file.
-        ligand_file_path (File | str, optional): Path to the ligand MOL2 file. 
+        ligand_file_path (File | str, optional): Path to the ligand MOL2 file.
             Defaults to None for protein-only systems.
-        frcmod_file_path (File | str, optional): Path to additional force field 
+        frcmod_file_path (File | str, optional): Path to additional force field
             parameters file. Defaults to None.
         file_prefix (str, optional): Prefix for output files. Defaults to "Untitled".
-        box_size (float, optional): Distance from solute to box edge in Angstroms. 
+        box_size (float, optional): Distance from solute to box edge in Angstroms.
             Defaults to 10.0.
         box_type (str, optional): Type of water box model. Defaults to "TIP3PBOX".
         solvatebox (str, optional): Solvation command type. Defaults to "solvatebox".
-        save_dir (str, optional): Directory to save the input file. 
+        save_dir (str, optional): Directory to save the input file.
             Defaults to current working directory.
 
     Returns:
@@ -221,7 +221,7 @@ def _create_leap_inputfile(
     Note:
         The generated input file includes commands for:
         - Loading appropriate force fields
-        - Loading protein and ligand structures  
+        - Loading protein and ligand structures
         - Adding solvent box and neutralizing ions
         - Saving parameter and coordinate files
     """
@@ -264,17 +264,17 @@ def leap_prepare(
         protein_file (File): Prepared protein structure file.
         ligand_file (File, optional): Ligand MOL2 file with parameters. Defaults to None.
         frcmod_file (File, optional): Additional force field parameter file. Defaults to None.
-        box_size (float, optional): Distance from solute to box boundary in Angstroms. 
+        box_size (float, optional): Distance from solute to box boundary in Angstroms.
             Defaults to 10.0.
         box_type (str, optional): Water model for solvation. Defaults to "TIP3PBOX".
         solvatebox (str, optional): Solvation command type. Defaults to "solvatebox".
-        save_dir (str, optional): Directory to save output files. 
+        save_dir (str, optional): Directory to save output files.
             Defaults to current working directory.
 
     Returns:
         tuple[File, File, File]: Tuple containing (topology_file, coordinate_file, pdb_file):
             - topology_file: Amber parameter/topology file (.prmtop)
-            - coordinate_file: Amber coordinate file (.inpcrd)  
+            - coordinate_file: Amber coordinate file (.inpcrd)
             - pdb_file: PDB file of the solvated system
 
     Raises:
@@ -305,7 +305,8 @@ def leap_prepare(
         solvatebox=solvatebox,
         save_dir=save_dir,
     )
-    shell_run(f"tleap -f {leap_inputfile.file_path}")
+    with ChDir(save_dir):
+        shell_run(f"tleap -f {leap_inputfile.file_path}")
 
     comsolvate_topfile_path = os.path.join(save_dir, f"{file_prefix}_comsolvate.prmtop")
     comsolvate_crdfile_path = os.path.join(save_dir, f"{file_prefix}_comsolvate.inpcrd")
@@ -424,19 +425,28 @@ class MDProcess(BaseProcess):
         total_step (int): Total number of simulation steps.
         step_size (float): Time step size in picoseconds.
         cmd (str): Command string for simulation execution.
-        toplogy_file (File): Topology file for the system.
+        topology_file (File): Topology file for the system.
         inpcrd_file (File): Input coordinate file.
         mdout_file_path (str): Path to simulation output file.
         mdcrd_file_path (str): Path to trajectory coordinate file.
         mdrst_file_path (str): Path to restart coordinate file.
     """
 
-    def __init__(self, input_file: File, process_name: str, **kwargs) -> None:
+    def __init__(
+        self,
+        input_file: File,
+        process_name: str,
+        use_gpu: bool = True,
+        cpu_num: int = None,
+        **kwargs,
+    ) -> None:
         """Initializes the MD process with input parameters.
 
         Args:
             input_file (File): Amber MD input file with simulation parameters.
             process_name (str): Unique name for this simulation process.
+            use_gpu (bool, optional): Whether to use GPU acceleration. Defaults to True.
+            cpu_num (int, optional): Number of CPU cores to use if not using GPU. Defaults to half of available CPUs.
             **kwargs: Additional attributes for process customization.
 
         Note:
@@ -451,8 +461,10 @@ class MDProcess(BaseProcess):
         self.is_production = False
         self.total_step = int(self.control_cfg.get("nstlim") or self.control_cfg.get("maxcyc"))
         self.step_size = float(self.control_cfg.get("dt")) if not self.is_minimize else 1
+        self.use_gpu = use_gpu
+        self.cpu_num = cpu_num or CPU_NUM
         self.cmd = ""
-        self.toplogy_file = None
+        self.topology_file = None
         self.inpcrd_file = None
         self.mdout_file_path = None
         self.mdcrd_file_path = None
@@ -460,7 +472,7 @@ class MDProcess(BaseProcess):
 
     def run(
         self,
-        toplogy_file: File,
+        topology_file: File,
         inpcrd_file: File,
         reference_file: File | str = None,
         save_dir: str = None,
@@ -473,7 +485,7 @@ class MDProcess(BaseProcess):
         and progress tracking.
 
         Args:
-            toplogy_file (File): Amber topology file (.prmtop) for the system.
+            topology_file (File): Amber topology file (.prmtop) for the system.
             inpcrd_file (File): Input coordinate file (.inpcrd or .rst).
             reference_file (File | str, optional): Reference structure for restrained simulations.
                 Defaults to None.
@@ -497,7 +509,7 @@ class MDProcess(BaseProcess):
             RuntimeError: If the simulation execution fails.
             FileNotFoundError: If required input files don't exist.
         """
-        self.toplogy_file = toplogy_file
+        self.topology_file = topology_file
         self.inpcrd_file = inpcrd_file
         save_dir = save_dir or os.getcwd()
         os.makedirs(save_dir, exist_ok=True)
@@ -506,20 +518,18 @@ class MDProcess(BaseProcess):
         self.mdcrd_file_path = os.path.join(save_dir, f"{self.process_name}.nc")
         self.mdrst_file_path = os.path.join(save_dir, f"{self.process_name}.rst")
         simulation_time = self.total_step * self.step_size / 1000
+        pmemd = PMEMD if self.use_gpu else SANDER.format(cpu_num=self.cpu_num)
 
         if not self.is_minimize:
-            pmemd = PMEMD
             logger.info(f"Simulation total steps: {self.total_step}")
             logger.info(f"Simulation step size: {self.step_size} ps")
             logger.info(f"Simulation total time: {simulation_time} ns")
-        else:
-            pmemd = SANDER
 
         self.cmd = f"{pmemd} -O"
         self.cmd += f" -i {self.input_file.file_path}"
         self.cmd += f" -o {self.mdout_file_path}"
         self.cmd += f" -c {self.inpcrd_file.file_path}"
-        self.cmd += f" -p {self.toplogy_file.file_path}"
+        self.cmd += f" -p {self.topology_file.file_path}"
         self.cmd += f" -r {self.mdrst_file_path}"
 
         if not self.is_minimize:
@@ -552,15 +562,24 @@ class MinimizeProcess(MDProcess):
         input file's 'imin=1' parameter.
     """
 
-    def __init__(self, input_file: File, process_name: str, **kwargs) -> None:
+    def __init__(
+        self,
+        input_file: File,
+        process_name: str,
+        use_gpu: bool = False,
+        cpu_num: int = None,
+        **kwargs,
+    ) -> None:
         """Initializes the minimization process.
 
         Args:
             input_file (File): Amber minimization input file with imin=1.
             process_name (str): Unique name for this minimization process.
+            use_gpu (bool, optional): Whether to use GPU acceleration. Defaults to False.
+            cpu_num (int, optional): Number of CPUs to use if not using GPU. Defaults to half of available CPUs.
             **kwargs: Additional attributes for process customization.
         """
-        super().__init__(input_file, process_name, **kwargs)
+        super().__init__(input_file, process_name, use_gpu=use_gpu, cpu_num=cpu_num, **kwargs)
 
 
 class NPTProcess(MDProcess):
@@ -672,7 +691,7 @@ def run_simulation(
         reference_file = inpcrd_file if process.is_restrained else None
         nohup = True if process.is_production else False
         finished_process = process.run(
-            toplogy_file=comsolvate_topfile,
+            topology_file=comsolvate_topfile,
             inpcrd_file=inpcrd_file,
             save_dir=process_output_dir,
             reference_file=reference_file,
@@ -696,7 +715,7 @@ def create_energy_inputfile(
     Args:
         job_type (str): Type of energy calculation. Valid options:
             - "pb/gb": Both Poisson-Boltzmann and Generalized Born calculations
-            - "gb": Generalized Born calculation only  
+            - "gb": Generalized Born calculation only
             - "nmode": Normal mode entropy calculation
         startframe (int): Starting frame number from trajectory (1-indexed).
         endframe (int): Ending frame number from trajectory (1-indexed).

@@ -157,7 +157,7 @@ def _calc_hbond(
     hbond_distance_file = os.path.join(save_dir, "HBOND_DIS_RESULTS.csv")
     hbond_angle_file = os.path.join(save_dir, "HBOND_ANG_RESULTS.csv")
 
-    # generate Hbond lifetime with cppttraj
+    # generate Hbond lifetime with cpptraj
     logger.info("Generating Hbond lifetime with cpptraj...")
     cpptraj_input_file = os.path.join(save_dir, "cpptraj.in")
     lifetime_file = os.path.join(save_dir, "lifetime.dat")

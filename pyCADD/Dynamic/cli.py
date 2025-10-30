@@ -46,14 +46,20 @@ def md_prepare(
     water_resnum_end = int(water_resnum[-1])
 
     processor.add_minimize_process(
-        process_name="stepA", restraint=True, restraint_mask=f"':1-{water_resnum_start-1}'"
+        process_name="stepA",
+        restraint=True,
+        restraint_mask=f"':1-{water_resnum_start-1}'",
+        use_gpu=False,
+        cpu_num=parallel,
     )
     processor.add_minimize_process(
         process_name="stepB",
         restraint=True,
         restraint_mask=f"':{water_resnum_start}-{water_resnum_end}'",
+        use_gpu=False,
+        cpu_num=parallel,
     )
-    processor.add_minimize_process(process_name="stepC")
+    processor.add_minimize_process(process_name="stepC", use_gpu=False, cpu_num=parallel)
     processor.add_heat_process()
     restraintmask = "'!(:WAT,Na+,Cl-,K+,K) & !@H= & !@H'"
     for rest_wt in [4.0, 3.5, 3.0, 2.5, 2.0, 1.0, 0]:
@@ -81,7 +87,6 @@ def md_simulate(top_file: str, inpcrd_file: str, with_gpu: int = 0):
             f"input_file/eq_npt_reswt{rest_wt}.in", f"eq_npt_reswt{rest_wt}", "npt"
         )
     processor.add_process("input_file/eq_npt.in", "eq_npt", "npt")
-    processor.add_process("input_file/eq_nvt.in", "eq_nvt", "nvt")
     processor.add_process("input_file/production.in", "production", "npt")
     simulator = Simulator(processor)
     simulator.run_simulation(with_gpu)
@@ -452,7 +457,7 @@ def analysis(y, sp, lp, rp, cp, ro, no_hbond, no_rmsd, no_rmsf, decomp, nmode, p
             decomp_start_fm, decomp_end_fm, decomp_step_size = decomp
         except ValueError:
             raise ValueError(
-                "Invalid input. Energy decomposition needs 3 integers for STRAT_FRAME, END_FRAME and STEP_SIZE."
+                "Invalid input. Energy decomposition needs 3 integers for START_FRAME, END_FRAME and STEP_SIZE."
             )
         if decomp_start_fm > decomp_end_fm:
             raise ValueError("Invalid input. Energy decomposition can not be performed.")
@@ -463,7 +468,7 @@ def analysis(y, sp, lp, rp, cp, ro, no_hbond, no_rmsd, no_rmsf, decomp, nmode, p
             nmode_start_fm, nmode_end_fm, nmode_step_size = nmode
         except ValueError:
             raise ValueError(
-                "Invalid input. Entropy calculation needs 3 integers for STRAT_FRAME, END_FRAME and STEP_SIZE."
+                "Invalid input. Entropy calculation needs 3 integers for START_FRAME, END_FRAME and STEP_SIZE."
             )
         if nmode_start_fm > nmode_end_fm:
             raise ValueError("Invalid input. Entropy calculation can not be performed.")

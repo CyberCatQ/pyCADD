@@ -46,6 +46,20 @@ class Gauss:
             FileNotFoundError: If the g16 executable is not found in the system PATH.
         """
         self.gauss = _find_execu("g16")
+        if not self.gauss:
+            raise FileNotFoundError("Gaussian executable 'g16' not found in system PATH.")
+
+    @staticmethod
+    def change_atom_type(mol2_block: str, atom_type: str = "gaff2", dumpto: str = None) -> str:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dumpto = dumpto or tmpdir
+            with ChDir(dumpto):
+                input_mol2_file = write_file("input.mol2", mol2_block)
+                output_mol2_file = File("output.mol2", exist=False)
+                shell_run(
+                    f"antechamber -fi mol2 -i {input_mol2_file} -fo mol2 -o {output_mol2_file.file_path} -at {atom_type}"
+                )
+                return output_mol2_file.read()
 
     def run(self, gau_input: str, job_name: str = None, dumpto: str = None) -> str:
         """Executes a Gaussian calculation with the provided input.
@@ -73,9 +87,9 @@ class Gauss:
             specified, all files are preserved in that directory.
         """
         with tempfile.TemporaryDirectory() as tmpdir:
-            word_dir = dumpto if dumpto else tmpdir
-            os.makedirs(word_dir, exist_ok=True)
-            with ChDir(word_dir):
+            work_dir = dumpto if dumpto else tmpdir
+            os.makedirs(work_dir, exist_ok=True)
+            with ChDir(work_dir):
                 write_file(f"{job_name}.gjf", gau_input)
                 job_name = job_name or "gauss_job"
                 output_file = f"{job_name}.out"
@@ -202,7 +216,6 @@ class Gauss:
         mem_use: str = "4GB",
         cpu_num: int = 4,
         save_dir: str = None,
-        dumpto: str = None,
     ) -> File:
         """Performs geometry optimization calculation using Gaussian.
 
@@ -227,7 +240,6 @@ class Gauss:
             mem_use (str, optional): Memory allocation string. Defaults to "4GB".
             cpu_num (int, optional): Number of processors to use. Defaults to 4.
             save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.
-            dumpto (str, optional): Directory to save temporary calculation files. No file saved if None.
 
         Returns:
             File: Generated Gaussian output file containing optimization results.
@@ -241,7 +253,7 @@ class Gauss:
             complete optimization trajectory and final optimized geometry.
         """
         structure_file = File(structure_file)
-        logger.info(f"Starting geometry optimization for {structure_file.file_path}")
+        logger.info(f"Running geometry optimization for {structure_file.file_path}")
         logger.info(f"Charge = {charge}, Multiplicity = {multiplicity}, Solvent = {solvent}")
         opt_input = generate_opt_input(
             structure_file,
@@ -257,9 +269,12 @@ class Gauss:
             mem_use=mem_use,
             cpu_num=cpu_num,
         )
+        save_dir = save_dir or os.getcwd()
+        os.makedirs(save_dir, exist_ok=True)
         opt_prefix = f"{structure_file.file_prefix}_opt"
-        opt_output_file = os.path.join(save_dir or os.getcwd(), f"{opt_prefix}.out")
-        opt_output = self.run(opt_input, "gauss_opt", dumpto=dumpto)
+        opt_output_file = os.path.join(save_dir, f"{opt_prefix}.out")
+        opt_output = self.run(opt_input, "gauss_opt", dumpto=save_dir)
+        logger.info(f"Optimization output saved: {opt_output_file}")
         return File(write_file(opt_output_file, opt_output))
 
     def calc_energy(
@@ -313,7 +328,7 @@ class Gauss:
             When esp_calculate=True, the output contains ESP data suitable for RESP fitting.
         """
         structure_file = File(structure_file)
-        logger.info(f"Starting single point energy calculation for {structure_file.file_path}")
+        logger.info(f"Running single point energy calculation for {structure_file.file_path}")
         logger.info(
             f"Charge = {charge}, Multiplicity = {multiplicity}, Solvent = {solvent if solvent else 'None(Gas)'}"
         )
@@ -330,10 +345,14 @@ class Gauss:
             mem_use=mem_use,
             cpu_num=cpu_num,
         )
-        ene_prefix = f"{structure_file.file_prefix}" + f"_{solvent}" if solvent else "_gas"
+        save_dir = save_dir or os.getcwd()
+        os.makedirs(save_dir, exist_ok=True)
+        ene_prefix = f"{structure_file.file_prefix}"
+        ene_prefix += f"_{solvent}" if solvent else "_gas"
         ene_prefix += "_energy"
-        ene_result_file_path = os.path.join(save_dir or os.getcwd(), f"{ene_prefix}.out")
-        energy_output = self.run(energy_input, "gauss_energy")
+        ene_result_file_path = os.path.join(save_dir, f"{ene_prefix}.out")
+        energy_output = self.run(energy_input, "gauss_energy", dumpto=save_dir)
+        logger.info(f"Energy calculation output saved: {ene_result_file_path}")
         return File(write_file(ene_result_file_path, energy_output))
 
     def calc_resp(
@@ -346,6 +365,7 @@ class Gauss:
         solvent: str = "water",
         mem_use: str = "4GB",
         cpu_num: int = 4,
+        atom_type: str = "gaff2",
         save_dir: str = None,
     ) -> File:
         """Performs complete RESP charge calculation workflow.
@@ -364,6 +384,7 @@ class Gauss:
             solvent (str, optional): Solvent for implicit solvation model. Defaults to "water".
             mem_use (str, optional): Memory allocation string. Defaults to "4GB".
             cpu_num (int, optional): Number of processors to use. Defaults to 4.
+            atom_type (str, optional): Atom type to assign using antechamber. Defaults to "gaff2". None for no change.
             save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.
 
         Returns:
@@ -382,7 +403,9 @@ class Gauss:
             Output file is named "{structure_prefix}_resp.mol2".
         """
         structure_file = File(structure_file)
-        logger.info(f"Starting RESP calculation for {structure_file.file_path}")
+        logger.info(f"Running RESP calculation for {structure_file.file_path}")
+        save_dir = save_dir or os.getcwd()
+        os.makedirs(save_dir, exist_ok=True)
         opt_output_file = self.calc_opt(
             structure_file,
             charge=charge,
@@ -412,9 +435,10 @@ class Gauss:
         ori_mol2 = self.convert_to_mol2_block(structure_file)
         resp_mol2 = self.get_resp_mol2_block(gas_resp_output_file)
         merged_mol2 = merge_mol2_charge(ori_mol2, resp_mol2)
-        merged_mol2_file_path = os.path.join(
-            save_dir or os.getcwd(), f"{structure_file.file_prefix}_resp.mol2"
-        )
+        merged_mol2_file_path = os.path.join(save_dir, f"{structure_file.file_prefix}_resp.mol2")
+        if atom_type is not None:
+            merged_mol2 = self.change_atom_type(merged_mol2, atom_type=atom_type)
+        logger.info(f"RESP output saved: {merged_mol2_file_path}")
         return File(write_file(merged_mol2_file_path, merged_mol2))
 
     def calc_resp2(
@@ -428,6 +452,7 @@ class Gauss:
         mem_use: str = "4GB",
         cpu_num: int = 4,
         delta: float = 0.5,
+        atom_type: str = "gaff2",
         save_dir: str = None,
     ) -> File:
         """Performs complete RESP2 charge calculation workflow.
@@ -447,6 +472,7 @@ class Gauss:
             cpu_num (int, optional): Number of processors to use. Defaults to 4.
             delta (float, optional): Interpolation parameter for RESP2 charge calculation.
                 0.0 = pure gas-phase, 1.0 = pure solvent-phase. Defaults to 0.5.
+            atom_type (str, optional): Atom type to assign using antechamber. Defaults to "gaff2". None for no change.
             save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.
 
         Returns:
@@ -467,7 +493,9 @@ class Gauss:
             Output files include individual gas/solvent RESP files and final RESP2 file.
         """
         structure_file = File(structure_file)
-        logger.info(f"Starting RESP2({delta}) calculation for {structure_file.file_path}")
+        logger.info(f"Running RESP2({delta}) calculation for {structure_file.file_path}")
+        save_dir = save_dir or os.getcwd()
+        os.makedirs(save_dir, exist_ok=True)
         original_mol2_block = self.convert_to_mol2_block(structure_file)
         opt_output_file = self.calc_opt(
             structure_file=structure_file,
@@ -499,9 +527,10 @@ class Gauss:
             self.get_resp_mol2_block(gas_resp_output_file), original_mol2_block
         )
         gas_resp_mol2_file_path = os.path.join(
-            save_dir or os.getcwd(), f"{structure_file.file_prefix}_gas_resp.mol2"
+            save_dir, f"{structure_file.file_prefix}_gas_resp.mol2"
         )
         write_file(gas_resp_mol2_file_path, gas_mol2_block)
+        logger.info(f"Gas-phase energy calculation output saved: {gas_resp_mol2_file_path}")
         solvent_resp_output_file = self.calc_energy(
             structure_file=opt_output_file,
             charge=charge,
@@ -514,24 +543,29 @@ class Gauss:
             mem_use=mem_use,
             cpu_num=cpu_num,
             esp_calculate=True,
+            save_dir=save_dir,
         )
         solvent_mol2_block = merge_mol2_charge(
             self.get_resp_mol2_block(solvent_resp_output_file), original_mol2_block
         )
         solvent_resp_mol2_file_path = os.path.join(
-            save_dir or os.getcwd(), f"{structure_file.file_prefix}_solvent_resp.mol2"
+            save_dir, f"{structure_file.file_prefix}_solvent_resp.mol2"
         )
         write_file(solvent_resp_mol2_file_path, solvent_mol2_block)
-        resp2_mol2_file_path = os.path.join(
-            save_dir or os.getcwd(), f"{structure_file.file_prefix}_resp2.mol2"
+        resp2_mol2_file_path = os.path.join(save_dir, f"{structure_file.file_prefix}_resp2.mol2")
+        logger.info(f"Solvent-phase energy calculation output saved: {solvent_resp_mol2_file_path}")
+        resp2_mol2_block = self.get_resp2_mol2_block(
+            gas_mol2_block=gas_mol2_block,
+            solvent_mol2_block=solvent_mol2_block,
+            delta=delta,
         )
-        return File(
+        if atom_type is not None:
+            resp2_mol2_block = self.change_atom_type(resp2_mol2_block, atom_type=atom_type)
+        result_file = File(
             write_file(
                 resp2_mol2_file_path,
-                self.get_resp2_mol2_block(
-                    gas_mol2_block=gas_mol2_block,
-                    solvent_mol2_block=solvent_mol2_block,
-                    delta=delta,
-                ),
+                resp2_mol2_block,
             )
         )
+        logger.info(f"RESP2 output saved: {resp2_mol2_file_path}")
+        return result_file

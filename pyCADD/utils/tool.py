@@ -279,7 +279,7 @@ def _find_execu(path: str) -> str | None:
     """Check if an executable is available in the PATH.
 
     Args:
-        path (str): executable path, e.g., 'g16', 'Multiwfn', 'pmemd.cuda', etc.
+        path (str): executable path, e.g., 'g16', 'pmemd.cuda', etc.
 
     Returns:
         str | None: The path to the executable if found, None otherwise
@@ -328,7 +328,7 @@ def _check_execu_version(path: str) -> bool:
     if p.returncode == 0:
         return True
     else:
-        logger.info(f"{path} is not installed or not in PATH.")
+        logger.warning(f"{path} is not installed or not in PATH.")
         return False
 
 

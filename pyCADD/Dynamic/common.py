@@ -176,6 +176,7 @@ class Processor:
             solvent=solvent,
             delta=delta,
             overwrite=overwrite,
+            save_dir=self.mol_dir
         )
         logger.info(f"Molecule file has been saved: {self.mol2_file.file_path}")
         logger.info(f"Frcmod file has been saved: {self.frcmod_file.file_path}")
@@ -400,7 +401,7 @@ class Processor:
             total_step=total_step,
             step_length=step_length,
             restraint_wt=restraint_wt,
-            restraint_mask=restraint_mask,
+            restraintmask=restraint_mask,
         )
         file_name = file_name or "heat.in"
         file_path = os.path.join(self.input_file_dir, file_name)
@@ -547,6 +548,8 @@ class Processor:
         process_name: str = "minimize",
         restraint: bool = False,
         restraint_mask: str = None,
+        use_gpu: bool = False,
+        cpu_num: int = None,
         **kwargs,
     ) -> None:
         """Add energy minimization process to workflow.
@@ -560,6 +563,8 @@ class Processor:
             process_name: Name for this minimization step. Defaults to "minimize".
             restraint: Whether to apply positional restraints. Defaults to False.
             restraint_mask: Amber mask for restrained atoms if restraint=True.
+            use_gpu: Whether to use GPU acceleration if available. Defaults to False.
+            cpu_num: Number of CPU cores to use if not using GPU. Defaults to half of available CPUs.
             **kwargs: Additional minimization parameters.
 
         Note:
@@ -577,6 +582,8 @@ class Processor:
             ),
             process_name,
             _type="minimize",
+            use_gpu=use_gpu,
+            cpu_num=cpu_num,
             **kwargs,
         )
 
@@ -616,7 +623,7 @@ class Processor:
 
     def add_heat_process(
         self,
-        tgt_temp: float = 300.0,
+        target_temp: float = 300.0,
         heat_step: int = 9000,
         total_step: int = 10000,
         step_length: float = 0.002,
@@ -629,7 +636,7 @@ class Processor:
         to the simulation workflow queue.
 
         Args:
-            tgt_temp: Target temperature in Kelvin. Defaults to 300.0.
+            target_temp: Target temperature in Kelvin. Defaults to 300.0.
             heat_step: Number of steps for temperature ramping. Defaults to 9000.
             total_step: Total simulation steps. Defaults to 10000.
             step_length: Time step length in picoseconds. Defaults to 0.002.
@@ -642,7 +649,7 @@ class Processor:
         file_name = f"{process_name}.in"
         self.add_process(
             self.create_heat_input(
-                tgt_temp=tgt_temp,
+                target_temp=target_temp,
                 heat_step=heat_step,
                 total_step=total_step,
                 step_length=step_length,
