@@ -10,11 +10,11 @@ import os
 import re
 from typing import Literal
 
+from pyCADD.Dynamic.constant import CPU_NUM, DEFAULT_STRIP_MASKS, PMEMD, SANDER
 from pyCADD.Dynamic.template import LeapInput, MMGBSAInput
 from pyCADD.Dynamic.utils import _trace_progress, calc_am1bcc, run_parmchk2
-from pyCADD.Dynamic.constant import CPU_NUM, PMEMD, SANDER
-from pyCADD.utils.common import File, ChDir
-from pyCADD.utils.tool import read_file, shell_run, timeit
+from pyCADD.utils.common import ChDir, File
+from pyCADD.utils.tool import is_mpirun_available, read_file, shell_run, timeit, write_file
 
 logger = logging.getLogger(__name__)
 
@@ -245,6 +245,16 @@ def _create_leap_inputfile(
     return File(input_file_path)
 
 
+def _get_strip_prmtop_str(prmtop_file: File, strip_masks: str, save_dir: str = None) -> str:
+    with ChDir(path=save_dir):
+        stripped_file_path = f"{prmtop_file.file_prefix}_stripped.prmtop"
+        strip_cmd = f"parmed {prmtop_file.file_path} << EOF\n"
+        strip_cmd += f"strip {strip_masks}\n"
+        strip_cmd += f"parmout {stripped_file_path}\nEOF"
+        shell_run(strip_cmd)
+        return File(stripped_file_path).read()
+
+
 def leap_prepare(
     protein_file: File,
     ligand_file: File = None,
@@ -253,7 +263,7 @@ def leap_prepare(
     box_type: str = "TIP3PBOX",
     solvatebox: str = "solvatebox",
     save_dir: str = None,
-) -> tuple[File, File, File]:
+) -> tuple[File, File, File, File, File, File | None]:
     """Prepares solvated molecular system using tLEaP.
 
     Builds a complete molecular dynamics system by combining protein, ligand (optional),
@@ -272,10 +282,13 @@ def leap_prepare(
             Defaults to current working directory.
 
     Returns:
-        tuple[File, File, File]: Tuple containing (topology_file, coordinate_file, pdb_file):
+        tuple: Tuple containing (topology_file, coordinate_file, pdb_file, com_topfile, pro_topfile, lig_topfile) where:
             - topology_file: Amber parameter/topology file (.prmtop)
             - coordinate_file: Amber coordinate file (.inpcrd)
             - pdb_file: PDB file of the solvated system
+            - com_topfile: Combined system topology file (.prmtop)
+            - pro_topfile: Protein-only topology file (.prmtop)
+            - lig_topfile: Ligand-only topology file (.prmtop) or None if no ligand
 
     Raises:
         RuntimeError: If tLEaP execution fails.
@@ -305,12 +318,19 @@ def leap_prepare(
         solvatebox=solvatebox,
         save_dir=save_dir,
     )
-    with ChDir(save_dir):
-        shell_run(f"tleap -f {leap_inputfile.file_path}")
-
+    com_topfile_path = os.path.join(save_dir, f"{file_prefix}_com.prmtop")
+    pro_topfile_path = os.path.join(save_dir, f"{file_prefix}_pro.prmtop")
+    lig_topfile_path = os.path.join(save_dir, f"{file_prefix}_lig.prmtop")
     comsolvate_topfile_path = os.path.join(save_dir, f"{file_prefix}_comsolvate.prmtop")
     comsolvate_crdfile_path = os.path.join(save_dir, f"{file_prefix}_comsolvate.inpcrd")
     comsolvate_pdbfile_path = os.path.join(save_dir, f"{file_prefix}_comsolvate.pdb")
+    with ChDir(save_dir):
+        shell_run(f"tleap -f {leap_inputfile.file_path}")
+        write_file(com_topfile_path, _get_strip_prmtop_str(File(com_topfile_path), DEFAULT_STRIP_MASKS))
+        write_file(pro_topfile_path, _get_strip_prmtop_str(File(pro_topfile_path), DEFAULT_STRIP_MASKS))
+        if ligand_file:
+            write_file(lig_topfile_path, _get_strip_prmtop_str(File(lig_topfile_path), DEFAULT_STRIP_MASKS))
+
     shell_run(
         f"ambpdb -p {comsolvate_topfile_path} < {comsolvate_crdfile_path} > {comsolvate_pdbfile_path}"
     )
@@ -318,6 +338,9 @@ def leap_prepare(
         File(comsolvate_topfile_path),
         File(comsolvate_crdfile_path),
         File(comsolvate_pdbfile_path),
+        File(com_topfile_path),
+        File(pro_topfile_path),
+        File(lig_topfile_path) if ligand_file else None,
     )
 
 
@@ -654,7 +677,7 @@ def run_simulation(
     comsolvate_crdfile: File,
     process_list: list[MDProcess],
     save_dir: str = None,
-) -> None:
+) -> MDProcess:
     """Executes a series of molecular dynamics simulation processes.
 
     Runs a complete MD simulation workflow by sequentially executing a list
@@ -677,6 +700,9 @@ def run_simulation(
         - Uses nohup for production runs to allow background execution
         - Provides progress tracking for long simulations
 
+    Returns:
+        MDProcess: The final completed simulation process in the workflow.
+
     Raises:
         RuntimeError: If any simulation process fails.
         FileNotFoundError: If input topology or coordinate files don't exist.
@@ -697,6 +723,7 @@ def run_simulation(
             reference_file=reference_file,
             nohup=nohup,
         )
+    return finished_process
 
 
 def create_energy_inputfile(
@@ -809,12 +836,18 @@ def run_energy_calculation(
     """
     save_dir = save_dir or os.getcwd()
     os.makedirs(save_dir, exist_ok=True)
-    output_file_path = os.path.join(save_dir, f"{input_file.file_prefix}_FINAL_RESULTS_MMPBSA.csv")
-    decom_output_file_path = os.path.join(
-        save_dir, f"{input_file.file_prefix}_FINAL_RESULTS_DECOMP.csv"
+    output_file = File(
+        os.path.join(save_dir, f"{input_file.file_prefix}_FINAL_RESULTS_MMPBSA.csv"), exist=False
+    )
+    log_file = File(os.path.join(save_dir, f"{input_file.file_prefix}.log"), exist=False)
+    decom_output_file = File(
+        os.path.join(save_dir, f"{input_file.file_prefix}_FINAL_RESULTS_DECOMP.csv"), exist=False
     )
     logger.info("Checking MPI available...")
-    shell_run("mpirun -V", output=False)
+    if not is_mpirun_available():
+        raise RuntimeError(
+            "MPI is not available. Please install MPI/mpi4py to run energy calculations."
+        )
     cpu_num = cpu_num or CPU_NUM
     energy_cmd = f"mpirun -np {cpu_num} --host localhost:{cpu_num} MMPBSA.py.MPI -O "
     energy_cmd += f"-i {input_file.file_path} "
@@ -823,11 +856,12 @@ def run_energy_calculation(
     energy_cmd += f"-rp {receptor_topfile.file_path} "
     energy_cmd += f"-lp {ligand_topfile.file_path} "
     energy_cmd += f"-y {traj_file.file_path} "
-    energy_cmd += f"-o {output_file_path} "
+    energy_cmd += f"-o {output_file.file_path} "
     if energy_decompose:
-        energy_cmd += f"-do {decom_output_file_path} "
-    energy_cmd += f"> {input_file.file_prefix}.log "
-    print("Running Energy Calculation...")
-    shell_run(energy_cmd)
-    print("Energy Calculation Finished.")
-    return File(output_file_path), File(decom_output_file_path, exist=energy_decompose)
+        energy_cmd += f"-do {decom_output_file.file_path} "
+    energy_cmd += f"> {log_file.file_path} 2>&1"
+    logger.info("Running Energy Calculation...")
+    with ChDir():
+        shell_run(energy_cmd)
+    logger.info("Energy Calculation Finished.")
+    return File(output_file), File(decom_output_file, exist=energy_decompose)

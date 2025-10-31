@@ -43,6 +43,9 @@ class Processor:
         comsolvate_topfile (File): Solvated system topology file.
         comsolvate_crdfile (File): Solvated system coordinate file.
         comsolvate_pdbfile (File): Solvated system PDB file.
+        com_topfile (File): Complex topology file.
+        pro_topfile (File): Protein topology file.
+        lig_topfile (File): Ligand topology file.
         md_process_list (list): List of MD simulation processes to execute.
     """
 
@@ -82,6 +85,9 @@ class Processor:
         self.comsolvate_crdfile = None
         self.comsolvate_topfile = None
         self.comsolvate_pdbfile = None
+        self.com_topfile = None
+        self.pro_topfile = None
+        self.lig_topfile = None
         if apo:
             logger.info("Initializing Processor for apo system.")
         self.apo = apo
@@ -176,7 +182,7 @@ class Processor:
             solvent=solvent,
             delta=delta,
             overwrite=overwrite,
-            save_dir=self.mol_dir
+            save_dir=self.mol_dir,
         )
         logger.info(f"Molecule file has been saved: {self.mol2_file.file_path}")
         logger.info(f"Frcmod file has been saved: {self.frcmod_file.file_path}")
@@ -239,16 +245,21 @@ class Processor:
         logger.info(f"Creating {box_type} water box with '{solvatebox}'")
         logger.info(f"{box_type} water box size: {box_size} Angstroms")
 
-        self.comsolvate_topfile, self.comsolvate_crdfile, self.comsolvate_pdbfile = (
-            core.leap_prepare(
-                ligand_file=self.mol2_file,
-                frcmod_file=self.frcmod_file,
-                protein_file=self.pro_file,
-                box_size=box_size,
-                box_type=box_type,
-                solvatebox=solvatebox,
-                save_dir=self.leap_dir,
-            )
+        (
+            self.comsolvate_topfile,
+            self.comsolvate_crdfile,
+            self.comsolvate_pdbfile,
+            self.com_topfile,
+            self.pro_topfile,
+            self.lig_topfile,
+        ) = core.leap_prepare(
+            ligand_file=self.mol2_file,
+            frcmod_file=self.frcmod_file,
+            protein_file=self.pro_file,
+            box_size=box_size,
+            box_type=box_type,
+            solvatebox=solvatebox,
+            save_dir=self.leap_dir,
         )
 
         logger.info(f"LEaP files have been saved in {self.leap_dir}")
@@ -523,7 +534,7 @@ class Processor:
         Note:
             Process type determines the appropriate MDProcess subclass:
             - "minimize": MinimizeProcess
-            - "nvt": NVTProcess  
+            - "nvt": NVTProcess
             - "npt": NPTProcess
             - default: generic MDProcess
         """
@@ -698,7 +709,7 @@ class Simulator:
     """GPU-accelerated molecular dynamics simulation executor.
 
     Manages the execution of MD simulation workflows on GPU hardware using
-    AMBER's pmemd.cuda engine. Handles GPU device selection and process 
+    AMBER's pmemd.cuda engine. Handles GPU device selection and process
     execution coordination.
 
     Attributes:
@@ -723,6 +734,11 @@ class Simulator:
         self.processor = processor
         self.comsolvate_topfile = processor.comsolvate_topfile
         self.comsolvate_crdfile = processor.comsolvate_crdfile
+        self.com_topfile = processor.com_topfile
+        self.pro_topfile = processor.pro_topfile
+        self.lig_topfile = processor.lig_topfile
+        self.traj_file = None
+        self.mdout_file = None
         self.md_process_list = processor.md_process_list
         self.cuda_device = 0
 
@@ -774,12 +790,14 @@ class Simulator:
         if cuda_device is not None:
             self.set_cuda_device(cuda_device)
 
-        core.run_simulation(
+        production_process = core.run_simulation(
             comsolvate_topfile=self.comsolvate_topfile,
             comsolvate_crdfile=self.comsolvate_crdfile,
             process_list=self.md_process_list,
             save_dir=self.processor.md_result_dir,
         )
+        self.traj_file = File(production_process.mdcrd_file_path)
+        self.mdout_file = File(production_process.mdout_file_path)
         logger.info(f"Simulation workflow finished.")
 
 
@@ -800,23 +818,23 @@ class Analyzer:
 
     def __init__(
         self,
-        traj_file_path: str = None,
-        comsolvated_topfile_path: str = None,
-        com_topfile_path: str = None,
-        receptor_topfile_path: str = None,
-        ligand_topfile_path: str = None,
-        mdout_file_path: str = None,
+        traj_file: str | File,
+        comsolvated_topfile: str | File,
+        com_topfile: str | File = None,
+        receptor_topfile: str | File = None,
+        ligand_topfile: str | File = None,
+        mdout_file: str | File = None,
         save_dir: str = None,
     ) -> None:
         """Initialize trajectory analyzer with file paths.
 
         Args:
-            traj_file_path: Path to MD trajectory file (.nc, .mdcrd, etc.).
-            comsolvated_topfile_path: Path to solvated system topology file.
-            com_topfile_path: Path to complex (protein-ligand) topology file.
-            receptor_topfile_path: Path to receptor-only topology file.
-            ligand_topfile_path: Path to ligand-only topology file.
-            mdout_file_path: Path to MD output file for energy extraction.
+            traj_file (str | File): Path to MD trajectory file (.nc, .mdcrd, etc.).
+            comsolvated_topfile (str | File): Path to solvated system topology file.
+            com_topfile (str | File): Path to complex (protein-ligand) topology file.
+            receptor_topfile (str | File): Path to receptor-only topology file.
+            ligand_topfile (str | File): Path to ligand-only topology file.
+            mdout_file (str | File): Path to MD output file for energy extraction.
             save_dir: Directory for saving analysis results.
 
         Note:
@@ -824,39 +842,23 @@ class Analyzer:
             (complex, apo, ligand-only). Trajectory and topology files
             are loaded on-demand when analysis methods are called.
         """
-        self.traj_file_path = traj_file_path
-        self.traj_file = None
-        self.traj = None
+        self.traj_file = File(traj_file)
+        self.top_file = File(comsolvated_topfile)
+        self.load_traj(traj_file, comsolvated_topfile)
 
-        self.top_file_path = comsolvated_topfile_path
-        self.top_file = None
-        self.top = None
-
-        if self.top_file_path is not None and self.traj_file_path is not None:
-            self.load_traj(traj_file_path, comsolvated_topfile_path)
-
-        self.mdout_file_path = File(mdout_file_path).file_path
-        self.com_topfile_path = File(com_topfile_path).file_path
-        self.recep_topfile_path = File(receptor_topfile_path).file_path
-        self.ligand_topfile_path = File(ligand_topfile_path).file_path
-        self.apo = False if self.ligand_topfile_path is not None else True
-        self.mdout_file = File(mdout_file_path) if mdout_file_path is not None else None
+        self.mdout_file_path = File(mdout_file) if mdout_file is not None else None
+        self.com_topfile = File(com_topfile) if com_topfile is not None else None
+        self.recep_topfile = File(receptor_topfile) if receptor_topfile is not None else None
+        self.apo = False if ligand_topfile is not None else True
+        self.ligand_topfile = File(ligand_topfile) if ligand_topfile is not None else None
         self.save_dir = save_dir or os.getcwd()
         os.makedirs(self.save_dir, exist_ok=True)
-        self.com_topfile = None
-        self.recep_topfile = None
-        self.ligand_topfile = None
 
-        if not self.apo:
-            _check_list = [self.com_topfile_path, self.recep_topfile_path, self.ligand_topfile_path]
-        else:
-            _check_list = [self.com_topfile_path, self.recep_topfile_path]
-        if any(_check_list):
-            self.load_topfile(
-                com_topfile_path=self.com_topfile_path,
-                receptor_topfile_path=self.recep_topfile_path,
-                ligand_topfile_path=self.ligand_topfile_path,
-            )
+        self.load_topfile(
+            com_topfile=self.com_topfile,
+            receptor_topfile=self.recep_topfile,
+            ligand_topfile=self.ligand_topfile,
+        )
 
         self.rmsd = None
         self.rmsf = None
@@ -864,67 +866,67 @@ class Analyzer:
         self.distance = None
         self.angle = None
 
-    def load_traj(self, traj_file_path: str, top_file_path: str) -> None:
+    def load_traj(self, traj_file: str | File, top_file: str | File) -> None:
         """Load trajectory and topology files for analysis.
 
         Args:
-            traj_file_path: Path to the MD trajectory file.
-            top_file_path: Path to the corresponding topology file.
+            traj_file (str | File): Path to the MD trajectory file.
+            top_file (str | File): Path to the corresponding topology file.
 
         Note:
             Uses pytraj to load trajectory for efficient analysis operations.
             Prints trajectory information including frame count and atom count.
         """
-        self.traj_file = File(traj_file_path)
-        self.top_file = File(top_file_path)
+        self.traj_file = File(traj_file)
+        self.top_file = File(top_file)
         self.traj = pt.iterload(self.traj_file.file_path, self.top_file.file_path)
         logger.info(f"Trajectory file has been loaded: {self.traj_file.file_path}")
         logger.info(f"Topology file has been loaded: {self.top_file.file_path}")
-        print("Trajectory Info:\n", self.traj)
+        logger.info(f"Trajectory Info: {self.traj}")
 
-    def load_mdout(self, mdout_file_path: str) -> None:
+    def load_mdout(self, mdout_file: str | File) -> None:
         """Load MD output file for energy analysis.
 
         Args:
-            mdout_file_path: Path to the Amber MD output file containing
+            mdout_file (str | File): Path to the Amber MD output file containing
                 energy information from the simulation.
         """
-        self.mdout_file = File(mdout_file_path)
+        self.mdout_file = File(mdout_file)
         logger.info(f"MD output file has been loaded: {self.mdout_file.file_path}")
 
     def load_topfile(
         self,
-        comsolvated_topfile_path: str = None,
-        com_topfile_path: str = None,
-        receptor_topfile_path: str = None,
-        ligand_topfile_path: str = None,
+        comsolvated_topfile: str | File = None,
+        com_topfile: str | File = None,
+        receptor_topfile: str | File = None,
+        ligand_topfile: str | File = None,
     ) -> None:
         """Load topology files for different system components.
 
         Args:
-            comsolvated_topfile_path: Path to solvated complex topology.
-            com_topfile_path: Path to complex (protein-ligand) topology.
-            receptor_topfile_path: Path to receptor-only topology.
-            ligand_topfile_path: Path to ligand-only topology.
+            comsolvated_topfile: Path to solvated complex topology.
+            com_topfile: Path to complex (protein-ligand) topology.
+            receptor_topfile: Path to receptor-only topology.
+            ligand_topfile: Path to ligand-only topology.
 
         Note:
             Multiple topology files enable component-specific analysis
             (e.g., protein-only RMSD, ligand-only RMSF). Sets apo flag
             based on ligand topology availability.
         """
-        if comsolvated_topfile_path is not None:
-            self.top_file = File(comsolvated_topfile_path)
+        if comsolvated_topfile is not None:
+            self.top_file = File(comsolvated_topfile)
             logger.info(
                 f"Solvated complex topology file has been loaded: {self.top_file.file_path}"
             )
-        if com_topfile_path is not None:
-            self.com_topfile = File(com_topfile_path)
+        if com_topfile is not None:
+            self.com_topfile = File(com_topfile)
             logger.info(f"Complex topology file has been loaded: {self.com_topfile.file_path}")
-        if receptor_topfile_path is not None:
-            self.recep_topfile = File(receptor_topfile_path)
+        if receptor_topfile is not None:
+            self.recep_topfile = File(receptor_topfile)
             logger.info(f"Receptor topology file has been loaded: {self.recep_topfile.file_path}")
-        if ligand_topfile_path is not None:
-            self.ligand_topfile = File(ligand_topfile_path)
+        if ligand_topfile is not None:
+            self.ligand_topfile = File(ligand_topfile)
             logger.info(f"Ligand topology file has been loaded: {self.ligand_topfile.file_path}")
         else:
             logger.info("Ligand topology file is not provided. Perform analysis for Apo system.")
@@ -1115,7 +1117,7 @@ class Analyzer:
         save_dir = os.path.join(self.save_dir, "lowest_energy_structure")
         os.makedirs(save_dir, exist_ok=True)
         if self.mdout_file is None:
-            raise ValueError("Please load mdout file first.")
+            raise ValueError("Mdout file (.out) is required for extracting lowest energy structure.")
 
         logger.info(f"Detecting lowest energy frame...")
         self.LE_frame, self.LE_time, self.LE_energy = analysis._get_lowest_energy_info(
@@ -1133,7 +1135,7 @@ class Analyzer:
         end_frame: int,
         job_type: Literal["free", "entropy", "decomp"],
         method: Literal["pb/gbsa", "gbsa"] = None,
-        interval: int = 10,
+        step_size: int = 10,
     ) -> None:
         """Create input file for MM/PBSA or MM/GBSA energy calculations.
 
@@ -1150,7 +1152,7 @@ class Analyzer:
             method: Energy calculation method for "free" job type:
                 - "pb/gbsa": Both PB and GB calculations
                 - "gbsa": GB calculation only
-            interval: Frame sampling interval. Defaults to 10.
+            step_size: Frame sampling interval. Defaults to 10.
 
         Returns:
             File: Created input file for MMPBSA.py calculations.
@@ -1172,7 +1174,7 @@ class Analyzer:
                 "nmode",
                 startframe=start_frame,
                 endframe=end_frame,
-                interval=interval,
+                step_size=step_size,
                 save_dir=save_dir,
             )
         elif job_type == "free":
@@ -1183,7 +1185,7 @@ class Analyzer:
                     "pb/gb",
                     startframe=start_frame,
                     endframe=end_frame,
-                    interval=interval,
+                    step_size=step_size,
                     save_dir=save_dir,
                 )
             elif method == "gbsa":
@@ -1191,7 +1193,7 @@ class Analyzer:
                     "gb",
                     startframe=start_frame,
                     endframe=end_frame,
-                    interval=interval,
+                    step_size=step_size,
                     save_dir=save_dir,
                 )
             else:
@@ -1201,7 +1203,7 @@ class Analyzer:
                 "gb",
                 startframe=start_frame,
                 endframe=end_frame,
-                interval=interval,
+                step_size=step_size,
                 decomp=True,
                 save_dir=save_dir,
             )

@@ -376,3 +376,17 @@ def is_obabel_available() -> bool:
         bool: True if Openbabel is available, False otherwise
     """
     return _find_execu('obabel')
+
+
+def is_mpirun_available() -> bool:
+    """Check if mpirun is available in the PATH.
+
+    Returns:
+        bool: True if mpirun is available, False otherwise
+    """
+    try:
+        import mpi4py
+    except ImportError:
+        logger.warning("mpi4py is not installed.")
+        return False
+    return _check_execu_version('mpirun')

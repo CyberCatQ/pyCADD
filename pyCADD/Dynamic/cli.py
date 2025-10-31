@@ -108,6 +108,7 @@ def md_workflow(
     box_size: float = 10.0,
     overwrite: bool = False,
     with_gpu: int = 0,
+    analysis: bool = True,
 ):
     processor = md_prepare(
         protein_file,
@@ -126,7 +127,23 @@ def md_workflow(
     )
     simulator = Simulator(processor)
     simulator.run_simulation(cuda_device=with_gpu)
-    return simulator
+    if analysis:
+        params = {
+            "traj_file": simulator.traj_file,
+            "comsolvated_topfile": simulator.comsolvate_topfile,
+            "com_topfile": simulator.com_topfile,
+            "receptor_topfile": simulator.pro_topfile,
+            "ligand_topfile": simulator.lig_topfile,
+            "mdout_file": simulator.mdout_file,
+        }
+        analyzer = Analyzer(save_dir="md_analysis", **params)
+        analyzer.calc_rmsd()
+        analyzer.calc_rmsf()
+        analyzer.calc_hbond()
+        analyzer.create_energy_inputfile(
+            start_frame=0, end_frame=analyzer.traj.shape[0], step_size=10, job_type="decomp"
+        )
+        analyzer.run_energy_calc(cpu_num=parallel)
 
 
 @click.group()
@@ -327,6 +344,7 @@ def simulate(top_file, inpcrd_file, with_gpu):
     type=float,
     help="TIP3P Water Box size of simulation. Default to 10 Angstrom.",
 )
+@click.option("--analysis", "-a", is_flag=True, help="Perform analysis after simulation done.")
 @click.option("--overwrite", "-O", is_flag=True, help="Overwrite existing files.")
 def auto(
     protein_file,
@@ -342,6 +360,7 @@ def auto(
     charge_method,
     keep_water,
     box_size,
+    analysis,
     overwrite,
 ):
     """
@@ -364,6 +383,7 @@ def auto(
         box_size=box_size,
         overwrite=overwrite,
         with_gpu=with_gpu,
+        analysis=analysis,
     )
 
 
@@ -450,6 +470,7 @@ def analysis(y, sp, lp, rp, cp, ro, no_hbond, no_rmsd, no_rmsf, decomp, nmode, p
         ligand_topfile_path=lp,
         receptor_topfile_path=rp,
         mdout_file_path=ro,
+        save_dir="md_analysis",
     )
 
     if decomp is not None:
@@ -484,17 +505,15 @@ def analysis(y, sp, lp, rp, cp, ro, no_hbond, no_rmsd, no_rmsf, decomp, nmode, p
         analyzer.create_energy_inputfile(
             start_frame=decomp_start_fm,
             end_frame=decomp_end_fm,
-            interval=decomp_step_size,
+            step_size=decomp_step_size,
             job_type="decomp",
         )
         analyzer.run_energy_calc(cpu_num=parallel)
-        os.system("rm _MMPBSA_*")
     if nmode:
         analyzer.create_energy_inputfile(
             start_frame=nmode_start_fm,
             end_frame=nmode_end_fm,
-            interval=nmode_step_size,
+            step_size=nmode_step_size,
             job_type="entropy",
         )
         analyzer.run_energy_calc(cpu_num=parallel)
-        os.system("rm _MMPBSA_*")

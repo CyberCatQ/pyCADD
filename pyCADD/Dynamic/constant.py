@@ -4,6 +4,8 @@ CPU_NUM = os.cpu_count() // 2
 PMEMD = "pmemd.cuda"
 SANDER = "mpirun -np {cpu_num} sander.MPI"
 
+DEFAULT_STRIP_MASKS = ":WAT,Cl*,CIO,Cs+,IB,K*,Li+,MG*,Na+,Rb+,CS,RB,NA,F,CL"
+
 PROCESS_MDOUT_PERL = """
 #!/usr/bin/perl
 

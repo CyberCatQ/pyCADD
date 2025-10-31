@@ -1053,7 +1053,7 @@ class MMGBSAInput:
         """
 
         self.general_dict = MMGBSA_GENERAL_DEFAULT.copy()
-        self.general_dict.update(startframe=start_frame, endframe=end_frame, step_size=step_size)
+        self.general_dict.update(startframe=start_frame, endframe=end_frame, interval=step_size)
         self.manager = MultiConstructorManager()
 
     def add_general(self, title: str = None, **kwargs) -> None:

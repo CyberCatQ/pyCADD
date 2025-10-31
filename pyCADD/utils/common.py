@@ -25,7 +25,7 @@ class BaseFile:
         self.file_path = os.path.abspath(path)
         self.file_name = os.path.basename(self.file_path)
         self.file_dir = os.path.split(self.file_path)[0]
-        self.file_ext = os.path.splitext(self.file_name)[-1].replace('.', '')
+        self.file_ext = os.path.splitext(self.file_name)[-1].replace(".", "")
         self.file_prefix = os.path.splitext(self.file_name)[0]
         self.file_suffix = self.file_ext
 
@@ -45,7 +45,7 @@ class File(BaseFile):
         Args:
             path (str): file path string
             exist (bool, optional): Check if the file exists. Defaults to True.
-        
+
         Example:
             >>> f = File("dir_name/example.txt")
             >>> f.file_path
@@ -66,12 +66,11 @@ class File(BaseFile):
         """
         super().__init__(path)
         if exist and not os.path.exists(self.file_path):
-            raise FileNotFoundError(f'File not found: {self.file_path}')
-        
-    
+            raise FileNotFoundError(f"File not found: {self.file_path}")
+
     def __str__(self) -> str:
         return f"<File at {self.file_path} exist={os.path.exists(self.file_path)}>"
-    
+
     def __repr__(self) -> str:
         return self.__str__()
 
@@ -81,7 +80,7 @@ class File(BaseFile):
         Returns:
             str: File content string
         """
-        with open(self.file_path, 'rb' if binary else 'r') as f:
+        with open(self.file_path, "rb" if binary else "r") as f:
             return f.read()
 
 
@@ -118,7 +117,7 @@ class TimeoutError(Exception):
 
 
 class ChDir:
-    def __init__(self, path: str=None, exist: bool=False, delete=False):
+    def __init__(self, path: str = None, exist: bool = False, delete: bool = False):
         """Change working directory to the given path
 
         Args:
@@ -127,14 +126,15 @@ class ChDir:
             delete (bool, optional): Whether to delete the directory after use. Defaults to False.
         """
         from tempfile import mkdtemp
+
         self.path = path if path is not None else mkdtemp()
         self.delete = delete
         self.cwd = os.getcwd()
-        if not os.path.exists(path):
+        if not os.path.exists(self.path):
             if exist:
-                raise FileNotFoundError(f'Directory {path} not found')
+                raise FileNotFoundError(f"Directory {self.path} not found")
             else:
-                os.makedirs(path, exist_ok=True)
+                os.makedirs(self.path, exist_ok=True)
 
     def __enter__(self):
         os.chdir(self.path)
@@ -142,5 +142,6 @@ class ChDir:
     def __exit__(self, exc_type, exc_value, traceback):
         if self.delete:
             import shutil
+
             shutil.rmtree(self.path)
         os.chdir(self.cwd)
