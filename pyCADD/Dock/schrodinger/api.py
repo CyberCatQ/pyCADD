@@ -25,11 +25,10 @@ logger = logging.getLogger(__name__)
 class DockControl:
     """Ligand Dock Control Class"""
 
-    def __init__(self, protein_file: str = None, pdbid: str = None, save_path: str = None) -> None:
+    def __init__(self, pdbid: str = None, save_path: str = None) -> None:
         """Ligand Dock Control Class
 
         Args:
-            protein_file (str, optional): protein structure file. Defaults to None.
             pdbid (str, optional): PDB ID from RCSB. Defaults to None.
             save_path (str, optional): directory to save the result files. Defaults to None.
 
@@ -38,18 +37,17 @@ class DockControl:
         """
         self.save_path = os.path.abspath(save_path) if save_path is not None else os.getcwd()
         os.makedirs(self.save_path, exist_ok=True)
-        if protein_file is None and pdbid is None:
-            raise ValueError("Either protein_file or pdbid must be provided")
 
-        self.pdbid = pdbid
-        protein_file = protein_file if protein_file is not None else self._download_pdb_file()
-        self.protein_file = MaestroFile(protein_file)
+        self.protein_file = self._download_pdb_file(pdbid) if pdbid else None
         self.minimized_file = None
         self.grid_file = None
         self.dock_result_file = None
 
-    def _download_pdb_file(self) -> str:
+    def _download_pdb_file(self, pdbid: str) -> str:
         """Download PDB file from RCSB PDB.
+
+        Args:
+            pdbid (str): PDB ID
 
         Raises:
             RuntimeError: Failed to download pdb file from RCSB PDB.
@@ -58,10 +56,10 @@ class DockControl:
             str: pdb file path
         """
         with ChDir(self.save_path):
-            download_pdb(self.pdbid, save_dir="pdb")
-            pdb_file = os.path.join(self.save_path, "pdb", f"{self.pdbid}.pdb")
+            download_pdb(pdbid, save_dir="pdb")
+            pdb_file = os.path.join(self.save_path, "pdb", f"{pdbid}.pdb")
             if not os.path.exists(pdb_file):
-                raise RuntimeError(f"Failed to download pdb file from RCSB PDB: {self.pdbid}")
+                raise RuntimeError(f"Failed to download pdb file from RCSB PDB: {pdbid}")
         return pdb_file
 
     def split(
@@ -106,6 +104,7 @@ class DockControl:
 
     def minimize(
         self,
+        structure_file: Union[str, MaestroFile] = None,
         ph: float = 7.4,
         force_field: Literal["OPLS4", "OPLS3e", "OPLS3", "OPLS_2005"] = "OPLS4",
         fill_side_chain: bool = True,
@@ -118,6 +117,7 @@ class DockControl:
         """Minimize the protein structure.
 
         Args:
+            structure_file (Union[MaestroFile, str], optional): structure to minimize. If not specified, use the initial protein structure. Defaults to None.
             ph (float, optional): pH value to calculate protonation states. Defaults to 7.4.
             force_field (str): force field to use. Defaults to 'OPLS4'.
             fill_side_chain (bool, optional): whether to fill side chain. Defaults to True.
@@ -132,7 +132,7 @@ class DockControl:
         """
         with ChDir(self.save_path):
             self.minimized_file = minimize(
-                self.protein_file,
+                structure_file if structure_file is not None else self.protein_file,
                 ph=ph,
                 force_field=force_field,
                 fill_side_chain=fill_side_chain,
@@ -147,7 +147,7 @@ class DockControl:
 
     def grid_generate(
         self,
-        protein_file: Union[str, MaestroFile] = None,
+        structure_file: Union[str, MaestroFile] = None,
         box_center: Tuple[float, float, float] = None,
         box_center_molnum: int = None,
         box_center_resname: str = None,
@@ -158,7 +158,7 @@ class DockControl:
         """Generate grid file for docking.
 
         Args:
-            protein_file (Union[MaestroFile, str]): structure to generate grid file. If not specified, use the minimized structure.
+            structure_file (Union[MaestroFile, str]): structure to generate grid file. If not specified, use the minimized structure.
             box_center (tuple[float, float, float], optional): center XYZ of the grid box. Defaults to None.
             box_center_molnum (int, optional): the molecule number of the molecule that is set as the center.\
                 This molecule will be removed during the grid box generation process,\
@@ -175,9 +175,9 @@ class DockControl:
         Returns:
             GridFile: generated grid file.
         """
-        if protein_file is not None:
+        if structure_file is not None:
             self.minimized_file = (
-                MaestroFile(protein_file) if isinstance(protein_file, str) else protein_file
+                MaestroFile(structure_file) if isinstance(structure_file, str) else structure_file
             )
         if not box_center and not box_center_molnum:
             box_center_resname = [box_center_resname] if box_center_resname is not None else None
