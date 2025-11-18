@@ -39,7 +39,6 @@ dependencies = [
     "scipy",
     "xlsxwriter>=3.0",
     "requests",
-    "ambertools>=23.6"
 ]
 
 [project.urls]

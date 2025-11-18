@@ -3,7 +3,7 @@ channels:
 dependencies:
   - rich>=10.16
   - scikit-learn
-  - pandas>=1.4.1
+  - pandas
   - openpyxl
   - openbabel>=3.1.0
   - pyyaml>=6.0
@@ -12,5 +12,7 @@ dependencies:
   - xlsxwriter>=3.0 
   - openpyxl
   - requests
+  - ambertools>=23.6
   - pip:
     - concurrent_log_handler>=0.9.20
+    - pyCADD>=2.0.0
