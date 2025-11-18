@@ -46,20 +46,20 @@ def md_prepare(
     water_resnum_end = int(water_resnum[-1])
 
     processor.add_minimize_process(
-        process_name="stepA",
+        process_name="minimize_complex",
         restraint=True,
         restraint_mask=f"':1-{water_resnum_start-1}'",
         use_gpu=False,
         cpu_num=parallel,
     )
     processor.add_minimize_process(
-        process_name="stepB",
+        process_name="minimize_solvent",
         restraint=True,
         restraint_mask=f"':{water_resnum_start}-{water_resnum_end}'",
         use_gpu=False,
         cpu_num=parallel,
     )
-    processor.add_minimize_process(process_name="stepC", use_gpu=False, cpu_num=parallel)
+    processor.add_minimize_process(process_name="minimize_all", use_gpu=False, cpu_num=parallel)
     processor.add_heat_process()
     restraintmask = "'!(:WAT,Na+,Cl-,K+,K) & !@H= & !@H'"
     for rest_wt in [4.0, 3.5, 3.0, 2.5, 2.0, 1.0, 0]:
@@ -78,9 +78,9 @@ def md_simulate(top_file: str, inpcrd_file: str, with_gpu: int = 0):
     processor = Processor()
     processor.set_prepared_file(top_file, "com_top")
     processor.set_prepared_file(inpcrd_file, "com_crd")
-    processor.add_process("input_file/stepA.in", "stepA", "minimize")
-    processor.add_process("input_file/stepB.in", "stepB", "minimize")
-    processor.add_process("input_file/stepC.in", "stepC", "minimize")
+    processor.add_process("input_file/minimize_complex.in", "minimize_complex", "minimize")
+    processor.add_process("input_file/minimize_solvent.in", "minimize_solvent", "minimize")
+    processor.add_process("input_file/minimize_all.in", "minimize_all", "minimize")
     processor.add_process("input_file/heat.in", "heat")
     for rest_wt in [4.0, 3.5, 3.0, 2.5, 2.0, 1.0, 0]:
         processor.add_process(

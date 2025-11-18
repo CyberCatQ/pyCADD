@@ -71,15 +71,16 @@ def protein_prepare(
     shell_run(f"pdb4amber -i {noH_file_path} -o {prepared_file_path}")
 
     if keep_water:
-        shell_run(f"pdb4amber -i {file_path} -o tmp.pdb")
-        shell_run(f'cat tmp.pdb | grep "HOH" > water.pdb')
-        shell_run(
-            f'cat {prepared_file_path} | grep -v "END" > tmp.pdb && \
-            cat water.pdb | sed "s/HOH/WAT/" >> tmp.pdb && \
-            echo END >> tmp.pdb'
-        )
-        shell_run(f"pdb4amber -i tmp.pdb -o {prepared_file_path}")
-        shell_run(f"rm tmp.pdb water.pdb")
+        with ChDir(path=save_dir):
+            shell_run(f"pdb4amber -i {file_path} -o tmp.pdb")
+            shell_run(f'cat tmp.pdb | grep "HOH" > water.pdb')
+            shell_run(
+                f'cat {prepared_file_path} | grep -v "END" > tmp.pdb && \
+                cat water.pdb | sed "s/HOH/WAT/" >> tmp.pdb && \
+                echo END >> tmp.pdb'
+            )
+            shell_run(f"pdb4amber -i tmp.pdb -o {prepared_file_path}")
+            shell_run(f"rm tmp.pdb water.pdb")
     return File(prepared_file_path)
 
 

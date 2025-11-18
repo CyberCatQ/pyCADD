@@ -16,6 +16,7 @@ def main():
 @click.option("--multiplicity", "-m", default=1, show_default=True, help="Multiplicity of the system.")
 @click.option("--dft", "-d", default="B3LYP", show_default=True, help="DFT functional to use.")
 @click.option("--basis_set", "-b", default="6-31G*", show_default=True, help="Basis set to use.")
+@click.option("--solvent", "-s", default=None, show_default=True, help="Solvent model to use.")
 @click.option("--loose", "-l", is_flag=True, help="Use loose optimization.")
 @click.option("--dispersion_correct", "-D", is_flag=True, help="Use dispersion correction.")
 @click.option("--parallel", "-p", type=int, default=1, show_default=True, help="Number of parallel processors.")
@@ -27,6 +28,7 @@ def optimize(
     multiplicity,
     dft,
     basis_set,
+    solvent,
     loose,
     dispersion_correct,
     parallel,
@@ -43,6 +45,7 @@ def optimize(
         multiplicity=multiplicity,
         dft=dft,
         basis_set=basis_set,
+        solvent=solvent,
         loose=loose,
         dispersion_correct=dispersion_correct,
         cpu_num=parallel,
@@ -57,7 +60,7 @@ def optimize(
 @click.option("--multiplicity", "-m", default=1, show_default=True, help="Multiplicity of the system.")
 @click.option("--dft", "-d", default="B3LYP", show_default=True, help="DFT functional to use.")
 @click.option("--basis_set", "-b", default="6-31G*", show_default=True, help="Basis set to use.")
-@click.option("--solvent", "-s", default="water", show_default=True, help="Solvent model to use.")
+@click.option("--solvent", "-s", default=None, show_default=True, help="Solvent model to use.")
 @click.option("--esp_calculate", "-e", is_flag=True, help="Calculate ESP.")
 @click.option("--parallel", "-p", type=int, default=1, show_default=True, help="Number of parallel processors.")
 @click.option("--memory", "-M", type=str, default="4GB", show_default=True, help="Memory to allocate.")
