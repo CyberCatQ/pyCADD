@@ -1,0 +1,7 @@
+channels:
+  - conda-forge
+dependencies:
+  - sphinx-build
+  - sphinx_rtd_theme
+  - sphinx_markdown_tables
+  - recommonmark
