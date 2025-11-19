@@ -1,4 +1,3 @@
-import logging
 import os
 from datetime import datetime
 from typing import List, Literal, Tuple, Union
@@ -6,20 +5,23 @@ from typing import List, Literal, Tuple, Union
 import pandas as pd
 
 from pyCADD.Dock.common import EnsembleInputFile
-from pyCADD.Dock.schrodinger.common import (DockResultFile, GridFile,
-                                            MaestroFile, MetaData)
-from pyCADD.Dock.schrodinger.core import (dock, grid_generate, minimize,
-                                          split_complex)
-from pyCADD.Dock.schrodinger.ensemble import (get_docking_pairs, multi_dock,
-                                              multi_extract_data,
-                                              multi_grid_generate,
-                                              multi_keep_single_chain,
-                                              multi_minimize, split_structure)
+from pyCADD.Dock.schrodinger.common import DockResultFile, GridFile, MaestroFile, MetaData
+from pyCADD.Dock.schrodinger.core import dock, grid_generate, minimize, split_complex
+from pyCADD.Dock.schrodinger.ensemble import (
+    get_docking_pairs,
+    multi_dock,
+    multi_extract_data,
+    multi_grid_generate,
+    multi_keep_single_chain,
+    multi_minimize,
+    split_structure,
+)
 from pyCADD.utils.common import ChDir
 from pyCADD.utils.tool import download_pdb, download_pdb_list
+from . import logger
+
 
 DATE = datetime.now().strftime("%Y%m%d%H%M")
-logger = logging.getLogger(__name__)
 
 
 class DockControl:
@@ -500,4 +502,5 @@ class DockEnsemble:
         result_file = os.path.join(self.save_path, "dock", f"dock_result_{DATE}.csv")
         self.result_df = pd.DataFrame(self.dock_result_data)
         self.result_df.to_csv(result_file, index=False)
+        logger.info(f"Docking result data saved to {result_file}")
         return self.dock_result_data

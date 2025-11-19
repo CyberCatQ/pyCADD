@@ -14,49 +14,49 @@ class PDBLine:
             line (str): one line in a pdb file
         """
         self._line = line.strip()
-        self.record_name = ''                       # record name
-        self.atom_idx = ''                          # atom serial number
-        self.atom_name = ''                         # atom type
-        self.alt_loc = ''                           # alternate location indicator
-        self.res_name = ''                          # residue name
-        self.chain_id = ''                          # chainID
-        self.res_id = ''                            # resSeq
-        self.insertion_code = ''                    # iCode
-        self.coord_x = ''                           # x
-        self.coord_y = ''                           # y
-        self.coord_z = ''                           # z
-        self.occupancy = ''                         # occupancy
-        self.temp_factor = ''                       # tempFactor
-        self.element = ''                           # element symbol, right-justified
-        self.charge = ''                            # charge on the atom
+        self.record_name = ""  # record name
+        self.atom_idx = ""  # atom serial number
+        self.atom_name = ""  # atom type
+        self.alt_loc = ""  # alternate location indicator
+        self.res_name = ""  # residue name
+        self.chain_id = ""  # chainID
+        self.res_id = ""  # resSeq
+        self.insertion_code = ""  # iCode
+        self.coord_x = ""  # x
+        self.coord_y = ""  # y
+        self.coord_z = ""  # z
+        self.occupancy = ""  # occupancy
+        self.temp_factor = ""  # tempFactor
+        self.element = ""  # element symbol, right-justified
+        self.charge = ""  # charge on the atom
 
         self._parse()
 
     @property
     def _slice_define(self):
         return {
-            'record_name': (0, 6),
-            'atom_idx': (6, 11),
-            'atom_name': (12, 16),
-            'alt_loc': (16, 17),
-            'res_name': (17, 20),
-            'chain_id': (21, 22),
-            'res_id': (22, 26),
-            'insertion_code': (26, 27),
-            'coord_x': (30, 38),
-            'coord_y': (38, 46),
-            'coord_z': (46, 54),
-            'occupancy': (54, 60),
-            'temp_factor': (60, 66),
-            'element': (76, 78),
-            'charge': (78, 80)
+            "record_name": (0, 6),
+            "atom_idx": (6, 11),
+            "atom_name": (12, 16),
+            "alt_loc": (16, 17),
+            "res_name": (17, 20),
+            "chain_id": (21, 22),
+            "res_id": (22, 26),
+            "insertion_code": (26, 27),
+            "coord_x": (30, 38),
+            "coord_y": (38, 46),
+            "coord_z": (46, 54),
+            "occupancy": (54, 60),
+            "temp_factor": (60, 66),
+            "element": (76, 78),
+            "charge": (78, 80),
         }
 
     def _get_line_slice(self, start: int, end: int, strip: bool = True):
         try:
             info = self._line[start:end]
         except Exception:
-            info = ''
+            info = ""
         return info.strip() if strip else info
 
     def _parse(self):
@@ -71,7 +71,7 @@ class PDBLine:
 
     @property
     def is_atom_line(self) -> bool:
-        return self._line.startswith('ATOM') or self._line.startswith('HETATM')
+        return self._line.startswith("ATOM") or self._line.startswith("HETATM")
 
     @property
     def is_amino(self) -> bool:
@@ -79,19 +79,19 @@ class PDBLine:
 
     @property
     def is_hetatm(self) -> bool:
-        return self._line.startswith('HETATM')
+        return self._line.startswith("HETATM")
 
     @property
     def is_conect(self) -> bool:
-        return self._line.startswith('CONECT')
+        return self._line.startswith("CONECT")
 
     @property
     def is_ter(self) -> bool:
-        return self._line.startswith('TER')
+        return self._line.startswith("TER")
 
     @property
     def is_end(self) -> bool:
-        return self._line.startswith('END')
+        return self._line.startswith("END")
 
     @property
     def _formatter(self) -> str:
@@ -102,11 +102,23 @@ class PDBLine:
 
     @property
     def line(self) -> str:
-        return self._formatter.format(self.record_name, self.atom_idx, self.atom_name, self.alt_loc, self.res_name,
-                                      self.chain_id, self.res_id, self.insertion_code,
-                                      self.coord_x, self.coord_y, self.coord_z,
-                                      self.occupancy, self.temp_factor,
-                                      self.element, self.charge)
+        return self._formatter.format(
+            self.record_name,
+            self.atom_idx,
+            self.atom_name,
+            self.alt_loc,
+            self.res_name,
+            self.chain_id,
+            self.res_id,
+            self.insertion_code,
+            self.coord_x,
+            self.coord_y,
+            self.coord_z,
+            self.occupancy,
+            self.temp_factor,
+            self.element,
+            self.charge,
+        )
 
     def get_line(self) -> str:
         """Get the line string from current attributes
@@ -150,16 +162,14 @@ class PDBLineParser:
         self._parse_lines()
 
     def __str__(self) -> str:
-        return '\n'.join(self.get_line_str_list())
+        return "\n".join(self.get_line_str_list())
 
     def __repr__(self) -> str:
         return self.__str__()
 
     def _parse_lines(self):
-        self.pdb_lines = [
-            PDBLine(line) for line in self.pdb_str.splitlines() if line.strip()]
-        self._idx_map = {line.atom_idx: i for i,
-                         line in enumerate(self.pdb_lines)}
+        self.pdb_lines = [PDBLine(line) for line in self.pdb_str.splitlines() if line.strip()]
+        self._idx_map = {line.atom_idx: i for i, line in enumerate(self.pdb_lines)}
 
     def _read_pdb_file(self):
         """Read the pdb file if pdb_str is not provided
@@ -218,8 +228,8 @@ class PDBLineParser:
         Args:
             file_path (str): file path to save the pdb file
         """
-        with open(file_path, 'w') as f:
-            f.write('\n'.join(self.get_line_str_list()))
+        with open(file_path, "w") as f:
+            f.write("\n".join(self.get_line_str_list()))
 
 
 class PDBFile(File):
@@ -230,19 +240,18 @@ class PDBFile(File):
             path (str): file path string
         """
         super().__init__(path)
-        self.pdbid = self.file_prefix[:4] if check_pdb(
-            self.file_prefix[:4]) else None
+        self.pdbid = self.file_prefix[:4] if check_pdb(self.file_prefix[:4]) else None
         self.pdb_parser = PDBLineParser(pdb_file=self.file_path)
 
     def _catch_lig(self) -> list:
         result_list = []
-        _items = ['id', 'chain', 'resid', 'atom_num']
-        with open(self.file_path, 'r') as f:
+        _items = ["id", "chain", "resid", "atom_num"]
+        with open(self.file_path, "r") as f:
             lines = f.read().splitlines()
         for line in lines:
-            if line.startswith('HET '):
-                match = ','.join(line.split()[1:])
-                lig_dict = {k: v for k, v in zip(_items, match.split(','))}
+            if line.startswith("HET "):
+                match = ",".join(line.split()[1:])
+                lig_dict = {k: v for k, v in zip(_items, match.split(","))}
                 result_list.append(lig_dict)
         return result_list
 
@@ -255,7 +264,11 @@ class PDBFile(File):
         Returns:
             list|str: pdb file content
         """
-        return self.pdb_parser.get_str_list() if not return_str else '\n'.join(self.pdb_parser.get_str_list())
+        return (
+            self.pdb_parser.get_str_list()
+            if not return_str
+            else "\n".join(self.pdb_parser.get_str_list())
+        )
 
     def get_chain(self, chain_id: str, return_str: bool = False) -> Union[list, str]:
         """Get the pdb file content of a single chain
@@ -267,9 +280,12 @@ class PDBFile(File):
         Returns:
             str: pdb file content of a single chain
         """
-        chain_content = [line.get_line(
-        ) for line in self.pdb_parser.get_atom_lines() if line.chain_id == chain_id]
-        return '\n'.join(chain_content) if return_str else chain_content
+        chain_content = [
+            line.get_line()
+            for line in self.pdb_parser.get_atom_lines()
+            if line.chain_id == chain_id
+        ]
+        return "\n".join(chain_content) if return_str else chain_content
 
 
 class EnsembleInputFile(File):
@@ -297,7 +313,7 @@ class EnsembleInputFile(File):
         return self._ligand_list
 
     @classmethod
-    def from_csv(cls, file_path: str, sep: str = ',', header: bool = False) -> 'EnsembleInputFile':
+    def from_csv(cls, file_path: str, sep: str = ",", header: bool = False) -> "EnsembleInputFile":
         """
         Parse input file as csv format
 
@@ -320,7 +336,7 @@ class EnsembleInputFile(File):
             EnsembleInputFile: instance of EnsembleInputFile
         """
         csv_file = File(file_path)
-        with open(csv_file.file_path, 'r') as f:
+        with open(csv_file.file_path, "r") as f:
             raw_list = f.read().splitlines()
         if header:
             raw_list = raw_list[1:]
@@ -330,18 +346,17 @@ class EnsembleInputFile(File):
             item = line.split(sep)
             if len(item) == 1:
                 pdbid = line[0].strip()
-                ligand_name = ''
+                ligand_name = ""
             elif len(line) >= 2:
                 pdbid, ligand_name = item[0].strip(), item[1].strip()
 
-            mappings.append({'receptor': csv_file.file_prefix,
-                            'pdb': pdbid, 'ligand': ligand_name})
+            mappings.append({"receptor": csv_file.file_prefix, "pdb": pdbid, "ligand": ligand_name})
         ins = cls(file_path)
         ins.mappings = mappings
         return ins
 
     @classmethod
-    def from_ini(cls, config_file: str) -> 'EnsembleInputFile':
+    def from_ini(cls, config_file: str) -> "EnsembleInputFile":
         """Parse input file as ini format
 
         Args:
@@ -367,16 +382,15 @@ class EnsembleInputFile(File):
         mappings = []
         for receptor in receptors:
             for _item in config.items(receptor):
-                ligs = _item[1].split(',')
+                ligs = _item[1].split(",")
                 for lig in ligs:
-                    mappings.append(
-                        {'receptor': receptor, 'pdb': _item[0], 'ligand': lig})
+                    mappings.append({"receptor": receptor, "pdb": _item[0], "ligand": lig})
         ins = cls(config_file)
         ins.mappings = mappings
         return ins
 
     @classmethod
-    def from_yaml(cls, yaml_file: str) -> 'EnsembleInputFile':
+    def from_yaml(cls, yaml_file: str) -> "EnsembleInputFile":
         """Parse input file as yaml format
 
         Args:
@@ -387,9 +401,9 @@ class EnsembleInputFile(File):
             ```
             P10275:
                 1XJ7: DHT
-                1XQ3: 
+                1XQ3:
                 - R18
-                2AM9: 
+                2AM9:
                 - TES
                 - DTT
                 2YLP:
@@ -400,7 +414,8 @@ class EnsembleInputFile(File):
             EnsembleInputFile: instance of EnsembleInputFile
         """
         import yaml
-        with open(yaml_file, 'r') as f:
+
+        with open(yaml_file, "r") as f:
             yaml_dict = yaml.load(f, Loader=yaml.FullLoader)
 
         mappings = []
@@ -409,14 +424,13 @@ class EnsembleInputFile(File):
                 if isinstance(ligs, str):
                     ligs = [ligs]
                 for lig in ligs:
-                    mappings.append(
-                        {'receptor': receptor, 'pdb': pdb, 'ligand': lig})
+                    mappings.append({"receptor": receptor, "pdb": pdb, "ligand": lig})
         ins = cls(yaml_file)
         ins.mappings = mappings
         return ins
 
     @classmethod
-    def parse_file(cls, path: str, header: bool = False) -> 'EnsembleInputFile':
+    def parse_file(cls, path: str, header: bool = False) -> "EnsembleInputFile":
         """Parse input file
 
         Args:
@@ -430,14 +444,14 @@ class EnsembleInputFile(File):
             EnsembleInputFile: instance of EnsembleInputFile
         """
         file = File(path)
-        if file.file_ext.lower() in ['csv', 'txt']:
+        if file.file_ext.lower() in ["csv", "txt"]:
             return cls.from_csv(path, header=header)
-        elif file.file_ext.lower() == 'ini':
+        elif file.file_ext.lower() == "ini":
             return cls.from_ini(path)
-        elif file.file_ext.lower() in ['yaml', 'yml']:
+        elif file.file_ext.lower() in ["yaml", "yml"]:
             return cls.from_yaml(path)
         else:
-            raise ValueError(f'Unsupported file type: {file.file_path}')
+            raise ValueError(f"Unsupported file type: {file.file_path}")
 
     def read(self, file_path: str) -> None:
         """Read and parse the input file
@@ -455,7 +469,7 @@ class EnsembleInputFile(File):
         """
         if self.mappings is None:
             self.read(self.file_path)
-        return [(item['pdb'], item['ligand']) for item in self.mappings]
+        return [(item["pdb"], item["ligand"]) for item in self.mappings]
 
     def get_pdbid_list(self) -> List[str]:
         """Get the list of unique pdb ids
@@ -465,7 +479,7 @@ class EnsembleInputFile(File):
         """
         if self.mappings is None:
             self.read(self.file_path)
-        return sorted(set([item['pdb'] for item in self.mappings]))
+        return sorted(set([item["pdb"] for item in self.mappings]))
 
     def get_ligand_list(self) -> List[str]:
         """Get the list of unique ligands
@@ -475,4 +489,4 @@ class EnsembleInputFile(File):
         """
         if self.mappings is None:
             self.read(self.file_path)
-        return sorted(set([item['ligand'] for item in self.mappings]))
+        return sorted(set([item["ligand"] for item in self.mappings]))

@@ -8,23 +8,24 @@ from pyCADD.utils.common import File
 from . import AslLigandSearcher, Ligand, Structure, StructureReader, struc
 from .config import DataConfig
 
-DEBUG = os.getenv('PYCADD_DEBUG', False)
+DEBUG = os.getenv("PYCADD_DEBUG", False)
 
 
 @dataclass
 class MetaData:
     """Data class for metadata"""
-    pdbid: str = ''
-    ligand_name: str = ''
-    action: str = ''
-    docking_ligand_name: str = ''
-    precision: str = ''
+
+    pdbid: str = ""
+    ligand_name: str = ""
+    action: str = ""
+    docking_ligand_name: str = ""
+    precision: str = ""
     _PARSE_DICT = {
         "pdbid": 0,
         "ligand_name": 1,
         "action": 2,
         "docking_ligand_name": 3,
-        "precision": 4
+        "precision": 4,
     }
 
     @property
@@ -32,7 +33,9 @@ class MetaData:
         return self.ligand_name
 
     @classmethod
-    def parse_from_filename(cls, file_name: str, sep: str = '_', parse_dict: dict = None) -> 'MetaData':
+    def parse_from_filename(
+        cls, file_name: str, sep: str = "_", parse_dict: dict = None
+    ) -> "MetaData":
         """Parse metadata from the filename
 
         Args:
@@ -53,7 +56,7 @@ class MetaData:
         return ins
 
     @classmethod
-    def parse_from_dict(cls, metadata_dict: dict) -> 'MetaData':
+    def parse_from_dict(cls, metadata_dict: dict) -> "MetaData":
         """Parse metadata from the dictionary
 
         Args:
@@ -69,7 +72,7 @@ class MetaData:
         return ins
 
     @classmethod
-    def parse_from_metadata(cls, metadata: 'MetaData') -> 'MetaData':
+    def parse_from_metadata(cls, metadata: "MetaData") -> "MetaData":
         """Parse metadata from the metadata object
 
         Args:
@@ -80,7 +83,11 @@ class MetaData:
         """
         return metadata.copy()
 
-    def generate_file_name(self, attributes: list = ['pdbid', 'ligand_name', 'action', 'docking_ligand_name', 'precision'], sep='_') -> str:
+    def generate_file_name(
+        self,
+        attributes: list = ["pdbid", "ligand_name", "action", "docking_ligand_name", "precision"],
+        sep="_",
+    ) -> str:
         """Generate file name from metadata
 
         Args:
@@ -99,8 +106,7 @@ class MetaData:
         """
         for attr in attributes:
             if not hasattr(self, attr):
-                raise ValueError(
-                    f"Attribute {attr} is not found in the metadata.")
+                raise ValueError(f"Attribute {attr} is not found in the metadata.")
         return sep.join([str(getattr(self, a)) for a in attributes])
 
     def __str__(self) -> str:
@@ -109,7 +115,7 @@ class MetaData:
     def __repr__(self) -> str:
         return self.__str__()
 
-    def copy(self) -> 'MetaData':
+    def copy(self) -> "MetaData":
         """Get the deep copy of the metadata
 
         Returns:
@@ -276,9 +282,13 @@ class MaestroFile(BaseMaestroFile):
         Returns:
             struc.Residue: Maestro Residue object
         """
-        return next((res for res in self.structures[structure_index].residue if res.resnum == resnum), None)
+        return next(
+            (res for res in self.structures[structure_index].residue if res.resnum == resnum), None
+        )
 
-    def get_molecule_by_res(self, resnum: int = None, structure_index: int = 0) -> Union[struc._Molecule, None]:
+    def get_molecule_by_res(
+        self, resnum: int = None, structure_index: int = 0
+    ) -> Union[struc._Molecule, None]:
         """Get the Molecule object from the structure by residue number.
 
         Args:
@@ -295,7 +305,7 @@ class MaestroFile(BaseMaestroFile):
 
     def get_covalent_bond(self, resnum: int, structure_index: int = 0) -> Union[list, None]:
         """
-        Get list of covalent bond(s) between query molecule and other residues. 
+        Get list of covalent bond(s) between query molecule and other residues.
         Return None if no covalent bond is found.
 
         Args:
@@ -329,20 +339,20 @@ class MaestroFile(BaseMaestroFile):
         """
         res = self.get_residue(mol_resnum, structure_index)
         if res is None:
-            raise ValueError(
-                f"Residue {mol_resnum} not found in the structure.")
+            raise ValueError(f"Residue {mol_resnum} not found in the structure.")
         return res.molecule_number
 
-    def find_ligands(self,
-                     specified_names: list = None,
-                     included_names: list = None,
-                     excluded_names: list = None,
-                     min_heavy_atom_count: int = None,
-                     max_atom_count: int = None,
-                     allow_amino_acid_only_molecules: bool = False,
-                     allow_ion_only_molecules: bool = False,
-                     structure_index: int = 0,
-                     ) -> List[LigandSearched]:
+    def find_ligands(
+        self,
+        specified_names: list = None,
+        included_names: list = None,
+        excluded_names: list = None,
+        min_heavy_atom_count: int = None,
+        max_atom_count: int = None,
+        allow_amino_acid_only_molecules: bool = False,
+        allow_ion_only_molecules: bool = False,
+        structure_index: int = 0,
+    ) -> List[LigandSearched]:
         """Find all ligands from the structure file
 
         Args:
@@ -360,10 +370,8 @@ class MaestroFile(BaseMaestroFile):
             list[LigandSearched]: List of found Ligand objects.
                 useful properties: pdbres, chain, resnum, mol_num, centriod, st, atom_indexes
         """
-        included_names = set(
-            included_names) if included_names is not None else set()
-        excluded_names = set(
-            excluded_names) if excluded_names is not None else set()
+        included_names = set(included_names) if included_names is not None else set()
+        excluded_names = set(excluded_names) if excluded_names is not None else set()
         allow_amino_acid_only_molecules = bool(allow_amino_acid_only_molecules)
         allow_ion_only_molecules = bool(allow_ion_only_molecules)
         args = {
@@ -388,7 +396,9 @@ class MaestroFile(BaseMaestroFile):
 
 
 class DockResultFile(MaestroFile):
-    def __init__(self, path: str, metadata: MetaData = None, include_receptor: bool = None, **kwargs) -> None:
+    def __init__(
+        self, path: str, metadata: MetaData = None, include_receptor: bool = None, **kwargs
+    ) -> None:
         """Docking result file class
 
         Args:
@@ -400,8 +410,10 @@ class DockResultFile(MaestroFile):
         self.include_receptor = False
         if isinstance(metadata, MetaData):
             self.metadata = metadata.copy()
-            self.include_receptor = metadata.get('include_receptor', False)
-        self.include_receptor = include_receptor if include_receptor is not None else self.include_receptor
+            self.include_receptor = metadata.get("include_receptor", False)
+        self.include_receptor = (
+            include_receptor if include_receptor is not None else self.include_receptor
+        )
 
     def get_receptor_structure(self) -> Structure:
         """Get the receptor structure from the docking result file
@@ -442,12 +454,13 @@ class DockResultFile(MaestroFile):
             "pdbid": self.metadata.pdbid,
             "precision": self.metadata.precision,
             "internal_ligand_name": self.metadata.internal_ligand_name,
-            "docking_ligand_name": self.metadata.docking_ligand_name
+            "docking_ligand_name": self.metadata.docking_ligand_name,
         }
         results = []
         for st in self.structures:
             _result_dict = result_dict.copy()
-            _result_dict.update({key: st.property.get(value, None)
-                                for key, value in config.properties.items()})
+            _result_dict.update(
+                {key: st.property.get(value, None) for key, value in config.properties.items()}
+            )
             results.append(_result_dict)
         return results

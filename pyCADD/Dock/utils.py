@@ -1,6 +1,7 @@
-import logging
 import os
 import re
+
+from . import logger
 
 
 def check_pdb(pdb: str) -> bool:
@@ -13,7 +14,7 @@ def check_pdb(pdb: str) -> bool:
         bool: True if the input is a valid PDB ID, False otherwise
     """
 
-    if re.fullmatch(r'^\d[0-9a-zA-Z]{3,}$', pdb):
+    if re.fullmatch(r"^\d[0-9a-zA-Z]{3,}$", pdb):
         return True
     else:
         return False
@@ -33,11 +34,12 @@ def get_input_pdbid() -> str:
     else:
         while True:
             try:
-                pdbid = input('Input PDB ID:').strip().upper()
+                pdbid = input("Input PDB ID:").strip().upper()
                 if check_pdb(pdbid):
-                    logging.info(f'PDB ID: {pdbid}')
+                    logger.info(f"PDB ID: {pdbid}")
                     return pdbid
-                logging.warning(
-                    f'Invalid PDB ID: {pdbid}. Please try again or press Ctrl+C to exit.')
+                logger.warning(
+                    f"Invalid PDB ID: {pdbid}. Please try again or press Ctrl+C to exit."
+                )
             except KeyboardInterrupt:
                 exit(0)

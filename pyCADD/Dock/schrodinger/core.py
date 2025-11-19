@@ -2,8 +2,7 @@ import os
 import shutil
 from typing import Literal, Tuple, Union
 
-from pyCADD.Dock.schrodinger.common import (DockResultFile, GridFile,
-                                            MaestroFile)
+from pyCADD.Dock.schrodinger.common import DockResultFile, GridFile, MaestroFile
 from pyCADD.Dock.schrodinger.config import FORCE_FILED_DICT
 from pyCADD.Dock.schrodinger.utils import convert_format, launch
 from pyCADD.utils.common import ChDir
@@ -12,7 +11,12 @@ from pyCADD.utils.tool import shell_run
 from . import Structure, evaluate_asl, logger
 
 
-def split_complex(file: Union[MaestroFile, str], ligand_atom_indexes: list = None, ligand_asl: str = None, structure_index: int = 0) -> Tuple[Structure, Structure]:
+def split_complex(
+    file: Union[MaestroFile, str],
+    ligand_atom_indexes: list = None,
+    ligand_asl: str = None,
+    structure_index: int = 0,
+) -> Tuple[Structure, Structure]:
     """Split the complex structure into receptor and ligand.
 
     Args:
@@ -38,17 +42,17 @@ def split_complex(file: Union[MaestroFile, str], ligand_atom_indexes: list = Non
     elif ligand_asl is not None:
         atom_indexes = evaluate_asl(st, ligand_asl)
     else:
-        raise ValueError('Please provide ligand_atom_indexes or ligand_asl.')
+        raise ValueError("Please provide ligand_atom_indexes or ligand_asl.")
 
     mol_set = set(st.atom[index].molecule_number for index in atom_indexes)
 
     if len(mol_set) != 1:
-        msg = 'Identified '
+        msg = "Identified "
         if len(mol_set) > 1:
-            msg += 'multiple molecules'
+            msg += "multiple molecules"
         elif len(mol_set) == 0:
-            msg += 'no atom'
-        msg += ' with the ligand_atom_indexes or ligand_asl.'
+            msg += "no atom"
+        msg += " with the ligand_atom_indexes or ligand_asl."
         raise ValueError(msg)
 
     ligand_st = st.extract(atom_indexes)
@@ -60,14 +64,14 @@ def split_complex(file: Union[MaestroFile, str], ligand_atom_indexes: list = Non
 def minimize(
     file: Union[MaestroFile, str],
     ph: float = 7.4,
-    force_field: Literal['OPLS4', 'OPLS3e', 'OPLS3', 'OPLS_2005'] = 'OPLS4',
+    force_field: Literal["OPLS4", "OPLS3e", "OPLS3", "OPLS_2005"] = "OPLS4",
     fill_side_chain: bool = True,
     add_missing_loop: bool = True,
     del_water: bool = True,
     watdist: float = 5.0,
     rmsd_cutoff: float = 0.3,
     save_dir: str = None,
-    overwrite: bool = False
+    overwrite: bool = False,
 ) -> MaestroFile:
     """Prepare the structure and run minimization using Schrodinger's prepwizard.
 
@@ -94,40 +98,38 @@ def minimize(
     save_dir = os.path.abspath(save_dir) if save_dir else os.getcwd()
     os.makedirs(save_dir, exist_ok=True)
     metadata = file.metadata.copy()
-    metadata.action = 'minimized'
-    file_prefix = metadata.generate_file_name(['pdbid', 'ligand_name', 'action'])
+    metadata.action = "minimized"
+    file_prefix = metadata.generate_file_name(["pdbid", "ligand_name", "action"])
 
     force_field = FORCE_FILED_DICT[force_field]
-    logger.debug(f'Prepare to prepare and minimize file: {file.file_path}')
-    minimized_file = os.path.join(
-        save_dir, f'{file_prefix}.mae')
+    logger.debug(f"Prepare to prepare and minimize file: {file.file_path}")
+    minimized_file = os.path.join(save_dir, f"{file_prefix}.mae")
     if not overwrite and os.path.exists(minimized_file):
-        logger.debug(f'File already existed: {minimized_file}')
+        logger.debug(f"File already existed: {minimized_file}")
         return MaestroFile(minimized_file, metadata=metadata)
 
     with ChDir(save_dir):
-        job_name = f'{file.file_prefix}-Minimize'
-        prepwizard_command = f'prepwizard -f {force_field} -r {rmsd_cutoff} -propka_pH {ph} -disulfides -s -JOBNAME {job_name}'
+        job_name = f"{file.file_prefix}-Minimize"
+        prepwizard_command = f"prepwizard -f {force_field} -r {rmsd_cutoff} -propka_pH {ph} -disulfides -s -JOBNAME {job_name}"
         if fill_side_chain:
-            prepwizard_command += ' -fillsidechains'
+            prepwizard_command += " -fillsidechains"
         if add_missing_loop:
-            prepwizard_command += ' -fillloops'
+            prepwizard_command += " -fillloops"
         if del_water:
-            prepwizard_command += f' -watdist {watdist}'
+            prepwizard_command += f" -watdist {watdist}"
         else:
-            prepwizard_command += '-keepfarwat'
-        _minimized_file = f'_{file_prefix}.mae'
-        prepwizard_command += f' {file.file_path} {_minimized_file}'
+            prepwizard_command += " -keepfarwat"
+        _minimized_file = f"_{file_prefix}.mae"
+        prepwizard_command += f" {file.file_path} {_minimized_file}"
 
         launch(prepwizard_command)
 
         try:
             shutil.move(_minimized_file, minimized_file)
         except FileNotFoundError:
-            raise RuntimeError(
-                f'Minimization Process Failed: {file.file_prefix}')
+            raise RuntimeError(f"Minimization Process Failed: {file.file_prefix}")
         else:
-            logger.debug(f'Minimized file saved: {minimized_file}')
+            logger.debug(f"Minimized file saved: {minimized_file}")
             return MaestroFile(minimized_file, metadata=metadata)
 
 
@@ -136,9 +138,9 @@ def grid_generate(
     box_center: Tuple[float, float, float] = None,
     box_center_molnum: int = None,
     box_size: int = 20,
-    force_field: Literal['OPLS4', 'OPLS3e', 'OPLS3', 'OPLS_2005'] = 'OPLS4',
+    force_field: Literal["OPLS4", "OPLS3e", "OPLS3", "OPLS_2005"] = "OPLS4",
     save_dir: str = None,
-    overwrite: bool = False
+    overwrite: bool = False,
 ) -> GridFile:
     """Generate grid file for Glide docking.
 
@@ -160,74 +162,68 @@ def grid_generate(
     Returns:
         GridFile: grid file
     """
-    save_dir = os.path.abspath(
-        save_dir) if save_dir is not None else os.getcwd()
+    save_dir = os.path.abspath(save_dir) if save_dir is not None else os.getcwd()
     os.makedirs(save_dir, exist_ok=True)
     if isinstance(file, str):
         file = MaestroFile(path=file)
-    if file.file_ext not in ['mae', 'maegz']:
-        file = MaestroFile(convert_format(
-            file.file_path, 'mae', save_dir=file.file_dir), metadata=file.metadata)
+    if file.file_ext not in ["mae", "maegz"]:
+        file = MaestroFile(
+            convert_format(file.file_path, "mae", save_dir=file.file_dir), metadata=file.metadata
+        )
     metadata = file.metadata.copy()
-    metadata.action = 'glide-grid'
-    file_prefix = metadata.generate_file_name(
-        ['pdbid', 'ligand_name', 'action'])
-    grid_file = os.path.join(save_dir, f'{file_prefix}.zip')
-    logger.debug(f'Prepare to generate grid file: {grid_file}')
+    metadata.action = "glide-grid"
+    file_prefix = metadata.generate_file_name(["pdbid", "ligand_name", "action"])
+    grid_file = os.path.join(save_dir, f"{file_prefix}.zip")
+    logger.debug(f"Prepare to generate grid file: {grid_file}")
 
     if os.path.exists(grid_file) and not overwrite:
-        logger.debug(f'File already existed: {grid_file}')
+        logger.debug(f"File already existed: {grid_file}")
         return GridFile(grid_file, metadata=metadata)
 
     with ChDir(save_dir):
-        input_file = f'{file_prefix}.in'
-        job_name = file_prefix.replace('_', '-')
+        input_file = f"{file_prefix}.in"
+        job_name = file_prefix.replace("_", "-")
         outsize = box_size + 10
 
         glide_grid_config = [
-            f'FORCEFIELD {force_field}\n',
-            f'GRIDFILE {grid_file}\n',
-            'INNERBOX 10,10,10\n',
-            f'OUTERBOX {outsize},{outsize},{outsize} \n',
-            f'RECEP_FILE {file.file_path}\n'
+            f"FORCEFIELD {force_field}\n",
+            f"GRIDFILE {grid_file}\n",
+            "INNERBOX 10,10,10\n",
+            f"OUTERBOX {outsize},{outsize},{outsize} \n",
+            f"RECEP_FILE {file.file_path}\n",
         ]
         if box_center is not None:
             try:
                 coord_x, coord_y, coord_z = box_center
             except ValueError:
-                raise ValueError(
-                    'box_center should be a tuple of 3 floats.')
-            glide_grid_config += [
-                f"GRID_CENTER {coord_x},{coord_y},{coord_z}\n"]
-            logger.debug(f'Grid box center is set to {box_center}')
+                raise ValueError("box_center should be a tuple of 3 floats.")
+            glide_grid_config += [f"GRID_CENTER {coord_x},{coord_y},{coord_z}\n"]
+            logger.debug(f"Grid box center is set to {box_center}")
         elif box_center_molnum is not None:
             glide_grid_config += [f"LIGAND_MOLECULE {box_center_molnum}\n"]
-            logger.debug(
-                f'Grid box center is set to Molecule {box_center_molnum}')
+            logger.debug(f"Grid box center is set to Molecule {box_center_molnum}")
         else:
-            raise ValueError(
-                "Either box_center or box_center_molnum should be provided.")
+            raise ValueError("Either box_center or box_center_molnum should be provided.")
 
-        with open(input_file, 'w') as f:
+        with open(input_file, "w") as f:
             f.writelines(glide_grid_config)
 
-        shell_run(
-            f'glide {input_file} -JOBNAME {job_name} -WAIT -NOJOBID > {job_name}.log 2>&1')
+        shell_run(f"glide {input_file} -JOBNAME {job_name} -WAIT -NOJOBID > {job_name}.log 2>&1")
         if not os.path.exists(grid_file):
-            raise RuntimeError(f'{grid_file} Generation Failed.')
-        logger.debug(F'Grid file generated: {grid_file}')
+            raise RuntimeError(f"{grid_file} Generation Failed.")
+        logger.debug(f"Grid file generated: {grid_file}")
     return GridFile(grid_file, metadata=metadata)
 
 
 def dock(
     grid_file: Union[GridFile, str],
     ligand_file: Union[MaestroFile, str],
-    force_field: Literal['OPLS4', 'OPLS3e', 'OPLS3', 'OPLS_2005'] = 'OPLS4',
-    precision: Literal['SP', 'XP', 'HTVS'] = 'SP',
+    force_field: Literal["OPLS4", "OPLS3e", "OPLS3", "OPLS_2005"] = "OPLS4",
+    precision: Literal["SP", "XP", "HTVS"] = "SP",
     calc_rmsd: bool = False,
     include_receptor: bool = False,
     save_dir: str = None,
-    overwrite: bool = False
+    overwrite: bool = False,
 ) -> DockResultFile:
     """Perform Glide ligand docking
 
@@ -253,11 +249,13 @@ def dock(
         grid_file = GridFile(grid_file)
     if isinstance(ligand_file, str):
         ligand_file = MaestroFile(ligand_file)
-        
+
     save_dir = os.path.abspath(save_dir) if save_dir is not None else os.getcwd()
-    save_dir = os.path.join(save_dir, grid_file.metadata.pdbid) if grid_file.metadata.pdbid else save_dir
+    save_dir = (
+        os.path.join(save_dir, grid_file.metadata.pdbid) if grid_file.metadata.pdbid else save_dir
+    )
     os.makedirs(save_dir, exist_ok=True)
-    
+
     if ligand_file.file_ext not in ["mae", "maegz"]:
         coverted_ligand_file = convert_format(
             ligand_file.file_path,
@@ -265,58 +263,55 @@ def dock(
             save_dir=save_dir,
             overwrite=True,
         )
-        ligand_file = MaestroFile(
-            coverted_ligand_file,
-            metadata=ligand_file.metadata
-        )
+        ligand_file = MaestroFile(coverted_ligand_file, metadata=ligand_file.metadata)
 
     metadata = grid_file.metadata.copy()
-    metadata.docking_ligand_name = ligand_file.file_prefix.replace('_', '-')
+    metadata.docking_ligand_name = ligand_file.file_prefix.replace("_", "-")
     metadata.precision = precision
-    metadata.set('calc_rmsd', bool(calc_rmsd))
-    metadata.set('include_receptor', bool(include_receptor))
-    metadata.action = 'glide-dock'
+    metadata.set("calc_rmsd", bool(calc_rmsd))
+    metadata.set("include_receptor", bool(include_receptor))
+    metadata.action = "glide-dock"
 
     file_prefix = metadata.generate_file_name(
-        ['pdbid', 'ligand_name', 'action', 'docking_ligand_name', 'precision'])
-    dock_result_file = os.path.join(save_dir, f'{file_prefix}.maegz')
+        ["pdbid", "ligand_name", "action", "docking_ligand_name", "precision"]
+    )
+    dock_result_file = os.path.join(save_dir, f"{file_prefix}.maegz")
 
     if os.path.exists(dock_result_file) and not overwrite:
-        logger.debug(f'File already existed: {dock_result_file}')
+        logger.debug(f"File already existed: {dock_result_file}")
         return DockResultFile(dock_result_file, metadata=metadata)
 
     with ChDir(save_dir):
-        input_file = f'{file_prefix}.in'
-        job_name = file_prefix.replace('_', '-')
+        input_file = f"{file_prefix}.in"
+        job_name = file_prefix.replace("_", "-")
         output_file = f"{job_name}_pv.maegz" if include_receptor else f"{job_name}_lib.maegz"
 
         glide_dock_config = [
-            f'GRIDFILE {grid_file.file_path}\n',
-            f'LIGANDFILE {ligand_file.file_path}\n',
-            f'PRECISION {precision}\n',
-            f'FORCEFIELD {force_field}\n',
+            f"GRIDFILE {grid_file.file_path}\n",
+            f"LIGANDFILE {ligand_file.file_path}\n",
+            f"PRECISION {precision}\n",
+            f"FORCEFIELD {force_field}\n",
         ]
         if not include_receptor:
-            glide_dock_config.append('POSE_OUTTYPE ligandlib\n')
+            glide_dock_config.append("POSE_OUTTYPE ligandlib\n")
         if calc_rmsd:
-            glide_dock_config.append('CALC_INPUT_RMS True\n')
-        if precision == 'XP':
-            glide_dock_config.append('WRITE_XP_DESC False\n')
-            glide_dock_config.append('POSTDOCK_XP_DELE 0.5\n')
+            glide_dock_config.append("CALC_INPUT_RMS True\n")
+        if precision == "XP":
+            glide_dock_config.append("WRITE_XP_DESC False\n")
+            glide_dock_config.append("POSTDOCK_XP_DELE 0.5\n")
 
-        with open(input_file, 'w') as f:
+        with open(input_file, "w") as f:
             f.writelines(glide_dock_config)
 
-        shell_run(
-            f'glide {input_file} -JOBNAME {job_name} -WAIT -NOJOBID > {job_name}.log 2>&1')
+        shell_run(f"glide {input_file} -JOBNAME {job_name} -WAIT -NOJOBID > {job_name}.log 2>&1")
 
         try:
             shutil.move(output_file, dock_result_file)
         except FileNotFoundError:
-            logger.debug(f'Docking Failed: {file_prefix}')
+            logger.debug(f"Docking Failed: {file_prefix}")
             return DockResultFile(dock_result_file, metadata=metadata, exist=False)
 
-        logger.debug(f'Docking result file saved: {dock_result_file}')
+        logger.debug(f"Docking result file saved: {dock_result_file}")
 
     return DockResultFile(dock_result_file, metadata=metadata)
 
@@ -326,7 +321,7 @@ def keep_single_chain(
     by_resname: str = None,
     chain_id: str = None,
     save_dir: str = None,
-    overwrite: bool = False
+    overwrite: bool = False,
 ) -> MaestroFile:
     """Keep single chain from a structure file.
 
@@ -347,13 +342,13 @@ def keep_single_chain(
     if isinstance(structure_file, str):
         structure_file = MaestroFile(structure_file)
     metadata = structure_file.metadata.copy()
-    metadata.action = 'keep-single-chain'
+    metadata.action = "keep-single-chain"
 
     if chain_id is None:
         if by_resname is not None:
             ligand = structure_file.find_ligands(specified_names=[by_resname])
             if len(ligand) > 1:
-                msg = f'{len(ligand)} ligands named {by_resname} found in the structure file, and the first one will be kept.\n'
+                msg = f"{len(ligand)} ligands named {by_resname} found in the structure file, and the first one will be kept.\n"
                 msg += f"Keep the chain structure of ligand {ligand[0]}"
                 logger.warning(msg)
             chain_id = ligand[0].chain
@@ -361,11 +356,11 @@ def keep_single_chain(
         else:
             raise ValueError("Please specify either chain_id or by_resname")
     metadata.pdbid = f"{structure_file.file_prefix}-chain-{chain_id}"
-    file_prefix = metadata.generate_file_name(['pdbid', 'ligand_name'])
+    file_prefix = metadata.generate_file_name(["pdbid", "ligand_name"])
     file_suffix = structure_file.file_suffix
     chain_structure_file = os.path.join(save_dir, f"{file_prefix}.{file_suffix}")
     if not overwrite and os.path.exists(chain_structure_file):
-        logger.debug(f'File already existed: {chain_structure_file}')
+        logger.debug(f"File already existed: {chain_structure_file}")
         return MaestroFile(chain_structure_file, metadata=metadata)
     chain_structure = structure_file.get_chain_structure(chain_id=chain_id)
     chain_structure.write(chain_structure_file)

@@ -1,4 +1,3 @@
-import logging
 import os
 import signal
 from typing import Tuple, Union
@@ -7,8 +6,16 @@ import pandas as pd
 
 from pyCADD.utils.common import File, TimeoutError
 
-from . import (Job, Structure, StructureReader, StructureWriter,
-               center_of_mass, fileutils, jobcontrol)
+from . import (
+    Job,
+    Structure,
+    StructureReader,
+    StructureWriter,
+    center_of_mass,
+    fileutils,
+    jobcontrol,
+    logger,
+)
 from .common import MaestroFile
 
 
@@ -24,12 +31,12 @@ def launch(cmd: str, timeout: int = 0) -> Job:
     """
     signal.signal(signal.SIGALRM, lambda signum, frame: TimeoutError)
     signal.alarm(timeout)
-    cmd_list = cmd.split(' ')
+    cmd_list = cmd.split(" ")
     job = jobcontrol.launch_job(cmd_list)
-    logging.debug(f'Command: {cmd}')
-    logging.debug(f'JobId: {job.JobId}')
-    logging.debug(f'Job Name: {job.Name}')
-    logging.debug(f'Job Status: {job.Status}')
+    logger.debug(f"Command: {cmd}")
+    logger.debug(f"JobId: {job.JobId}")
+    logger.debug(f"Job Name: {job.Name}")
+    logger.debug(f"Job Status: {job.Status}")
     try:
         job.wait()
     except TimeoutError:
@@ -38,14 +45,16 @@ def launch(cmd: str, timeout: int = 0) -> Job:
         signal.alarm(0)
 
     if not job.StructureOutputFile:
-        logging.debug(f'Job failed: {job.Name}')
+        logger.debug(f"Job failed: {job.Name}")
     else:
-        logging.debug(f'File saved: {job.StructureOutputFile}')
+        logger.debug(f"File saved: {job.StructureOutputFile}")
     return job
 
 
-def collect_structures(list_file: str, output_file: str = None, data_dir: str = None, required_file_ext: str = 'maegz') -> None:
-    """Collect and extract structures from data directory according to a list file including required structure names, and save them to another file. 
+def collect_structures(
+    list_file: str, output_file: str = None, data_dir: str = None, required_file_ext: str = "maegz"
+) -> None:
+    """Collect and extract structures from data directory according to a list file including required structure names, and save them to another file.
     The structure names(without the extension) should be in the first column with a header.
 
     Args:
@@ -62,24 +71,27 @@ def collect_structures(list_file: str, output_file: str = None, data_dir: str = 
     required_sts = []
 
     for index, structure in enumerate(required_list):
-        structure_name, structure_ext = os.path.splitext(
-            os.path.basename(structure))
-        required_file_ext = structure_ext.replace(
-            '.', '') if structure_ext else required_file_ext
-        required_file_path = os.path.join(
-            data_dir, f'{structure_name}.{required_file_ext}')
+        structure_name, structure_ext = os.path.splitext(os.path.basename(structure))
+        required_file_ext = structure_ext.replace(".", "") if structure_ext else required_file_ext
+        required_file_path = os.path.join(data_dir, f"{structure_name}.{required_file_ext}")
         if not os.path.exists(required_file_path):
-            logging.warning(f'Structure file {required_file_path} not found!')
+            logger.warning(f"Structure file {required_file_path} not found!")
             continue
         st = StructureReader.read(required_file_path)
-        st.property['i_user_SortedIndex'] = index
+        st.property["i_user_SortedIndex"] = index
         required_sts.append(st)
 
     with StructureWriter(output_file.file_path) as writer:
         writer.extend(required_sts)
 
 
-def convert_format(file_path: str, output_file: str, to_format: str = None, save_dir: str = None, overwrite: bool = False) -> str:
+def convert_format(
+    file_path: str,
+    output_file: str,
+    to_format: str = None,
+    save_dir: str = None,
+    overwrite: bool = False,
+) -> str:
     """Convert the file to another format using Schrodinger API.
 
     Args:
@@ -102,7 +114,7 @@ def convert_format(file_path: str, output_file: str, to_format: str = None, save
     save_dir = _output_file.file_dir if save_dir is None else os.path.abspath(save_dir)
     to_format = _output_file.file_ext if to_format is None else to_format
     to_format = fileutils.get_structure_file_format(to_format)
-    
+
     converted_file = os.path.join(save_dir, _output_file.file_name)
     if not overwrite and os.path.exists(converted_file):
         raise FileExistsError(f"File already exists: {converted_file}")
@@ -115,7 +127,9 @@ def convert_format(file_path: str, output_file: str, to_format: str = None, save
     return converted_file
 
 
-def get_centroid(file: Union[MaestroFile, Structure, str], structure_index: int = 0) -> Tuple[float, float, float]:
+def get_centroid(
+    file: Union[MaestroFile, Structure, str], structure_index: int = 0
+) -> Tuple[float, float, float]:
     """Get the centroid of a structure file.
 
     Args:

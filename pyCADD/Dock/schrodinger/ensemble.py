@@ -13,7 +13,14 @@ from .core import dock, grid_generate, keep_single_chain, minimize
 from .data import extract_docking_data
 
 
-def _write_struc(structure_index: int, structure: Structure, /, file_prefix: str = 'structure', overwrite: bool = False, save_dir: str = None) -> MaestroFile:
+def _write_struc(
+    structure_index: int,
+    structure: Structure,
+    /,
+    file_prefix: str = "structure",
+    overwrite: bool = False,
+    save_dir: str = None,
+) -> MaestroFile:
     """Write a structure to a file with specified prefix and index.
 
     Args:
@@ -27,8 +34,8 @@ def _write_struc(structure_index: int, structure: Structure, /, file_prefix: str
     """
     save_dir = save_dir if save_dir is not None else os.getcwd()
     st_name = f"{file_prefix}-{structure_index}"
-    structure.property['i_user_StructureIndex'] = structure_index
-    structure.property['s_user_StructureName'] = st_name
+    structure.property["i_user_StructureIndex"] = structure_index
+    structure.property["s_user_StructureName"] = st_name
     st_path = os.path.join(save_dir, f"{st_name}.maegz")
     if os.path.exists(st_path) and not overwrite:
         logger.debug(f"File exists: {st_path}")
@@ -37,7 +44,12 @@ def _write_struc(structure_index: int, structure: Structure, /, file_prefix: str
     return MaestroFile(st_path)
 
 
-def split_structure(multi_structure_file: Union[str, File], save_dir: str = None, overwrite: bool = False, cpu_num: int = None) -> List[MaestroFile]:
+def split_structure(
+    multi_structure_file: Union[str, File],
+    save_dir: str = None,
+    overwrite: bool = False,
+    cpu_num: int = None,
+) -> List[MaestroFile]:
     """Split a multi-structure file to single structure files.
 
     Args:
@@ -49,32 +61,29 @@ def split_structure(multi_structure_file: Union[str, File], save_dir: str = None
     Returns:
         List[MaestroFile]: list of splited structure file.
     """
-    save_dir = os.path.abspath(
-        save_dir) if save_dir is not None else multi_structure_file.file_dir
+    save_dir = os.path.abspath(save_dir) if save_dir is not None else multi_structure_file.file_dir
     if isinstance(multi_structure_file, str):
         multi_structure_file = File(multi_structure_file)
     os.makedirs(save_dir, exist_ok=True)
-    logger.debug(
-        f'Prepare to split structure file {multi_structure_file.file_name} to {save_dir}')
+    logger.debug(f"Prepare to split structure file {multi_structure_file.file_name} to {save_dir}")
 
     if isinstance(multi_structure_file, str):
         multi_structure_file = File(multi_structure_file)
 
     structures = [st for st in StructureReader(multi_structure_file.file_path)]
-    logger.debug(
-        f'Found {len(structures)} structures in {multi_structure_file.file_name}')
+    logger.debug(f"Found {len(structures)} structures in {multi_structure_file.file_name}")
 
     cpu_num = cpu_num if cpu_num is not None else NUM_PARALLEL
 
     return multiprocessing_run(
         _write_struc,
         zip(range(1, len(structures) + 1), structures),
-        job_name='Split Structures',
+        job_name="Split Structures",
         num_parallel=cpu_num,
         total_task_num=len(structures),
         file_prefix=multi_structure_file.file_prefix,
         save_dir=save_dir,
-        overwrite=overwrite
+        overwrite=overwrite,
     )
 
 
@@ -147,7 +156,7 @@ def multi_keep_single_chain(
 def multi_minimize(
     structure_files: List[Union[str, File]],
     ph: float = 7.4,
-    force_field: Literal['OPLS4', 'OPLS3e', 'OPLS3', 'OPLS_2005'] = 'OPLS4',
+    force_field: Literal["OPLS4", "OPLS3e", "OPLS3", "OPLS_2005"] = "OPLS4",
     fill_side_chain: bool = True,
     add_missing_loop: bool = True,
     del_water: bool = True,
@@ -155,7 +164,7 @@ def multi_minimize(
     rmsd_cutoff: float = 0.3,
     save_dir: str = None,
     overwrite: bool = False,
-    cpu_num: int = None
+    cpu_num: int = None,
 ) -> List[MaestroFile]:
     """Minimize multiple structures.
 
@@ -175,11 +184,11 @@ def multi_minimize(
     Returns:
         List[MaestroFile]: list of minimized structure file.
     """
-    save_dir = os.path.abspath(
-        save_dir) if save_dir is not None else os.getcwd()
+    save_dir = os.path.abspath(save_dir) if save_dir is not None else os.getcwd()
     os.makedirs(save_dir, exist_ok=True)
     logger.debug(
-        f'Prepare to optimize and minimize {len(structure_files)} structures at {save_dir}')
+        f"Prepare to optimize and minimize {len(structure_files)} structures at {save_dir}"
+    )
 
     if isinstance(structure_files[0], str):
         structure_files = [File(st) for st in structure_files]
@@ -189,11 +198,18 @@ def multi_minimize(
     return multiprocessing_run(
         minimize,
         structure_files,
-        job_name='Minimize',
+        job_name="Minimize",
         num_parallel=cpu_num,
         total_task_num=len(structure_files),
-        ph=ph, force_field=force_field, fill_side_chain=fill_side_chain, add_missing_loop=add_missing_loop,
-        del_water=del_water, watdist=watdist, rmsd_cutoff=rmsd_cutoff, save_dir=save_dir, overwrite=overwrite
+        ph=ph,
+        force_field=force_field,
+        fill_side_chain=fill_side_chain,
+        add_missing_loop=add_missing_loop,
+        del_water=del_water,
+        watdist=watdist,
+        rmsd_cutoff=rmsd_cutoff,
+        save_dir=save_dir,
+        overwrite=overwrite,
     )
 
 
@@ -202,10 +218,10 @@ def multi_grid_generate(
     box_center_list: List[Tuple[float, float, float]] = None,
     box_center_molnum_list: List[int] = None,
     box_size_list: List[float] = None,
-    force_field: Literal['OPLS4', 'OPLS3e', 'OPLS3', 'OPLS_2005'] = 'OPLS4',
+    force_field: Literal["OPLS4", "OPLS3e", "OPLS3", "OPLS_2005"] = "OPLS4",
     save_dir: str = None,
     overwrite: bool = False,
-    cpu_num: int = None
+    cpu_num: int = None,
 ) -> List[GridFile]:
     """Generate multiple grid files.
 
@@ -223,53 +239,60 @@ def multi_grid_generate(
         List[GridFile]: list of grid file.
     """
     cpu_num = cpu_num if cpu_num is not None else NUM_PARALLEL
-    save_dir = os.path.abspath(
-        save_dir) if save_dir is not None else os.getcwd()
+    save_dir = os.path.abspath(save_dir) if save_dir is not None else os.getcwd()
     structure_length = len(structure_files)
 
     if box_size_list is None:
         box_size_list = [20] * structure_length
     elif len(box_size_list) != structure_length:
-        raise ValueError(
-            f"box_size_list should have the same length as structure_files.")
+        raise ValueError(f"box_size_list should have the same length as structure_files.")
 
     zip_args = None
     if box_center_list is not None:
         if np.array(box_center_list).shape != (structure_length, 3):
             raise ValueError(
-                f"box_center_list should have the same length as structure_files and each element should be a tuple of 3 floats.")
-        zip_args = zip(structure_files, box_center_list, [
-                       None for i in range(structure_length)], box_size_list)
+                f"box_center_list should have the same length as structure_files and each element should be a tuple of 3 floats."
+            )
+        zip_args = zip(
+            structure_files, box_center_list, [None for i in range(structure_length)], box_size_list
+        )
     elif box_center_molnum_list is not None:
         if len(box_center_molnum_list) != structure_length:
             raise ValueError(
-                f"box_center_molnum_list should have the same length as structure_files.")
-        zip_args = zip(structure_files, [None for i in range(
-            structure_length)], box_center_molnum_list, box_size_list)
+                f"box_center_molnum_list should have the same length as structure_files."
+            )
+        zip_args = zip(
+            structure_files,
+            [None for i in range(structure_length)],
+            box_center_molnum_list,
+            box_size_list,
+        )
     else:
-        raise ValueError(
-            "Either box_center_list or box_center_molnum_list should be provided.")
+        raise ValueError("Either box_center_list or box_center_molnum_list should be provided.")
 
     if isinstance(structure_files[0], str):
         structure_files = [File(st) for st in structure_files]
 
     os.makedirs(save_dir, exist_ok=True)
     logger.debug(
-        f'Prepare to generate grid files for {len(structure_files)} structures at {save_dir}')
+        f"Prepare to generate grid files for {len(structure_files)} structures at {save_dir}"
+    )
 
     return multiprocessing_run(
         grid_generate,
         zip_args,
-        job_name='Generate Grids',
+        job_name="Generate Grids",
         num_parallel=cpu_num,
         total_task_num=len(structure_files),
         force_field=force_field,
         save_dir=save_dir,
-        overwrite=overwrite
+        overwrite=overwrite,
     )
 
 
-def get_docking_pairs(grid_files: List[Union[str, File]], ligand_files: List[Union[str, File]]) -> List[Tuple[Union[str, File], Union[str, File]]]:
+def get_docking_pairs(
+    grid_files: List[Union[str, File]], ligand_files: List[Union[str, File]]
+) -> List[Tuple[Union[str, File], Union[str, File]]]:
     """Get all possible docking pairs from grid and ligand files, \
         which will establish a mapping relationship between each provided receptor and each provided ligand.
 
@@ -285,13 +308,13 @@ def get_docking_pairs(grid_files: List[Union[str, File]], ligand_files: List[Uni
 
 def multi_dock(
     docking_pairs: List[Tuple[GridFile, File]],
-    force_field: Literal['OPLS4', 'OPLS3e', 'OPLS3', 'OPLS_2005'] = 'OPLS4',
-    precision: Literal['SP', 'XP', 'HTVS'] = 'SP',
+    force_field: Literal["OPLS4", "OPLS3e", "OPLS3", "OPLS_2005"] = "OPLS4",
+    precision: Literal["SP", "XP", "HTVS"] = "SP",
     calc_rmsd: bool = False,
     include_receptor: bool = False,
     save_dir: str = None,
     overwrite: bool = False,
-    cpu_num: int = None
+    cpu_num: int = None,
 ) -> List[DockResultFile]:
     """Dock multiple ligands to multiple grids.
 
@@ -312,30 +335,26 @@ def multi_dock(
         List[DockResultFile]: list of docked result file.
     """
     cpu_num = cpu_num if cpu_num is not None else NUM_PARALLEL
-    save_dir = os.path.abspath(
-        save_dir) if save_dir is not None else os.getcwd()
+    save_dir = os.path.abspath(save_dir) if save_dir is not None else os.getcwd()
     os.makedirs(save_dir, exist_ok=True)
-    logger.debug(
-        f'Prepare to dock {len(docking_pairs)} pairs at {save_dir}')
+    logger.debug(f"Prepare to dock {len(docking_pairs)} pairs at {save_dir}")
 
     return multiprocessing_run(
         dock,
         docking_pairs,
-        job_name='Dock',
+        job_name="Dock",
         num_parallel=cpu_num,
         force_field=force_field,
         precision=precision,
         calc_rmsd=calc_rmsd,
         include_receptor=include_receptor,
         save_dir=save_dir,
-        overwrite=overwrite
+        overwrite=overwrite,
     )
 
 
 def multi_extract_data(
-    dock_result_files: List[Union[str, File]],
-    data_config: DataConfig = None,
-    cpu_num: int = None
+    dock_result_files: List[Union[str, File]], data_config: DataConfig = None, cpu_num: int = None
 ) -> List[dict]:
     """Extract data from multiple docked result files.
 
@@ -349,15 +368,14 @@ def multi_extract_data(
         List[dict]: list of extracted data dict, which can be converted to DataFrame directly.
     """
     cpu_num = cpu_num if cpu_num is not None else NUM_PARALLEL
-    logger.debug(
-        f'Prepare to extract data from {len(dock_result_files)} docked result files')
+    logger.debug(f"Prepare to extract data from {len(dock_result_files)} docked result files")
 
     nested_result = multiprocessing_run(
         extract_docking_data,
         dock_result_files,
-        job_name='Extract Data',
+        job_name="Extract Data",
         num_parallel=cpu_num,
         total_task_num=len(dock_result_files),
-        data_config=data_config
+        data_config=data_config,
     )
     return [data for data_list in nested_result for data in data_list]
