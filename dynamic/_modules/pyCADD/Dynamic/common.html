@@ -1,0 +1,1479 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Dynamic.common &mdash; pyCADD.Dynamic 2.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f5cff4aa"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyCADD.Dynamic
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pyCADD.Dynamic.html">pyCADD.Dynamic package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dynamic.html">Dynamic User Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyCADD.Dynamic</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyCADD.Dynamic.common</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyCADD.Dynamic.common</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;High-level molecular dynamics simulation workflow management.</span>
+
+<span class="sd">This module provides the Processor class which serves as the main interface for</span>
+<span class="sd">managing complete molecular dynamics simulation workflows including system preparation,</span>
+<span class="sd">simulation execution, and trajectory analysis.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">from</span> <span class="nn">pyCADD.Dynamic</span> <span class="kn">import</span> <span class="n">analysis</span><span class="p">,</span> <span class="n">core</span>
+<span class="kn">from</span> <span class="nn">pyCADD.Dynamic.constant</span> <span class="kn">import</span> <span class="n">CPU_NUM</span>
+<span class="kn">from</span> <span class="nn">pyCADD.Dynamic.core</span> <span class="kn">import</span> <span class="n">MDProcess</span><span class="p">,</span> <span class="n">MinimizeProcess</span><span class="p">,</span> <span class="n">NPTProcess</span><span class="p">,</span> <span class="n">NVTProcess</span>
+<span class="kn">from</span> <span class="nn">pyCADD.Dynamic.template</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">HeatInput</span><span class="p">,</span>
+    <span class="n">MinimizeInput</span><span class="p">,</span>
+    <span class="n">NPTInput</span><span class="p">,</span>
+    <span class="n">NVTInput</span><span class="p">,</span>
+    <span class="n">RestrainedMinimizeInput</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pyCADD.Dynamic.utils</span> <span class="kn">import</span> <span class="n">_get_water_resnum</span>
+<span class="kn">from</span> <span class="nn">pyCADD.utils.common</span> <span class="kn">import</span> <span class="n">File</span>
+<span class="kn">from</span> <span class="nn">pyCADD.utils.tool</span> <span class="kn">import</span> <span class="n">is_pmemd_cuda_available</span><span class="p">,</span> <span class="n">makedirs_from_list</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Processor">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor">[docs]</a>
+<span class="k">class</span> <span class="nc">Processor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;High-level molecular dynamics simulation workflow manager.</span>
+
+<span class="sd">    The Processor class provides a complete interface for managing molecular dynamics</span>
+<span class="sd">    simulations from system preparation through analysis.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        work_dir (str): Main working directory for the simulation project.</span>
+<span class="sd">        apo (bool): Whether this is an apo (protein-only) system.</span>
+<span class="sd">        pro_file (File): Prepared protein structure file.</span>
+<span class="sd">        mol2_file (File): Ligand MOL2 file (None for apo systems).</span>
+<span class="sd">        frcmod_file (File): Force field parameter file for ligand.</span>
+<span class="sd">        comsolvate_topfile (File): Solvated system topology file.</span>
+<span class="sd">        comsolvate_crdfile (File): Solvated system coordinate file.</span>
+<span class="sd">        comsolvate_pdbfile (File): Solvated system PDB file.</span>
+<span class="sd">        com_topfile (File): Complex topology file.</span>
+<span class="sd">        pro_topfile (File): Protein topology file.</span>
+<span class="sd">        lig_topfile (File): Ligand topology file.</span>
+<span class="sd">        md_process_list (list): List of MD simulation processes to execute.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Processor.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">work_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">apo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the MD simulation processor.</span>
+
+<span class="sd">        Sets up the directory structure and initializes attributes for managing</span>
+<span class="sd">        a molecular dynamics simulation workflow.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            work_dir (str, optional): Main working directory for simulation files.</span>
+<span class="sd">                Defaults to current working directory.</span>
+<span class="sd">            apo (bool, optional): Whether this is an apo (protein-only) system.</span>
+<span class="sd">                Defaults to False (protein-ligand system).</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Automatically creates the following subdirectory structure:</span>
+<span class="sd">            - protein/: For prepared protein files</span>
+<span class="sd">            - molecule/: For ligand preparation files</span>
+<span class="sd">            - leap/: For system building files</span>
+<span class="sd">            - input_file/: For MD input files</span>
+<span class="sd">            - md_result/: For simulation output files</span>
+<span class="sd">            - md_analysis/: For trajectory analysis results</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="n">work_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pro_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s2">&quot;protein&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s2">&quot;molecule&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">leap_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s2">&quot;leap&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_file_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s2">&quot;input_file&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">md_result_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s2">&quot;md_result&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis_result_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="s2">&quot;md_analysis&quot;</span><span class="p">)</span>
+        <span class="n">makedirs_from_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_required_dirs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pro_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol2_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frcmod_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_crdfile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_topfile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_pdbfile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">com_topfile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pro_topfile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lig_topfile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">apo</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Initializing Processor for apo system.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apo</span> <span class="o">=</span> <span class="n">apo</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">md_process_list</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_required_dirs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pro_dir</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mol_dir</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">leap_dir</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input_file_dir</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">md_result_dir</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analysis_result_dir</span><span class="p">,</span>
+        <span class="p">]</span>
+
+<div class="viewcode-block" id="Processor.protein_prepare">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.protein_prepare">[docs]</a>
+    <span class="k">def</span> <span class="nf">protein_prepare</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">protein_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">,</span> <span class="n">keep_water</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare protein structure for molecular dynamics simulation.</span>
+
+<span class="sd">        Processes the input protein structure using pdb4amber to clean up the</span>
+<span class="sd">        structure, add missing atoms, and prepare it for use with Amber force fields.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            protein_file_path: Path to the input protein structure file (PDB format).</span>
+<span class="sd">            keep_water: Whether to retain crystal water molecules in the structure.</span>
+<span class="sd">                Defaults to False.</span>
+<span class="sd">            overwrite: Whether to overwrite existing prepared files.</span>
+<span class="sd">                Defaults to False.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The prepared protein file is automatically saved in the protein/</span>
+<span class="sd">            subdirectory and stored in self.pro_file for subsequent use.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">protein_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">protein_file_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pro_file</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">protein_prepare</span><span class="p">(</span>
+            <span class="n">protein_file</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pro_dir</span><span class="p">,</span> <span class="n">keep_water</span><span class="o">=</span><span class="n">keep_water</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Protein file has been saved: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pro_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Processor.molecule_prepare">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.molecule_prepare">[docs]</a>
+    <span class="k">def</span> <span class="nf">molecule_prepare</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">molecule_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">,</span>
+        <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">dft</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;B3LYP&quot;</span><span class="p">,</span>
+        <span class="n">basis_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;6-31g*&quot;</span><span class="p">,</span>
+        <span class="n">cpu_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="n">mem_use</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;8GB&quot;</span><span class="p">,</span>
+        <span class="n">charge_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;resp&quot;</span><span class="p">,</span> <span class="s2">&quot;bcc&quot;</span><span class="p">,</span> <span class="s2">&quot;resp2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;resp&quot;</span><span class="p">,</span>
+        <span class="n">solvent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;water&quot;</span><span class="p">,</span>
+        <span class="n">delta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare ligand molecule for molecular dynamics simulation.</span>
+
+<span class="sd">        Performs complete ligand parameterization including geometry optimization,</span>
+<span class="sd">        charge calculation, and force field parameter generation using antechamber</span>
+<span class="sd">        and related Amber tools.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            molecule_file_path: Path to the input ligand structure file.</span>
+<span class="sd">            charge: Net charge of the ligand molecule. Defaults to 0.</span>
+<span class="sd">            multiplicity: Spin multiplicity of the ligand. Defaults to 1.</span>
+<span class="sd">            dft: DFT method for quantum chemistry calculations. Defaults to &quot;B3LYP&quot;.</span>
+<span class="sd">            basis_set: Basis set for quantum chemistry calculations. Defaults to &quot;6-31g*&quot;.</span>
+<span class="sd">            cpu_num: Number of CPU cores to use. Defaults to 4.</span>
+<span class="sd">            mem_use: Memory allocation for quantum calculations. Defaults to &quot;8GB&quot;.</span>
+<span class="sd">            charge_method: Method for partial charge calculation (&quot;resp&quot;, &quot;bcc&quot;, &quot;resp2&quot;).</span>
+<span class="sd">                Defaults to &quot;resp&quot;.</span>
+<span class="sd">            solvent: Solvent model for charge calculation. Defaults to &quot;water&quot;.</span>
+<span class="sd">            delta: Grid spacing for RESP charge fitting. Defaults to 0.5.</span>
+<span class="sd">            overwrite: Whether to overwrite existing prepared files. Defaults to False.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The prepared MOL2 and FRCMOD files are automatically saved in the</span>
+<span class="sd">            molecule/ subdirectory and stored in self.mol2_file and self.frcmod_file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">cpu_num</span> <span class="o">=</span> <span class="n">cpu_num</span> <span class="ow">or</span> <span class="n">CPU_NUM</span>
+        <span class="n">molecule_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">molecule_file_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol2_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frcmod_file</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">molecule_prepare</span><span class="p">(</span>
+            <span class="n">ligand_file</span><span class="o">=</span><span class="n">molecule_file</span><span class="p">,</span>
+            <span class="n">charge_method</span><span class="o">=</span><span class="n">charge_method</span><span class="p">,</span>
+            <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
+            <span class="n">multiplicity</span><span class="o">=</span><span class="n">multiplicity</span><span class="p">,</span>
+            <span class="n">dft</span><span class="o">=</span><span class="n">dft</span><span class="p">,</span>
+            <span class="n">basis_set</span><span class="o">=</span><span class="n">basis_set</span><span class="p">,</span>
+            <span class="n">cpu_num</span><span class="o">=</span><span class="n">cpu_num</span><span class="p">,</span>
+            <span class="n">mem_use</span><span class="o">=</span><span class="n">mem_use</span><span class="p">,</span>
+            <span class="n">solvent</span><span class="o">=</span><span class="n">solvent</span><span class="p">,</span>
+            <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span>
+            <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
+            <span class="n">save_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mol_dir</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Molecule file has been saved: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mol2_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Frcmod file has been saved: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">frcmod_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Processor.load_processed_profile">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.load_processed_profile">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_processed_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pro_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a previously prepared protein file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pro_file_path: Path to the prepared protein structure file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pro_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">pro_file_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Processor.load_processed_molfile">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.load_processed_molfile">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_processed_molfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a previously prepared ligand MOL2 file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mol_file_path: Path to the prepared ligand MOL2 file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mol2_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">mol_file_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Processor.load_frcmod_file">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.load_frcmod_file">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_frcmod_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frcmod_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a ligand force field parameter file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            frcmod_file_path: Path to the ligand FRCMOD parameter file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frcmod_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">frcmod_file_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Processor.leap_prepare">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.leap_prepare">[docs]</a>
+    <span class="k">def</span> <span class="nf">leap_prepare</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">box_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">box_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;TIP3PBOX&quot;</span><span class="p">,</span>
+        <span class="n">solvatebox</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;solvatebox&quot;</span><span class="p">,</span> <span class="s2">&quot;solvateOct&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;solvatebox&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare solvated molecular system using tLEaP.</span>
+
+<span class="sd">        Builds the complete simulation system by combining protein and ligand</span>
+<span class="sd">        (if applicable), adding solvent and counter-ions using Amber&#39;s tLEaP program.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            box_size: Distance from solute to box edge in Angstroms. Defaults to 10.0.</span>
+<span class="sd">            box_type: Type of water box (&quot;TIP3PBOX&quot;, &quot;TIP4PBOX&quot;, etc.). Defaults to &quot;TIP3PBOX&quot;.</span>
+<span class="sd">            solvatebox: Solvation command type (&quot;solvatebox&quot; or &quot;solvateOct&quot;).</span>
+<span class="sd">                Defaults to &quot;solvatebox&quot;.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If required protein or ligand files haven&#39;t been prepared.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Automatically generates topology (.top), coordinate (.crd), and PDB files</span>
+<span class="sd">            for the solvated system in the leap/ subdirectory.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">box_type</span> <span class="o">=</span> <span class="n">box_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">_check_dirs</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mol2_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frcmod_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pro_file</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">apo</span> <span class="k">else</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pro_file</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">_check_dirs</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Preparing protein or molecules before LEaP has not been done.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing LEaP files...&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating </span><span class="si">{</span><span class="n">box_type</span><span class="si">}</span><span class="s2"> water box with &#39;</span><span class="si">{</span><span class="n">solvatebox</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">box_type</span><span class="si">}</span><span class="s2"> water box size: </span><span class="si">{</span><span class="n">box_size</span><span class="si">}</span><span class="s2"> Angstroms&quot;</span><span class="p">)</span>
+
+        <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_topfile</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_crdfile</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_pdbfile</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">com_topfile</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pro_topfile</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lig_topfile</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">leap_prepare</span><span class="p">(</span>
+            <span class="n">ligand_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mol2_file</span><span class="p">,</span>
+            <span class="n">frcmod_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frcmod_file</span><span class="p">,</span>
+            <span class="n">protein_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pro_file</span><span class="p">,</span>
+            <span class="n">box_size</span><span class="o">=</span><span class="n">box_size</span><span class="p">,</span>
+            <span class="n">box_type</span><span class="o">=</span><span class="n">box_type</span><span class="p">,</span>
+            <span class="n">solvatebox</span><span class="o">=</span><span class="n">solvatebox</span><span class="p">,</span>
+            <span class="n">save_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">leap_dir</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LEaP files have been saved in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">leap_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Processor.set_prepared_file">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.set_prepared_file">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_prepared_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a pre-prepared file for use in the simulation workflow.</span>
+
+<span class="sd">        Allows manual specification of prepared files, useful for resuming workflows</span>
+<span class="sd">        or using externally prepared files.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file_path: Path to the prepared file.</span>
+<span class="sd">            file_type: Type of file to set. Valid options:</span>
+<span class="sd">                - &quot;pro&quot;: Prepared protein file</span>
+<span class="sd">                - &quot;mol2&quot;: Prepared ligand MOL2 file</span>
+<span class="sd">                - &quot;frcmod&quot;: Ligand force field parameter file</span>
+<span class="sd">                - &quot;com_pdb&quot;: Solvated complex PDB file</span>
+<span class="sd">                - &quot;com_top&quot;: Solvated complex topology file</span>
+<span class="sd">                - &quot;com_crd&quot;: Solvated complex coordinate file</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If an invalid file_type is specified.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="k">match</span> <span class="n">file_type</span><span class="p">:</span>
+            <span class="k">case</span> <span class="s2">&quot;pro&quot;</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting prepared protein file: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pro_file</span> <span class="o">=</span> <span class="n">_file</span>
+            <span class="k">case</span> <span class="s2">&quot;mol2&quot;</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting prepared mol2 file: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mol2_file</span> <span class="o">=</span> <span class="n">_file</span>
+            <span class="k">case</span> <span class="s2">&quot;frcmod&quot;</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting prepared frcmod file: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">frcmod_file</span> <span class="o">=</span> <span class="n">_file</span>
+            <span class="k">case</span> <span class="s2">&quot;com_pdb&quot;</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting prepared solvated complex pdb file: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_pdbfile</span> <span class="o">=</span> <span class="n">_file</span>
+            <span class="k">case</span> <span class="s2">&quot;com_top&quot;</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting prepared solvated complex topology file: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_topfile</span> <span class="o">=</span> <span class="n">_file</span>
+            <span class="k">case</span> <span class="s2">&quot;com_crd&quot;</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting prepared solvated complex coordinate file: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_crdfile</span> <span class="o">=</span> <span class="n">_file</span>
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2"> is not a valid file type.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Processor.get_water_resnum">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.get_water_resnum">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_water_resnum</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get list of water residue numbers from the solvated system.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: List of residue numbers corresponding to water molecules.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the solvated complex PDB file hasn&#39;t been prepared or loaded.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Useful for setting up restraints or analysis that excludes water molecules.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_pdbfile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Solvated complex pdb file has not been prepared/load.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_get_water_resnum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_pdbfile</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Processor.create_minimize_input">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.create_minimize_input">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_minimize_input</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">maxcyc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
+        <span class="n">ncyc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">,</span>
+        <span class="n">cut</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">8.0</span><span class="p">,</span>
+        <span class="n">restraint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">restraint_mask</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">restraint_wt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">File</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create energy minimization input file.</span>
+
+<span class="sd">        Generates Amber input files for energy minimization using steepest descent</span>
+<span class="sd">        followed by conjugate gradient algorithms, with optional positional restraints.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            maxcyc: Maximum number of minimization cycles. Defaults to 10000.</span>
+<span class="sd">            ncyc: Number of steepest descent cycles before switching to conjugate gradient.</span>
+<span class="sd">                Defaults to 5000.</span>
+<span class="sd">            cut: Nonbonded interaction cutoff distance in Angstroms. Defaults to 8.0.</span>
+<span class="sd">            restraint: Whether to apply positional restraints. Defaults to False.</span>
+<span class="sd">            restraint_mask: Amber mask syntax for restrained atoms. Required if restraint=True.</span>
+<span class="sd">            restraint_wt: Restraint force constant in kcal/mol/Å². Defaults to 2.0.</span>
+<span class="sd">            file_name: Output filename for the input file. Defaults to &quot;minimize.in&quot;.</span>
+<span class="sd">            **kwargs: Additional minimization parameters.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            File: The created minimization input file.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If restraint=True but no restraint_mask is provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">restraint</span><span class="p">:</span>
+            <span class="n">constructor</span> <span class="o">=</span> <span class="n">MinimizeInput</span><span class="p">(</span><span class="n">maxcyc</span><span class="o">=</span><span class="n">maxcyc</span><span class="p">,</span> <span class="n">ncyc</span><span class="o">=</span><span class="n">ncyc</span><span class="p">,</span> <span class="n">cut</span><span class="o">=</span><span class="n">cut</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">restraint_mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;restraint_mask is required when restraint is True.&quot;</span><span class="p">)</span>
+            <span class="n">constructor</span> <span class="o">=</span> <span class="n">RestrainedMinimizeInput</span><span class="p">(</span>
+                <span class="n">maxcyc</span><span class="o">=</span><span class="n">maxcyc</span><span class="p">,</span>
+                <span class="n">ncyc</span><span class="o">=</span><span class="n">ncyc</span><span class="p">,</span>
+                <span class="n">cut</span><span class="o">=</span><span class="n">cut</span><span class="p">,</span>
+                <span class="n">restraintmask</span><span class="o">=</span><span class="n">restraint_mask</span><span class="p">,</span>
+                <span class="n">restraint_wt</span><span class="o">=</span><span class="n">restraint_wt</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">file_name</span> <span class="ow">or</span> <span class="s2">&quot;minimize.in&quot;</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file_dir</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="n">constructor</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Minimize process input file created for </span><span class="si">{</span><span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constructor</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">File</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Processor.create_heat_input">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.create_heat_input">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_heat_input</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">target_temp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span>
+        <span class="n">heat_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">9000</span><span class="p">,</span>
+        <span class="n">total_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
+        <span class="n">step_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.002</span><span class="p">,</span>
+        <span class="n">restraint_mask</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">restraint_wt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">File</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create system heating input file.</span>
+
+<span class="sd">        Generates Amber input file for gradual temperature increase from 0 K to</span>
+<span class="sd">        target temperature using a controlled heating protocol with optional restraints.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            target_temp: Target temperature in Kelvin. Defaults to 300.0.</span>
+<span class="sd">            heat_step: Number of steps for temperature ramping phase. Defaults to 9000.</span>
+<span class="sd">            total_step: Total simulation steps for heating protocol. Defaults to 10000.</span>
+<span class="sd">            step_length: Time step length in picoseconds. Defaults to 0.002.</span>
+<span class="sd">            restraint_mask: Optional Amber mask for restrained atoms.</span>
+<span class="sd">            restraint_wt: Restraint force constant in kcal/mol/Å². Defaults to 2.0.</span>
+<span class="sd">            file_name: Output filename for input file. Defaults to &quot;heat.in&quot;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            File: The created heating input file.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Uses a two-phase protocol: linear temperature ramp followed by</span>
+<span class="sd">            temperature maintenance at the target value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">constructor</span> <span class="o">=</span> <span class="n">HeatInput</span><span class="p">(</span>
+            <span class="n">target_temp</span><span class="o">=</span><span class="n">target_temp</span><span class="p">,</span>
+            <span class="n">heat_step</span><span class="o">=</span><span class="n">heat_step</span><span class="p">,</span>
+            <span class="n">total_step</span><span class="o">=</span><span class="n">total_step</span><span class="p">,</span>
+            <span class="n">step_length</span><span class="o">=</span><span class="n">step_length</span><span class="p">,</span>
+            <span class="n">restraint_wt</span><span class="o">=</span><span class="n">restraint_wt</span><span class="p">,</span>
+            <span class="n">restraintmask</span><span class="o">=</span><span class="n">restraint_mask</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">file_name</span> <span class="ow">or</span> <span class="s2">&quot;heat.in&quot;</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file_dir</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="n">constructor</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Heat process input file created for </span><span class="si">{</span><span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constructor</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">File</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Processor.create_nvt_input">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.create_nvt_input">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_nvt_input</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">init_temp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span>
+        <span class="n">total_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500000</span><span class="p">,</span>
+        <span class="n">step_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.002</span><span class="p">,</span>
+        <span class="n">irest</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">ntx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">File</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create NVT (constant volume, temperature) simulation input file.</span>
+
+<span class="sd">        Generates Amber input file for NVT ensemble molecular dynamics simulation</span>
+<span class="sd">        with Langevin thermostat for temperature control.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            init_temp: Simulation temperature in Kelvin. Defaults to 300.0.</span>
+<span class="sd">            total_step: Total number of MD steps. Defaults to 500000 (1 ns at 2 fs steps).</span>
+<span class="sd">            step_length: Time step length in picoseconds. Defaults to 0.002.</span>
+<span class="sd">            irest: Restart flag (0=new simulation, 1=restart). Defaults to 1.</span>
+<span class="sd">            ntx: Coordinate/velocity reading option. Defaults to 5.</span>
+<span class="sd">            file_name: Output filename for input file. Defaults to &quot;nvt.in&quot;.</span>
+<span class="sd">            **kwargs: Additional NVT simulation parameters.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            File: The created NVT input file.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Typically used for equilibration after heating or as a production</span>
+<span class="sd">            simulation for constant volume systems.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">constructor</span> <span class="o">=</span> <span class="n">NVTInput</span><span class="p">(</span>
+            <span class="n">temp0</span><span class="o">=</span><span class="n">init_temp</span><span class="p">,</span> <span class="n">nstlim</span><span class="o">=</span><span class="n">total_step</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">step_length</span><span class="p">,</span> <span class="n">irest</span><span class="o">=</span><span class="n">irest</span><span class="p">,</span> <span class="n">ntx</span><span class="o">=</span><span class="n">ntx</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">file_name</span> <span class="ow">or</span> <span class="s2">&quot;nvt.in&quot;</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file_dir</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="n">constructor</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;NVT process input file created for </span><span class="si">{</span><span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constructor</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">File</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Processor.create_npt_input">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.create_npt_input">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_npt_input</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">init_temp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span>
+        <span class="n">total_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50000000</span><span class="p">,</span>
+        <span class="n">step_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.002</span><span class="p">,</span>
+        <span class="n">irest</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">ntx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="n">taup</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">File</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create NPT (constant pressure, temperature) simulation input file.</span>
+
+<span class="sd">        Generates Amber input file for NPT ensemble molecular dynamics simulation</span>
+<span class="sd">        with both temperature and pressure control for production simulations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            init_temp: Simulation temperature in Kelvin. Defaults to 300.0.</span>
+<span class="sd">            total_step: Total number of MD steps. Defaults to 50000000 (100 ns at 2 fs steps).</span>
+<span class="sd">            step_length: Time step length in picoseconds. Defaults to 0.002.</span>
+<span class="sd">            irest: Restart flag (0=new simulation, 1=restart). Defaults to 1.</span>
+<span class="sd">            ntx: Coordinate/velocity reading option. Defaults to 5.</span>
+<span class="sd">            taup: Pressure relaxation time in picoseconds. Defaults to 2.0.</span>
+<span class="sd">            file_name: Output filename for input file. Defaults to &quot;npt.in&quot;.</span>
+<span class="sd">            **kwargs: Additional NPT simulation parameters.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            File: The created NPT input file.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Typically used for production simulations at physiological conditions</span>
+<span class="sd">            (1 atm pressure, 300 K temperature).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">constructor</span> <span class="o">=</span> <span class="n">NPTInput</span><span class="p">(</span>
+            <span class="n">temp0</span><span class="o">=</span><span class="n">init_temp</span><span class="p">,</span>
+            <span class="n">nstlim</span><span class="o">=</span><span class="n">total_step</span><span class="p">,</span>
+            <span class="n">dt</span><span class="o">=</span><span class="n">step_length</span><span class="p">,</span>
+            <span class="n">irest</span><span class="o">=</span><span class="n">irest</span><span class="p">,</span>
+            <span class="n">ntx</span><span class="o">=</span><span class="n">ntx</span><span class="p">,</span>
+            <span class="n">taup</span><span class="o">=</span><span class="n">taup</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="n">file_name</span> <span class="ow">or</span> <span class="s2">&quot;npt.in&quot;</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file_dir</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+        <span class="n">constructor</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;NPT process input file created for </span><span class="si">{</span><span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.in&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">constructor</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">File</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Processor.add_process">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.add_process">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_process</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">input_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">,</span>
+        <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">process</span><span class="p">:</span> <span class="n">MDProcess</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a molecular dynamics process to the simulation workflow.</span>
+
+<span class="sd">        Adds an MD simulation process (minimization, heating, equilibration, or production)</span>
+<span class="sd">        to the execution queue with appropriate process type and parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_file: Path to the Amber input file for this process.</span>
+<span class="sd">            process_name: Descriptive name for this process step.</span>
+<span class="sd">            _type: Type of MD process (&quot;minimize&quot;, &quot;nvt&quot;, &quot;npt&quot;). Defaults to generic MDProcess.</span>
+<span class="sd">            process: Custom MDProcess subclass to use instead of auto-detected type.</span>
+<span class="sd">            **kwargs: Additional parameters passed to the process constructor.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Process type determines the appropriate MDProcess subclass:</span>
+<span class="sd">            - &quot;minimize&quot;: MinimizeProcess</span>
+<span class="sd">            - &quot;nvt&quot;: NVTProcess</span>
+<span class="sd">            - &quot;npt&quot;: NPTProcess</span>
+<span class="sd">            - default: generic MDProcess</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">input_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_type</span> <span class="o">==</span> <span class="s2">&quot;minimize&quot;</span><span class="p">:</span>
+            <span class="n">process_class</span> <span class="o">=</span> <span class="n">MinimizeProcess</span>
+        <span class="k">elif</span> <span class="n">_type</span> <span class="o">==</span> <span class="s2">&quot;nvt&quot;</span><span class="p">:</span>
+            <span class="n">process_class</span> <span class="o">=</span> <span class="n">NVTProcess</span>
+        <span class="k">elif</span> <span class="n">_type</span> <span class="o">==</span> <span class="s2">&quot;npt&quot;</span><span class="p">:</span>
+            <span class="n">process_class</span> <span class="o">=</span> <span class="n">NPTProcess</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">process_class</span> <span class="o">=</span> <span class="n">MDProcess</span>
+        <span class="k">if</span> <span class="n">process</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">process_class</span> <span class="o">=</span> <span class="n">process</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">md_process_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">process_class</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">process_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Process </span><span class="si">{</span><span class="n">process_name</span><span class="si">}</span><span class="s2"> has been added to Workflow.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Processor.add_minimize_process">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.add_minimize_process">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_minimize_process</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">maxcyc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
+        <span class="n">ncyc</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">,</span>
+        <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;minimize&quot;</span><span class="p">,</span>
+        <span class="n">restraint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">restraint_mask</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">use_gpu</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">cpu_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add energy minimization process to workflow.</span>
+
+<span class="sd">        Creates a minimization input file and adds the corresponding process</span>
+<span class="sd">        to the simulation workflow queue.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            maxcyc: Maximum number of minimization cycles. Defaults to 10000.</span>
+<span class="sd">            ncyc: Number of steepest descent cycles. Defaults to 5000.</span>
+<span class="sd">            process_name: Name for this minimization step. Defaults to &quot;minimize&quot;.</span>
+<span class="sd">            restraint: Whether to apply positional restraints. Defaults to False.</span>
+<span class="sd">            restraint_mask: Amber mask for restrained atoms if restraint=True.</span>
+<span class="sd">            use_gpu: Whether to use GPU acceleration if available. Defaults to False.</span>
+<span class="sd">            cpu_num: Number of CPU cores to use if not using GPU. Defaults to half of available CPUs.</span>
+<span class="sd">            **kwargs: Additional minimization parameters.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Automatically creates input file and adds MinimizeProcess to workflow.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">process_name</span><span class="si">}</span><span class="s2">.in&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_minimize_input</span><span class="p">(</span>
+                <span class="n">maxcyc</span><span class="o">=</span><span class="n">maxcyc</span><span class="p">,</span>
+                <span class="n">ncyc</span><span class="o">=</span><span class="n">ncyc</span><span class="p">,</span>
+                <span class="n">restraint</span><span class="o">=</span><span class="n">restraint</span><span class="p">,</span>
+                <span class="n">restraint_mask</span><span class="o">=</span><span class="n">restraint_mask</span><span class="p">,</span>
+                <span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">process_name</span><span class="p">,</span>
+            <span class="n">_type</span><span class="o">=</span><span class="s2">&quot;minimize&quot;</span><span class="p">,</span>
+            <span class="n">use_gpu</span><span class="o">=</span><span class="n">use_gpu</span><span class="p">,</span>
+            <span class="n">cpu_num</span><span class="o">=</span><span class="n">cpu_num</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Processor.add_nvt_process">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.add_nvt_process">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_nvt_process</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">total_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500000</span><span class="p">,</span>
+        <span class="n">step_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.002</span><span class="p">,</span>
+        <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nvt&quot;</span><span class="p">,</span>
+        <span class="n">is_production</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add NVT simulation process to workflow.</span>
+
+<span class="sd">        Creates an NVT input file and adds the corresponding process</span>
+<span class="sd">        to the simulation workflow queue.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            total_step: Total number of MD steps. Defaults to 500000 (1 ns).</span>
+<span class="sd">            step_length: Time step length in picoseconds. Defaults to 0.002.</span>
+<span class="sd">            process_name: Name for this NVT step. Defaults to &quot;nvt&quot;.</span>
+<span class="sd">            is_production: Whether this is a production simulation. Defaults to False.</span>
+<span class="sd">            **kwargs: Additional NVT simulation parameters.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Automatically creates input file and adds NVTProcess to workflow.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">process_name</span><span class="si">}</span><span class="s2">.in&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_nvt_input</span><span class="p">(</span>
+                <span class="n">total_step</span><span class="o">=</span><span class="n">total_step</span><span class="p">,</span> <span class="n">step_length</span><span class="o">=</span><span class="n">step_length</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">),</span>
+            <span class="n">process_name</span><span class="p">,</span>
+            <span class="n">_type</span><span class="o">=</span><span class="s2">&quot;nvt&quot;</span><span class="p">,</span>
+            <span class="n">is_production</span><span class="o">=</span><span class="n">is_production</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Processor.add_heat_process">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.add_heat_process">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_heat_process</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">target_temp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span>
+        <span class="n">heat_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">9000</span><span class="p">,</span>
+        <span class="n">total_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
+        <span class="n">step_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.002</span><span class="p">,</span>
+        <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;heat&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add system heating process to workflow.</span>
+
+<span class="sd">        Creates a heating input file and adds the corresponding process</span>
+<span class="sd">        to the simulation workflow queue.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            target_temp: Target temperature in Kelvin. Defaults to 300.0.</span>
+<span class="sd">            heat_step: Number of steps for temperature ramping. Defaults to 9000.</span>
+<span class="sd">            total_step: Total simulation steps. Defaults to 10000.</span>
+<span class="sd">            step_length: Time step length in picoseconds. Defaults to 0.002.</span>
+<span class="sd">            process_name: Name for this heating step. Defaults to &quot;heat&quot;.</span>
+<span class="sd">            **kwargs: Additional heating parameters.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Automatically creates input file and adds MDProcess to workflow.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">process_name</span><span class="si">}</span><span class="s2">.in&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_heat_input</span><span class="p">(</span>
+                <span class="n">target_temp</span><span class="o">=</span><span class="n">target_temp</span><span class="p">,</span>
+                <span class="n">heat_step</span><span class="o">=</span><span class="n">heat_step</span><span class="p">,</span>
+                <span class="n">total_step</span><span class="o">=</span><span class="n">total_step</span><span class="p">,</span>
+                <span class="n">step_length</span><span class="o">=</span><span class="n">step_length</span><span class="p">,</span>
+                <span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">process_name</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Processor.add_npt_process">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.add_npt_process">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_npt_process</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">total_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50000000</span><span class="p">,</span>
+        <span class="n">step_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.002</span><span class="p">,</span>
+        <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;npt&quot;</span><span class="p">,</span>
+        <span class="n">is_production</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add NPT simulation process to workflow.</span>
+
+<span class="sd">        Creates an NPT input file and adds the corresponding process</span>
+<span class="sd">        to the simulation workflow queue.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            total_step: Total number of MD steps. Defaults to 50000000 (100 ns).</span>
+<span class="sd">            step_length: Time step length in picoseconds. Defaults to 0.002.</span>
+<span class="sd">            process_name: Name for this NPT step. Defaults to &quot;npt&quot;.</span>
+<span class="sd">            is_production: Whether this is a production simulation. Defaults to False.</span>
+<span class="sd">            **kwargs: Additional NPT simulation parameters.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Automatically creates input file and adds NPTProcess to workflow.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">process_name</span><span class="si">}</span><span class="s2">.in&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_npt_input</span><span class="p">(</span>
+                <span class="n">total_step</span><span class="o">=</span><span class="n">total_step</span><span class="p">,</span> <span class="n">step_length</span><span class="o">=</span><span class="n">step_length</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="n">file_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">),</span>
+            <span class="n">process_name</span><span class="p">,</span>
+            <span class="n">_type</span><span class="o">=</span><span class="s2">&quot;npt&quot;</span><span class="p">,</span>
+            <span class="n">is_production</span><span class="o">=</span><span class="n">is_production</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Simulator">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator">[docs]</a>
+<span class="k">class</span> <span class="nc">Simulator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;GPU-accelerated molecular dynamics simulation executor.</span>
+
+<span class="sd">    Manages the execution of MD simulation workflows on GPU hardware using</span>
+<span class="sd">    AMBER&#39;s pmemd.cuda engine. Handles GPU device selection and process</span>
+<span class="sd">    execution coordination.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        processor: Associated Processor instance containing the workflow.</span>
+<span class="sd">        comsolvate_topfile: System topology file for simulation.</span>
+<span class="sd">        comsolvate_crdfile: System coordinate file for simulation.</span>
+<span class="sd">        md_process_list: List of MD processes to execute.</span>
+<span class="sd">        cuda_device: GPU device ID to use for calculations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Simulator.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">processor</span><span class="p">:</span> <span class="n">Processor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize Simulator with a configured Processor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            processor: Processor instance with prepared system files and</span>
+<span class="sd">                process workflow.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Automatically inherits system files and process list from</span>
+<span class="sd">            the provided processor instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processor</span> <span class="o">=</span> <span class="n">processor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_topfile</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">comsolvate_topfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_crdfile</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">comsolvate_crdfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">com_topfile</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">com_topfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pro_topfile</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">pro_topfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lig_topfile</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">lig_topfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">traj_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdout_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">md_process_list</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">md_process_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cuda_device</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="Simulator.show_cuda_device">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator.show_cuda_device">[docs]</a>
+    <span class="k">def</span> <span class="nf">show_cuda_device</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display available GPU devices using nvidia-smi.</span>
+
+<span class="sd">        Prints GPU information including memory usage, temperature,</span>
+<span class="sd">        and process information for device selection.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gpu_info</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">popen</span><span class="p">(</span><span class="s2">&quot;nvidia-smi&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">gpu_info</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Simulator.set_cuda_device">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator.set_cuda_device">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_cuda_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cuda_device</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the GPU device for CUDA calculations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cuda_device: GPU device ID to use (0, 1, 2, etc.).</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Sets the CUDA_VISIBLE_DEVICES environment variable to</span>
+<span class="sd">            restrict CUDA operations to the specified device.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cuda_device</span> <span class="o">=</span> <span class="n">cuda_device</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;CUDA_VISIBLE_DEVICES&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cuda_device</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using GPU device </span><span class="si">{</span><span class="n">cuda_device</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Simulator.run_simulation">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator.run_simulation">[docs]</a>
+    <span class="k">def</span> <span class="nf">run_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cuda_device</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute the complete MD simulation workflow on GPU.</span>
+
+<span class="sd">        Runs all MD processes in the workflow using AMBER&#39;s pmemd.cuda</span>
+<span class="sd">        engine with automatic file management and error checking.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cuda_device: Optional GPU device ID to use. If provided,</span>
+<span class="sd">                overrides the current device setting.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If no MD processes have been added to workflow</span>
+<span class="sd">                or if pmemd.cuda is not available.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Results are automatically saved in the md_result/ subdirectory</span>
+<span class="sd">            with appropriate naming conventions for each process step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">md_process_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No MD process has been added.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_pmemd_cuda_available</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;pmemd.cuda is not installed or not in PATH.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cuda_device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_cuda_device</span><span class="p">(</span><span class="n">cuda_device</span><span class="p">)</span>
+
+        <span class="n">production_process</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span>
+            <span class="n">comsolvate_topfile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_topfile</span><span class="p">,</span>
+            <span class="n">comsolvate_crdfile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comsolvate_crdfile</span><span class="p">,</span>
+            <span class="n">process_list</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">md_process_list</span><span class="p">,</span>
+            <span class="n">save_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">processor</span><span class="o">.</span><span class="n">md_result_dir</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">traj_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">production_process</span><span class="o">.</span><span class="n">mdcrd_file_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdout_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">production_process</span><span class="o">.</span><span class="n">mdout_file_path</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Simulation workflow finished.&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Analyzer">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer">[docs]</a>
+<span class="k">class</span> <span class="nc">Analyzer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Molecular dynamics trajectory analysis interface.</span>
+
+<span class="sd">    Provides comprehensive analysis capabilities for MD simulation trajectories</span>
+<span class="sd">    including RMSD, RMSF, hydrogen bond analysis, and energy extraction using</span>
+<span class="sd">    pytraj and custom analysis functions.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        traj_file_path: Path to the MD trajectory file.</span>
+<span class="sd">        traj_file: File object for trajectory.</span>
+<span class="sd">        traj: Loaded trajectory object for analysis.</span>
+<span class="sd">        top_file_path: Path to the topology file.</span>
+<span class="sd">        top_file: File object for topology.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Analyzer.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">traj_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">,</span>
+        <span class="n">comsolvated_topfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">,</span>
+        <span class="n">com_topfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">receptor_topfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ligand_topfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mdout_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize trajectory analyzer with file paths.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            traj_file (str | File): Path to MD trajectory file (.nc, .mdcrd, etc.).</span>
+<span class="sd">            comsolvated_topfile (str | File): Path to solvated system topology file.</span>
+<span class="sd">            com_topfile (str | File): Path to complex (protein-ligand) topology file.</span>
+<span class="sd">            receptor_topfile (str | File): Path to receptor-only topology file.</span>
+<span class="sd">            ligand_topfile (str | File): Path to ligand-only topology file.</span>
+<span class="sd">            mdout_file (str | File): Path to MD output file for energy extraction.</span>
+<span class="sd">            save_dir: Directory for saving analysis results.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Multiple topology files support different analysis types</span>
+<span class="sd">            (complex, apo, ligand-only). Trajectory and topology files</span>
+<span class="sd">            are loaded on-demand when analysis methods are called.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">traj_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">traj_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">top_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">comsolvated_topfile</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_traj</span><span class="p">(</span><span class="n">traj_file</span><span class="p">,</span> <span class="n">comsolvated_topfile</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdout_file_path</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">mdout_file</span><span class="p">)</span> <span class="k">if</span> <span class="n">mdout_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">com_topfile</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">com_topfile</span><span class="p">)</span> <span class="k">if</span> <span class="n">com_topfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recep_topfile</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">receptor_topfile</span><span class="p">)</span> <span class="k">if</span> <span class="n">receptor_topfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apo</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">ligand_topfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ligand_topfile</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">ligand_topfile</span><span class="p">)</span> <span class="k">if</span> <span class="n">ligand_topfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_topfile</span><span class="p">(</span>
+            <span class="n">com_topfile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">com_topfile</span><span class="p">,</span>
+            <span class="n">receptor_topfile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">recep_topfile</span><span class="p">,</span>
+            <span class="n">ligand_topfile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ligand_topfile</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">rmsd</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rmsf</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hbond</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="Analyzer.load_traj">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.load_traj">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_traj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">traj_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">,</span> <span class="n">top_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load trajectory and topology files for analysis.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            traj_file (str | File): Path to the MD trajectory file.</span>
+<span class="sd">            top_file (str | File): Path to the corresponding topology file.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Uses pytraj to load trajectory for efficient analysis operations.</span>
+<span class="sd">            Prints trajectory information including frame count and atom count.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">pytraj</span> <span class="k">as</span> <span class="nn">pt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">traj_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">traj_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">top_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">top_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">traj</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">iterload</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">traj_file</span><span class="o">.</span><span class="n">file_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_file</span><span class="o">.</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Trajectory file has been loaded: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">traj_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Topology file has been loaded: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">top_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Trajectory Info: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">traj</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Analyzer.load_mdout">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.load_mdout">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_mdout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mdout_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load MD output file for energy analysis.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mdout_file (str | File): Path to the Amber MD output file containing</span>
+<span class="sd">                energy information from the simulation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdout_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">mdout_file</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MD output file has been loaded: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mdout_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Analyzer.load_topfile">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.load_topfile">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_topfile</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">comsolvated_topfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">com_topfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">receptor_topfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ligand_topfile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load topology files for different system components.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            comsolvated_topfile: Path to solvated complex topology.</span>
+<span class="sd">            com_topfile: Path to complex (protein-ligand) topology.</span>
+<span class="sd">            receptor_topfile: Path to receptor-only topology.</span>
+<span class="sd">            ligand_topfile: Path to ligand-only topology.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Multiple topology files enable component-specific analysis</span>
+<span class="sd">            (e.g., protein-only RMSD, ligand-only RMSF). Sets apo flag</span>
+<span class="sd">            based on ligand topology availability.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">comsolvated_topfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">top_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">comsolvated_topfile</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Solvated complex topology file has been loaded: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">top_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">com_topfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">com_topfile</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">com_topfile</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Complex topology file has been loaded: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">com_topfile</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">receptor_topfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">recep_topfile</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">receptor_topfile</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Receptor topology file has been loaded: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">recep_topfile</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ligand_topfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ligand_topfile</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">ligand_topfile</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ligand topology file has been loaded: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ligand_topfile</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Ligand topology file is not provided. Perform analysis for Apo system.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Analyzer.calc_rmsd">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.calc_rmsd">[docs]</a>
+    <span class="k">def</span> <span class="nf">calc_rmsd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;@CA&quot;</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate Root Mean Square Deviation (RMSD) over trajectory.</span>
+
+<span class="sd">        Computes RMSD values for selected atoms relative to a reference frame,</span>
+<span class="sd">        providing insight into structural stability and conformational changes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mask: Amber mask syntax for atom selection. Defaults to &quot;@CA&quot; (alpha carbons).</span>
+<span class="sd">            ref: Reference frame number for RMSD calculation. Defaults to 0 (first frame).</span>
+<span class="sd">            **kwargs: Additional parameters passed to analysis function.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Results are saved in rmsd/ subdirectory as CSV files and plots.</span>
+<span class="sd">            Common masks: &quot;@CA&quot; (backbone), &quot;:1-100&quot; (residues), &quot;!:WAT&quot; (no water).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_dir</span><span class="p">,</span> <span class="s2">&quot;rmsd&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Calculating RMSD...&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Amber mask: </span><span class="si">{</span><span class="n">mask</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reference frame: </span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rmsd</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_calc_rmsd</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">traj</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">reference</span><span class="o">=</span><span class="n">ref</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Analyzer.calc_rmsf">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.calc_rmsf">[docs]</a>
+    <span class="k">def</span> <span class="nf">calc_rmsf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;@CA&quot;</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;byres&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate Root Mean Square Fluctuation (RMSF) per residue/atom.</span>
+
+<span class="sd">        Computes RMSF values to identify flexible regions and binding site</span>
+<span class="sd">        dynamics in the protein structure.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mask: Amber mask syntax for atom selection. Defaults to &quot;@CA&quot;.</span>
+<span class="sd">            options: Analysis options (&quot;byres&quot; for per-residue, &quot;byatom&quot; for per-atom).</span>
+<span class="sd">                Defaults to &quot;byres&quot;.</span>
+<span class="sd">            **kwargs: Additional parameters passed to analysis function.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Results are saved in rmsf/ subdirectory. &quot;byres&quot; option averages</span>
+<span class="sd">            fluctuations over all atoms in each residue for cleaner plots.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_dir</span><span class="p">,</span> <span class="s2">&quot;rmsf&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Calculating RMSF...&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Amber mask: </span><span class="si">{</span><span class="n">mask</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Options: </span><span class="si">{</span><span class="n">options</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rmsf</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_calc_rmsf</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">traj</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Analyzer.calc_hbond">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.calc_hbond">[docs]</a>
+    <span class="k">def</span> <span class="nf">calc_hbond</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">mask</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;:*&quot;</span><span class="p">,</span>
+        <span class="n">distance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span>
+        <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">135.0</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate hydrogen bond analysis throughout trajectory.</span>
+
+<span class="sd">        Identifies and tracks hydrogen bonds based on geometric criteria,</span>
+<span class="sd">        providing insights into protein-ligand and internal protein interactions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mask: Amber mask syntax for donor/acceptor selection. Defaults to &quot;:*&quot; (all).</span>
+<span class="sd">            distance: Maximum donor-acceptor distance in Angstroms. Defaults to 3.0.</span>
+<span class="sd">            angle: Minimum donor-H-acceptor angle in degrees. Defaults to 135.0.</span>
+<span class="sd">            options: Additional options for hydrogen bond analysis.</span>
+<span class="sd">            **kwargs: Additional parameters passed to analysis function.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Results include hydrogen bond occupancy, distances, and angles</span>
+<span class="sd">            saved in hbond/ subdirectory with detailed statistics.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_dir</span><span class="p">,</span> <span class="s2">&quot;hbond&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Calculating and tracing H-bonds...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hbond</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_calc_hbond</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">traj</span><span class="p">,</span>
+            <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
+            <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">,</span>
+            <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span>
+            <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Analyzer.trace_distance">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.trace_distance">[docs]</a>
+    <span class="k">def</span> <span class="nf">trace_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Trace distance between two atom groups over trajectory.</span>
+
+<span class="sd">        Monitors the distance between specified atoms/groups to analyze</span>
+<span class="sd">        binding interactions, conformational changes, or domain movements.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mask: Amber mask syntax specifying two atom groups (e.g., &quot;:1@CA :100@CA&quot;).</span>
+<span class="sd">            **kwargs: Additional parameters passed to analysis function.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Results saved in distance/ subdirectory with time series plots</span>
+<span class="sd">            and statistical analysis of distance fluctuations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_dir</span><span class="p">,</span> <span class="s2">&quot;distance&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_trace_distance</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">traj</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Analyzer.trace_angle">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.trace_angle">[docs]</a>
+    <span class="k">def</span> <span class="nf">trace_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Trace angle between three atom groups over trajectory.</span>
+
+<span class="sd">        Monitors angular measurements to analyze conformational changes,</span>
+<span class="sd">        binding geometry, or secondary structure dynamics.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mask: Amber mask syntax specifying three atom groups for angle calculation</span>
+<span class="sd">                (e.g., &quot;:1@CA :2@CA :3@CA&quot;).</span>
+<span class="sd">            **kwargs: Additional parameters passed to analysis function.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Results saved in angle/ subdirectory with time series plots</span>
+<span class="sd">            showing angle evolution and distribution analysis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_dir</span><span class="p">,</span> <span class="s2">&quot;angle&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_trace_angle</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">traj</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Analyzer.extract_frame">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.extract_frame">[docs]</a>
+    <span class="k">def</span> <span class="nf">extract_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract a single frame structure from trajectory.</span>
+
+<span class="sd">        Saves the specified frame as a separate structure file for</span>
+<span class="sd">        detailed analysis or visualization.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            frame: Frame number to extract (0-indexed).</span>
+<span class="sd">            **kwargs: Additional parameters passed to extraction function.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Frame structures saved in frame_structures/ subdirectory</span>
+<span class="sd">            in PDB format for further analysis or visualization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_dir</span><span class="p">,</span> <span class="s2">&quot;frame_structures&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_extract_frame</span><span class="p">(</span>
+            <span class="n">traj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">traj</span><span class="p">,</span> <span class="n">frame_indices</span><span class="o">=</span><span class="p">[</span><span class="n">frame</span><span class="p">],</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Analyzer.extract_frames">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.extract_frames">[docs]</a>
+    <span class="k">def</span> <span class="nf">extract_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract a range of frame structures from trajectory.</span>
+
+<span class="sd">        Saves multiple frames as separate structure files for</span>
+<span class="sd">        ensemble analysis or representative structure selection.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            start: Starting frame number (0-indexed, inclusive).</span>
+<span class="sd">            end: Ending frame number (0-indexed, inclusive).</span>
+<span class="sd">            **kwargs: Additional parameters passed to extraction function.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            All frames in the specified range are saved in frame_structures/</span>
+<span class="sd">            subdirectory with sequential numbering.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_dir</span><span class="p">,</span> <span class="s2">&quot;frame_structures&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_extract_frame</span><span class="p">(</span>
+            <span class="n">traj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">traj</span><span class="p">,</span> <span class="n">frame_indices</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Analyzer.extract_lowest_energy_st">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.extract_lowest_energy_st">[docs]</a>
+    <span class="k">def</span> <span class="nf">extract_lowest_energy_st</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract structure frame with lowest total energy.</span>
+
+<span class="sd">        Analyzes the MD output file to identify the frame with minimum total energy</span>
+<span class="sd">        and extracts it as a representative low-energy structure.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If MD output file hasn&#39;t been loaded.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Results include energy information and extracted structure saved</span>
+<span class="sd">            in lowest_energy_structure/ subdirectory. Useful for identifying</span>
+<span class="sd">            stable conformations or starting structures for further analysis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_dir</span><span class="p">,</span> <span class="s2">&quot;lowest_energy_structure&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdout_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Mdout file (.out) is required for extracting lowest energy structure.&quot;</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Detecting lowest energy frame...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LE_frame</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LE_time</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LE_energy</span> <span class="o">=</span> <span class="n">analysis</span><span class="o">.</span><span class="n">_get_lowest_energy_info</span><span class="p">(</span>
+            <span class="n">mdout_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mdout_file</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Lowest energy frame: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">LE_frame</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Lowest energy time: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">LE_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Lowest energy: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">LE_energy</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracting lowest energy structure: Frame </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">LE_frame</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+        <span class="n">analysis</span><span class="o">.</span><span class="n">_extract_frame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">traj</span><span class="p">,</span> <span class="n">frame_indices</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">LE_frame</span><span class="p">],</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Analyzer.create_energy_inputfile">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.create_energy_inputfile">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_energy_inputfile</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">start_frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">end_frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">job_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;free&quot;</span><span class="p">,</span> <span class="s2">&quot;entropy&quot;</span><span class="p">,</span> <span class="s2">&quot;decomp&quot;</span><span class="p">],</span>
+        <span class="n">method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;pb/gbsa&quot;</span><span class="p">,</span> <span class="s2">&quot;gbsa&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">step_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create input file for MM/PBSA or MM/GBSA energy calculations.</span>
+
+<span class="sd">        Generates input files for free energy analysis, entropy calculations,</span>
+<span class="sd">        or energy decomposition using AMBER&#39;s MMPBSA.py tool.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            start_frame: First frame for energy analysis (1-indexed).</span>
+<span class="sd">            end_frame: Last frame for energy analysis (inclusive).</span>
+<span class="sd">            job_type: Type of energy calculation:</span>
+<span class="sd">                - &quot;free&quot;: Free energy calculation (ΔG)</span>
+<span class="sd">                - &quot;entropy&quot;: Entropy contribution calculation</span>
+<span class="sd">                - &quot;decomp&quot;: Per-residue energy decomposition</span>
+<span class="sd">            method: Energy calculation method for &quot;free&quot; job type:</span>
+<span class="sd">                - &quot;pb/gbsa&quot;: Both PB and GB calculations</span>
+<span class="sd">                - &quot;gbsa&quot;: GB calculation only</span>
+<span class="sd">            step_size: Frame sampling interval. Defaults to 10.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            File: Created input file for MMPBSA.py calculations.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If method is not specified for &quot;free&quot; job type or</span>
+<span class="sd">                if invalid job_type/method is provided.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Input files saved in energy_inputfile/ subdirectory with</span>
+<span class="sd">            appropriate parameter sets for different calculation types.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_dir</span><span class="p">,</span> <span class="s2">&quot;energy_inputfile&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">job_type</span> <span class="o">==</span> <span class="s2">&quot;entropy&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputfile</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">create_energy_inputfile</span><span class="p">(</span>
+                <span class="s2">&quot;nmode&quot;</span><span class="p">,</span>
+                <span class="n">startframe</span><span class="o">=</span><span class="n">start_frame</span><span class="p">,</span>
+                <span class="n">endframe</span><span class="o">=</span><span class="n">end_frame</span><span class="p">,</span>
+                <span class="n">step_size</span><span class="o">=</span><span class="n">step_size</span><span class="p">,</span>
+                <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">job_type</span> <span class="o">==</span> <span class="s2">&quot;free&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please specify method.&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;pb/gbsa&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">inputfile</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">create_energy_inputfile</span><span class="p">(</span>
+                    <span class="s2">&quot;pb/gb&quot;</span><span class="p">,</span>
+                    <span class="n">startframe</span><span class="o">=</span><span class="n">start_frame</span><span class="p">,</span>
+                    <span class="n">endframe</span><span class="o">=</span><span class="n">end_frame</span><span class="p">,</span>
+                    <span class="n">step_size</span><span class="o">=</span><span class="n">step_size</span><span class="p">,</span>
+                    <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;gbsa&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">inputfile</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">create_energy_inputfile</span><span class="p">(</span>
+                    <span class="s2">&quot;gb&quot;</span><span class="p">,</span>
+                    <span class="n">startframe</span><span class="o">=</span><span class="n">start_frame</span><span class="p">,</span>
+                    <span class="n">endframe</span><span class="o">=</span><span class="n">end_frame</span><span class="p">,</span>
+                    <span class="n">step_size</span><span class="o">=</span><span class="n">step_size</span><span class="p">,</span>
+                    <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid method: </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">job_type</span> <span class="o">==</span> <span class="s2">&quot;decomp&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputfile</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">create_energy_inputfile</span><span class="p">(</span>
+                <span class="s2">&quot;gb&quot;</span><span class="p">,</span>
+                <span class="n">startframe</span><span class="o">=</span><span class="n">start_frame</span><span class="p">,</span>
+                <span class="n">endframe</span><span class="o">=</span><span class="n">end_frame</span><span class="p">,</span>
+                <span class="n">step_size</span><span class="o">=</span><span class="n">step_size</span><span class="p">,</span>
+                <span class="n">decomp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid job type: </span><span class="si">{</span><span class="n">job_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputfile</span></div>
+
+
+<div class="viewcode-block" id="Analyzer.run_energy_calc">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.run_energy_calc">[docs]</a>
+    <span class="k">def</span> <span class="nf">run_energy_calc</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">energy_decompose</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cpu_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">input_file</span><span class="p">:</span> <span class="n">File</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute MM/PBSA or MM/GBSA energy calculations.</span>
+
+<span class="sd">        Runs AMBER&#39;s MMPBSA.py tool to calculate binding free energies,</span>
+<span class="sd">        entropy contributions, or per-residue energy decomposition.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            energy_decompose: Optional decomposition specification.</span>
+<span class="sd">            cpu_num: Number of CPU cores to use. Defaults to system CPU_NUM.</span>
+<span class="sd">            input_file: Custom input file to use. Defaults to self.inputfile.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If required input file or topology files are missing.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Requires all topology files (complex, receptor, ligand) and</span>
+<span class="sd">            trajectory data to be loaded. Results saved in energy_results/</span>
+<span class="sd">            subdirectory with detailed energy breakdown and statistics.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">save_dir</span><span class="p">,</span> <span class="s2">&quot;energy_results&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">cpu_num</span> <span class="o">=</span> <span class="n">cpu_num</span> <span class="k">if</span> <span class="n">cpu_num</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CPU_NUM</span>
+        <span class="n">input_file</span> <span class="o">=</span> <span class="n">input_file</span> <span class="k">if</span> <span class="n">input_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputfile</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputfile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please create inputfile first.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">top_file</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">traj_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please load solvated complex top file first.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">com_topfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">recep_topfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ligand_topfile</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please load complex/receptor/ligand top file first.&quot;</span><span class="p">)</span>
+
+        <span class="n">core</span><span class="o">.</span><span class="n">run_energy_calculation</span><span class="p">(</span>
+            <span class="n">input_file</span><span class="o">=</span><span class="n">input_file</span><span class="p">,</span>
+            <span class="n">comsolvate_topfile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">top_file</span><span class="p">,</span>
+            <span class="n">com_topfile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">com_topfile</span><span class="p">,</span>
+            <span class="n">receptor_topfile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">recep_topfile</span><span class="p">,</span>
+            <span class="n">ligand_topfile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ligand_topfile</span><span class="p">,</span>
+            <span class="n">traj_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">traj_file</span><span class="p">,</span>
+            <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span>
+            <span class="n">energy_decompose</span><span class="o">=</span><span class="n">energy_decompose</span><span class="p">,</span>
+            <span class="n">cpu_num</span><span class="o">=</span><span class="n">cpu_num</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Calculating normally finished.&quot;</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

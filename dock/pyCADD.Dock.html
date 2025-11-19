@@ -1,0 +1,626 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Dock package &mdash; pyCADD.Dock 2.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f5cff4aa"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pyCADD.Dock.schrodinger package" href="pyCADD.Dock.schrodinger.html" />
+    <link rel="prev" title="Dock Module Documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pyCADD.Dock
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pyCADD.Dock package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dock.schrodinger.html">pyCADD.Dock.schrodinger package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pyCADD.Dock.cli">pyCADD.Dock.cli module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pyCADD.Dock.common">pyCADD.Dock.common module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pyCADD.Dock.common.PDBLine"><code class="docutils literal notranslate"><span class="pre">PDBLine</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBLine.__init__"><code class="docutils literal notranslate"><span class="pre">PDBLine.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBLine.is_atom_line"><code class="docutils literal notranslate"><span class="pre">PDBLine.is_atom_line</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBLine.is_amino"><code class="docutils literal notranslate"><span class="pre">PDBLine.is_amino</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBLine.is_hetatm"><code class="docutils literal notranslate"><span class="pre">PDBLine.is_hetatm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBLine.is_conect"><code class="docutils literal notranslate"><span class="pre">PDBLine.is_conect</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBLine.is_ter"><code class="docutils literal notranslate"><span class="pre">PDBLine.is_ter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBLine.is_end"><code class="docutils literal notranslate"><span class="pre">PDBLine.is_end</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBLine.line"><code class="docutils literal notranslate"><span class="pre">PDBLine.line</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBLine.get_line"><code class="docutils literal notranslate"><span class="pre">PDBLine.get_line()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBLine.get_atom_name"><code class="docutils literal notranslate"><span class="pre">PDBLine.get_atom_name()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pyCADD.Dock.common.PDBLineParser"><code class="docutils literal notranslate"><span class="pre">PDBLineParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBLineParser.__init__"><code class="docutils literal notranslate"><span class="pre">PDBLineParser.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBLineParser.get_lines"><code class="docutils literal notranslate"><span class="pre">PDBLineParser.get_lines()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBLineParser.get_atom_lines"><code class="docutils literal notranslate"><span class="pre">PDBLineParser.get_atom_lines()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBLineParser.get_amino_lines"><code class="docutils literal notranslate"><span class="pre">PDBLineParser.get_amino_lines()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBLineParser.get_hetatm_lines"><code class="docutils literal notranslate"><span class="pre">PDBLineParser.get_hetatm_lines()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBLineParser.get_str_list"><code class="docutils literal notranslate"><span class="pre">PDBLineParser.get_str_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBLineParser.save_pdb"><code class="docutils literal notranslate"><span class="pre">PDBLineParser.save_pdb()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pyCADD.Dock.common.PDBFile"><code class="docutils literal notranslate"><span class="pre">PDBFile</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBFile.__init__"><code class="docutils literal notranslate"><span class="pre">PDBFile.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBFile.get_lines"><code class="docutils literal notranslate"><span class="pre">PDBFile.get_lines()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.PDBFile.get_chain"><code class="docutils literal notranslate"><span class="pre">PDBFile.get_chain()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pyCADD.Dock.common.EnsembleInputFile"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.EnsembleInputFile.__init__"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.EnsembleInputFile.pdbid_list"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.pdbid_list</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.EnsembleInputFile.ligand_list"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.ligand_list</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.EnsembleInputFile.from_csv"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.from_csv()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.EnsembleInputFile.from_ini"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.from_ini()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.EnsembleInputFile.from_yaml"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.from_yaml()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.EnsembleInputFile.parse_file"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.parse_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.EnsembleInputFile.read"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.read()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.EnsembleInputFile.get_pairs_list"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.get_pairs_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.EnsembleInputFile.get_pdbid_list"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.get_pdbid_list()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.common.EnsembleInputFile.get_ligand_list"><code class="docutils literal notranslate"><span class="pre">EnsembleInputFile.get_ligand_list()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pyCADD.Dock.const">pyCADD.Dock.const module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pyCADD.Dock.env">pyCADD.Dock.env module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pyCADD.Dock.env.check_virtual_environment"><code class="docutils literal notranslate"><span class="pre">check_virtual_environment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyCADD.Dock.env.create_environment"><code class="docutils literal notranslate"><span class="pre">create_environment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyCADD.Dock.env.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pyCADD.Dock.ui">pyCADD.Dock.ui module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pyCADD.Dock.ui.UI_dock"><code class="docutils literal notranslate"><span class="pre">UI_dock</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.ui.UI_dock.__init__"><code class="docutils literal notranslate"><span class="pre">UI_dock.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Dock.ui.UI_dock.run"><code class="docutils literal notranslate"><span class="pre">UI_dock.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pyCADD.Dock.utils">pyCADD.Dock.utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pyCADD.Dock.utils.check_pdb"><code class="docutils literal notranslate"><span class="pre">check_pdb()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyCADD.Dock.utils.get_input_pdbid"><code class="docutils literal notranslate"><span class="pre">get_input_pdbid()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pyCADD.Dock">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pyCADD.Dock.schrodinger.html">pyCADD.Dock.schrodinger package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dock.html">Dock User Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyCADD.Dock</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">pyCADD.Dock package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pyCADD.Dock.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pycadd-dock-package">
+<h1>pyCADD.Dock package<a class="headerlink" href="#pycadd-dock-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pyCADD.Dock.schrodinger.html">pyCADD.Dock.schrodinger package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.schrodinger.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.schrodinger.html#pycadd-dock-schrodinger-api-module">pyCADD.Dock.schrodinger.api module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.schrodinger.html#pycadd-dock-schrodinger-common-module">pyCADD.Dock.schrodinger.common module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.schrodinger.html#pycadd-dock-schrodinger-config-module">pyCADD.Dock.schrodinger.config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.schrodinger.html#pycadd-dock-schrodinger-core-module">pyCADD.Dock.schrodinger.core module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.schrodinger.html#pycadd-dock-schrodinger-data-module">pyCADD.Dock.schrodinger.data module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.schrodinger.html#pycadd-dock-schrodinger-ensemble-module">pyCADD.Dock.schrodinger.ensemble module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.schrodinger.html#pycadd-dock-schrodinger-utils-module">pyCADD.Dock.schrodinger.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dock.schrodinger.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-pyCADD.Dock.cli">
+<span id="pycadd-dock-cli-module"></span><h2>pyCADD.Dock.cli module<a class="headerlink" href="#module-pyCADD.Dock.cli" title="Link to this heading"></a></h2>
+</section>
+<section id="module-pyCADD.Dock.common">
+<span id="pycadd-dock-common-module"></span><h2>pyCADD.Dock.common module<a class="headerlink" href="#module-pyCADD.Dock.common" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLine">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.common.</span></span><span class="sig-name descname"><span class="pre">PDBLine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#PDBLine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.PDBLine" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLine.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#PDBLine.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.PDBLine.__init__" title="Link to this definition"></a></dt>
+<dd><p>One line in a pdb file</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>line (str): one line in a pdb file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLine.is_atom_line">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_atom_line</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#pyCADD.Dock.common.PDBLine.is_atom_line" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLine.is_amino">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_amino</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#pyCADD.Dock.common.PDBLine.is_amino" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLine.is_hetatm">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_hetatm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#pyCADD.Dock.common.PDBLine.is_hetatm" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLine.is_conect">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_conect</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#pyCADD.Dock.common.PDBLine.is_conect" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLine.is_ter">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_ter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#pyCADD.Dock.common.PDBLine.is_ter" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLine.is_end">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_end</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#pyCADD.Dock.common.PDBLine.is_end" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLine.line">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">line</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pyCADD.Dock.common.PDBLine.line" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLine.get_line">
+<span class="sig-name descname"><span class="pre">get_line</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#PDBLine.get_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.PDBLine.get_line" title="Link to this definition"></a></dt>
+<dd><p>Get the line string from current attributes</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>str: line string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLine.get_atom_name">
+<span class="sig-name descname"><span class="pre">get_atom_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#PDBLine.get_atom_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.PDBLine.get_atom_name" title="Link to this definition"></a></dt>
+<dd><p>Get the atom name from the line</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>str: atom name</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLineParser">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.common.</span></span><span class="sig-name descname"><span class="pre">PDBLineParser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdb_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdb_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#PDBLineParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.PDBLineParser" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLineParser.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdb_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdb_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#PDBLineParser.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.PDBLineParser.__init__" title="Link to this definition"></a></dt>
+<dd><p>Parse pdb file string or file.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>pdb_str (str, optional): pdb string. Defaults to None.
+pdb_file (str, optional): pdb file path. Required if pdb_str is not provided. Defaults to None.</p>
+</dd>
+<dt>Raises:</dt><dd><p>ValueError: Either pdb_str or pdb_file must be provided.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLineParser.get_lines">
+<span class="sig-name descname"><span class="pre">get_lines</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#PDBLineParser.get_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.PDBLineParser.get_lines" title="Link to this definition"></a></dt>
+<dd><p>Get a list of all lines parsed from the pdb file.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>list[PDBLine]: pdb line object list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLineParser.get_atom_lines">
+<span class="sig-name descname"><span class="pre">get_atom_lines</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#PDBLineParser.get_atom_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.PDBLineParser.get_atom_lines" title="Link to this definition"></a></dt>
+<dd><p>Get a list of atom line objects parsed from the pdb file.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>list[PDBLine]: atom line object list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLineParser.get_amino_lines">
+<span class="sig-name descname"><span class="pre">get_amino_lines</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#PDBLineParser.get_amino_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.PDBLineParser.get_amino_lines" title="Link to this definition"></a></dt>
+<dd><p>Get a list of amino acid line objects parsed from the pdb file.
+Amino acid line is defined as the line with record name ‘ATOM’ and res_name in AMINO_ACIDS</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>list[PDBLine]: amino acid line objects list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLineParser.get_hetatm_lines">
+<span class="sig-name descname"><span class="pre">get_hetatm_lines</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#PDBLineParser.get_hetatm_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.PDBLineParser.get_hetatm_lines" title="Link to this definition"></a></dt>
+<dd><p>Get a list of HETATM line objects parsed from the pdb file.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>list[PDBLine]: HETATM line objects list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLineParser.get_str_list">
+<span class="sig-name descname"><span class="pre">get_str_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#PDBLineParser.get_str_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.PDBLineParser.get_str_list" title="Link to this definition"></a></dt>
+<dd><p>Get a list of pdb line strings.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>list[str]: pdb line strings list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBLineParser.save_pdb">
+<span class="sig-name descname"><span class="pre">save_pdb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#PDBLineParser.save_pdb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.PDBLineParser.save_pdb" title="Link to this definition"></a></dt>
+<dd><p>Save the pdb file to the file_path</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>file_path (str): file path to save the pdb file</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBFile">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.common.</span></span><span class="sig-name descname"><span class="pre">PDBFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#PDBFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.PDBFile" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">File</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBFile.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#PDBFile.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.PDBFile.__init__" title="Link to this definition"></a></dt>
+<dd><p>PDB file class</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>path (str): file path string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBFile.get_lines">
+<span class="sig-name descname"><span class="pre">get_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#PDBFile.get_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.PDBFile.get_lines" title="Link to this definition"></a></dt>
+<dd><p>Get the pdb file content as a list of lines or a string</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>return_str (bool, optional): get the string instead of list[str]. Defaults to False.</p>
+</dd>
+<dt>Returns:</dt><dd><p>list|str: pdb file content</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.PDBFile.get_chain">
+<span class="sig-name descname"><span class="pre">get_chain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chain_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#PDBFile.get_chain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.PDBFile.get_chain" title="Link to this definition"></a></dt>
+<dd><p>Get the pdb file content of a single chain</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>chain_id (str): chain id
+return_str (bool, optional): get the string instead of list[str]. Defaults to False.</p>
+</dd>
+<dt>Returns:</dt><dd><p>str: pdb file content of a single chain</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.EnsembleInputFile">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.common.</span></span><span class="sig-name descname"><span class="pre">EnsembleInputFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#EnsembleInputFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.EnsembleInputFile" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">File</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.EnsembleInputFile.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#EnsembleInputFile.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.EnsembleInputFile.__init__" title="Link to this definition"></a></dt>
+<dd><p>Input file class for ensemble docking</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>path (_type_): file path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.EnsembleInputFile.pdbid_list">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pdbid_list</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#pyCADD.Dock.common.EnsembleInputFile.pdbid_list" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.EnsembleInputFile.ligand_list">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ligand_list</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#pyCADD.Dock.common.EnsembleInputFile.ligand_list" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.EnsembleInputFile.from_csv">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">','</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dock.common.EnsembleInputFile" title="pyCADD.Dock.common.EnsembleInputFile"><span class="pre">EnsembleInputFile</span></a></span></span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#EnsembleInputFile.from_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.EnsembleInputFile.from_csv" title="Link to this definition"></a></dt>
+<dd><p>Parse input file as csv format</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>file_path (str): csv file path
+sep (str, optional): separator. Defaults to ‘,’.
+header (bool, optional): whether the csv file has header. Defaults to None.</p>
+</dd>
+<dt>csv examples:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">1XJ7,DHT</span>
+<span class="pre">1XQ3,R18</span>
+<span class="pre">2AM9,TES</span>
+<span class="pre">2AM9,DTT</span>
+<span class="pre">2YLP,TES</span>
+<span class="pre">2YLP,056</span>
+<span class="pre">`</span></code></p>
+</dd>
+<dt>Returns:</dt><dd><p>EnsembleInputFile: instance of EnsembleInputFile</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.EnsembleInputFile.from_ini">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ini</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dock.common.EnsembleInputFile" title="pyCADD.Dock.common.EnsembleInputFile"><span class="pre">EnsembleInputFile</span></a></span></span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#EnsembleInputFile.from_ini"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.EnsembleInputFile.from_ini" title="Link to this definition"></a></dt>
+<dd><p>Parse input file as ini format</p>
+<dl>
+<dt>Args:</dt><dd><p>config_file (str): ini file path</p>
+</dd>
+<dt>ini examples:</dt><dd><p><a href="#id1"><span class="problematic" id="id2">``</span></a>`
+[P10275]</p>
+<blockquote>
+<div><p>1XJ7: DHT
+1XQ3: R18
+2AM9: TES,DTT
+2YLP: TES,056</p>
+</div></blockquote>
+<p><a href="#id3"><span class="problematic" id="id4">``</span></a><a href="#id5"><span class="problematic" id="id6">`</span></a></p>
+</dd>
+<dt>Returns:</dt><dd><p>EnsembleInputFile: instance of EnsembleInputFile</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.EnsembleInputFile.from_yaml">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yaml_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dock.common.EnsembleInputFile" title="pyCADD.Dock.common.EnsembleInputFile"><span class="pre">EnsembleInputFile</span></a></span></span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#EnsembleInputFile.from_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.EnsembleInputFile.from_yaml" title="Link to this definition"></a></dt>
+<dd><p>Parse input file as yaml format</p>
+<dl>
+<dt>Args:</dt><dd><p>yaml_file (str): yaml file path</p>
+</dd>
+<dt>yaml examples:</dt><dd><p><a href="#id7"><span class="problematic" id="id8">``</span></a>`
+P10275:</p>
+<blockquote>
+<div><p>1XJ7: DHT
+1XQ3:
+- R18
+2AM9:
+- TES
+- DTT
+2YLP:
+- TES
+- ‘056’</p>
+</div></blockquote>
+</dd>
+<dt>Returns:</dt><dd><p>EnsembleInputFile: instance of EnsembleInputFile</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.EnsembleInputFile.parse_file">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dock.common.EnsembleInputFile" title="pyCADD.Dock.common.EnsembleInputFile"><span class="pre">EnsembleInputFile</span></a></span></span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#EnsembleInputFile.parse_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.EnsembleInputFile.parse_file" title="Link to this definition"></a></dt>
+<dd><p>Parse input file</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>path (str): file path
+header (bool, optional): whether the file has header. Only for csv file. Defaults to False.</p>
+</dd>
+<dt>Raises:</dt><dd><p>ValueError: Unsupported file type</p>
+</dd>
+<dt>Returns:</dt><dd><p>EnsembleInputFile: instance of EnsembleInputFile</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.EnsembleInputFile.read">
+<span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#EnsembleInputFile.read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.EnsembleInputFile.read" title="Link to this definition"></a></dt>
+<dd><p>Read and parse the input file</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>file_path (str): file path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.EnsembleInputFile.get_pairs_list">
+<span class="sig-name descname"><span class="pre">get_pairs_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#EnsembleInputFile.get_pairs_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.EnsembleInputFile.get_pairs_list" title="Link to this definition"></a></dt>
+<dd><p>Get the list of pairs. Pairs are defined as (pdb, ligand)</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>list: list of pairs</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.EnsembleInputFile.get_pdbid_list">
+<span class="sig-name descname"><span class="pre">get_pdbid_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#EnsembleInputFile.get_pdbid_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.EnsembleInputFile.get_pdbid_list" title="Link to this definition"></a></dt>
+<dd><p>Get the list of unique pdb ids</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>list: list of pdb ids</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.common.EnsembleInputFile.get_ligand_list">
+<span class="sig-name descname"><span class="pre">get_ligand_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/pyCADD/Dock/common.html#EnsembleInputFile.get_ligand_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.common.EnsembleInputFile.get_ligand_list" title="Link to this definition"></a></dt>
+<dd><p>Get the list of unique ligands</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>list: list of ligands</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.Dock.const">
+<span id="pycadd-dock-const-module"></span><h2>pyCADD.Dock.const module<a class="headerlink" href="#module-pyCADD.Dock.const" title="Link to this heading"></a></h2>
+</section>
+<section id="module-pyCADD.Dock.env">
+<span id="pycadd-dock-env-module"></span><h2>pyCADD.Dock.env module<a class="headerlink" href="#module-pyCADD.Dock.env" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.env.check_virtual_environment">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.env.</span></span><span class="sig-name descname"><span class="pre">check_virtual_environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dock/env.html#check_virtual_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.env.check_virtual_environment" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.env.create_environment">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.env.</span></span><span class="sig-name descname"><span class="pre">create_environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">environment_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schrodinger_home</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dock/env.html#create_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.env.create_environment" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.env.main">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.env.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dock/env.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.env.main" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-pyCADD.Dock.ui">
+<span id="pycadd-dock-ui-module"></span><h2>pyCADD.Dock.ui module<a class="headerlink" href="#module-pyCADD.Dock.ui" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Dock.ui.UI_dock">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.ui.</span></span><span class="sig-name descname"><span class="pre">UI_dock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">menu_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Dock</span> <span class="pre">Mode'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dock/ui.html#UI_dock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.ui.UI_dock" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">UI</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.ui.UI_dock.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">menu_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Dock</span> <span class="pre">Mode'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dock/ui.html#UI_dock.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.ui.UI_dock.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Dock.ui.UI_dock.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flag</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dock/ui.html#UI_dock.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.ui.UI_dock.run" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.Dock.utils">
+<span id="pycadd-dock-utils-module"></span><h2>pyCADD.Dock.utils module<a class="headerlink" href="#module-pyCADD.Dock.utils" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.utils.check_pdb">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.utils.</span></span><span class="sig-name descname"><span class="pre">check_pdb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/pyCADD/Dock/utils.html#check_pdb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.utils.check_pdb" title="Link to this definition"></a></dt>
+<dd><p>Check if the input is a valid PDB ID.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>pdb (str): pdb ID</p>
+</dd>
+<dt>Returns:</dt><dd><p>bool: True if the input is a valid PDB ID, False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Dock.utils.get_input_pdbid">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dock.utils.</span></span><span class="sig-name descname"><span class="pre">get_input_pdbid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Dock/utils.html#get_input_pdbid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dock.utils.get_input_pdbid" title="Link to this definition"></a></dt>
+<dd><p>Get PDB ID from directory name or user input.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>str: PDB ID</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.Dock">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyCADD.Dock" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Dock Module Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pyCADD.Dock.schrodinger.html" class="btn btn-neutral float-right" title="pyCADD.Dock.schrodinger package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

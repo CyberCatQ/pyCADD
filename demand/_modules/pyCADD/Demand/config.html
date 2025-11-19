@@ -1,0 +1,265 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Demand.config &mdash; pyCADD.Demand 2.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f5cff4aa"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyCADD.Demand
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pyCADD.Demand.html">pyCADD.Demand package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demand.html">Demand User Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyCADD.Demand</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyCADD.Demand.config</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyCADD.Demand.config</h1><div class="highlight"><pre>
+<span></span><span class="c1"># 非配体的小分子</span>
+<span class="n">IGNORE_LIG</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;EDO&#39;</span><span class="p">,</span> <span class="s1">&#39;DMS&#39;</span><span class="p">,</span> <span class="s1">&#39;IPA&#39;</span><span class="p">,</span> <span class="s1">&#39;TBY&#39;</span><span class="p">,</span> <span class="s1">&#39;ARS&#39;</span><span class="p">,</span> <span class="s1">&#39;EU&#39;</span><span class="p">,</span> <span class="s1">&#39;MG&#39;</span><span class="p">,</span> <span class="s1">&#39;IOD&#39;</span><span class="p">,</span> <span class="s1">&#39;ACT&#39;</span><span class="p">,</span> <span class="s1">&#39;CA&#39;</span><span class="p">,</span> <span class="s1">&#39;CAC&#39;</span><span class="p">,</span> <span class="s1">&#39;K&#39;</span><span class="p">,</span> <span class="s1">&#39;FMT&#39;</span><span class="p">,</span> <span class="s1">&#39;BU3&#39;</span><span class="p">,</span> <span class="s1">&#39;PGO&#39;</span><span class="p">,</span> <span class="s1">&#39;PE4&#39;</span><span class="p">,</span>
+               <span class="s1">&#39;PO4&#39;</span><span class="p">,</span> <span class="s1">&#39;BR&#39;</span><span class="p">,</span> <span class="s1">&#39;NO3&#39;</span><span class="p">,</span> <span class="s1">&#39;BCT&#39;</span><span class="p">,</span> <span class="s1">&#39;ZN&#39;</span><span class="p">,</span> <span class="s1">&#39;SO4&#39;</span><span class="p">,</span> <span class="s1">&#39;CL&#39;</span><span class="p">,</span> <span class="s1">&#39;NA&#39;</span><span class="p">,</span> <span class="s1">&#39;AU&#39;</span><span class="p">,</span> <span class="s1">&#39;GOL&#39;</span><span class="p">,</span> <span class="s1">&#39;NI&#39;</span><span class="p">,</span> <span class="s1">&#39;YT3&#39;</span><span class="p">,</span> <span class="s1">&#39;PEG&#39;</span><span class="p">,</span> <span class="s1">&#39;PGE&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="BaseQueryCfg">
+<a class="viewcode-back" href="../../../pyCADD.Demand.html#pyCADD.Demand.config.BaseQueryCfg">[docs]</a>
+<span class="k">class</span> <span class="nc">BaseQueryCfg</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseQueryCfg.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Demand.html#pyCADD.Demand.config.BaseQueryCfg.__init__">[docs]</a>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdb_list</span><span class="p">):</span>
+		<span class="n">pdb_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="n">pdb</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span> <span class="k">for</span> <span class="n">pdb</span> <span class="ow">in</span> <span class="n">pdb_list</span><span class="p">]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">pdbs</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pdb_list</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_query</span></div>
+
+    
+<div class="viewcode-block" id="BaseQueryCfg.get_query">
+<a class="viewcode-back" href="../../../pyCADD.Demand.html#pyCADD.Demand.config.BaseQueryCfg.get_query">[docs]</a>
+	<span class="k">def</span> <span class="nf">get_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span></div>
+
+	
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">_default_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="s1">&#39;&#39;&#39;{</span>
+<span class="s1">		entries(entry_ids: [</span><span class="si">%s</span><span class="s1">])</span>
+<span class="s1">		{</span>
+<span class="s1">			rcsb_id</span>
+<span class="s1">			rcsb_primary_citation {</span>
+<span class="s1">				pdbx_database_id_DOI</span>
+<span class="s1">				rcsb_authors</span>
+<span class="s1">				title</span>
+<span class="s1">			}</span>
+<span class="s1">			rcsb_binding_affinity {</span>
+<span class="s1">				comp_id</span>
+<span class="s1">				value</span>
+<span class="s1">				provenance_code</span>
+<span class="s1">				type</span>
+<span class="s1">				unit</span>
+<span class="s1">			}</span>
+<span class="s1">			rcsb_entry_info {</span>
+<span class="s1">       			resolution_combined</span>
+<span class="s1">				deposited_nonpolymer_entity_instance_count</span>
+<span class="s1">				deposited_polymer_entity_instance_count</span>
+<span class="s1">			}</span>
+<span class="s1">			struct {</span>
+<span class="s1">				title</span>
+<span class="s1">			}</span>
+<span class="s1">			polymer_entities {</span>
+<span class="s1">				entity_poly {</span>
+<span class="s1">					rcsb_entity_polymer_type</span>
+<span class="s1">					rcsb_mutation_count</span>
+<span class="s1">					pdbx_strand_id</span>
+<span class="s1">				}</span>
+<span class="s1">				rcsb_polymer_entity_container_identifiers{</span>
+<span class="s1">					uniprot_ids</span>
+<span class="s1">				}</span>
+<span class="s1">				rcsb_entity_source_organism {</span>
+<span class="s1">					rcsb_gene_name {</span>
+<span class="s1">						value</span>
+<span class="s1">					}</span>
+<span class="s1">				}</span>
+<span class="s1">				rcsb_polymer_entity {</span>
+<span class="s1">					pdbx_description</span>
+<span class="s1">					pdbx_mutation</span>
+<span class="s1">				}</span>
+<span class="s1">			}</span>
+<span class="s1">			nonpolymer_entities {</span>
+<span class="s1">				nonpolymer_comp {</span>
+<span class="s1">					chem_comp {</span>
+<span class="s1">						id</span>
+<span class="s1">						name</span>
+<span class="s1">					}</span>
+<span class="s1">					rcsb_chem_comp_descriptor {</span>
+<span class="s1">						SMILES</span>
+<span class="s1">					}</span>
+<span class="s1">				}</span>
+<span class="s1">				rcsb_nonpolymer_entity_container_identifiers {</span>
+<span class="s1">					auth_asym_ids</span>
+<span class="s1">						}</span>
+<span class="s1">					}</span>
+<span class="s1">				}</span>
+<span class="s1">		}</span>
+<span class="s1">		&#39;&#39;&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdbs</span></div>
+
+
+<div class="viewcode-block" id="BaseQueryPDB">
+<a class="viewcode-back" href="../../../pyCADD.Demand.html#pyCADD.Demand.config.BaseQueryPDB">[docs]</a>
+<span class="k">class</span> <span class="nc">BaseQueryPDB</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseQueryPDB.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Demand.html#pyCADD.Demand.config.BaseQueryPDB.__init__">[docs]</a>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uniprot_id</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">uniprot_id</span> <span class="o">=</span> <span class="n">uniprot_id</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+  
+<div class="viewcode-block" id="BaseQueryPDB.get_query">
+<a class="viewcode-back" href="../../../pyCADD.Demand.html#pyCADD.Demand.config.BaseQueryPDB.get_query">[docs]</a>
+	<span class="k">def</span> <span class="nf">get_query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_pdb_list</span></div>
+
+
+	<span class="nd">@property</span>
+	<span class="k">def</span> <span class="nf">_search_pdb_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">return</span> <span class="s1">&#39;&#39;&#39;{</span>
+<span class="s1">		&quot;query&quot;: {</span>
+<span class="s1">			&quot;type&quot;: &quot;group&quot;,</span>
+<span class="s1">			&quot;nodes&quot;: [</span>
+<span class="s1">			{</span>
+<span class="s1">				&quot;type&quot;: &quot;terminal&quot;,</span>
+<span class="s1">				&quot;service&quot;: &quot;text&quot;,</span>
+<span class="s1">				&quot;parameters&quot;: {</span>
+<span class="s1">				&quot;attribute&quot;: &quot;rcsb_polymer_entity_container_identifiers.reference_sequence_identifiers.database_accession&quot;,</span>
+<span class="s1">				&quot;operator&quot;: &quot;in&quot;,</span>
+<span class="s1">				&quot;value&quot;: [</span>
+<span class="s1">					&quot;</span><span class="si">%s</span><span class="s1">&quot;</span>
+<span class="s1">				]</span>
+<span class="s1">				}</span>
+<span class="s1">			},</span>
+<span class="s1">			{</span>
+<span class="s1">				&quot;type&quot;: &quot;terminal&quot;,</span>
+<span class="s1">				&quot;service&quot;: &quot;text&quot;,</span>
+<span class="s1">				&quot;parameters&quot;: {</span>
+<span class="s1">				&quot;attribute&quot;: &quot;rcsb_polymer_entity_container_identifiers.reference_sequence_identifiers.database_name&quot;,</span>
+<span class="s1">				&quot;operator&quot;: &quot;exact_match&quot;,</span>
+<span class="s1">				&quot;value&quot;: &quot;UniProt&quot;</span>
+<span class="s1">				}</span>
+<span class="s1">			}</span>
+<span class="s1">			],</span>
+<span class="s1">			&quot;logical_operator&quot;: &quot;and&quot;,</span>
+<span class="s1">			&quot;label&quot;: &quot;nested-attribute&quot;</span>
+<span class="s1">		},</span>
+<span class="s1">		&quot;return_type&quot;: &quot;entry&quot;,</span>
+<span class="s1">		&quot;request_options&quot;: {</span>
+<span class="s1">		&quot;paginate&quot;: {</span>
+<span class="s1">			&quot;start&quot;: 0,</span>
+<span class="s1">			&quot;rows&quot;: 10000</span>
+<span class="s1">				}</span>
+<span class="s1">			}</span>
+<span class="s1">		}&#39;&#39;&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniprot_id</span></div>
+
+  
+<span class="n">DATA_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;entries&#39;</span><span class="p">]</span>
+<span class="n">PDBID_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rcsb_id&#39;</span><span class="p">]</span>
+<span class="n">TITLE_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;struct&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">]</span>
+<span class="n">RESOLUTION_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rcsb_entry_info&#39;</span><span class="p">,</span> <span class="s1">&#39;resolution_combined&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">AUTHOR_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rcsb_primary_citation&#39;</span><span class="p">,</span> <span class="s1">&#39;rcsb_authors&#39;</span><span class="p">]</span>
+<span class="n">REFERENCE_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rcsb_primary_citation&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">]</span>
+<span class="n">REF_DOI_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rcsb_primary_citation&#39;</span><span class="p">,</span> <span class="s1">&#39;pdbx_database_id_DOI&#39;</span><span class="p">]</span>
+<span class="n">POLYMER_ENTITY_NUM_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rcsb_entry_info&#39;</span><span class="p">,</span> <span class="s1">&#39;deposited_polymer_entity_instance_count&#39;</span><span class="p">]</span>
+<span class="n">NONPOLYMER_ENTITY_NUM_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rcsb_entry_info&#39;</span><span class="p">,</span> <span class="s1">&#39;deposited_nonpolymer_entity_instance_count&#39;</span><span class="p">]</span>
+
+<span class="n">POLYMER_ENTITY_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;polymer_entities&#39;</span><span class="p">]</span>
+<span class="n">POLYMER_NAME_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rcsb_polymer_entity&#39;</span><span class="p">,</span> <span class="s1">&#39;pdbx_description&#39;</span><span class="p">]</span>
+<span class="n">POLYMER_TYPE_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;entity_poly&#39;</span><span class="p">,</span> <span class="s1">&#39;rcsb_entity_polymer_type&#39;</span><span class="p">]</span>
+<span class="n">POLYMER_MUTATION_NUM_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;entity_poly&#39;</span><span class="p">,</span> <span class="s1">&#39;rcsb_mutation_count&#39;</span><span class="p">]</span>
+<span class="n">POLYMER_MUTATION_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rcsb_polymer_entity&#39;</span><span class="p">,</span> <span class="s1">&#39;pdbx_mutation&#39;</span><span class="p">]</span>
+<span class="n">POLYMER_CHAIN_ID_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;entity_poly&#39;</span><span class="p">,</span> <span class="s1">&#39;pdbx_strand_id&#39;</span><span class="p">]</span>
+<span class="n">POLYMER_UNIPROT_ID_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rcsb_polymer_entity_container_identifiers&#39;</span><span class="p">,</span> <span class="s1">&#39;uniprot_ids&#39;</span><span class="p">]</span>
+
+<span class="n">NONPOLYMER_ENTITY_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nonpolymer_entities&#39;</span><span class="p">]</span>
+<span class="n">NONPOLYMER_NAME_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nonpolymer_comp&#39;</span><span class="p">,</span> <span class="s1">&#39;chem_comp&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">]</span>
+<span class="n">NONPOLYMER_ID_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nonpolymer_comp&#39;</span><span class="p">,</span> <span class="s1">&#39;chem_comp&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">]</span>
+<span class="n">NONPOLYMER_SMILES_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nonpolymer_comp&#39;</span><span class="p">,</span> <span class="s1">&#39;rcsb_chem_comp_descriptor&#39;</span><span class="p">,</span> <span class="s1">&#39;SMILES&#39;</span><span class="p">]</span>
+<span class="n">NONPOLYMER_CHAIN_ID_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rcsb_nonpolymer_entity_container_identifiers&#39;</span><span class="p">,</span> <span class="s1">&#39;auth_asym_ids&#39;</span><span class="p">]</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

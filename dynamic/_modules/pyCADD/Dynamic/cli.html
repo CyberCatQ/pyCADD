@@ -1,0 +1,630 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Dynamic.cli &mdash; pyCADD.Dynamic 2.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f5cff4aa"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyCADD.Dynamic
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pyCADD.Dynamic.html">pyCADD.Dynamic package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dynamic.html">Dynamic User Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyCADD.Dynamic</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyCADD.Dynamic.cli</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyCADD.Dynamic.cli</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">click</span>
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">pyCADD.Dynamic</span> <span class="kn">import</span> <span class="n">Processor</span><span class="p">,</span> <span class="n">Simulator</span><span class="p">,</span> <span class="n">Analyzer</span>
+
+
+<div class="viewcode-block" id="md_prepare">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.cli.md_prepare">[docs]</a>
+<span class="k">def</span> <span class="nf">md_prepare</span><span class="p">(</span>
+    <span class="n">protein_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">molecule_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">solvent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;water&quot;</span><span class="p">,</span>
+    <span class="n">parallel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">100.0</span><span class="p">,</span>
+    <span class="n">dft</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;B3LYP&quot;</span><span class="p">,</span>
+    <span class="n">basis_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;6-31g*&quot;</span><span class="p">,</span>
+    <span class="n">charge_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;resp&quot;</span><span class="p">,</span>
+    <span class="n">keep_water</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">box_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">apo</span> <span class="o">=</span> <span class="n">molecule_file</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="n">processor</span> <span class="o">=</span> <span class="n">Processor</span><span class="p">(</span><span class="n">apo</span><span class="o">=</span><span class="n">apo</span><span class="p">)</span>
+    <span class="n">processor</span><span class="o">.</span><span class="n">molecule_prepare</span><span class="p">(</span>
+        <span class="n">molecule_file_path</span><span class="o">=</span><span class="n">molecule_file</span><span class="p">,</span>
+        <span class="n">dft</span><span class="o">=</span><span class="n">dft</span><span class="p">,</span>
+        <span class="n">basis_set</span><span class="o">=</span><span class="n">basis_set</span><span class="p">,</span>
+        <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
+        <span class="n">multiplicity</span><span class="o">=</span><span class="n">multiplicity</span><span class="p">,</span>
+        <span class="n">cpu_num</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span>
+        <span class="n">charge_method</span><span class="o">=</span><span class="n">charge_method</span><span class="p">,</span>
+        <span class="n">solvent</span><span class="o">=</span><span class="n">solvent</span><span class="p">,</span>
+        <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">processor</span><span class="o">.</span><span class="n">protein_prepare</span><span class="p">(</span>
+        <span class="n">protein_file_path</span><span class="o">=</span><span class="n">protein_file</span><span class="p">,</span> <span class="n">keep_water</span><span class="o">=</span><span class="n">keep_water</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span>
+    <span class="p">)</span>
+    <span class="n">processor</span><span class="o">.</span><span class="n">leap_prepare</span><span class="p">(</span><span class="n">box_size</span><span class="o">=</span><span class="n">box_size</span><span class="p">)</span>
+    <span class="n">step_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">/</span> <span class="mf">0.002</span><span class="p">)</span>
+    <span class="n">water_resnum</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">get_water_resnum</span><span class="p">()</span>
+    <span class="n">water_resnum_start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">water_resnum</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">water_resnum_end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">water_resnum</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">processor</span><span class="o">.</span><span class="n">add_minimize_process</span><span class="p">(</span>
+        <span class="n">process_name</span><span class="o">=</span><span class="s2">&quot;minimize_complex&quot;</span><span class="p">,</span>
+        <span class="n">restraint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">restraint_mask</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;&#39;:1-</span><span class="si">{</span><span class="n">water_resnum_start</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
+        <span class="n">use_gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">cpu_num</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">processor</span><span class="o">.</span><span class="n">add_minimize_process</span><span class="p">(</span>
+        <span class="n">process_name</span><span class="o">=</span><span class="s2">&quot;minimize_solvent&quot;</span><span class="p">,</span>
+        <span class="n">restraint</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">restraint_mask</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;&#39;:</span><span class="si">{</span><span class="n">water_resnum_start</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">water_resnum_end</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span>
+        <span class="n">use_gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">cpu_num</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">processor</span><span class="o">.</span><span class="n">add_minimize_process</span><span class="p">(</span><span class="n">process_name</span><span class="o">=</span><span class="s2">&quot;minimize_all&quot;</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cpu_num</span><span class="o">=</span><span class="n">parallel</span><span class="p">)</span>
+    <span class="n">processor</span><span class="o">.</span><span class="n">add_heat_process</span><span class="p">()</span>
+    <span class="n">restraintmask</span> <span class="o">=</span> <span class="s2">&quot;&#39;!(:WAT,Na+,Cl-,K+,K) &amp; !@H= &amp; !@H&#39;&quot;</span>
+    <span class="k">for</span> <span class="n">rest_wt</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
+        <span class="n">processor</span><span class="o">.</span><span class="n">add_npt_process</span><span class="p">(</span>
+            <span class="n">total_step</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span>
+            <span class="n">process_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;eq_npt_reswt</span><span class="si">{</span><span class="n">rest_wt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">restraint_wt</span><span class="o">=</span><span class="n">rest_wt</span><span class="p">,</span>
+            <span class="n">restraintmask</span><span class="o">=</span><span class="n">restraintmask</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">processor</span><span class="o">.</span><span class="n">add_npt_process</span><span class="p">(</span><span class="n">total_step</span><span class="o">=</span><span class="mi">500000</span><span class="p">,</span> <span class="n">process_name</span><span class="o">=</span><span class="s2">&quot;eq_npt&quot;</span><span class="p">)</span>
+    <span class="n">processor</span><span class="o">.</span><span class="n">add_npt_process</span><span class="p">(</span><span class="n">total_step</span><span class="o">=</span><span class="n">step_num</span><span class="p">,</span> <span class="n">is_production</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">process_name</span><span class="o">=</span><span class="s2">&quot;production&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">processor</span></div>
+
+
+
+<div class="viewcode-block" id="md_simulate">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.cli.md_simulate">[docs]</a>
+<span class="k">def</span> <span class="nf">md_simulate</span><span class="p">(</span><span class="n">top_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">inpcrd_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">with_gpu</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="n">processor</span> <span class="o">=</span> <span class="n">Processor</span><span class="p">()</span>
+    <span class="n">processor</span><span class="o">.</span><span class="n">set_prepared_file</span><span class="p">(</span><span class="n">top_file</span><span class="p">,</span> <span class="s2">&quot;com_top&quot;</span><span class="p">)</span>
+    <span class="n">processor</span><span class="o">.</span><span class="n">set_prepared_file</span><span class="p">(</span><span class="n">inpcrd_file</span><span class="p">,</span> <span class="s2">&quot;com_crd&quot;</span><span class="p">)</span>
+    <span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;input_file/minimize_complex.in&quot;</span><span class="p">,</span> <span class="s2">&quot;minimize_complex&quot;</span><span class="p">,</span> <span class="s2">&quot;minimize&quot;</span><span class="p">)</span>
+    <span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;input_file/minimize_solvent.in&quot;</span><span class="p">,</span> <span class="s2">&quot;minimize_solvent&quot;</span><span class="p">,</span> <span class="s2">&quot;minimize&quot;</span><span class="p">)</span>
+    <span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;input_file/minimize_all.in&quot;</span><span class="p">,</span> <span class="s2">&quot;minimize_all&quot;</span><span class="p">,</span> <span class="s2">&quot;minimize&quot;</span><span class="p">)</span>
+    <span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;input_file/heat.in&quot;</span><span class="p">,</span> <span class="s2">&quot;heat&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">rest_wt</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]:</span>
+        <span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;input_file/eq_npt_reswt</span><span class="si">{</span><span class="n">rest_wt</span><span class="si">}</span><span class="s2">.in&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;eq_npt_reswt</span><span class="si">{</span><span class="n">rest_wt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;npt&quot;</span>
+        <span class="p">)</span>
+    <span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;input_file/eq_npt.in&quot;</span><span class="p">,</span> <span class="s2">&quot;eq_npt&quot;</span><span class="p">,</span> <span class="s2">&quot;npt&quot;</span><span class="p">)</span>
+    <span class="n">processor</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;input_file/production.in&quot;</span><span class="p">,</span> <span class="s2">&quot;production&quot;</span><span class="p">,</span> <span class="s2">&quot;npt&quot;</span><span class="p">)</span>
+    <span class="n">simulator</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">processor</span><span class="p">)</span>
+    <span class="n">simulator</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="n">with_gpu</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">simulator</span></div>
+
+
+
+<div class="viewcode-block" id="md_workflow">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.cli.md_workflow">[docs]</a>
+<span class="k">def</span> <span class="nf">md_workflow</span><span class="p">(</span>
+    <span class="n">protein_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">molecule_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">solvent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;water&quot;</span><span class="p">,</span>
+    <span class="n">parallel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">dft</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;B3LYP&quot;</span><span class="p">,</span>
+    <span class="n">basis_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;6-31G*&quot;</span><span class="p">,</span>
+    <span class="n">charge_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;RESP&quot;</span><span class="p">,</span>
+    <span class="n">keep_water</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">box_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">with_gpu</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">analysis</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">processor</span> <span class="o">=</span> <span class="n">md_prepare</span><span class="p">(</span>
+        <span class="n">protein_file</span><span class="p">,</span>
+        <span class="n">molecule_file</span><span class="p">,</span>
+        <span class="n">charge</span><span class="p">,</span>
+        <span class="n">multiplicity</span><span class="p">,</span>
+        <span class="n">solvent</span><span class="p">,</span>
+        <span class="n">parallel</span><span class="p">,</span>
+        <span class="n">time</span><span class="p">,</span>
+        <span class="n">dft</span><span class="p">,</span>
+        <span class="n">basis_set</span><span class="p">,</span>
+        <span class="n">charge_method</span><span class="p">,</span>
+        <span class="n">keep_water</span><span class="p">,</span>
+        <span class="n">box_size</span><span class="p">,</span>
+        <span class="n">overwrite</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">simulator</span> <span class="o">=</span> <span class="n">Simulator</span><span class="p">(</span><span class="n">processor</span><span class="p">)</span>
+    <span class="n">simulator</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="n">cuda_device</span><span class="o">=</span><span class="n">with_gpu</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">analysis</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;traj_file&quot;</span><span class="p">:</span> <span class="n">simulator</span><span class="o">.</span><span class="n">traj_file</span><span class="p">,</span>
+            <span class="s2">&quot;comsolvated_topfile&quot;</span><span class="p">:</span> <span class="n">simulator</span><span class="o">.</span><span class="n">comsolvate_topfile</span><span class="p">,</span>
+            <span class="s2">&quot;com_topfile&quot;</span><span class="p">:</span> <span class="n">simulator</span><span class="o">.</span><span class="n">com_topfile</span><span class="p">,</span>
+            <span class="s2">&quot;receptor_topfile&quot;</span><span class="p">:</span> <span class="n">simulator</span><span class="o">.</span><span class="n">pro_topfile</span><span class="p">,</span>
+            <span class="s2">&quot;ligand_topfile&quot;</span><span class="p">:</span> <span class="n">simulator</span><span class="o">.</span><span class="n">lig_topfile</span><span class="p">,</span>
+            <span class="s2">&quot;mdout_file&quot;</span><span class="p">:</span> <span class="n">simulator</span><span class="o">.</span><span class="n">mdout_file</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">analyzer</span> <span class="o">=</span> <span class="n">Analyzer</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="s2">&quot;md_analysis&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">analyzer</span><span class="o">.</span><span class="n">calc_rmsd</span><span class="p">()</span>
+        <span class="n">analyzer</span><span class="o">.</span><span class="n">calc_rmsf</span><span class="p">()</span>
+        <span class="n">analyzer</span><span class="o">.</span><span class="n">calc_hbond</span><span class="p">()</span>
+        <span class="n">analyzer</span><span class="o">.</span><span class="n">create_energy_inputfile</span><span class="p">(</span>
+            <span class="n">start_frame</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end_frame</span><span class="o">=</span><span class="n">analyzer</span><span class="o">.</span><span class="n">traj</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">step_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">job_type</span><span class="o">=</span><span class="s2">&quot;decomp&quot;</span>
+        <span class="p">)</span>
+        <span class="n">analyzer</span><span class="o">.</span><span class="n">run_energy_calc</span><span class="p">(</span><span class="n">cpu_num</span><span class="o">=</span><span class="n">parallel</span><span class="p">)</span></div>
+
+
+
+<span class="nd">@click</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Command line interface for pyCADD-Dynamic.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="nd">@main</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">short_help</span><span class="o">=</span><span class="s2">&quot;Automatically preparing required files for MD only.&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s2">&quot;protein_file&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s2">&quot;molecule_file&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--charge&quot;</span><span class="p">,</span> <span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Net charge of molecule.&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--multiplicity&quot;</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Multiplicity of molecule.&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--solvent&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;-s&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;water&quot;</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Solvent used in molecule preparation (RESP/RESP2).&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--parallel&quot;</span><span class="p">,</span> <span class="s2">&quot;-n&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of parallel processes.&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--with-gpu&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;-g&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Specify GPU device code used in simulation. Default to 0&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--time&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;-t&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Total time(ns) of simulation. Default to 100 ns.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--dft&quot;</span><span class="p">,</span> <span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;B3LYP&quot;</span><span class="p">,</span> <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;DFT functional to use.&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--basis-set&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;-bs&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;6-31G*&quot;</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Basis set to use in DFT calculation.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--charge-method&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;-cm&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;resp&quot;</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">([</span><span class="s2">&quot;resp&quot;</span><span class="p">,</span> <span class="s2">&quot;resp2&quot;</span><span class="p">,</span> <span class="s2">&quot;bcc&quot;</span><span class="p">],</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Charge calculation method for molecule.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--keep-water&quot;</span><span class="p">,</span> <span class="s2">&quot;-w&quot;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Keep water molecules in the original protein file.&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--box-size&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;-b&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;TIP3P Water Box size of simulation. Default to 10 Angstrom.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">,</span> <span class="s2">&quot;-O&quot;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Overwrite existing files.&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span>
+    <span class="n">protein_file</span><span class="p">,</span>
+    <span class="n">molecule_file</span><span class="p">,</span>
+    <span class="n">charge</span><span class="p">,</span>
+    <span class="n">multiplicity</span><span class="p">,</span>
+    <span class="n">solvent</span><span class="p">,</span>
+    <span class="n">parallel</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">,</span>
+    <span class="n">dft</span><span class="p">,</span>
+    <span class="n">basis_set</span><span class="p">,</span>
+    <span class="n">charge_method</span><span class="p">,</span>
+    <span class="n">keep_water</span><span class="p">,</span>
+    <span class="n">box_size</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prepare required files for MD.\n</span>
+<span class="sd">    protein_file : Specify protein file (PDB format) path for MD.\n</span>
+<span class="sd">    molecule_file : Specify molecule file (PDB format) path for MD. If not specified, apo system(protein only) will be simulated.\n</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">md_prepare</span><span class="p">(</span>
+        <span class="n">protein_file</span><span class="o">=</span><span class="n">protein_file</span><span class="p">,</span>
+        <span class="n">molecule_file</span><span class="o">=</span><span class="n">molecule_file</span><span class="p">,</span>
+        <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
+        <span class="n">multiplicity</span><span class="o">=</span><span class="n">multiplicity</span><span class="p">,</span>
+        <span class="n">solvent</span><span class="o">=</span><span class="n">solvent</span><span class="p">,</span>
+        <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span>
+        <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span>
+        <span class="n">dft</span><span class="o">=</span><span class="n">dft</span><span class="p">,</span>
+        <span class="n">basis_set</span><span class="o">=</span><span class="n">basis_set</span><span class="p">,</span>
+        <span class="n">charge_method</span><span class="o">=</span><span class="n">charge_method</span><span class="p">,</span>
+        <span class="n">keep_water</span><span class="o">=</span><span class="n">keep_water</span><span class="p">,</span>
+        <span class="n">box_size</span><span class="o">=</span><span class="n">box_size</span><span class="p">,</span>
+        <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@main</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">short_help</span><span class="o">=</span><span class="s2">&quot;Running molecular dynamics simulation with prepared files.&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s2">&quot;top_file&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s2">&quot;inpcrd_file&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--with-gpu&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;-g&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Specify GPU device code used in simulation. Default to 0&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="n">top_file</span><span class="p">,</span> <span class="n">inpcrd_file</span><span class="p">,</span> <span class="n">with_gpu</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run molecular dynamics simulation.\nOnly supports running workflows automatically generated by prepare.</span>
+<span class="sd">    top_file : Specify solvated complex topology file (TOP format) path for MD.\n</span>
+<span class="sd">    inpcrd_file : Specify solvated complex input coordinate file (INPCRD format) path for MD.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">md_simulate</span><span class="p">(</span><span class="n">top_file</span><span class="o">=</span><span class="n">top_file</span><span class="p">,</span> <span class="n">inpcrd_file</span><span class="o">=</span><span class="n">inpcrd_file</span><span class="p">,</span> <span class="n">with_gpu</span><span class="o">=</span><span class="n">with_gpu</span><span class="p">)</span>
+
+
+<span class="nd">@main</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">short_help</span><span class="o">=</span><span class="s2">&quot;Automatic MD workflow (including preparation and simulation).&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s2">&quot;protein_file&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">argument</span><span class="p">(</span><span class="s2">&quot;molecule_file&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--charge&quot;</span><span class="p">,</span> <span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Net charge of molecule.&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--multiplicity&quot;</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Multiplicity of molecule.&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--solvent&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;-s&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;water&quot;</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Solvent used in molecule preparation (RESP/RESP2).&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--parallel&quot;</span><span class="p">,</span> <span class="s2">&quot;-n&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of parallel processes.&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--with-gpu&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;-g&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Specify GPU device code used in simulation. Default to 0&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--time&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;-t&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Total time(ns) of simulation. Default to 100 ns.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--dft&quot;</span><span class="p">,</span> <span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;B3LYP&quot;</span><span class="p">,</span> <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;DFT functional to use.&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--basis-set&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;-bs&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;6-31G*&quot;</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Basis set to use in DFT calculation.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--charge-method&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;-cm&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;resp&quot;</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Choice</span><span class="p">([</span><span class="s2">&quot;resp&quot;</span><span class="p">,</span> <span class="s2">&quot;resp2&quot;</span><span class="p">,</span> <span class="s2">&quot;bcc&quot;</span><span class="p">],</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Charge calculation method for molecule.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--keep-water&quot;</span><span class="p">,</span> <span class="s2">&quot;-w&quot;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Keep water molecules in the original protein file.&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--box-size&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;-b&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;TIP3P Water Box size of simulation. Default to 10 Angstrom.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;--analysis&quot;</span><span class="p">,</span> <span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Perform analysis after simulation done.&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">,</span> <span class="s2">&quot;-O&quot;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Overwrite existing files.&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">auto</span><span class="p">(</span>
+    <span class="n">protein_file</span><span class="p">,</span>
+    <span class="n">molecule_file</span><span class="p">,</span>
+    <span class="n">charge</span><span class="p">,</span>
+    <span class="n">multiplicity</span><span class="p">,</span>
+    <span class="n">solvent</span><span class="p">,</span>
+    <span class="n">parallel</span><span class="p">,</span>
+    <span class="n">with_gpu</span><span class="p">,</span>
+    <span class="n">time</span><span class="p">,</span>
+    <span class="n">dft</span><span class="p">,</span>
+    <span class="n">basis_set</span><span class="p">,</span>
+    <span class="n">charge_method</span><span class="p">,</span>
+    <span class="n">keep_water</span><span class="p">,</span>
+    <span class="n">box_size</span><span class="p">,</span>
+    <span class="n">analysis</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prepare required files and run molecular dynamics simulation.\n</span>
+<span class="sd">    protein_file : Specify protein file (PDB format) path for MD.\n</span>
+<span class="sd">    molecule_file : Specify molecule file (PDB format) path for MD. If not specified, apo system(protein only) will be simulated.\n</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">md_workflow</span><span class="p">(</span>
+        <span class="n">protein_file</span><span class="o">=</span><span class="n">protein_file</span><span class="p">,</span>
+        <span class="n">molecule_file</span><span class="o">=</span><span class="n">molecule_file</span><span class="p">,</span>
+        <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
+        <span class="n">multiplicity</span><span class="o">=</span><span class="n">multiplicity</span><span class="p">,</span>
+        <span class="n">solvent</span><span class="o">=</span><span class="n">solvent</span><span class="p">,</span>
+        <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span>
+        <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span>
+        <span class="n">dft</span><span class="o">=</span><span class="n">dft</span><span class="p">,</span>
+        <span class="n">basis_set</span><span class="o">=</span><span class="n">basis_set</span><span class="p">,</span>
+        <span class="n">charge_method</span><span class="o">=</span><span class="n">charge_method</span><span class="p">,</span>
+        <span class="n">keep_water</span><span class="o">=</span><span class="n">keep_water</span><span class="p">,</span>
+        <span class="n">box_size</span><span class="o">=</span><span class="n">box_size</span><span class="p">,</span>
+        <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">,</span>
+        <span class="n">with_gpu</span><span class="o">=</span><span class="n">with_gpu</span><span class="p">,</span>
+        <span class="n">analysis</span><span class="o">=</span><span class="n">analysis</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@main</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">short_help</span><span class="o">=</span><span class="s2">&quot;Simple post-analysis for finished MD simulation.&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;-y&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Trajectory file path.&quot;</span><span class="p">,</span>
+    <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;Please specify trajectory file path&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;-sp&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Solvated complex topology file path.&quot;</span><span class="p">,</span>
+    <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;Please specify solvated complex topology file path&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;-lp&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Ligand topology file path. If not specified, apo system analysis will be performed.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;-rp&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Receptor topology file path.&quot;</span><span class="p">,</span>
+    <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;Please specify receptor topology file path&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;-cp&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Complex topology file path.&quot;</span><span class="p">,</span>
+    <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;Please specify complex topology file path&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;-ro&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Molecular dynamics output file path.&quot;</span><span class="p">,</span>
+    <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;Please specify molecular dynamics output file path&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--no-hbond&quot;</span><span class="p">,</span> <span class="s2">&quot;-nh&quot;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Disable calculating and tracing of hydrogen bonds.&quot;</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;--no-rmsd&quot;</span><span class="p">,</span> <span class="s2">&quot;-nd&quot;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Disable calculating of RMSD.&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;--no-rmsf&quot;</span><span class="p">,</span> <span class="s2">&quot;-nf&quot;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Disable calculating of RMSF.&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--decomp&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;-d&quot;</span><span class="p">,</span>
+    <span class="n">nargs</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Performing MM-GBSA energy decomposition from START_FRAME(INT1) to END_FRAME(INT2) with STEP_SIZE(INT3).&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--nmode&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;-e&quot;</span><span class="p">,</span>
+    <span class="n">nargs</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Performing entropy calculation with normal mode(nmode) from START_FRAME(INT1) to END_FRAME(INT2) with STEP_SIZE(INT3).&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="s2">&quot;--parallel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;-n&quot;</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">show_default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of parallel processes used in energy calculation.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">def</span> <span class="nf">analysis</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">lp</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> <span class="n">cp</span><span class="p">,</span> <span class="n">ro</span><span class="p">,</span> <span class="n">no_hbond</span><span class="p">,</span> <span class="n">no_rmsd</span><span class="p">,</span> <span class="n">no_rmsf</span><span class="p">,</span> <span class="n">decomp</span><span class="p">,</span> <span class="n">nmode</span><span class="p">,</span> <span class="n">parallel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Post-process for molecular dynamics simulation.\n</span>
+<span class="sd">    Workflow:\n</span>
+<span class="sd">        1. Calculate RMSD\n</span>
+<span class="sd">        2. Calculate RMSF\n</span>
+<span class="sd">        3. Calculate and trace distance, angle and lifetime of hydrogen bonds\n</span>
+<span class="sd">        [Optional]\n</span>
+<span class="sd">        * Perform MM-GBSA energy decomposition\n</span>
+<span class="sd">        * Calculate entropy with normal mode\n</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">analyzer</span> <span class="o">=</span> <span class="n">Analyzer</span><span class="p">(</span>
+        <span class="n">traj_file_path</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
+        <span class="n">comsolvated_topfile_path</span><span class="o">=</span><span class="n">sp</span><span class="p">,</span>
+        <span class="n">com_topfile_path</span><span class="o">=</span><span class="n">cp</span><span class="p">,</span>
+        <span class="n">ligand_topfile_path</span><span class="o">=</span><span class="n">lp</span><span class="p">,</span>
+        <span class="n">receptor_topfile_path</span><span class="o">=</span><span class="n">rp</span><span class="p">,</span>
+        <span class="n">mdout_file_path</span><span class="o">=</span><span class="n">ro</span><span class="p">,</span>
+        <span class="n">save_dir</span><span class="o">=</span><span class="s2">&quot;md_analysis&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">decomp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">decomp_start_fm</span><span class="p">,</span> <span class="n">decomp_end_fm</span><span class="p">,</span> <span class="n">decomp_step_size</span> <span class="o">=</span> <span class="n">decomp</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid input. Energy decomposition needs 3 integers for START_FRAME, END_FRAME and STEP_SIZE.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">decomp_start_fm</span> <span class="o">&gt;</span> <span class="n">decomp_end_fm</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid input. Energy decomposition can not be performed.&quot;</span><span class="p">)</span>
+        <span class="n">decomp</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">nmode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">nmode_start_fm</span><span class="p">,</span> <span class="n">nmode_end_fm</span><span class="p">,</span> <span class="n">nmode_step_size</span> <span class="o">=</span> <span class="n">nmode</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid input. Entropy calculation needs 3 integers for START_FRAME, END_FRAME and STEP_SIZE.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">nmode_start_fm</span> <span class="o">&gt;</span> <span class="n">nmode_end_fm</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid input. Entropy calculation can not be performed.&quot;</span><span class="p">)</span>
+        <span class="n">nmode</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">no_rmsd</span><span class="p">:</span>
+        <span class="n">analyzer</span><span class="o">.</span><span class="n">calc_rmsd</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">no_rmsf</span><span class="p">:</span>
+        <span class="n">analyzer</span><span class="o">.</span><span class="n">calc_rmsf</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">no_hbond</span><span class="p">:</span>
+        <span class="n">analyzer</span><span class="o">.</span><span class="n">calc_hbond</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">decomp</span><span class="p">:</span>
+        <span class="n">analyzer</span><span class="o">.</span><span class="n">create_energy_inputfile</span><span class="p">(</span>
+            <span class="n">start_frame</span><span class="o">=</span><span class="n">decomp_start_fm</span><span class="p">,</span>
+            <span class="n">end_frame</span><span class="o">=</span><span class="n">decomp_end_fm</span><span class="p">,</span>
+            <span class="n">step_size</span><span class="o">=</span><span class="n">decomp_step_size</span><span class="p">,</span>
+            <span class="n">job_type</span><span class="o">=</span><span class="s2">&quot;decomp&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">analyzer</span><span class="o">.</span><span class="n">run_energy_calc</span><span class="p">(</span><span class="n">cpu_num</span><span class="o">=</span><span class="n">parallel</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">nmode</span><span class="p">:</span>
+        <span class="n">analyzer</span><span class="o">.</span><span class="n">create_energy_inputfile</span><span class="p">(</span>
+            <span class="n">start_frame</span><span class="o">=</span><span class="n">nmode_start_fm</span><span class="p">,</span>
+            <span class="n">end_frame</span><span class="o">=</span><span class="n">nmode_end_fm</span><span class="p">,</span>
+            <span class="n">step_size</span><span class="o">=</span><span class="n">nmode_step_size</span><span class="p">,</span>
+            <span class="n">job_type</span><span class="o">=</span><span class="s2">&quot;entropy&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">analyzer</span><span class="o">.</span><span class="n">run_energy_calc</span><span class="p">(</span><span class="n">cpu_num</span><span class="o">=</span><span class="n">parallel</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

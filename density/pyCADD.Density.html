@@ -1,0 +1,583 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Density package &mdash; pyCADD.Density 2.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f5cff4aa"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Density User Guide" href="density.html" />
+    <link rel="prev" title="Density Module Documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pyCADD.Density
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pyCADD.Density package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pyCADD.Density.base">pyCADD.Density.base module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pyCADD.Density.base.Gauss"><code class="docutils literal notranslate"><span class="pre">Gauss</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Density.base.Gauss.__init__"><code class="docutils literal notranslate"><span class="pre">Gauss.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Density.base.Gauss.change_atom_type"><code class="docutils literal notranslate"><span class="pre">Gauss.change_atom_type()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Density.base.Gauss.run"><code class="docutils literal notranslate"><span class="pre">Gauss.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Density.base.Gauss.convert_to_mol2_block"><code class="docutils literal notranslate"><span class="pre">Gauss.convert_to_mol2_block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Density.base.Gauss.get_resp_mol2_block"><code class="docutils literal notranslate"><span class="pre">Gauss.get_resp_mol2_block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Density.base.Gauss.get_resp2_mol2_block"><code class="docutils literal notranslate"><span class="pre">Gauss.get_resp2_mol2_block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Density.base.Gauss.calc_opt"><code class="docutils literal notranslate"><span class="pre">Gauss.calc_opt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Density.base.Gauss.calc_energy"><code class="docutils literal notranslate"><span class="pre">Gauss.calc_energy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Density.base.Gauss.calc_resp"><code class="docutils literal notranslate"><span class="pre">Gauss.calc_resp()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Density.base.Gauss.calc_resp2"><code class="docutils literal notranslate"><span class="pre">Gauss.calc_resp2()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pyCADD.Density.cli">pyCADD.Density.cli module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pyCADD.Density.core">pyCADD.Density.core module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pyCADD.Density.core.generate_gauss_input"><code class="docutils literal notranslate"><span class="pre">generate_gauss_input()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyCADD.Density.core.generate_opt_input"><code class="docutils literal notranslate"><span class="pre">generate_opt_input()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyCADD.Density.core.generate_energy_input"><code class="docutils literal notranslate"><span class="pre">generate_energy_input()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyCADD.Density.core.generate_fchk"><code class="docutils literal notranslate"><span class="pre">generate_fchk()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyCADD.Density.core.merge_mol2_charge"><code class="docutils literal notranslate"><span class="pre">merge_mol2_charge()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pyCADD.Density">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="density.html">Density User Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyCADD.Density</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">pyCADD.Density package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/pyCADD.Density.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pycadd-density-package">
+<h1>pyCADD.Density package<a class="headerlink" href="#pycadd-density-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-pyCADD.Density.base">
+<span id="pycadd-density-base-module"></span><h2>pyCADD.Density.base module<a class="headerlink" href="#module-pyCADD.Density.base" title="Link to this heading"></a></h2>
+<p>High-level Gaussian quantum chemistry calculation interface.</p>
+<p>This module provides the Gauss class which serves as a high-level interface for
+running Gaussian quantum chemistry calculations including geometry optimization,
+single-point energy calculations, and RESP/RESP2 charge calculations.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Density.base.</span></span><span class="sig-name descname"><span class="pre">Gauss</span></span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>High-level interface for Gaussian quantum chemistry calculations.</p>
+<p>This class provides methods for running various types of Gaussian calculations
+including geometry optimization, single-point energy calculations, and RESP
+charge calculations. It automatically manages input file generation, job
+execution, and output file handling.</p>
+<dl>
+<dt>Attributes:</dt><dd><p>gauss (str): Path to the Gaussian executable (g16).</p>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gauss</span> <span class="o">=</span> <span class="n">Gauss</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">opt_file</span> <span class="o">=</span> <span class="n">gauss</span><span class="o">.</span><span class="n">calc_opt</span><span class="p">(</span><span class="s2">&quot;molecule.sdf&quot;</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">multiplicity</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resp_file</span> <span class="o">=</span> <span class="n">gauss</span><span class="o">.</span><span class="n">calc_resp</span><span class="p">(</span><span class="s2">&quot;molecule.sdf&quot;</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initializes the Gauss calculator by locating the Gaussian executable.</p>
+<dl class="simple">
+<dt>Raises:</dt><dd><p>FileNotFoundError: If the g16 executable is not found in the system PATH.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.change_atom_type">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">change_atom_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol2_block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gaff2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dumpto</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.change_atom_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.change_atom_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gau_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dumpto</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.run" title="Link to this definition"></a></dt>
+<dd><p>Executes a Gaussian calculation with the provided input.</p>
+<p>Runs a Gaussian calculation by writing the input to a file and executing
+the Gaussian program. The calculation can be run in a temporary directory
+or a specified output directory.</p>
+<dl>
+<dt>Args:</dt><dd><p>gau_input (str): Complete Gaussian input file content as a string.
+job_name (str, optional): Base name for input and output files. Defaults to “gauss_job”.
+dumpto (str, optional): Directory path where calculation files should be saved.</p>
+<blockquote>
+<div><p>If None, uses a temporary directory that is automatically cleaned up.</p>
+</div></blockquote>
+</dd>
+<dt>Returns:</dt><dd><p>str: Content of the Gaussian output file.</p>
+</dd>
+<dt>Raises:</dt><dd><p>RuntimeError: If the Gaussian calculation fails.
+FileNotFoundError: If the Gaussian executable is not found.</p>
+</dd>
+<dt>Note:</dt><dd><p>When dumpto is None, all calculation files are created in a temporary
+directory and only the output content is returned. When dumpto is
+specified, all files are preserved in that directory.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.convert_to_mol2_block">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">convert_to_mol2_block</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">File</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.convert_to_mol2_block"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.convert_to_mol2_block" title="Link to this definition"></a></dt>
+<dd><p>Converts a molecular structure file to MOL2 format.</p>
+<p>Uses OpenBabel to convert various molecular file formats (SDF, PDB, XYZ, etc.)
+to MOL2 format and returns the content as a string.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>structure_file (str | File): Path to the input molecular structure file or File object.</p>
+</dd>
+<dt>Returns:</dt><dd><p>str: Complete MOL2 format content of the converted structure.</p>
+</dd>
+<dt>Raises:</dt><dd><p>RuntimeError: If OpenBabel conversion fails.
+FileNotFoundError: If the input structure file doesn’t exist.</p>
+</dd>
+<dt>Note:</dt><dd><p>The conversion is performed in a temporary directory and only the
+MOL2 content is returned. Supported input formats include most
+common molecular file types recognized by OpenBabel.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.get_resp_mol2_block">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_resp_mol2_block</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gout_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">File</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.get_resp_mol2_block"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.get_resp_mol2_block" title="Link to this definition"></a></dt>
+<dd><p>Extracts RESP charges from Gaussian output and generates MOL2 format.</p>
+<p>Uses AmberTools antechamber to extract RESP (Restrained Electrostatic
+Potential) charges from a Gaussian output file and create a MOL2 format
+structure with the calculated charges.</p>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>gout_file (str | File): Path to Gaussian output file (.out) containing ESP calculation</dt><dd><p>results or File object.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>str: Complete MOL2 format content with RESP charges assigned to atoms.</p>
+</dd>
+<dt>Raises:</dt><dd><dl class="simple">
+<dt>RuntimeError: If antechamber processing fails or if the Gaussian output</dt><dd><p>doesn’t contain the required ESP information.</p>
+</dd>
+</dl>
+<p>FileNotFoundError: If the Gaussian output file doesn’t exist.</p>
+</dd>
+<dt>Note:</dt><dd><p>The input Gaussian calculation must have been performed with ESP
+calculation keywords (e.g., “pop=MK IOp(6/33=2,6/42=6)”) to generate
+the electrostatic potential data required for RESP charge fitting.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.get_resp2_mol2_block">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_resp2_mol2_block</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gas_mol2_block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solvent_mol2_block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.get_resp2_mol2_block"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.get_resp2_mol2_block" title="Link to this definition"></a></dt>
+<dd><p>Generates RESP2 charges by interpolating between gas and solvent RESP charges.</p>
+<p>Calculates RESP2 charges using the formula:
+RESP2 = (1-δ) × RESP_gas + δ × RESP_solvent
+where δ (delta) is the interpolation parameter.</p>
+<dl>
+<dt>Args:</dt><dd><p>gas_mol2_block (str): MOL2 format string containing gas-phase RESP charges.
+solvent_mol2_block (str): MOL2 format string containing solvent-phase RESP charges.
+delta (float, optional): Interpolation parameter (0.0 = pure gas, 1.0 = pure solvent).</p>
+<blockquote>
+<div><p>Defaults to 0.5 for equal weighting.</p>
+</div></blockquote>
+</dd>
+<dt>Returns:</dt><dd><p>str: MOL2 format string with interpolated RESP2 charges.</p>
+</dd>
+<dt>Raises:</dt><dd><p>ValueError: If the number of atoms in gas and solvent MOL2 blocks don’t match.
+IndexError: If either MOL2 block has incomplete atomic information.</p>
+</dd>
+<dt>Note:</dt><dd><p>Both input MOL2 blocks must represent the same molecular structure with
+identical atom ordering. The RESP2 method provides charges that balance
+gas-phase and solution-phase electrostatic properties.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.calc_opt">
+<span class="sig-name descname"><span class="pre">calc_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'B3LYP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'6-31g*'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'water'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dispersion_correct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mem_use</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'4GB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">File</span></span></span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.calc_opt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.calc_opt" title="Link to this definition"></a></dt>
+<dd><p>Performs geometry optimization calculation using Gaussian.</p>
+<p>Executes a complete geometry optimization calculation with customizable
+DFT method, basis set, and optimization parameters. The optimized structure
+is saved to an output file.</p>
+<dl>
+<dt>Args:</dt><dd><p>structure_file (str | File): Path to the input molecular structure file or File object.
+charge (int): Molecular charge (required parameter).
+multiplicity (int, optional): Spin multiplicity. Defaults to 1.
+dft (str, optional): DFT functional name. Defaults to “B3LYP”.
+basis_set (str, optional): Basis set specification. Defaults to “6-31g*”.
+solvent (str, optional): Solvent for implicit solvation model. Defaults to “water”.
+loose (bool, optional): Whether to use loose convergence criteria for faster optimization.</p>
+<blockquote>
+<div><p>Defaults to True.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>dispersion_correct (bool, optional): Whether to apply dispersion correction (GD3BJ).</dt><dd><p>Defaults to False.</p>
+</dd>
+</dl>
+<p>td (bool, optional): Whether to perform time-dependent DFT optimization. Defaults to False.
+freq (bool, optional): Whether to calculate vibrational frequencies after optimization.</p>
+<blockquote>
+<div><p>Defaults to False.</p>
+</div></blockquote>
+<p>mem_use (str, optional): Memory allocation string. Defaults to “4GB”.
+cpu_num (int, optional): Number of processors to use. Defaults to 4.
+save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.</p>
+</dd>
+<dt>Returns:</dt><dd><p>File: Generated Gaussian output file containing optimization results.</p>
+</dd>
+<dt>Raises:</dt><dd><p>RuntimeError: If the Gaussian optimization calculation fails.
+FileNotFoundError: If the input structure file doesn’t exist.</p>
+</dd>
+<dt>Note:</dt><dd><p>The output file is named “{structure_prefix}_opt.out” and contains the
+complete optimization trajectory and final optimized geometry.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.calc_energy">
+<span class="sig-name descname"><span class="pre">calc_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'B3LYP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'6-31g*'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'water'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dispersion_correct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">esp_calculate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mem_use</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'4GB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">File</span></span></span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.calc_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.calc_energy" title="Link to this definition"></a></dt>
+<dd><p>Performs single-point energy calculation using Gaussian.</p>
+<p>Calculates the electronic energy of a molecular structure without geometry
+optimization. Can include electrostatic potential calculation for RESP
+charge fitting and time-dependent DFT for excited states.</p>
+<dl>
+<dt>Args:</dt><dd><p>structure_file (str | File): Path to the input molecular structure file or File object.
+charge (int): Molecular charge (required parameter).
+multiplicity (int, optional): Spin multiplicity. Defaults to 1.
+dft (str, optional): DFT functional name. Defaults to “B3LYP”.
+basis_set (str, optional): Basis set specification. Defaults to “6-31g*”.
+solvent (str, optional): Solvent for implicit solvation model. Defaults to “water”.</p>
+<blockquote>
+<div><p>Set to None for gas-phase calculation.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>dispersion_correct (bool, optional): Whether to apply dispersion correction (GD3BJ).</dt><dd><p>Defaults to False.</p>
+</dd>
+</dl>
+<p>td (bool, optional): Whether to perform time-dependent DFT calculation. Defaults to False.
+esp_calculate (bool, optional): Whether to calculate electrostatic potential for RESP</p>
+<blockquote>
+<div><p>charge fitting. Defaults to False.</p>
+</div></blockquote>
+<p>mem_use (str, optional): Memory allocation string. Defaults to “4GB”.
+cpu_num (int, optional): Number of processors to use. Defaults to 4.
+save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.</p>
+</dd>
+<dt>Returns:</dt><dd><p>File: Path to the generated Gaussian output file containing energy results.</p>
+</dd>
+<dt>Raises:</dt><dd><p>RuntimeError: If the Gaussian energy calculation fails.
+FileNotFoundError: If the input structure file doesn’t exist.</p>
+</dd>
+<dt>Note:</dt><dd><p>Output file naming follows the pattern “{structure_prefix}_{solvent}_energy.out”
+or “{structure_prefix}_gas_energy.out” for gas-phase calculations.
+When esp_calculate=True, the output contains ESP data suitable for RESP fitting.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.calc_resp">
+<span class="sig-name descname"><span class="pre">calc_resp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'B3LYP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'6-31g*'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'water'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mem_use</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'4GB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gaff2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">File</span></span></span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.calc_resp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.calc_resp" title="Link to this definition"></a></dt>
+<dd><p>Performs complete RESP charge calculation workflow.</p>
+<p>Executes a full RESP (Restrained Electrostatic Potential) charge calculation
+workflow including geometry optimization and single-point energy calculation
+with ESP analysis. The resulting charges are merged back into the original
+molecular structure format.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>structure_file (str | File): Path to the input molecular structure file or File object.
+charge (int): Molecular charge (required parameter).
+multiplicity (int, optional): Spin multiplicity. Defaults to 1.
+dft (str, optional): DFT functional name. Defaults to “B3LYP”.
+basis_set (str, optional): Basis set specification. Defaults to “6-31g*”.
+solvent (str, optional): Solvent for implicit solvation model. Defaults to “water”.
+mem_use (str, optional): Memory allocation string. Defaults to “4GB”.
+cpu_num (int, optional): Number of processors to use. Defaults to 4.
+atom_type (str, optional): Atom type to assign using antechamber. Defaults to “gaff2”. None for no change.
+save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.</p>
+</dd>
+<dt>Returns:</dt><dd><p>File: Path to the generated MOL2 file with RESP charges assigned to atoms.</p>
+</dd>
+<dt>Raises:</dt><dd><p>RuntimeError: If any step of the RESP calculation workflow fails.
+FileNotFoundError: If the input structure file doesn’t exist.</p>
+</dd>
+<dt>Note:</dt><dd><p>The complete workflow includes:
+1. Geometry optimization with loose convergence
+2. Single-point energy calculation with ESP analysis
+3. RESP charge fitting using antechamber
+4. Merging charges back into original molecular structure
+Output file is named “{structure_prefix}_resp.mol2”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.calc_resp2">
+<span class="sig-name descname"><span class="pre">calc_resp2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'B3LYP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'6-31g*'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'water'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mem_use</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'4GB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gaff2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">File</span></span></span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.calc_resp2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.calc_resp2" title="Link to this definition"></a></dt>
+<dd><p>Performs complete RESP2 charge calculation workflow.</p>
+<p>Executes a full RESP2 charge calculation workflow that combines gas-phase
+and solvent-phase RESP charges using interpolation. This method provides
+charges that balance gas-phase and solution-phase electrostatic properties.</p>
+<dl>
+<dt>Args:</dt><dd><p>structure_file (str | File): Path to the input molecular structure file or File object.
+charge (int): Molecular charge (required parameter).
+multiplicity (int, optional): Spin multiplicity. Defaults to 1.
+dft (str, optional): DFT functional name. Defaults to “B3LYP”.
+basis_set (str, optional): Basis set specification. Defaults to “6-31g*”.
+solvent (str, optional): Solvent for implicit solvation model. Defaults to “water”.
+mem_use (str, optional): Memory allocation string. Defaults to “4GB”.
+cpu_num (int, optional): Number of processors to use. Defaults to 4.
+delta (float, optional): Interpolation parameter for RESP2 charge calculation.</p>
+<blockquote>
+<div><p>0.0 = pure gas-phase, 1.0 = pure solvent-phase. Defaults to 0.5.</p>
+</div></blockquote>
+<p>atom_type (str, optional): Atom type to assign using antechamber. Defaults to “gaff2”. None for no change.
+save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.</p>
+</dd>
+<dt>Returns:</dt><dd><p>File: Path to the generated MOL2 file with RESP2 charges assigned to atoms.</p>
+</dd>
+<dt>Raises:</dt><dd><p>RuntimeError: If any step of the RESP2 calculation workflow fails.
+FileNotFoundError: If the input structure file doesn’t exist.
+ValueError: If gas and solvent calculations produce inconsistent atom counts.</p>
+</dd>
+<dt>Note:</dt><dd><p>The complete workflow includes:
+1. Geometry optimization with loose convergence
+2. Gas-phase single-point energy calculation with ESP analysis
+3. Solvent-phase single-point energy calculation with ESP analysis
+4. RESP charge fitting for both phases using antechamber
+5. Interpolation of charges using RESP2 formula: (1-δ)*RESP_gas + δ*RESP_solvent
+Output files include individual gas/solvent RESP files and final RESP2 file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.Density.cli">
+<span id="pycadd-density-cli-module"></span><h2>pyCADD.Density.cli module<a class="headerlink" href="#module-pyCADD.Density.cli" title="Link to this heading"></a></h2>
+</section>
+<section id="module-pyCADD.Density.core">
+<span id="pycadd-density-core-module"></span><h2>pyCADD.Density.core module<a class="headerlink" href="#module-pyCADD.Density.core" title="Link to this heading"></a></h2>
+<p>Core utilities for Gaussian quantum chemistry calculations and molecular density analysis.</p>
+<p>This module provides core functions for generating Gaussian input files, processing molecular
+structures, and handling charge calculations for quantum chemistry workflows.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Density.core.generate_gauss_input">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Density.core.</span></span><span class="sig-name descname"><span class="pre">generate_gauss_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keyword</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chk_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mem_use</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'4GB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/core.html#generate_gauss_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.core.generate_gauss_input" title="Link to this definition"></a></dt>
+<dd><p>Generates a Gaussian input file from a molecular structure.</p>
+<p>Creates a Gaussian input (.gjf) file by combining molecular geometry from
+OpenBabel with specified quantum chemistry parameters.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>structure_file (str | File): Path to the input molecular structure file or File object.
+keyword (str): Gaussian calculation keywords (e.g., “# opt B3LYP/6-31G*”).
+chk_file (str, optional): Name of the checkpoint file. Defaults to structure_file prefix + “.chk”.
+title (str, optional): Title for the calculation. Defaults to structure_file prefix + “ Gaussian Input”.
+charge (int, optional): Molecular charge. Defaults to 0.
+multiplicity (int, optional): Spin multiplicity. Defaults to 1.
+mem_use (str, optional): Memory allocation string. Defaults to “4GB”.
+cpu_num (int, optional): Number of processors to use. Defaults to 4.</p>
+</dd>
+<dt>Returns:</dt><dd><p>str: Content of the generated Gaussian input file.</p>
+</dd>
+<dt>Raises:</dt><dd><p>FileNotFoundError: If the structure file doesn’t exist.
+RuntimeError: If OpenBabel conversion fails.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Density.core.generate_opt_input">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Density.core.</span></span><span class="sig-name descname"><span class="pre">generate_opt_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'B3LYP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'6-31g*'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'water'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dispersion_correct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mem_use</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'4GB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/core.html#generate_opt_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.core.generate_opt_input" title="Link to this definition"></a></dt>
+<dd><p>Generates Gaussian input for geometry optimization calculations.</p>
+<p>Creates a Gaussian input file optimized for geometry optimization with
+customizable DFT method, basis set, and calculation options.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>structure_file (str | File): Path to the input molecular structure file or File object.
+charge (int): Molecular charge (required parameter).
+multiplicity (int, optional): Spin multiplicity. Defaults to 1.
+dft (str, optional): DFT functional name. Defaults to “B3LYP”.
+basis_set (str, optional): Basis set specification. Defaults to “6-31g*”.
+solvent (str, optional): Solvent for implicit solvation model. Defaults to “water”.
+loose (bool, optional): Whether to use loose convergence criteria. Defaults to True.
+dispersion_correct (bool, optional): Whether to apply dispersion correction (GD3BJ). Defaults to True.
+td (bool, optional): Whether to perform time-dependent DFT calculation. Defaults to False.
+freq (bool, optional): Whether to calculate vibrational frequencies. Defaults to False.
+mem_use (str, optional): Memory allocation string. Defaults to “4GB”.
+cpu_num (int, optional): Number of processors to use. Defaults to 4.</p>
+</dd>
+<dt>Returns:</dt><dd><p>str: Content of the generated Gaussian optimization input file.</p>
+</dd>
+<dt>Note:</dt><dd><p>The checkpoint file is automatically named as “{structure_prefix}_opt.chk” or
+“{structure_prefix}_opt_td.chk” if TD-DFT is enabled.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Density.core.generate_energy_input">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Density.core.</span></span><span class="sig-name descname"><span class="pre">generate_energy_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">File</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dft</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'B3LYP'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'6-31g*'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solvent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'water'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dispersion_correct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">esp_calculate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mem_use</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'4GB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu_num</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/core.html#generate_energy_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.core.generate_energy_input" title="Link to this definition"></a></dt>
+<dd><p>Generates Gaussian input for single-point energy calculations.</p>
+<p>Creates a Gaussian input file for single-point energy calculations with
+options for electrostatic potential (ESP) calculation and TD-DFT.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>structure_file (str | File): Path to the input molecular structure file or File object.
+charge (int): Molecular charge (required parameter).
+multiplicity (int): Spin multiplicity (required parameter).
+dft (str, optional): DFT functional name. Defaults to “B3LYP”.
+basis_set (str, optional): Basis set specification. Defaults to “6-31g*”.
+solvent (str, optional): Solvent for implicit solvation model. Defaults to “water”.
+dispersion_correct (bool, optional): Whether to apply dispersion correction (GD3BJ). Defaults to True.
+td (bool, optional): Whether to perform time-dependent DFT calculation. Defaults to False.
+esp_calculate (bool, optional): Whether to calculate electrostatic potential for RESP charges. Defaults to False.
+mem_use (str, optional): Memory allocation string. Defaults to “4GB”.
+cpu_num (int, optional): Number of processors to use. Defaults to 4.</p>
+</dd>
+<dt>Returns:</dt><dd><p>str: Content of the generated Gaussian single-point energy input file.</p>
+</dd>
+<dt>Note:</dt><dd><p>When esp_calculate is True, the calculation includes “pop=MK IOp(6/33=2,6/42=6)”
+keywords for Merz-Kollman population analysis suitable for RESP charge fitting.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Density.core.generate_fchk">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Density.core.</span></span><span class="sig-name descname"><span class="pre">generate_fchk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chk_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">File</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Density/core.html#generate_fchk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.core.generate_fchk" title="Link to this definition"></a></dt>
+<dd><p>Converts a Gaussian checkpoint file to formatted checkpoint file.</p>
+<p>Uses the Gaussian formchk utility to convert a binary checkpoint (.chk) file
+to a formatted checkpoint (.fchk) file that can be read by other programs.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>chk_file_path (str | File): Path to the Gaussian checkpoint file or File object.</p>
+</dd>
+<dt>Returns:</dt><dd><p>str: Path to the generated formatted checkpoint file (.fchk).</p>
+</dd>
+<dt>Raises:</dt><dd><p>RuntimeError: If the formchk command fails.
+FileNotFoundError: If the checkpoint file doesn’t exist.</p>
+</dd>
+<dt>Note:</dt><dd><p>The output .fchk file is created in the same directory as the input .chk file
+with the same base name but .fchk extension.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyCADD.Density.core.merge_mol2_charge">
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Density.core.</span></span><span class="sig-name descname"><span class="pre">merge_mol2_charge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">charge_mol2_block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin_mol2_block</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/pyCADD/Density/core.html#merge_mol2_charge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.core.merge_mol2_charge" title="Link to this definition"></a></dt>
+<dd><p>Merges partial charges from one MOL2 block into another MOL2 block.</p>
+<p>Extracts partial charges from the charge_mol2_block and applies them to the
+corresponding atoms in the origin_mol2_block, preserving the original structure
+and connectivity while updating the charges.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>charge_mol2_block (str): MOL2 format string containing the source charges.
+origin_mol2_block (str): MOL2 format string to receive the new charges.</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>str: Modified MOL2 format string with charges from charge_mol2_block</dt><dd><p>applied to the structure from origin_mol2_block.</p>
+</dd>
+</dl>
+</dd>
+<dt>Raises:</dt><dd><p>IndexError: If the number of atoms differs between the two MOL2 blocks.
+ValueError: If either MOL2 block has invalid format.</p>
+</dd>
+<dt>Note:</dt><dd><p>Both MOL2 blocks must have the same number of atoms with complete
+atomic information for proper charge transfer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyCADD.Density">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyCADD.Density" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Density Module Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="density.html" class="btn btn-neutral float-right" title="Density User Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

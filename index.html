@@ -1,184 +1,79 @@
-
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="./">
+<html lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pyCADD Documentation &mdash; pyCADD 1.6.9 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-
-  
-      <script src="_static/jquery.js?v=5d32c60e"></script>
-      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=f5333bb9"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pyCADD" href="README.html" /> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pyCADD Documentation</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; padding: 40px; background-color: #f8f9fa; 
+        }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        .modules { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px; }
+        .module { 
+            border: 1px solid #e1e8ed; border-radius: 8px; padding: 20px; 
+            transition: transform 0.2s, box-shadow 0.2s; background: white;
+        }
+        .module:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .module h2 { color: #34495e; margin-top: 0; }
+        .module a { 
+            display: inline-block; background: #3498db; color: white; 
+            padding: 10px 20px; text-decoration: none; border-radius: 5px; 
+            transition: background 0.2s;
+        }
+        .module a:hover { background: #2980b9; }
+        .footer { margin-top: 40px; text-align: center; color: #7f8c8d; }
+    </style>
 </head>
+<body>
+    <div class="container">
+        <h1>🧬 pyCADD Documentation</h1>
+        <p>Welcome to the pyCADD (Python Computer-Aided Drug Design) documentation.</p>
+        
+        <div class="modules">
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+            <div class="module">
+                <h2>Dock</h2>
+                <p>Molecular docking tools</p>
+                <a href="dock/dock.html">User Guide</a>
+                <a href="dock/index.html">API Documentation</a>
+            </div>
 
-          
-          
-          <a href="#" class="icon icon-home">
-            pyCADD
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">README</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="README.html">pyCADD</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="dock.html">Dock User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dance.html">Dance User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="density.html">Density User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dynamic.html">Dynamic User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="demand.html">Demand User Guide</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">pyCADD</a></li>
-</ul>
+            <div class="module">
+                <h2>Dynamic</h2>
+                <p>Molecular dynamics simulation & analysis</p>
+                <a href="dynamic/dynamic.html">User Guide</a>
+                <a href="dynamic/index.html">API Documentation</a>
+            </div>
+
+            <div class="module">
+                <h2>Dance</h2>
+                <p>Drug discovery algorithms and machine learning</p>
+                <a href="dance/dance.html">User Guide</a>
+                <a href="dance/index.html">API Documentation</a>
+            </div>
+
+            <div class="module">
+                <h2>Demand</h2>
+                <p>Data fetcher from PDB database</p>
+                <a href="demand/demand.html">User Guide</a>
+                <a href="demand/index.html">API Documentation</a>
+            </div>
+
+            <div class="module">
+                <h2>Density</h2>
+                <p>Quantum chemistry calculations</p>
+                <a href="density/density.html">User Guide</a>
+                <a href="density/index.html">API Documentation</a>
+            </div>
 
         </div>
-      </div>
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">pyCADD</a>
-      </nav>
-
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">pyCADD Documentation</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
-      </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
-  <section id="pycadd-documentation">
-<h1>pyCADD Documentation<a class="headerlink" href="#pycadd-documentation" title="Link to this heading"></a></h1>
-<div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">README</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="README.html">pyCADD</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="README.html#features">Features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="README.html#platform">Platform</a></li>
-<li class="toctree-l2"><a class="reference internal" href="README.html#requirements">Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="README.html#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="README.html#pycadd-function">pyCADD Function</a></li>
-<li class="toctree-l2"><a class="reference internal" href="README.html#usage">Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="README.html#id1">更新日志</a></li>
-</ul>
-</li>
-</ul>
-</div>
-<div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Module User Guide</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="dock.html">Dock User Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="dock.html#download-pdb-file-s">Download PDB file(s)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dock.html#docking-of-many-to-many-ensemble-docking">Docking of Many-to-many (Ensemble Docking)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dock.html#generate-docking-reports">Generate Docking Reports</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dock.html#generate-input-files-for-ensemble-docking">Generate Input Files for Ensemble Docking</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="dance.html">Dance User Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="dance.html#data-preparation">数据准备 Data preparation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dance.html#modeling-and-evaluation">建模与评估 Modeling and Evaluation</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="density.html">Density User Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="density.html#function">Function</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="dynamic.html">Dynamic User Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="dynamic.html#id1">文件准备</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dynamic.html#cli-dynamic-md">CLI 调用 Dynamic 模块进行MD模拟</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dynamic.html#python-dynamic">Python 包调用 Dynamic 模块</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dynamic.html#id6">模拟结果分析</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="demand.html">Demand User Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="demand.html#uniprot-id">检索蛋白 Uniprot ID</a></li>
-<li class="toctree-l2"><a class="reference internal" href="demand.html#pdb">检索 PDB 数据</a></li>
-</ul>
-</li>
-</ul>
-</div>
-<div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="modules.html">pyCADD</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pyCADD.html">pyCADD package</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
-<section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
-</ul>
-</section>
-
-
-           </div>
-          </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="README.html" class="btn btn-neutral float-right" title="pyCADD" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        
+        <div class="footer">
+            <p>Generated on November 19, 2025 | pyCADD v2.0.1</p>
+        </div>
     </div>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2025, Yuhang Wu.</p>
-  </div>
-
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
-
-</footer>
-        </div>
-      </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
-
 </body>
 </html>

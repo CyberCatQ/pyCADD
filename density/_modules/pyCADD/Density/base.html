@@ -1,0 +1,706 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Density.base &mdash; pyCADD.Density 2.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f5cff4aa"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyCADD.Density
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pyCADD.Density.html">pyCADD.Density package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../density.html">Density User Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyCADD.Density</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyCADD.Density.base</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyCADD.Density.base</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;High-level Gaussian quantum chemistry calculation interface.</span>
+
+<span class="sd">This module provides the Gauss class which serves as a high-level interface for</span>
+<span class="sd">running Gaussian quantum chemistry calculations including geometry optimization,</span>
+<span class="sd">single-point energy calculations, and RESP/RESP2 charge calculations.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">pyCADD.Density.core</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_get_atom_lines</span><span class="p">,</span>
+    <span class="n">_get_mol2_lines_with_charge</span><span class="p">,</span>
+    <span class="n">generate_energy_input</span><span class="p">,</span>
+    <span class="n">generate_opt_input</span><span class="p">,</span>
+    <span class="n">merge_mol2_charge</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pyCADD.utils.common</span> <span class="kn">import</span> <span class="n">ChDir</span><span class="p">,</span> <span class="n">File</span>
+<span class="kn">from</span> <span class="nn">pyCADD.utils.tool</span> <span class="kn">import</span> <span class="n">_find_execu</span><span class="p">,</span> <span class="n">read_file</span><span class="p">,</span> <span class="n">shell_run</span><span class="p">,</span> <span class="n">write_file</span>
+
+
+<div class="viewcode-block" id="Gauss">
+<a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss">[docs]</a>
+<span class="k">class</span> <span class="nc">Gauss</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;High-level interface for Gaussian quantum chemistry calculations.</span>
+
+<span class="sd">    This class provides methods for running various types of Gaussian calculations</span>
+<span class="sd">    including geometry optimization, single-point energy calculations, and RESP</span>
+<span class="sd">    charge calculations. It automatically manages input file generation, job</span>
+<span class="sd">    execution, and output file handling.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        gauss (str): Path to the Gaussian executable (g16).</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; gauss = Gauss()</span>
+<span class="sd">        &gt;&gt;&gt; opt_file = gauss.calc_opt(&quot;molecule.sdf&quot;, charge=0, multiplicity=1)</span>
+<span class="sd">        &gt;&gt;&gt; resp_file = gauss.calc_resp(&quot;molecule.sdf&quot;, charge=0)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Gauss.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the Gauss calculator by locating the Gaussian executable.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            FileNotFoundError: If the g16 executable is not found in the system PATH.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gauss</span> <span class="o">=</span> <span class="n">_find_execu</span><span class="p">(</span><span class="s2">&quot;g16&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gauss</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;Gaussian executable &#39;g16&#39; not found in system PATH.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Gauss.change_atom_type">
+<a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.change_atom_type">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">change_atom_type</span><span class="p">(</span><span class="n">mol2_block</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">atom_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gaff2&quot;</span><span class="p">,</span> <span class="n">dumpto</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
+            <span class="n">dumpto</span> <span class="o">=</span> <span class="n">dumpto</span> <span class="ow">or</span> <span class="n">tmpdir</span>
+            <span class="k">with</span> <span class="n">ChDir</span><span class="p">(</span><span class="n">dumpto</span><span class="p">):</span>
+                <span class="n">input_mol2_file</span> <span class="o">=</span> <span class="n">write_file</span><span class="p">(</span><span class="s2">&quot;input.mol2&quot;</span><span class="p">,</span> <span class="n">mol2_block</span><span class="p">)</span>
+                <span class="n">output_mol2_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="s2">&quot;output.mol2&quot;</span><span class="p">,</span> <span class="n">exist</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">shell_run</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;antechamber -fi mol2 -i </span><span class="si">{</span><span class="n">input_mol2_file</span><span class="si">}</span><span class="s2"> -fo mol2 -o </span><span class="si">{</span><span class="n">output_mol2_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> -at </span><span class="si">{</span><span class="n">atom_type</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="n">output_mol2_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Gauss.run">
+<a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gau_input</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">job_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dumpto</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Executes a Gaussian calculation with the provided input.</span>
+
+<span class="sd">        Runs a Gaussian calculation by writing the input to a file and executing</span>
+<span class="sd">        the Gaussian program. The calculation can be run in a temporary directory</span>
+<span class="sd">        or a specified output directory.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            gau_input (str): Complete Gaussian input file content as a string.</span>
+<span class="sd">            job_name (str, optional): Base name for input and output files. Defaults to &quot;gauss_job&quot;.</span>
+<span class="sd">            dumpto (str, optional): Directory path where calculation files should be saved.</span>
+<span class="sd">                If None, uses a temporary directory that is automatically cleaned up.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Content of the Gaussian output file.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the Gaussian calculation fails.</span>
+<span class="sd">            FileNotFoundError: If the Gaussian executable is not found.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            When dumpto is None, all calculation files are created in a temporary</span>
+<span class="sd">            directory and only the output content is returned. When dumpto is</span>
+<span class="sd">            specified, all files are preserved in that directory.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
+            <span class="n">work_dir</span> <span class="o">=</span> <span class="n">dumpto</span> <span class="k">if</span> <span class="n">dumpto</span> <span class="k">else</span> <span class="n">tmpdir</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">ChDir</span><span class="p">(</span><span class="n">work_dir</span><span class="p">):</span>
+                <span class="n">write_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">job_name</span><span class="si">}</span><span class="s2">.gjf&quot;</span><span class="p">,</span> <span class="n">gau_input</span><span class="p">)</span>
+                <span class="n">job_name</span> <span class="o">=</span> <span class="n">job_name</span> <span class="ow">or</span> <span class="s2">&quot;gauss_job&quot;</span>
+                <span class="n">output_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">job_name</span><span class="si">}</span><span class="s2">.out&quot;</span>
+                <span class="n">shell_run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">gauss</span><span class="si">}</span><span class="s2"> &lt; </span><span class="si">{</span><span class="n">job_name</span><span class="si">}</span><span class="s2">.gjf &gt; </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">read_file</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Gauss.convert_to_mol2_block">
+<a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.convert_to_mol2_block">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">convert_to_mol2_block</span><span class="p">(</span><span class="n">structure_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Converts a molecular structure file to MOL2 format.</span>
+
+<span class="sd">        Uses OpenBabel to convert various molecular file formats (SDF, PDB, XYZ, etc.)</span>
+<span class="sd">        to MOL2 format and returns the content as a string.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure_file (str | File): Path to the input molecular structure file or File object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Complete MOL2 format content of the converted structure.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If OpenBabel conversion fails.</span>
+<span class="sd">            FileNotFoundError: If the input structure file doesn&#39;t exist.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The conversion is performed in a temporary directory and only the</span>
+<span class="sd">            MOL2 content is returned. Supported input formats include most</span>
+<span class="sd">            common molecular file types recognized by OpenBabel.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">structure_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">structure_file</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">ChDir</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">):</span>
+                <span class="n">mol2_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">structure_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">.mol2&quot;</span><span class="p">,</span> <span class="n">exist</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">shell_run</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;obabel -i</span><span class="si">{</span><span class="n">structure_file</span><span class="o">.</span><span class="n">file_ext</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">structure_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> -o mol2 -O </span><span class="si">{</span><span class="n">mol2_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="n">mol2_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Gauss.get_resp_mol2_block">
+<a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.get_resp_mol2_block">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_resp_mol2_block</span><span class="p">(</span><span class="n">gout_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extracts RESP charges from Gaussian output and generates MOL2 format.</span>
+
+<span class="sd">        Uses AmberTools antechamber to extract RESP (Restrained Electrostatic</span>
+<span class="sd">        Potential) charges from a Gaussian output file and create a MOL2 format</span>
+<span class="sd">        structure with the calculated charges.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            gout_file (str | File): Path to Gaussian output file (.out) containing ESP calculation</span>
+<span class="sd">                results or File object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Complete MOL2 format content with RESP charges assigned to atoms.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If antechamber processing fails or if the Gaussian output</span>
+<span class="sd">                doesn&#39;t contain the required ESP information.</span>
+<span class="sd">            FileNotFoundError: If the Gaussian output file doesn&#39;t exist.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The input Gaussian calculation must have been performed with ESP</span>
+<span class="sd">            calculation keywords (e.g., &quot;pop=MK IOp(6/33=2,6/42=6)&quot;) to generate</span>
+<span class="sd">            the electrostatic potential data required for RESP charge fitting.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gout_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">gout_file</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">ChDir</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">):</span>
+                <span class="n">mol2_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gout_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">.mol2&quot;</span><span class="p">,</span> <span class="n">exist</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">shell_run</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;antechamber -i </span><span class="si">{</span><span class="n">gout_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> -fi gout&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; -o </span><span class="si">{</span><span class="n">mol2_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> -fo mol2 -c resp&quot;</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="n">mol2_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Gauss.get_resp2_mol2_block">
+<a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.get_resp2_mol2_block">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_resp2_mol2_block</span><span class="p">(</span>
+        <span class="n">gas_mol2_block</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">solvent_mol2_block</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">delta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates RESP2 charges by interpolating between gas and solvent RESP charges.</span>
+
+<span class="sd">        Calculates RESP2 charges using the formula:</span>
+<span class="sd">        RESP2 = (1-δ) × RESP_gas + δ × RESP_solvent</span>
+<span class="sd">        where δ (delta) is the interpolation parameter.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            gas_mol2_block (str): MOL2 format string containing gas-phase RESP charges.</span>
+<span class="sd">            solvent_mol2_block (str): MOL2 format string containing solvent-phase RESP charges.</span>
+<span class="sd">            delta (float, optional): Interpolation parameter (0.0 = pure gas, 1.0 = pure solvent).</span>
+<span class="sd">                Defaults to 0.5 for equal weighting.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: MOL2 format string with interpolated RESP2 charges.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the number of atoms in gas and solvent MOL2 blocks don&#39;t match.</span>
+<span class="sd">            IndexError: If either MOL2 block has incomplete atomic information.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Both input MOL2 blocks must represent the same molecular structure with</span>
+<span class="sd">            identical atom ordering. The RESP2 method provides charges that balance</span>
+<span class="sd">            gas-phase and solution-phase electrostatic properties.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gas_resp_charges</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">_get_atom_lines</span><span class="p">(</span><span class="n">gas_mol2_block</span><span class="p">)]</span>
+        <span class="n">solvent_resp_charges</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">_get_atom_lines</span><span class="p">(</span><span class="n">solvent_mol2_block</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">gas_resp_charges</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">solvent_resp_charges</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The number of atoms in gas and solvent mol2 blocks do not match.&quot;</span><span class="p">)</span>
+        <span class="n">adjusted_charges</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">delta</span><span class="p">)</span> <span class="o">*</span> <span class="n">gas_charge</span> <span class="o">+</span> <span class="n">delta</span> <span class="o">*</span> <span class="n">solvent_charge</span>
+            <span class="k">for</span> <span class="n">gas_charge</span><span class="p">,</span> <span class="n">solvent_charge</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">gas_resp_charges</span><span class="p">,</span> <span class="n">solvent_resp_charges</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">adjusted_charges</span> <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">charge</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span> <span class="k">for</span> <span class="n">charge</span> <span class="ow">in</span> <span class="n">adjusted_charges</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_get_mol2_lines_with_charge</span><span class="p">(</span><span class="n">gas_mol2_block</span><span class="p">,</span> <span class="n">adjusted_charges</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Gauss.calc_opt">
+<a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.calc_opt">[docs]</a>
+    <span class="k">def</span> <span class="nf">calc_opt</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">structure_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">,</span>
+        <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">dft</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;B3LYP&quot;</span><span class="p">,</span>
+        <span class="n">basis_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;6-31g*&quot;</span><span class="p">,</span>
+        <span class="n">solvent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;water&quot;</span><span class="p">,</span>
+        <span class="n">loose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">dispersion_correct</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">td</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">freq</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">mem_use</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;4GB&quot;</span><span class="p">,</span>
+        <span class="n">cpu_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">File</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Performs geometry optimization calculation using Gaussian.</span>
+
+<span class="sd">        Executes a complete geometry optimization calculation with customizable</span>
+<span class="sd">        DFT method, basis set, and optimization parameters. The optimized structure</span>
+<span class="sd">        is saved to an output file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure_file (str | File): Path to the input molecular structure file or File object.</span>
+<span class="sd">            charge (int): Molecular charge (required parameter).</span>
+<span class="sd">            multiplicity (int, optional): Spin multiplicity. Defaults to 1.</span>
+<span class="sd">            dft (str, optional): DFT functional name. Defaults to &quot;B3LYP&quot;.</span>
+<span class="sd">            basis_set (str, optional): Basis set specification. Defaults to &quot;6-31g*&quot;.</span>
+<span class="sd">            solvent (str, optional): Solvent for implicit solvation model. Defaults to &quot;water&quot;.</span>
+<span class="sd">            loose (bool, optional): Whether to use loose convergence criteria for faster optimization.</span>
+<span class="sd">                Defaults to True.</span>
+<span class="sd">            dispersion_correct (bool, optional): Whether to apply dispersion correction (GD3BJ).</span>
+<span class="sd">                Defaults to False.</span>
+<span class="sd">            td (bool, optional): Whether to perform time-dependent DFT optimization. Defaults to False.</span>
+<span class="sd">            freq (bool, optional): Whether to calculate vibrational frequencies after optimization.</span>
+<span class="sd">                Defaults to False.</span>
+<span class="sd">            mem_use (str, optional): Memory allocation string. Defaults to &quot;4GB&quot;.</span>
+<span class="sd">            cpu_num (int, optional): Number of processors to use. Defaults to 4.</span>
+<span class="sd">            save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            File: Generated Gaussian output file containing optimization results.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the Gaussian optimization calculation fails.</span>
+<span class="sd">            FileNotFoundError: If the input structure file doesn&#39;t exist.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The output file is named &quot;{structure_prefix}_opt.out&quot; and contains the</span>
+<span class="sd">            complete optimization trajectory and final optimized geometry.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">structure_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">structure_file</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running geometry optimization for </span><span class="si">{</span><span class="n">structure_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Charge = </span><span class="si">{</span><span class="n">charge</span><span class="si">}</span><span class="s2">, Multiplicity = </span><span class="si">{</span><span class="n">multiplicity</span><span class="si">}</span><span class="s2">, Solvent = </span><span class="si">{</span><span class="n">solvent</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">opt_input</span> <span class="o">=</span> <span class="n">generate_opt_input</span><span class="p">(</span>
+            <span class="n">structure_file</span><span class="p">,</span>
+            <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
+            <span class="n">multiplicity</span><span class="o">=</span><span class="n">multiplicity</span><span class="p">,</span>
+            <span class="n">dft</span><span class="o">=</span><span class="n">dft</span><span class="p">,</span>
+            <span class="n">basis_set</span><span class="o">=</span><span class="n">basis_set</span><span class="p">,</span>
+            <span class="n">solvent</span><span class="o">=</span><span class="n">solvent</span><span class="p">,</span>
+            <span class="n">loose</span><span class="o">=</span><span class="n">loose</span><span class="p">,</span>
+            <span class="n">dispersion_correct</span><span class="o">=</span><span class="n">dispersion_correct</span><span class="p">,</span>
+            <span class="n">td</span><span class="o">=</span><span class="n">td</span><span class="p">,</span>
+            <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span>
+            <span class="n">mem_use</span><span class="o">=</span><span class="n">mem_use</span><span class="p">,</span>
+            <span class="n">cpu_num</span><span class="o">=</span><span class="n">cpu_num</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">opt_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">structure_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_opt&quot;</span>
+        <span class="n">opt_output_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">opt_prefix</span><span class="si">}</span><span class="s2">.out&quot;</span><span class="p">)</span>
+        <span class="n">opt_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">opt_input</span><span class="p">,</span> <span class="s2">&quot;gauss_opt&quot;</span><span class="p">,</span> <span class="n">dumpto</span><span class="o">=</span><span class="n">save_dir</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Optimization output saved: </span><span class="si">{</span><span class="n">opt_output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">File</span><span class="p">(</span><span class="n">write_file</span><span class="p">(</span><span class="n">opt_output_file</span><span class="p">,</span> <span class="n">opt_output</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Gauss.calc_energy">
+<a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.calc_energy">[docs]</a>
+    <span class="k">def</span> <span class="nf">calc_energy</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">structure_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">,</span>
+        <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">dft</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;B3LYP&quot;</span><span class="p">,</span>
+        <span class="n">basis_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;6-31g*&quot;</span><span class="p">,</span>
+        <span class="n">solvent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;water&quot;</span><span class="p">,</span>
+        <span class="n">dispersion_correct</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">td</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">esp_calculate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">mem_use</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;4GB&quot;</span><span class="p">,</span>
+        <span class="n">cpu_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">File</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Performs single-point energy calculation using Gaussian.</span>
+
+<span class="sd">        Calculates the electronic energy of a molecular structure without geometry</span>
+<span class="sd">        optimization. Can include electrostatic potential calculation for RESP</span>
+<span class="sd">        charge fitting and time-dependent DFT for excited states.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure_file (str | File): Path to the input molecular structure file or File object.</span>
+<span class="sd">            charge (int): Molecular charge (required parameter).</span>
+<span class="sd">            multiplicity (int, optional): Spin multiplicity. Defaults to 1.</span>
+<span class="sd">            dft (str, optional): DFT functional name. Defaults to &quot;B3LYP&quot;.</span>
+<span class="sd">            basis_set (str, optional): Basis set specification. Defaults to &quot;6-31g*&quot;.</span>
+<span class="sd">            solvent (str, optional): Solvent for implicit solvation model. Defaults to &quot;water&quot;.</span>
+<span class="sd">                Set to None for gas-phase calculation.</span>
+<span class="sd">            dispersion_correct (bool, optional): Whether to apply dispersion correction (GD3BJ).</span>
+<span class="sd">                Defaults to False.</span>
+<span class="sd">            td (bool, optional): Whether to perform time-dependent DFT calculation. Defaults to False.</span>
+<span class="sd">            esp_calculate (bool, optional): Whether to calculate electrostatic potential for RESP</span>
+<span class="sd">                charge fitting. Defaults to False.</span>
+<span class="sd">            mem_use (str, optional): Memory allocation string. Defaults to &quot;4GB&quot;.</span>
+<span class="sd">            cpu_num (int, optional): Number of processors to use. Defaults to 4.</span>
+<span class="sd">            save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            File: Path to the generated Gaussian output file containing energy results.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the Gaussian energy calculation fails.</span>
+<span class="sd">            FileNotFoundError: If the input structure file doesn&#39;t exist.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Output file naming follows the pattern &quot;{structure_prefix}_{solvent}_energy.out&quot;</span>
+<span class="sd">            or &quot;{structure_prefix}_gas_energy.out&quot; for gas-phase calculations.</span>
+<span class="sd">            When esp_calculate=True, the output contains ESP data suitable for RESP fitting.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">structure_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">structure_file</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running single point energy calculation for </span><span class="si">{</span><span class="n">structure_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Charge = </span><span class="si">{</span><span class="n">charge</span><span class="si">}</span><span class="s2">, Multiplicity = </span><span class="si">{</span><span class="n">multiplicity</span><span class="si">}</span><span class="s2">, Solvent = </span><span class="si">{</span><span class="n">solvent</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">solvent</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;None(Gas)&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">energy_input</span> <span class="o">=</span> <span class="n">generate_energy_input</span><span class="p">(</span>
+            <span class="n">structure_file</span><span class="p">,</span>
+            <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
+            <span class="n">multiplicity</span><span class="o">=</span><span class="n">multiplicity</span><span class="p">,</span>
+            <span class="n">dft</span><span class="o">=</span><span class="n">dft</span><span class="p">,</span>
+            <span class="n">basis_set</span><span class="o">=</span><span class="n">basis_set</span><span class="p">,</span>
+            <span class="n">solvent</span><span class="o">=</span><span class="n">solvent</span><span class="p">,</span>
+            <span class="n">dispersion_correct</span><span class="o">=</span><span class="n">dispersion_correct</span><span class="p">,</span>
+            <span class="n">td</span><span class="o">=</span><span class="n">td</span><span class="p">,</span>
+            <span class="n">esp_calculate</span><span class="o">=</span><span class="n">esp_calculate</span><span class="p">,</span>
+            <span class="n">mem_use</span><span class="o">=</span><span class="n">mem_use</span><span class="p">,</span>
+            <span class="n">cpu_num</span><span class="o">=</span><span class="n">cpu_num</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ene_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">structure_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">ene_prefix</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">solvent</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">solvent</span> <span class="k">else</span> <span class="s2">&quot;_gas&quot;</span>
+        <span class="n">ene_prefix</span> <span class="o">+=</span> <span class="s2">&quot;_energy&quot;</span>
+        <span class="n">ene_result_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ene_prefix</span><span class="si">}</span><span class="s2">.out&quot;</span><span class="p">)</span>
+        <span class="n">energy_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">energy_input</span><span class="p">,</span> <span class="s2">&quot;gauss_energy&quot;</span><span class="p">,</span> <span class="n">dumpto</span><span class="o">=</span><span class="n">save_dir</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Energy calculation output saved: </span><span class="si">{</span><span class="n">ene_result_file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">File</span><span class="p">(</span><span class="n">write_file</span><span class="p">(</span><span class="n">ene_result_file_path</span><span class="p">,</span> <span class="n">energy_output</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Gauss.calc_resp">
+<a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.calc_resp">[docs]</a>
+    <span class="k">def</span> <span class="nf">calc_resp</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">structure_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">,</span>
+        <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">dft</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;B3LYP&quot;</span><span class="p">,</span>
+        <span class="n">basis_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;6-31g*&quot;</span><span class="p">,</span>
+        <span class="n">solvent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;water&quot;</span><span class="p">,</span>
+        <span class="n">mem_use</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;4GB&quot;</span><span class="p">,</span>
+        <span class="n">cpu_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="n">atom_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gaff2&quot;</span><span class="p">,</span>
+        <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">File</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Performs complete RESP charge calculation workflow.</span>
+
+<span class="sd">        Executes a full RESP (Restrained Electrostatic Potential) charge calculation</span>
+<span class="sd">        workflow including geometry optimization and single-point energy calculation</span>
+<span class="sd">        with ESP analysis. The resulting charges are merged back into the original</span>
+<span class="sd">        molecular structure format.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure_file (str | File): Path to the input molecular structure file or File object.</span>
+<span class="sd">            charge (int): Molecular charge (required parameter).</span>
+<span class="sd">            multiplicity (int, optional): Spin multiplicity. Defaults to 1.</span>
+<span class="sd">            dft (str, optional): DFT functional name. Defaults to &quot;B3LYP&quot;.</span>
+<span class="sd">            basis_set (str, optional): Basis set specification. Defaults to &quot;6-31g*&quot;.</span>
+<span class="sd">            solvent (str, optional): Solvent for implicit solvation model. Defaults to &quot;water&quot;.</span>
+<span class="sd">            mem_use (str, optional): Memory allocation string. Defaults to &quot;4GB&quot;.</span>
+<span class="sd">            cpu_num (int, optional): Number of processors to use. Defaults to 4.</span>
+<span class="sd">            atom_type (str, optional): Atom type to assign using antechamber. Defaults to &quot;gaff2&quot;. None for no change.</span>
+<span class="sd">            save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            File: Path to the generated MOL2 file with RESP charges assigned to atoms.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If any step of the RESP calculation workflow fails.</span>
+<span class="sd">            FileNotFoundError: If the input structure file doesn&#39;t exist.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The complete workflow includes:</span>
+<span class="sd">            1. Geometry optimization with loose convergence</span>
+<span class="sd">            2. Single-point energy calculation with ESP analysis</span>
+<span class="sd">            3. RESP charge fitting using antechamber</span>
+<span class="sd">            4. Merging charges back into original molecular structure</span>
+<span class="sd">            Output file is named &quot;{structure_prefix}_resp.mol2&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">structure_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">structure_file</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running RESP calculation for </span><span class="si">{</span><span class="n">structure_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">opt_output_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_opt</span><span class="p">(</span>
+            <span class="n">structure_file</span><span class="p">,</span>
+            <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
+            <span class="n">multiplicity</span><span class="o">=</span><span class="n">multiplicity</span><span class="p">,</span>
+            <span class="n">dft</span><span class="o">=</span><span class="n">dft</span><span class="p">,</span>
+            <span class="n">basis_set</span><span class="o">=</span><span class="n">basis_set</span><span class="p">,</span>
+            <span class="n">loose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">dispersion_correct</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">mem_use</span><span class="o">=</span><span class="n">mem_use</span><span class="p">,</span>
+            <span class="n">cpu_num</span><span class="o">=</span><span class="n">cpu_num</span><span class="p">,</span>
+            <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">gas_resp_output_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_energy</span><span class="p">(</span>
+            <span class="n">opt_output_file</span><span class="p">,</span>
+            <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
+            <span class="n">multiplicity</span><span class="o">=</span><span class="n">multiplicity</span><span class="p">,</span>
+            <span class="n">dft</span><span class="o">=</span><span class="n">dft</span><span class="p">,</span>
+            <span class="n">basis_set</span><span class="o">=</span><span class="n">basis_set</span><span class="p">,</span>
+            <span class="n">solvent</span><span class="o">=</span><span class="n">solvent</span><span class="p">,</span>
+            <span class="n">dispersion_correct</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">td</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">mem_use</span><span class="o">=</span><span class="n">mem_use</span><span class="p">,</span>
+            <span class="n">cpu_num</span><span class="o">=</span><span class="n">cpu_num</span><span class="p">,</span>
+            <span class="n">esp_calculate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ori_mol2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_to_mol2_block</span><span class="p">(</span><span class="n">structure_file</span><span class="p">)</span>
+        <span class="n">resp_mol2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_resp_mol2_block</span><span class="p">(</span><span class="n">gas_resp_output_file</span><span class="p">)</span>
+        <span class="n">merged_mol2</span> <span class="o">=</span> <span class="n">merge_mol2_charge</span><span class="p">(</span><span class="n">ori_mol2</span><span class="p">,</span> <span class="n">resp_mol2</span><span class="p">)</span>
+        <span class="n">merged_mol2_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">structure_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_resp.mol2&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">atom_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">merged_mol2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_atom_type</span><span class="p">(</span><span class="n">merged_mol2</span><span class="p">,</span> <span class="n">atom_type</span><span class="o">=</span><span class="n">atom_type</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RESP output saved: </span><span class="si">{</span><span class="n">merged_mol2_file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">File</span><span class="p">(</span><span class="n">write_file</span><span class="p">(</span><span class="n">merged_mol2_file_path</span><span class="p">,</span> <span class="n">merged_mol2</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Gauss.calc_resp2">
+<a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.base.Gauss.calc_resp2">[docs]</a>
+    <span class="k">def</span> <span class="nf">calc_resp2</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">structure_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">,</span>
+        <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">dft</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;B3LYP&quot;</span><span class="p">,</span>
+        <span class="n">basis_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;6-31g*&quot;</span><span class="p">,</span>
+        <span class="n">solvent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;water&quot;</span><span class="p">,</span>
+        <span class="n">mem_use</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;4GB&quot;</span><span class="p">,</span>
+        <span class="n">cpu_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="n">delta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">atom_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gaff2&quot;</span><span class="p">,</span>
+        <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">File</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Performs complete RESP2 charge calculation workflow.</span>
+
+<span class="sd">        Executes a full RESP2 charge calculation workflow that combines gas-phase</span>
+<span class="sd">        and solvent-phase RESP charges using interpolation. This method provides</span>
+<span class="sd">        charges that balance gas-phase and solution-phase electrostatic properties.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            structure_file (str | File): Path to the input molecular structure file or File object.</span>
+<span class="sd">            charge (int): Molecular charge (required parameter).</span>
+<span class="sd">            multiplicity (int, optional): Spin multiplicity. Defaults to 1.</span>
+<span class="sd">            dft (str, optional): DFT functional name. Defaults to &quot;B3LYP&quot;.</span>
+<span class="sd">            basis_set (str, optional): Basis set specification. Defaults to &quot;6-31g*&quot;.</span>
+<span class="sd">            solvent (str, optional): Solvent for implicit solvation model. Defaults to &quot;water&quot;.</span>
+<span class="sd">            mem_use (str, optional): Memory allocation string. Defaults to &quot;4GB&quot;.</span>
+<span class="sd">            cpu_num (int, optional): Number of processors to use. Defaults to 4.</span>
+<span class="sd">            delta (float, optional): Interpolation parameter for RESP2 charge calculation.</span>
+<span class="sd">                0.0 = pure gas-phase, 1.0 = pure solvent-phase. Defaults to 0.5.</span>
+<span class="sd">            atom_type (str, optional): Atom type to assign using antechamber. Defaults to &quot;gaff2&quot;. None for no change.</span>
+<span class="sd">            save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            File: Path to the generated MOL2 file with RESP2 charges assigned to atoms.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If any step of the RESP2 calculation workflow fails.</span>
+<span class="sd">            FileNotFoundError: If the input structure file doesn&#39;t exist.</span>
+<span class="sd">            ValueError: If gas and solvent calculations produce inconsistent atom counts.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The complete workflow includes:</span>
+<span class="sd">            1. Geometry optimization with loose convergence</span>
+<span class="sd">            2. Gas-phase single-point energy calculation with ESP analysis</span>
+<span class="sd">            3. Solvent-phase single-point energy calculation with ESP analysis</span>
+<span class="sd">            4. RESP charge fitting for both phases using antechamber</span>
+<span class="sd">            5. Interpolation of charges using RESP2 formula: (1-δ)*RESP_gas + δ*RESP_solvent</span>
+<span class="sd">            Output files include individual gas/solvent RESP files and final RESP2 file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">structure_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">structure_file</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running RESP2(</span><span class="si">{</span><span class="n">delta</span><span class="si">}</span><span class="s2">) calculation for </span><span class="si">{</span><span class="n">structure_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">original_mol2_block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_to_mol2_block</span><span class="p">(</span><span class="n">structure_file</span><span class="p">)</span>
+        <span class="n">opt_output_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_opt</span><span class="p">(</span>
+            <span class="n">structure_file</span><span class="o">=</span><span class="n">structure_file</span><span class="p">,</span>
+            <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
+            <span class="n">multiplicity</span><span class="o">=</span><span class="n">multiplicity</span><span class="p">,</span>
+            <span class="n">dft</span><span class="o">=</span><span class="n">dft</span><span class="p">,</span>
+            <span class="n">basis_set</span><span class="o">=</span><span class="n">basis_set</span><span class="p">,</span>
+            <span class="n">loose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">dispersion_correct</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">mem_use</span><span class="o">=</span><span class="n">mem_use</span><span class="p">,</span>
+            <span class="n">cpu_num</span><span class="o">=</span><span class="n">cpu_num</span><span class="p">,</span>
+            <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">gas_resp_output_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_energy</span><span class="p">(</span>
+            <span class="n">structure_file</span><span class="o">=</span><span class="n">opt_output_file</span><span class="p">,</span>
+            <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
+            <span class="n">multiplicity</span><span class="o">=</span><span class="n">multiplicity</span><span class="p">,</span>
+            <span class="n">dft</span><span class="o">=</span><span class="n">dft</span><span class="p">,</span>
+            <span class="n">basis_set</span><span class="o">=</span><span class="n">basis_set</span><span class="p">,</span>
+            <span class="n">solvent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># No solvent for gas phase</span>
+            <span class="n">dispersion_correct</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">td</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">mem_use</span><span class="o">=</span><span class="n">mem_use</span><span class="p">,</span>
+            <span class="n">cpu_num</span><span class="o">=</span><span class="n">cpu_num</span><span class="p">,</span>
+            <span class="n">esp_calculate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">gas_mol2_block</span> <span class="o">=</span> <span class="n">merge_mol2_charge</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_resp_mol2_block</span><span class="p">(</span><span class="n">gas_resp_output_file</span><span class="p">),</span> <span class="n">original_mol2_block</span>
+        <span class="p">)</span>
+        <span class="n">gas_resp_mol2_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">structure_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_gas_resp.mol2&quot;</span>
+        <span class="p">)</span>
+        <span class="n">write_file</span><span class="p">(</span><span class="n">gas_resp_mol2_file_path</span><span class="p">,</span> <span class="n">gas_mol2_block</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gas-phase energy calculation output saved: </span><span class="si">{</span><span class="n">gas_resp_mol2_file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">solvent_resp_output_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_energy</span><span class="p">(</span>
+            <span class="n">structure_file</span><span class="o">=</span><span class="n">opt_output_file</span><span class="p">,</span>
+            <span class="n">charge</span><span class="o">=</span><span class="n">charge</span><span class="p">,</span>
+            <span class="n">multiplicity</span><span class="o">=</span><span class="n">multiplicity</span><span class="p">,</span>
+            <span class="n">dft</span><span class="o">=</span><span class="n">dft</span><span class="p">,</span>
+            <span class="n">basis_set</span><span class="o">=</span><span class="n">basis_set</span><span class="p">,</span>
+            <span class="n">solvent</span><span class="o">=</span><span class="n">solvent</span><span class="p">,</span>
+            <span class="n">dispersion_correct</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">td</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">mem_use</span><span class="o">=</span><span class="n">mem_use</span><span class="p">,</span>
+            <span class="n">cpu_num</span><span class="o">=</span><span class="n">cpu_num</span><span class="p">,</span>
+            <span class="n">esp_calculate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">solvent_mol2_block</span> <span class="o">=</span> <span class="n">merge_mol2_charge</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_resp_mol2_block</span><span class="p">(</span><span class="n">solvent_resp_output_file</span><span class="p">),</span> <span class="n">original_mol2_block</span>
+        <span class="p">)</span>
+        <span class="n">solvent_resp_mol2_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">structure_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_solvent_resp.mol2&quot;</span>
+        <span class="p">)</span>
+        <span class="n">write_file</span><span class="p">(</span><span class="n">solvent_resp_mol2_file_path</span><span class="p">,</span> <span class="n">solvent_mol2_block</span><span class="p">)</span>
+        <span class="n">resp2_mol2_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">structure_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_resp2.mol2&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Solvent-phase energy calculation output saved: </span><span class="si">{</span><span class="n">solvent_resp_mol2_file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">resp2_mol2_block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_resp2_mol2_block</span><span class="p">(</span>
+            <span class="n">gas_mol2_block</span><span class="o">=</span><span class="n">gas_mol2_block</span><span class="p">,</span>
+            <span class="n">solvent_mol2_block</span><span class="o">=</span><span class="n">solvent_mol2_block</span><span class="p">,</span>
+            <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">atom_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">resp2_mol2_block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_atom_type</span><span class="p">(</span><span class="n">resp2_mol2_block</span><span class="p">,</span> <span class="n">atom_type</span><span class="o">=</span><span class="n">atom_type</span><span class="p">)</span>
+        <span class="n">result_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span>
+            <span class="n">write_file</span><span class="p">(</span>
+                <span class="n">resp2_mol2_file_path</span><span class="p">,</span>
+                <span class="n">resp2_mol2_block</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RESP2 output saved: </span><span class="si">{</span><span class="n">resp2_mol2_file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result_file</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

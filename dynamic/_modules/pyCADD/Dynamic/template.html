@@ -1,0 +1,1428 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Dynamic.template &mdash; pyCADD.Dynamic 2.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f5cff4aa"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyCADD.Dynamic
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pyCADD.Dynamic.html">pyCADD.Dynamic package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dynamic.html">Dynamic User Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyCADD.Dynamic</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyCADD.Dynamic.template</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyCADD.Dynamic.template</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Template classes for molecular dynamics input file generation.</span>
+
+<span class="sd">This module provides template classes for generating various types of molecular dynamics</span>
+<span class="sd">input files including Amber MD input files, tLEaP scripts, and MM-GBSA analysis inputs.</span>
+<span class="sd">All templates use string formatting to replace placeholders with actual simulation parameters.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">from</span> <span class="nn">pyCADD.utils.common</span> <span class="kn">import</span> <span class="n">File</span>
+<span class="kn">from</span> <span class="nn">pyCADD.utils.tool</span> <span class="kn">import</span> <span class="n">write_file</span>
+
+<span class="c1">#########################</span>
+<span class="c1"># Basic Class Definition</span>
+<span class="c1">#########################</span>
+
+
+<div class="viewcode-block" id="BaseConstructor">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor">[docs]</a>
+<span class="k">class</span> <span class="nc">BaseConstructor</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for all input file template constructors.</span>
+
+<span class="sd">    Provides common functionality for managing template parameters and generating</span>
+<span class="sd">    formatted input files for molecular dynamics simulations and related tools.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _state_dict (dict): Dictionary containing template parameters.</span>
+<span class="sd">        _state_keys (list): List of parameter keys for state management.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BaseConstructor.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the base constructor with template parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            state_dict (dict): Dictionary containing template parameters and values.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            All keys in state_dict are automatically set as instance attributes</span>
+<span class="sd">            for convenient access in template formatting.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state_dict</span> <span class="o">=</span> <span class="n">state_dict</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state_keys</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="BaseConstructor.get_state_dict">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.get_state_dict">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the current state of the constructor as a dictionary.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Dictionary containing current values of all template parameters.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Only returns parameters that were originally in the state_dict,</span>
+<span class="sd">            not any additional attributes that may have been added later.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state_keys</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="BaseConstructor.to_string">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.to_string">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates formatted template string with current parameters.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Complete formatted template string ready for file output.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            This method must be implemented by all subclasses to define</span>
+<span class="sd">            how the template should be formatted with the current parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="BaseConstructor.to_str">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.to_str">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Alias for to_string() method.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Same as to_string() - formatted template string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="BaseConstructor.to_dict">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.to_dict">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the current state as a dictionary.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Dictionary containing current template parameter values.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            This is an alias for get_state_dict() method for convenience.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="BaseConstructor.save">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.save">[docs]</a>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Saves the formatted template to a file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file_path (str): Path where the template file should be saved.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Path to the saved file.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The template is automatically formatted using to_string() before</span>
+<span class="sd">            saving. Any existing file at the target path will be overwritten.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">write_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="BaseConstructor.add_attr">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.add_attr">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Adds or updates template attributes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            **kwargs: Attribute name-value pairs to add or update.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Only attributes that were originally in the state dictionary</span>
+<span class="sd">            can be updated. New attributes not in _state_keys are ignored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state_keys</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attribute </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> already exists in the current state.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state_keys</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span></div>
+
+
+<div class="viewcode-block" id="BaseConstructor.get_attr">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.get_attr">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the value of the attribute.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">()[</span><span class="n">attr_name</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="BaseConstructor.set_attr">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.set_attr">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the value of the attribute.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state_keys</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attribute </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> can not be found in the current state.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BaseConstructor.del_attr">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.del_attr">[docs]</a>
+    <span class="k">def</span> <span class="nf">del_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Delete the attribute from the current state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">attr_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state_keys</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attribute </span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2"> can not be found in the current state.&quot;</span><span class="p">)</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">attr_name</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state_keys</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">attr_name</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="n">_LEAP_BASE_TEMPLATE_APO</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+
+<span class="s2">############Protein###########</span>
+<span class="s2">pro = loadpdb </span><span class="si">{protein_file_path}</span>
+<span class="s2">saveamberparm pro </span><span class="si">{file_prefix}</span><span class="s2">_pro.prmtop </span><span class="si">{file_prefix}</span><span class="s2">_pro.inpcrd</span>
+<span class="s2">##############################</span>
+
+<span class="s2">##########Complex#############</span>
+<span class="s2">com = combine </span><span class="si">{pro_lig}</span>
+<span class="s2">savepdb com </span><span class="si">{file_prefix}</span><span class="s2">_com.pdb</span>
+<span class="s2">saveamberparm com </span><span class="si">{file_prefix}</span><span class="s2">_com.prmtop </span><span class="si">{file_prefix}</span><span class="s2">_com.inpcrd</span>
+<span class="si">{solvatebox}</span><span class="s2"> com </span><span class="si">{box_type}</span><span class="s2"> </span><span class="si">{box_size}</span>
+<span class="s2">check com</span>
+<span class="s2">addions com </span><span class="si">{add_ions_type}</span><span class="s2"> 0</span>
+<span class="s2">saveamberparm com </span><span class="si">{file_prefix}</span><span class="s2">_comsolvate.prmtop </span><span class="si">{file_prefix}</span><span class="s2">_comsolvate.inpcrd</span>
+<span class="s2">##############################</span>
+
+<span class="s2">quit</span>
+
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">_LEAP_BASE_TEMPLATE_LIGAND</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">############Ligand############</span>
+<span class="s2">loadamberparams </span><span class="si">{frcmod_file_path}</span>
+<span class="s2">lig = loadmol2 </span><span class="si">{ligand_file_path}</span>
+<span class="s2">saveamberparm lig </span><span class="si">{file_prefix}</span><span class="s2">_lig.prmtop </span><span class="si">{file_prefix}</span><span class="s2">_lig.inpcrd</span>
+<span class="s2">##############################</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">_LEAP_BASE_TEMPLATE</span> <span class="o">=</span> <span class="n">_LEAP_BASE_TEMPLATE_LIGAND</span> <span class="o">+</span> <span class="n">_LEAP_BASE_TEMPLATE_APO</span>
+
+
+<div class="viewcode-block" id="LeapConstructor">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.LeapConstructor">[docs]</a>
+<span class="k">class</span> <span class="nc">LeapConstructor</span><span class="p">(</span><span class="n">BaseConstructor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Template constructor for Amber tLEaP input files.</span>
+
+<span class="sd">    Generates tLEaP scripts for building molecular systems including proteins,</span>
+<span class="sd">    ligands, solvent boxes, and counter ions. Supports both protein-only (apo)</span>
+<span class="sd">    and protein-ligand systems.</span>
+
+<span class="sd">    Required state_dict keys:</span>
+<span class="sd">        force_field (list): List of force field names (e.g., [&quot;protein.ff14SB&quot;, &quot;gaff2&quot;])</span>
+<span class="sd">        protein_file_path (str): Path to prepared protein PDB file</span>
+<span class="sd">        file_prefix (str): Prefix for output topology and coordinate files</span>
+<span class="sd">        box_type (str): Type of solvent box (e.g., &quot;TIP3PBOX&quot;)</span>
+<span class="sd">        box_size (float): Distance from solute to box edge in Angstroms</span>
+<span class="sd">        add_ions_type (str): Type of neutralizing ions (e.g., &quot;Na+&quot;, &quot;Cl-&quot;)</span>
+
+<span class="sd">    Optional state_dict keys (for protein-ligand systems):</span>
+<span class="sd">        ligand_file_path (str): Path to ligand MOL2 file</span>
+<span class="sd">        frcmod_file_path (str): Path to additional force field parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LeapConstructor.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.LeapConstructor.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the tLEaP template constructor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            state_dict (dict): Dictionary containing template parameters.</span>
+<span class="sd">                See class docstring for required and optional keys.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Automatically sets pro_lig attribute for complex naming in templates.</span>
+<span class="sd">            The template selection (apo vs protein-ligand) is determined by the</span>
+<span class="sd">            presence of ligand_file_path in the state dictionary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_attr</span><span class="p">(</span><span class="n">pro_lig</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;{pro lig}&quot;</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">base_template</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the appropriate base template for the system type.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Base tLEaP template string for either apo (protein-only) or</span>
+<span class="sd">                protein-ligand systems based on the presence of ligand_file_path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ligand_file_path&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_LEAP_BASE_TEMPLATE_APO</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_LEAP_BASE_TEMPLATE</span>
+
+    <span class="k">def</span> <span class="nf">_get_force_field_template</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates force field loading commands for tLEaP.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Multi-line string containing &quot;source leaprc.{ff}&quot; commands</span>
+<span class="sd">                for all force fields specified in the force_field list.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Force fields are loaded in the order specified in the force_field list.</span>
+<span class="sd">            Common force fields include protein.ff14SB, gaff2, water.tip3p, etc.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_template</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;source leaprc.</span><span class="si">{</span><span class="n">ff</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">ff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">()[</span><span class="s2">&quot;force_field&quot;</span><span class="p">]])</span>
+        <span class="k">return</span> <span class="n">_template</span>
+
+<div class="viewcode-block" id="LeapConstructor.to_string">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.LeapConstructor.to_string">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates the complete tLEaP input file content.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Complete tLEaP script with force field loading commands</span>
+<span class="sd">                followed by the formatted base template.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The output combines force field loading commands with the</span>
+<span class="sd">            system-specific template (apo or protein-ligand) formatted</span>
+<span class="sd">            with the current state parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_force_field_template</span><span class="p">()</span>
+        <span class="n">output_str</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">output_str</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SimulationConstructor">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.SimulationConstructor">[docs]</a>
+<span class="k">class</span> <span class="nc">SimulationConstructor</span><span class="p">(</span><span class="n">BaseConstructor</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SimulationConstructor.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.SimulationConstructor.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">state_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;cntrl&quot;</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">],</span>
+        <span class="n">end_cfg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a SimulationConstructor for MD simulation input files.</span>
+
+<span class="sd">        Creates a constructor for generating MD simulation input files used for</span>
+<span class="sd">        energy minimization, heating, equilibration, and production simulations.</span>
+<span class="sd">        Supports both control (&amp;cntrl) and weight (&amp;wt) namelist formats.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            state_dict: Dictionary containing simulation parameters and their values.</span>
+<span class="sd">            type: Type of simulation namelist (&#39;cntrl&#39; for standard MD parameters,</span>
+<span class="sd">                &#39;wt&#39; for weight parameters).</span>
+<span class="sd">            end_cfg: Whether to add &quot;END&quot; string at the end of input file.</span>
+<span class="sd">                Defaults to True.</span>
+<span class="sd">            title: Optional title string for the simulation stage.</span>
+<span class="sd">                Defaults to None.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The constructor supports two main Amber MD input formats:</span>
+<span class="sd">            - &amp;cntrl: Standard MD control parameters (imin, nstlim, dt, etc.)</span>
+<span class="sd">            - &amp;wt: Weight parameters for restraints and temperature ramping</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="nb">type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_end_cfg</span> <span class="o">=</span> <span class="n">end_cfg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span></div>
+
+
+<div class="viewcode-block" id="SimulationConstructor.to_string">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.SimulationConstructor.to_string">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate formatted MD simulation input file content.</span>
+
+<span class="sd">        Creates a properly formatted Amber MD input file with namelist syntax,</span>
+<span class="sd">        including optional title, parameter assignments, and termination strings.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Formatted MD input file content with:</span>
+<span class="sd">                - Optional title line</span>
+<span class="sd">                - Namelist declaration (&amp;cntrl or &amp;wt)</span>
+<span class="sd">                - Parameter assignments (key=value format)</span>
+<span class="sd">                - Namelist termination (/)</span>
+<span class="sd">                - Optional END statement</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Output format follows Amber MD input conventions:</span>
+<span class="sd">            ```</span>
+<span class="sd">            [title]</span>
+<span class="sd">            &amp;namelist_type</span>
+<span class="sd">            param1=value1,</span>
+<span class="sd">            param2=value2,</span>
+<span class="sd">            ...</span>
+<span class="sd">            /</span>
+<span class="sd">            [END]</span>
+<span class="sd">            ```</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="se">\n</span><span class="s2">&amp;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&amp;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">output_str</span> <span class="o">+=</span> <span class="s2">&quot;,</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+        <span class="p">)</span>
+        <span class="n">output_str</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">/</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_cfg</span><span class="p">:</span>
+            <span class="n">output_str</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">END&quot;</span>
+        <span class="k">return</span> <span class="n">output_str</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="AnalysisConstructor">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.AnalysisConstructor">[docs]</a>
+<span class="k">class</span> <span class="nc">AnalysisConstructor</span><span class="p">(</span><span class="n">BaseConstructor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor for MD trajectory analysis input files.</span>
+
+<span class="sd">    Generates input files for various types of MD trajectory analysis including</span>
+<span class="sd">    general analysis, GB/PB calculations, decomposition analysis, and normal</span>
+<span class="sd">    mode analysis using Amber analysis tools.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _type: Type of analysis to perform.</span>
+<span class="sd">        title: Optional title for the analysis.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AnalysisConstructor.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.AnalysisConstructor.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">state_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;general&quot;</span><span class="p">,</span> <span class="s2">&quot;gb&quot;</span><span class="p">,</span> <span class="s2">&quot;pb&quot;</span><span class="p">,</span> <span class="s2">&quot;decomp&quot;</span><span class="p">,</span> <span class="s2">&quot;nmode&quot;</span><span class="p">],</span>
+        <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize an AnalysisConstructor for MD trajectory analysis.</span>
+
+<span class="sd">        Creates a constructor for generating analysis input files used with</span>
+<span class="sd">        Amber trajectory analysis tools like cpptraj, MMPBSA, and nmode.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            state_dict: Dictionary containing analysis parameters and their values.</span>
+<span class="sd">            type: Type of analysis to perform:</span>
+<span class="sd">                - &#39;general&#39;: General trajectory analysis (RMSD, RMSF, etc.)</span>
+<span class="sd">                - &#39;gb&#39;: Generalized Born solvation analysis</span>
+<span class="sd">                - &#39;pb&#39;: Poisson-Boltzmann solvation analysis  </span>
+<span class="sd">                - &#39;decomp&#39;: Energy decomposition analysis</span>
+<span class="sd">                - &#39;nmode&#39;: Normal mode analysis</span>
+<span class="sd">            title: Optional title string for the analysis job.</span>
+<span class="sd">                Defaults to None.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Different analysis types require specific parameter sets and</span>
+<span class="sd">            are processed by different Amber analysis programs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="nb">type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span></div>
+
+
+<div class="viewcode-block" id="AnalysisConstructor.to_string">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.AnalysisConstructor.to_string">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate formatted analysis input file content.</span>
+
+<span class="sd">        Creates a properly formatted Amber analysis input file with comment</span>
+<span class="sd">        headers, namelist syntax, and parameter assignments for trajectory</span>
+<span class="sd">        analysis tools.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Formatted analysis input file content with:</span>
+<span class="sd">                - Optional comment title line (# title)</span>
+<span class="sd">                - Namelist declaration (&amp;analysis_type)</span>
+<span class="sd">                - Parameter assignments with leading space</span>
+<span class="sd">                - Namelist termination (/)</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Output format follows Amber analysis tool conventions:</span>
+<span class="sd">            ```</span>
+<span class="sd">            # [title]</span>
+<span class="sd">            &amp;analysis_type</span>
+<span class="sd">             param1=value1,</span>
+<span class="sd">             param2=value2,</span>
+<span class="sd">            ...</span>
+<span class="sd">            /</span>
+<span class="sd">            ```</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;# </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">output_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&amp;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">output_str</span> <span class="o">+=</span> <span class="s2">&quot;,</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span><span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+        <span class="p">)</span>
+        <span class="n">output_str</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">/</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">output_str</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MultiConstructorManager">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager">[docs]</a>
+<span class="k">class</span> <span class="nc">MultiConstructorManager</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manager for handling multiple template constructors.</span>
+
+<span class="sd">    Provides a unified interface for managing multiple BaseConstructor instances,</span>
+<span class="sd">    allowing batch operations, state aggregation, and combined output generation</span>
+<span class="sd">    for complex MD workflows requiring multiple input files.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        constructor_list: List of BaseConstructor instances managed by this manager.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MultiConstructorManager.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constructor_list</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a MultiConstructorManager.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            constructor_list: Optional list of BaseConstructor instances to manage.</span>
+<span class="sd">                Defaults to empty list if None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constructor_list</span> <span class="o">=</span> <span class="n">constructor_list</span> <span class="k">if</span> <span class="n">constructor_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get aggregated state dictionary from all managed constructors.</span>
+
+<span class="sd">        Combines state dictionaries from all constructors in the manager,</span>
+<span class="sd">        with later constructors potentially overriding parameters from</span>
+<span class="sd">        earlier ones.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Aggregated state dictionary containing all parameters</span>
+<span class="sd">                from managed constructors. Empty dict if no constructors present.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Parameter conflicts are resolved by last-constructor-wins policy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_state_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constructor_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_state_dict</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">constructor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">constructor_list</span><span class="p">:</span>
+                <span class="n">_state_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">constructor</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">())</span>
+            <span class="k">return</span> <span class="n">_state_dict</span>
+
+<div class="viewcode-block" id="MultiConstructorManager.is_empty">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager.is_empty">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the manager contains any constructors.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if constructor list is empty, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">constructor_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="MultiConstructorManager.add_constructor">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager.add_constructor">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_constructor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constructor</span><span class="p">:</span> <span class="n">BaseConstructor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a constructor to the management list.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            constructor: BaseConstructor instance to add to the manager.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constructor_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">constructor</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MultiConstructorManager.del_constructor">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager.del_constructor">[docs]</a>
+    <span class="k">def</span> <span class="nf">del_constructor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constructor</span><span class="p">:</span> <span class="n">BaseConstructor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a constructor from the management list.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            constructor: BaseConstructor instance to remove from the manager.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If constructor is not found in the list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constructor_list</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">constructor</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MultiConstructorManager.to_string">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager.to_string">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate combined string output from all managed constructors.</span>
+
+<span class="sd">        Concatenates the string output from all constructors in the management</span>
+<span class="sd">        list, maintaining the order they were added.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Combined string output from all managed constructors.</span>
+<span class="sd">                Empty string if no constructors present.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">tmp</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span> <span class="k">for</span> <span class="n">tmp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">constructor_list</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">output_str</span></div>
+
+
+<div class="viewcode-block" id="MultiConstructorManager.save">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager.save">[docs]</a>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save combined constructor output to file.</span>
+
+<span class="sd">        Writes the concatenated string output from all managed constructors</span>
+<span class="sd">        to the specified file path.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file_path: Path where the combined output should be saved.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Path to the saved file.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Uses the write_file utility function for file operations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">write_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span></div>
+</div>
+
+
+
+<span class="c1">#########################</span>
+<span class="c1"># Default Config</span>
+<span class="c1">#########################</span>
+
+
+<span class="n">LEAP_DEFAULT</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;force_field&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;protein.ff14SB&quot;</span><span class="p">,</span> <span class="s2">&quot;gaff2&quot;</span><span class="p">,</span> <span class="s2">&quot;water.tip3p&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;ligand_file_path&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="s2">&quot;frcmod_file_path&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="s2">&quot;protein_file_path&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="s2">&quot;file_prefix&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="s2">&quot;box_size&quot;</span><span class="p">:</span> <span class="s2">&quot;12.0&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;box_type&quot;</span><span class="p">:</span> <span class="s2">&quot;TIP3PBOX&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;add_ions_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Na+&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;solvatebox&quot;</span><span class="p">:</span> <span class="s2">&quot;solvatebox&quot;</span>
+<span class="p">}</span>
+
+<span class="n">MINIMIZE_DEFAULT</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;imin&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;cut&quot;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>
+    <span class="s2">&quot;ntpr&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="s2">&quot;ntb&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;ntr&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;ntc&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;maxcyc&quot;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span>
+    <span class="s2">&quot;ncyc&quot;</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">NVT_DEFAULT</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;imin&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;ntx&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="s2">&quot;irest&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;temp0&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>
+    <span class="s2">&quot;ntt&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s2">&quot;gamma_ln&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+    <span class="s2">&quot;ntp&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;ntb&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;ntc&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;ntf&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;cut&quot;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>
+    <span class="s2">&quot;ntpr&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="s2">&quot;ntwr&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="s2">&quot;ntwx&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="s2">&quot;nstlim&quot;</span><span class="p">:</span> <span class="mi">500000</span><span class="p">,</span>
+    <span class="s2">&quot;dt&quot;</span><span class="p">:</span> <span class="mf">0.002</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">NPT_DEFAULT</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;imin&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;ntx&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="s2">&quot;irest&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;temp0&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>
+    <span class="s2">&quot;ntt&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s2">&quot;gamma_ln&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+    <span class="s2">&quot;ntp&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;taup&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+    <span class="s2">&quot;ntb&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;ntc&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;ntf&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;cut&quot;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>
+    <span class="s2">&quot;ntpr&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="s2">&quot;ntwr&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="s2">&quot;ntwx&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="s2">&quot;nstlim&quot;</span><span class="p">:</span> <span class="mi">50000000</span><span class="p">,</span>
+    <span class="s2">&quot;dt&quot;</span><span class="p">:</span> <span class="mf">0.002</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1">#########################</span>
+<span class="c1"># LEaP Input File Class</span>
+<span class="c1">#########################</span>
+
+
+<div class="viewcode-block" id="LeapInput">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.LeapInput">[docs]</a>
+<span class="k">class</span> <span class="nc">LeapInput</span><span class="p">(</span><span class="n">LeapConstructor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;tLEaP input file constructor for system preparation.</span>
+
+<span class="sd">    Specialized constructor for generating tLEaP scripts that prepare MD systems</span>
+<span class="sd">    including protein structures, ligands, solvation, and ion neutralization.</span>
+<span class="sd">    Extends LeapConstructor with convenient parameter management for common</span>
+<span class="sd">    MD system setup tasks.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LeapInput.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.LeapInput.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">protein_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">,</span>
+        <span class="n">ligand_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">frcmod_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">file_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">box_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">box_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;TIP3PBOX&quot;</span><span class="p">,</span>
+        <span class="n">solvatebox</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;solvatebox&quot;</span><span class="p">,</span>
+        <span class="n">add_ions_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Na+&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a LeapInput constructor for tLEaP system preparation.</span>
+
+<span class="sd">        Creates a tLEaP input constructor with default force fields and</span>
+<span class="sd">        customizable system parameters for protein-ligand MD simulations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            protein_file_path: Path to protein structure file (PDB format).</span>
+<span class="sd">            ligand_file_path: Optional path to ligand structure file.</span>
+<span class="sd">                Defaults to None for apo simulations.</span>
+<span class="sd">            frcmod_file_path: Optional path to custom force field modification file.</span>
+<span class="sd">                Defaults to None.</span>
+<span class="sd">            file_prefix: Prefix for generated output files.</span>
+<span class="sd">                Defaults to &quot;Untitled&quot; if None.</span>
+<span class="sd">            box_size: Size of solvation box in Angstroms.</span>
+<span class="sd">                Defaults to 10.0.</span>
+<span class="sd">            box_type: Type of water box (TIP3PBOX, TIP4PBOX, etc.).</span>
+<span class="sd">                Defaults to &quot;TIP3PBOX&quot;.</span>
+<span class="sd">            solvatebox: Solvation command type.</span>
+<span class="sd">                Defaults to &quot;solvatebox&quot;.</span>
+<span class="sd">            add_ions_type: Type of ions for neutralization.</span>
+<span class="sd">                Defaults to &quot;Na+&quot;.</span>
+<span class="sd">            **kwargs: Additional parameters to override default values.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Default force field combination includes:</span>
+<span class="sd">            - protein.ff14SB: Amber protein force field</span>
+<span class="sd">            - gaff2: General Amber force field for small molecules  </span>
+<span class="sd">            - water.tip3p: TIP3P water model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">file_prefix</span> <span class="o">=</span> <span class="s2">&quot;Untitled&quot;</span> <span class="k">if</span> <span class="n">file_prefix</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">file_prefix</span>
+        <span class="n">state_dict</span> <span class="o">=</span> <span class="n">LEAP_DEFAULT</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">state_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;ligand_file_path&quot;</span><span class="p">:</span> <span class="n">File</span><span class="p">(</span><span class="n">ligand_file_path</span><span class="p">)</span><span class="o">.</span><span class="n">file_path</span> <span class="k">if</span> <span class="n">ligand_file_path</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;frcmod_file_path&quot;</span><span class="p">:</span> <span class="n">File</span><span class="p">(</span><span class="n">frcmod_file_path</span><span class="p">)</span><span class="o">.</span><span class="n">file_path</span> <span class="k">if</span> <span class="n">frcmod_file_path</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;protein_file_path&quot;</span><span class="p">:</span> <span class="n">File</span><span class="p">(</span><span class="n">protein_file_path</span><span class="p">)</span><span class="o">.</span><span class="n">file_path</span><span class="p">,</span>
+                <span class="s2">&quot;file_prefix&quot;</span><span class="p">:</span> <span class="n">file_prefix</span><span class="p">,</span>
+                <span class="s2">&quot;box_size&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">box_size</span><span class="p">),</span>
+                <span class="s2">&quot;box_type&quot;</span><span class="p">:</span> <span class="n">box_type</span><span class="p">,</span>
+                <span class="s2">&quot;add_ions_type&quot;</span><span class="p">:</span> <span class="n">add_ions_type</span><span class="p">,</span>
+                <span class="s2">&quot;solvatebox&quot;</span><span class="p">:</span> <span class="n">solvatebox</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">state_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="c1">#########################</span>
+<span class="c1"># MD Simulation Input File</span>
+<span class="c1">#########################</span>
+
+
+<div class="viewcode-block" id="MinimizeInput">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MinimizeInput">[docs]</a>
+<span class="k">class</span> <span class="nc">MinimizeInput</span><span class="p">(</span><span class="n">SimulationConstructor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor for energy minimization input files.</span>
+
+<span class="sd">    Generates Amber input files for energy minimization simulations using</span>
+<span class="sd">    steepest descent and conjugate gradient algorithms to relax molecular</span>
+<span class="sd">    structures before MD simulations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MinimizeInput.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MinimizeInput.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a MinimizeInput constructor.</span>
+
+<span class="sd">        Creates an energy minimization input with default parameters optimized</span>
+<span class="sd">        for typical protein-ligand systems.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            title: Optional title for the minimization job.</span>
+<span class="sd">                Defaults to &quot;Minimization&quot;.</span>
+<span class="sd">            **kwargs: Additional parameters to override defaults.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Default minimization parameters:</span>
+<span class="sd">            - imin=1: Energy minimization flag</span>
+<span class="sd">            - cut=8.0: Nonbonded cutoff distance (Å)</span>
+<span class="sd">            - ntpr=10: Print frequency</span>
+<span class="sd">            - ntb=1: Constant volume periodic boundaries</span>
+<span class="sd">            - ntr=0: No positional restraints</span>
+<span class="sd">            - ntc=1: No SHAKE constraints</span>
+<span class="sd">            - maxcyc=10000: Maximum minimization cycles</span>
+<span class="sd">            - ncyc=5000: Steepest descent cycles before conjugate gradient</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Minimization&quot;</span> <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">title</span>
+        <span class="n">state_dict</span> <span class="o">=</span> <span class="n">MINIMIZE_DEFAULT</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">state_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">state_dict</span><span class="p">,</span> <span class="s2">&quot;cntrl&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RestrainedMinimizeInput">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.RestrainedMinimizeInput">[docs]</a>
+<span class="k">class</span> <span class="nc">RestrainedMinimizeInput</span><span class="p">(</span><span class="n">SimulationConstructor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor for restrained energy minimization input files.</span>
+
+<span class="sd">    Generates Amber input files for energy minimization with positional</span>
+<span class="sd">    restraints on specified atoms, typically used to minimize solvent</span>
+<span class="sd">    and ions while keeping protein structure fixed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RestrainedMinimizeInput.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.RestrainedMinimizeInput.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">restraintmask</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">restraint_wt</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a RestrainedMinimizeInput constructor.</span>
+
+<span class="sd">        Creates a restrained energy minimization input with specified atom</span>
+<span class="sd">        restraints and force constants.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            restraintmask: Amber mask syntax specifying atoms to restrain</span>
+<span class="sd">                (e.g., &quot;:1-100@CA,C,N,O&quot; for protein backbone).</span>
+<span class="sd">            restraint_wt: Force constant for positional restraints in kcal/mol/Å².</span>
+<span class="sd">                Defaults to 2.0.</span>
+<span class="sd">            title: Optional title for the minimization job.</span>
+<span class="sd">                Defaults to &quot;Restrained Minimization&quot;.</span>
+<span class="sd">            **kwargs: Additional parameters to override defaults.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Builds on standard minimization with:</span>
+<span class="sd">            - ntr=1: Enable positional restraints</span>
+<span class="sd">            - restraintmask: Atom selection for restraints</span>
+<span class="sd">            - restraint_wt: Restraint force constant</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Restrained Minimization&quot;</span> <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">title</span>
+        <span class="n">state_dict</span> <span class="o">=</span> <span class="n">MINIMIZE_DEFAULT</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">state_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;ntr&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;restraintmask&quot;</span><span class="p">:</span> <span class="n">restraintmask</span><span class="p">,</span> <span class="s2">&quot;restraint_wt&quot;</span><span class="p">:</span> <span class="n">restraint_wt</span><span class="p">})</span>
+        <span class="n">state_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">state_dict</span><span class="p">,</span> <span class="s2">&quot;cntrl&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="NVTInput">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.NVTInput">[docs]</a>
+<span class="k">class</span> <span class="nc">NVTInput</span><span class="p">(</span><span class="n">SimulationConstructor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor for NVT (constant volume, temperature) MD simulation input files.</span>
+
+<span class="sd">    Generates Amber input files for NVT ensemble molecular dynamics simulations</span>
+<span class="sd">    with temperature control via Langevin dynamics, typically used for</span>
+<span class="sd">    equilibration after minimization or heating phases.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="NVTInput.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.NVTInput.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end_cfg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize an NVTInput constructor.</span>
+
+<span class="sd">        Creates an NVT simulation input with default parameters for temperature</span>
+<span class="sd">        equilibration at 300 K using Langevin thermostat.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            end_cfg: Whether to add &quot;END&quot; string at end of input file.</span>
+<span class="sd">                Defaults to True.</span>
+<span class="sd">            title: Optional title for the simulation.</span>
+<span class="sd">                Defaults to &quot;NVT Simulation&quot;.</span>
+<span class="sd">            **kwargs: Additional parameters to override defaults.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Default NVT parameters:</span>
+<span class="sd">            - imin=0: MD simulation flag</span>
+<span class="sd">            - ntx=5: Read coordinates and velocities</span>
+<span class="sd">            - irest=1: Restart simulation</span>
+<span class="sd">            - temp0=300: Target temperature (K)</span>
+<span class="sd">            - ntt=3: Langevin thermostat</span>
+<span class="sd">            - gamma_ln=2.0: Collision frequency (ps⁻¹)</span>
+<span class="sd">            - ntp=0: No pressure control</span>
+<span class="sd">            - ntb=1: Constant volume periodic boundaries</span>
+<span class="sd">            - ntc=2: SHAKE constraints on H-bonds</span>
+<span class="sd">            - ntf=2: Omit forces for constrained bonds</span>
+<span class="sd">            - nstlim=500000: Simulation steps (1 ns at dt=0.002 ps)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;NVT Simulation&quot;</span> <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">title</span>
+        <span class="n">state_dict</span> <span class="o">=</span> <span class="n">NVT_DEFAULT</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">state_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">state_dict</span><span class="p">,</span> <span class="s2">&quot;cntrl&quot;</span><span class="p">,</span> <span class="n">end_cfg</span><span class="o">=</span><span class="n">end_cfg</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="HeatInput">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput">[docs]</a>
+<span class="k">class</span> <span class="nc">HeatInput</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor for system heating MD simulation with temperature ramping.</span>
+
+<span class="sd">    Manages gradual temperature increase from 0 K to target temperature using</span>
+<span class="sd">    Amber weight (&amp;wt) namelist for controlled heating phases. Combines NVT</span>
+<span class="sd">    simulation parameters with temperature ramping schedules.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        HEAT_TEMPLATE: Default weight parameters for temperature ramping.</span>
+<span class="sd">        stage_1_dict: Weight parameters for heating phase.</span>
+<span class="sd">        stage_2_dict: Weight parameters for temperature maintenance phase.</span>
+<span class="sd">        manager: MultiConstructorManager for combining simulation components.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">HEAT_TEMPLATE</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;&#39;TEMP0&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;ISTEP1&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ISTEP2&quot;</span><span class="p">:</span> <span class="mi">9000</span><span class="p">,</span> <span class="s2">&quot;VALUE1&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;VALUE2&quot;</span><span class="p">:</span> <span class="mf">300.0</span><span class="p">}</span>
+
+<div class="viewcode-block" id="HeatInput.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">target_temp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">300.0</span><span class="p">,</span>
+        <span class="n">heat_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">9000</span><span class="p">,</span>
+        <span class="n">total_step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
+        <span class="n">step_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.002</span><span class="p">,</span>
+        <span class="n">restraint_wt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">restraintmask</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a HeatInput constructor for controlled heating.</span>
+
+<span class="sd">        Creates a heating protocol with linear temperature ramping followed</span>
+<span class="sd">        by temperature maintenance using Amber weight parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            target_temp: Target temperature for heating in Kelvin.</span>
+<span class="sd">                Defaults to 300.0.</span>
+<span class="sd">            heat_step: Number of steps for temperature ramping phase.</span>
+<span class="sd">                Must be less than total_step. Defaults to 9000.</span>
+<span class="sd">            total_step: Total simulation steps for entire heating protocol.</span>
+<span class="sd">                Defaults to 10000.</span>
+<span class="sd">            step_length: Time step length in picoseconds.</span>
+<span class="sd">                Defaults to 0.002.</span>
+<span class="sd">            restraint_wt: Optional restraint force constant in kcal/mol/Å².</span>
+<span class="sd">                Defaults to None.</span>
+<span class="sd">            restraintmask: Optional Amber mask for restrained atoms.</span>
+<span class="sd">                Defaults to None.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Creates two-stage heating protocol:</span>
+<span class="sd">            1. Ramping: 0 K → target_temp over heat_step steps</span>
+<span class="sd">            2. Maintenance: target_temp held for remaining steps</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stage_1_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HEAT_TEMPLATE</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stage_1_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;ISTEP2&quot;</span><span class="p">:</span> <span class="n">heat_step</span><span class="p">,</span> <span class="s2">&quot;VALUE2&quot;</span><span class="p">:</span> <span class="n">target_temp</span><span class="p">})</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stage_2_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">HEAT_TEMPLATE</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stage_2_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;ISTEP1&quot;</span><span class="p">:</span> <span class="n">heat_step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s2">&quot;ISTEP2&quot;</span><span class="p">:</span> <span class="n">total_step</span><span class="p">,</span>
+                <span class="s2">&quot;VALUE1&quot;</span><span class="p">:</span> <span class="n">target_temp</span><span class="p">,</span>
+                <span class="s2">&quot;VALUE2&quot;</span><span class="p">:</span> <span class="n">target_temp</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_temp</span> <span class="o">=</span> <span class="n">target_temp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">heat_step</span> <span class="o">=</span> <span class="n">heat_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_step</span> <span class="o">=</span> <span class="n">total_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_length</span> <span class="o">=</span> <span class="n">step_length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">restraint_wt</span> <span class="o">=</span> <span class="n">restraint_wt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">restraintmask</span> <span class="o">=</span> <span class="n">restraintmask</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span> <span class="o">=</span> <span class="n">MultiConstructorManager</span><span class="p">()</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get aggregated state dictionary from managed constructors.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Combined state parameters from all managed constructors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">_state_dict</span>
+
+<div class="viewcode-block" id="HeatInput.get_state_dict">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.get_state_dict">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_state_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get current state dictionary.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Current state parameters for the heating protocol.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state_dict</span></div>
+
+
+<div class="viewcode-block" id="HeatInput.add_nvt">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.add_nvt">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_nvt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add NVT simulation component to heating protocol.</span>
+
+<span class="sd">        Creates and adds an NVT simulation constructor configured for heating</span>
+<span class="sd">        with appropriate initial conditions and output frequencies.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            **kwargs: Additional parameters to override NVT defaults.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Configures NVT for heating with:</span>
+<span class="sd">            - irest=0, ntx=1: Cold start from coordinates only</span>
+<span class="sd">            - tempi=0.0: Initial temperature 0 K</span>
+<span class="sd">            - Custom output frequencies for heating monitoring</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nvt_part</span> <span class="o">=</span> <span class="n">NVTInput</span><span class="p">(</span>
+            <span class="n">end_cfg</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">imin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">irest</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">ntx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">nstlim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">total_step</span><span class="p">,</span>
+            <span class="n">tempi</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">temp0</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_temp</span><span class="p">,</span>
+            <span class="n">dt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">step_length</span><span class="p">,</span>
+            <span class="n">ntpr</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+            <span class="n">ntwr</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+            <span class="n">ntwx</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Heat&quot;</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="n">nvt_part</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HeatInput.add_heat">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.add_heat">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_heat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stage_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add temperature ramping weight parameters to heating protocol.</span>
+
+<span class="sd">        Adds weight (&amp;wt) namelist sections for controlling temperature ramping</span>
+<span class="sd">        during the heating simulation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            stage_dict: Optional custom weight parameters dictionary.</span>
+<span class="sd">                If None, uses default two-stage heating protocol.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Default protocol adds:</span>
+<span class="sd">            1. Stage 1: Linear ramp from 0 K to target temperature</span>
+<span class="sd">            2. Stage 2: Hold at target temperature</span>
+<span class="sd">            3. END directive to terminate weight section</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">stage_dict</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span>
+                <span class="n">SimulationConstructor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage_1_dict</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">,</span> <span class="n">end_cfg</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span>
+                <span class="n">SimulationConstructor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stage_2_dict</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">,</span> <span class="n">end_cfg</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span>
+                <span class="n">SimulationConstructor</span><span class="p">({</span><span class="s2">&quot;TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;&#39;END&#39;&quot;</span><span class="p">},</span> <span class="s2">&quot;wt&quot;</span><span class="p">,</span> <span class="n">end_cfg</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="n">SimulationConstructor</span><span class="p">(</span><span class="n">stage_dict</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">,</span> <span class="n">end_cfg</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_default_workflow</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute default heating workflow if manager is empty.</span>
+
+<span class="sd">        Automatically sets up complete heating protocol with NVT simulation</span>
+<span class="sd">        and temperature ramping if no constructors have been added manually.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Applies restraints if both restraint_wt and restraintmask are provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">restraint_wt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">restraintmask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_nvt</span><span class="p">(</span><span class="n">restraintmask</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">restraintmask</span><span class="p">,</span> <span class="n">restraint_wt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">restraint_wt</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_nvt</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_heat</span><span class="p">()</span>
+
+<div class="viewcode-block" id="HeatInput.to_string">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.to_string">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate complete heating input file content.</span>
+
+<span class="sd">        Executes default workflow if needed, then returns formatted input</span>
+<span class="sd">        file content for Amber heating simulation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Complete Amber input file with NVT and weight sections.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_workflow</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="HeatInput.save">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.save">[docs]</a>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save heating input file to disk.</span>
+
+<span class="sd">        Executes default workflow if needed, then saves complete input</span>
+<span class="sd">        file content to the specified path.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file_path: Path where the heating input file should be saved.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_workflow</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="NPTInput">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.NPTInput">[docs]</a>
+<span class="k">class</span> <span class="nc">NPTInput</span><span class="p">(</span><span class="n">SimulationConstructor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor for NPT (constant pressure, temperature) MD simulation input files.</span>
+
+<span class="sd">    Generates Amber input files for NPT ensemble molecular dynamics simulations</span>
+<span class="sd">    with both temperature and pressure control, typically used for production</span>
+<span class="sd">    simulations and system equilibration at physiological conditions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="NPTInput.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.NPTInput.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end_cfg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize an NPTInput constructor.</span>
+
+<span class="sd">        Creates an NPT simulation input with default parameters for production</span>
+<span class="sd">        MD simulations at 300 K and 1 atm using Langevin thermostat and</span>
+<span class="sd">        Berendsen barostat.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            end_cfg: Whether to add &quot;END&quot; string at end of input file.</span>
+<span class="sd">                Defaults to True.</span>
+<span class="sd">            title: Optional title for the simulation.</span>
+<span class="sd">                Defaults to &quot;NPT Simulation&quot;.</span>
+<span class="sd">            **kwargs: Additional parameters to override defaults.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Default NPT parameters:</span>
+<span class="sd">            - imin=0: MD simulation flag</span>
+<span class="sd">            - ntx=5: Read coordinates and velocities</span>
+<span class="sd">            - irest=1: Restart simulation</span>
+<span class="sd">            - temp0=300: Target temperature (K)</span>
+<span class="sd">            - ntt=3: Langevin thermostat</span>
+<span class="sd">            - ntp=1: Isotropic pressure scaling</span>
+<span class="sd">            - taup=2.0: Pressure relaxation time (ps)</span>
+<span class="sd">            - ntb=2: Constant pressure periodic boundaries</span>
+<span class="sd">            - nstlim=50000000: Long production simulation (100 ns)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;NPT Simulation&quot;</span> <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">title</span>
+        <span class="n">state_dict</span> <span class="o">=</span> <span class="n">NPT_DEFAULT</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">state_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">state_dict</span><span class="p">,</span> <span class="s2">&quot;cntrl&quot;</span><span class="p">,</span> <span class="n">end_cfg</span><span class="o">=</span><span class="n">end_cfg</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="c1">#########################</span>
+<span class="c1"># MD Trajectory Analysis Input File</span>
+<span class="c1">#########################</span>
+
+
+<span class="n">MMGBSA_GENERAL_DEFAULT</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;startframe&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="s2">&quot;endframe&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="s2">&quot;interval&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;keep_files&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;netcdf&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">MMGBSA_GB_DEFAULT</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;igb&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;saltcon&quot;</span><span class="p">:</span> <span class="mf">0.15</span><span class="p">}</span>
+
+<span class="n">MMGBSA_DECOMP_DEFAULT</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;idecomp&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;dec_verbose&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">MMGBSA_PB_DEFAULT</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;istrng&quot;</span><span class="p">:</span> <span class="mf">0.15</span><span class="p">,</span>
+    <span class="s2">&quot;fillration&quot;</span><span class="p">:</span> <span class="mf">4.0</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">MMGBSA_NMODE_DEFAULT</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;maxcyc&quot;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span>
+    <span class="s2">&quot;drms&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="MMGBSAInput">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput">[docs]</a>
+<span class="k">class</span> <span class="nc">MMGBSAInput</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constructor for MM/GBSA (MM/PBSA) analysis input files.</span>
+
+<span class="sd">    Generates input files for Molecular Mechanics/Generalized Born Surface Area</span>
+<span class="sd">    or Poisson-Boltzmann Surface Area free energy calculations using AMBER&#39;s</span>
+<span class="sd">    MMPBSA.py tool. Supports various analysis methods including GB, PB,</span>
+<span class="sd">    decomposition, and normal mode analysis.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        general_dict: General analysis parameters.</span>
+<span class="sd">        manager: MultiConstructorManager for combining analysis components.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MMGBSAInput.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end_frame</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">step_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize an MMGBSAInput constructor.</span>
+
+<span class="sd">        Sets up MM/GBSA analysis with frame range specification and default</span>
+<span class="sd">        general parameters for trajectory processing.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            start_frame: First trajectory frame to analyze (1-indexed).</span>
+<span class="sd">            end_frame: Last trajectory frame to analyze (inclusive).</span>
+<span class="sd">            step_size: Frame interval for analysis sampling.</span>
+<span class="sd">                Defaults to 1 (analyze every frame).</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Frame numbering follows AMBER convention (1-indexed).</span>
+<span class="sd">            Analysis will process frames: start_frame, start_frame+step_size,</span>
+<span class="sd">            ..., up to end_frame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">general_dict</span> <span class="o">=</span> <span class="n">MMGBSA_GENERAL_DEFAULT</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">general_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">startframe</span><span class="o">=</span><span class="n">start_frame</span><span class="p">,</span> <span class="n">endframe</span><span class="o">=</span><span class="n">end_frame</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">step_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span> <span class="o">=</span> <span class="n">MultiConstructorManager</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="MMGBSAInput.add_general">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.add_general">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_general</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add general analysis parameters section.</span>
+
+<span class="sd">        Adds the &amp;general namelist with trajectory processing parameters,</span>
+<span class="sd">        file handling options, and output control settings.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            title: Optional title comment for the analysis.</span>
+<span class="sd">            **kwargs: Additional general parameters to override defaults.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Common parameters include verbose, keep_files, netcdf for</span>
+<span class="sd">            controlling output detail and file management.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">general_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">general_part</span> <span class="o">=</span> <span class="n">AnalysisConstructor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">general_dict</span><span class="p">,</span> <span class="s2">&quot;general&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="n">general_part</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MMGBSAInput.add_gb">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.add_gb">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_gb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add Generalized Born analysis parameters section.</span>
+
+<span class="sd">        Adds the &amp;gb namelist for MM/GBSA calculations using implicit</span>
+<span class="sd">        solvent models based on Generalized Born theory.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            **kwargs: GB parameters to override defaults.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Default GB model (igb=5) with physiological salt concentration</span>
+<span class="sd">            (saltcon=0.15 M). Other igb values: 1, 2, 5, 7, 8 for different</span>
+<span class="sd">            GB models (Hawkins, Onufriev, etc.).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gb_dict</span> <span class="o">=</span> <span class="n">MMGBSA_GB_DEFAULT</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">gb_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">gb_part</span> <span class="o">=</span> <span class="n">AnalysisConstructor</span><span class="p">(</span><span class="n">gb_dict</span><span class="p">,</span> <span class="s2">&quot;gb&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="n">gb_part</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MMGBSAInput.add_pb">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.add_pb">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_pb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add Poisson-Boltzmann analysis parameters section.</span>
+
+<span class="sd">        Adds the &amp;pb namelist for MM/PBSA calculations using explicit</span>
+<span class="sd">        solution of the Poisson-Boltzmann equation for electrostatics.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            **kwargs: PB parameters to override defaults.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Default parameters include ionic strength (istrng=0.15) and</span>
+<span class="sd">            grid fill ratio (fillration=4.0) for finite difference</span>
+<span class="sd">            Poisson-Boltzmann solver.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pb_dict</span> <span class="o">=</span> <span class="n">MMGBSA_PB_DEFAULT</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">pb_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">pb_part</span> <span class="o">=</span> <span class="n">AnalysisConstructor</span><span class="p">(</span><span class="n">pb_dict</span><span class="p">,</span> <span class="s2">&quot;pb&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="n">pb_part</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MMGBSAInput.add_decomp">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.add_decomp">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_decomp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add energy decomposition analysis parameters section.</span>
+
+<span class="sd">        Adds the &amp;decomp namelist for per-residue energy decomposition</span>
+<span class="sd">        analysis to identify key binding site residues and interactions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            **kwargs: Decomposition parameters to override defaults.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Default enables residue-based decomposition (idecomp=1) with</span>
+<span class="sd">            verbose output (dec_verbose=1) for detailed interaction analysis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">decomp_dict</span> <span class="o">=</span> <span class="n">MMGBSA_DECOMP_DEFAULT</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">decomp_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">decomp_part</span> <span class="o">=</span> <span class="n">AnalysisConstructor</span><span class="p">(</span><span class="n">decomp_dict</span><span class="p">,</span> <span class="s2">&quot;decomp&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="n">decomp_part</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MMGBSAInput.add_nmode">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.add_nmode">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_nmode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add normal mode analysis parameters section.</span>
+
+<span class="sd">        Adds the &amp;nmode namelist for calculating conformational entropy</span>
+<span class="sd">        contributions using normal mode analysis of energy-minimized</span>
+<span class="sd">        structures.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            **kwargs: Normal mode parameters to override defaults.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Default parameters include convergence criteria (maxcyc=10000,</span>
+<span class="sd">            drms=0.001) for minimization prior to normal mode calculation.</span>
+<span class="sd">            Computationally expensive - use sparingly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nmode_dict</span> <span class="o">=</span> <span class="n">MMGBSA_NMODE_DEFAULT</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">nmode_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">nmode_part</span> <span class="o">=</span> <span class="n">AnalysisConstructor</span><span class="p">(</span><span class="n">nmode_dict</span><span class="p">,</span> <span class="s2">&quot;nmode&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="n">nmode_part</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MMGBSAInput.to_string">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.to_string">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate complete MM/GBSA input file content.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Formatted MMPBSA.py input file with all added analysis sections.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">to_string</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="MMGBSAInput.save">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.save">[docs]</a>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save MM/GBSA input file to disk.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file_path: Path where the MMPBSA.py input file should be saved.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

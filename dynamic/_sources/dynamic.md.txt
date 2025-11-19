@@ -1,0 +1,315 @@
+# Dynamic User Guide
+
+pyCADD.Dynamic 模块是为分子动力学模拟的自动化准备与运行而开发的功能模块，目的是为了让研究者专注在分子动力学模拟结果以及少数关键参数上，而无需关心和学习分子动力学模拟准备与执行的具体代码和流程或管道，以期能够提高学术问题的研究效率。
+
+pyCADD提供了Python包调用和CLI(命令行工具)调用两种方式，其中CLI调用方式更加方便，但是Python包调用方式更加灵活。
+
+## 文件准备
+Dynamic模块只需要最少的必要输入和几个关键参数调节即可快速开始模拟过程。
+
+要快速执行蛋白-小分子相互作用的分子动力学模拟，首先，您需要准备好一个开展模拟的蛋白结构文件 `protein_file` ，以及一个需要模拟的小分子文件 `molecule_file`, 2个文件都必须是PDB格式(`.pdb`)。
+* 为了顺利执行模拟过程，2个结构的坐标应该是“合理”且“相近的”，即分子和蛋白的坐标应该在同一个空间区域中，且分子位于可能结合的位点上。因此，结构应该来自于分子对接软件的对接结果，或X-ray的衍射结构。
+* 在研究一个新分子的动力学模拟前，应该先将其分子对接到相应的蛋白位点上，然后使用分子对接软件输出PDB格式结构。例如使用 Schrodinger Maestro 将纯蛋白部分与配体小分子拆分，然后**分别**输出为`.pdb`文件。
+* 蛋白文件不应该包含任何配体小分子及任何水分子（除非您认为该水分子对于模拟非常重要，则将其保留在蛋白结构中，并在下文预处理中使用`keep_water`参数），小分子结构也不应该包含任何水分子。
+* 如果使用 pyCADD.Dock 模块进行过分子对接，则可在 `protein` 及 `ligand` 目录下找到已经拆分好的蛋白和配体小分子的PDB格式结构文件。
+
+## CLI 调用 Dynamic 模块进行MD模拟
+
+使用命令
+```bash
+pycadd-dynamic auto [-c charge] [-m multiplicity] [-s solvent] [-n parallel] [-g gpu_id] [-t sim_time] [-d dft] [-bs basis_set] [-cm charge_method] [-w] [-b box_size] [-a] [-O]
+PROTEIN_FILE [MOLECULE_FILE]
+```
+即可快速完成MD准备及模拟的全部过程。
+
+了解具体步骤或需自定义准备、模拟过程，请参见下述python包调用部分。
+未提供小分子化合物结构 MOLECULE_FILE 时，将为Apo结构进行模拟。  
+
+### 参数说明  
+通用参数：
+* `-g / --with-gpu`: 指定 `pmemd.cuda` 使用的GPU编号，默认为0。当系统中有多个GPU时，可以通过该参数指定使用的GPU编号。
+* `-t / --time`: 指定完成系统平衡后的生产模拟(production)总时长，单位为ns，默认为100ns。
+* `-w / --keep-water`: 保留原始蛋白文件中存在的水分子。当蛋白文件中存在需要参与模拟过程的重要水分子时，可以使用该参数。
+* `-b / --box-size`: 设定模拟系统的TIP3P水箱大小，默认为10埃。
+* `-a / --analysis`: 模拟完成后，继续自动进行轨迹分析。
+* `-O / --overwrire`: 覆盖已存在的文件。默认将跳过先前已完成的MD准备过程，当需要从头重新运行模拟时，可以使用该参数。
+
+小分子相关参数(Apo结构中将被忽略)：
+* `-c / --charge`: 指定小分子的总电荷量，默认为0。当分子为非中性时，需要指定该参数。
+* `-m / --multiplicity`: 指定小分子的自旋多重度，默认为1。
+* `-d / --dft`: 指定用于小分子结构优化及电荷计算的DFT泛函，默认为`B3LYP`。
+* `-bs / --basis-set`: 指定用于小分子结构优化及电荷计算的基组，默认为`6-31G(d)`。
+* `-s / --solvent`: 指定计算 partial charge 时液相的溶剂分子的种类，默认为水(water)。
+* `-n / --parallel`: 指定计算 partial charge 时所用的CPU核心数量。默认为4。
+* `-cm / --charge-method`: 计算原子电荷的方法，`resp` `resp2` 或 `bcc`。默认为 `resp`。
+
+A simple demo:
+```bash
+mkdir md && cd md
+cp SOMEWHERE/pro.pdb .
+cp SOMEWHERE/lig.pdb .
+pycadd-dynamic auto -c -1 -n 12 --with-gpu 0 -a pro.pdb lig.pdb
+```
+所有MD环节的轨迹及输出文件可以在`md_result/`中找到。
+
+使用
+```bash
+pycadd-dynamic --help
+pycadd-dynamic auto --help
+pycadd-dynamic prepare --help
+pycadd-dynamic simulate --help
+```
+获取CLI接口的更多帮助信息。
+
+## Python 调用 Dynamic 模块
+
+首先 从模块中导入结构预处理器 `Processor` 及实施分子动力学模拟的模拟器 `Simulator`, 然后创建一个预处理器实例 `processor`
+
+```python
+# 如果AMBER 或 Ambertools安装不正确，导入时将收到额外提示
+from pyCADD.Dynamic import Processor, Simulator
+# 实例化的同时，将在当前目录创建所有必要的文件夹
+processor = Processor()     
+```
+### 蛋白结构准备
+使用processor的protein_prepare()方法 对蛋白结构文件进行自动预处理工作。
+```python
+processor.protein_prepare(protein_file, keep_water=False)
+```
+这一过程包括以下几个步骤(需要AmberTools)：  
+1. 去除蛋白结构中所有的水分子(需要保留参与模拟的重要水分子时，设定 `keep_water=True` ), 并补充标准氨基酸残基缺失的原子(add missing atoms), 得到后缀为`_dry.pdb`的文件。
+2. 去除蛋白结构中的所有“原生”H原子，得到后缀为 `_noH.pdb` 的文件。
+3. 使用AmberTools为蛋白结构重新生成蛋白力场下的H原子，得到后缀为 `_leap.pdb` 的文件。
+
+所有此步骤的过程文件保存在 `protein`目录中。
+
+### 小分子结构准备
+
+使用 `processor` 对小分子结构文件进行自动预处理工作。
+```python
+
+# charge指定小分子结构的电荷量 根据实际情况改变 
+# 当charge与实际不符时 Gaussian将报错 默认为0
+# multiplicity指定小分子自旋多重度 默认为1
+
+processor.molecule_prepare(
+    molecule_file, charge=0, method='resp',
+    dft='B3LYP', basis_set='6-31G*',
+    cpu_num=4, mem_use="16GB"
+    )
+```
+
+这一过程包括以下几个步骤：
+1. 高斯结构优化 (需要Gaussian 16, 使用泛函B3LYP、基组6-31g*、loose收敛限);
+2. 计算小分子的RESP电荷并生成输出mol2结构`_resp.mol2`
+3. parmchk2 (需要AmberTools) 生成Amber模拟力场参数文件 `.frcmod`
+所有此步骤的过程文件保存在`molecule`目录中。
+
+### Amber 模拟前准备 - LEaP
+在蛋白与小分子都准备就绪后，使用LEaP来完成最终的模拟准备文件生成。
+```python
+processor.leap_prepare(box_size=10.0)
+```
+这一过程包括以下几个步骤：
+1. 创建tleap命令的输入文件 `*_tleap.in`
+2. 调用tleap命令为蛋白结构(pro)、小分子结构(lig)以及二者复合物(com)生成必要的拓扑及坐标文件`.prmtop`、`.inpcrd`
+3. 将复合物溶于TIP3P立方体水箱中 (box_size=10.0Å，可调整) 得到溶剂化复合物结构文件(`*_comsolvate.pdb`)，并同时生成拓扑与坐标文件`*_comsolvate.prmtop`、`*_comsolvate.inpcrd`,以及其他可能在分析步骤使用的 prmtop 文件。
+
+所有此步骤的过程文件保存在`leap`目录中。模拟后处理及分析过程可能会再次使用它们。
+
+### 检查输入文件（可选）
+现在，如果没有产生预料之外的错误，预处理阶段已经完成。
+
+您可以在各步骤的目录中检查生成的文件是否符合预期，并进行必要的修改（如果您知道自己在做什么）。
+例如，若您想要使用八面体而非立方体水箱，则可修改`leap/*_tleap.in`中的如下部分：
+```
+solvatebox com TIP3PBOX 10.0 ---> solvateoct com TIP3PBOX 10.0
+```
+在`simulator.run_simulation()`命令之前，修改过程文件中的任何内容都是安全的。
+
+### 构建MD工作流并执行模拟
+为了开始模拟阶段，首先需要此前的预处理器实例 `processor` 来完成工作流构造。
+
+首先在工作流中添加能量最小化步骤。`process_name` 仅用于命名各工作流模块，不影响模块功能。    
+```python
+processor.add_minimize_process(
+    process_name='min',
+    # maxcyc=10000,
+    # ncyc=5000
+    )
+# 也可以通过设定参数 restraint=True，并在restraint_mask提供约束原子的amber mask来进行有约束的能量最小化
+# processor.add_minimize_process(process_name='min', restraint=True, restraint_mask=f"':1-101'", restraint_wt=2.0)
+```
+
+然后，为模拟工作流添加加热步骤。
+```python
+# target_temp: 目标温度
+# total_step: 阶段总步数
+# heat_step: 加热环节步数，到达目标温度后将保持该温度直至total_step
+processor.add_heat_process(target_temp=300, heat_step=9000, total_step=10000, process_name='heat')
+```
+
+接下来，为模拟工作流添加平衡步骤。
+```python
+# 您可以根据自主需要，创建任意流程的平衡步骤，并在任何步骤中添加约束
+# 所有步骤将被有序依次串联，并在运行模拟时顺序执行
+
+# 添加逐步降低约束的NPT平衡，将有助于避免模拟系统崩溃
+restraintmask = "'!(:WAT,Na+,Cl-,K+,K) & !@H= & !@H'"
+for rest_wt in [4.0, 3.5, 3.0, 2.5, 2.0, 1.0, 0]:
+    processor.add_npt_process(total_step=5000, process_name=f'eq_npt_reswt{rest_wt}', restraint_wt=rest_wt, restraintmask=restraintmask)
+
+# 添加NPT或NVT平衡
+processor.add_npt_process(total_step=500000, process_name='eq_npt')
+# processor.add_nvt_process(total_step=500000, process_name='eq_nvt')
+```
+
+最后，为工作流添加生产模拟环节。
+```python
+# is_production 设定为True将在运行时将pmemd.cuda任务挂起至后台。此外，还将启用一个进度条，告知您当前模拟运行的百分比情况。关闭进度条或终端不会导致模拟中断。
+# step_length: 模拟步长，单位为 ps
+# total_step: 模拟总步数 模拟总时长 = step_length * total_step 默认为 100ns
+processor.add_npt_process(total_step=50000000, step_length=0.002, total_step=step_num, is_production=True, process_name='production')
+```
+
+工作流搭建完成后，传递`processor`用于构建一个`Simulator`实例，设定GPU编号即可开始模拟。
+```python
+simulator = Simulator(processor)
+simulator.run_simulation(with_gpu=0)
+```
+
+## 模拟结果分析
+
+Dynamic 的 `Analyzer` 类提供了一些常规的自动化分析工具，用于分析 Amber MD 模拟结果并快速导出分析数据用于绘制图表。 
+
+### 分析环境准备
+模拟结果的分析工具需要当前的python环境可以导入 `pytraj` 包，即 cpptraj 的 python bindings。  
+为此，请将 Ambertools 安装到当前环境中:
+```bash
+conda install ambertools -c conda-forge
+```
+
+此外，为了使用 MPI 运行 MM-PB/GBSA 结合自由能及能量分解计算，您可能还需要安装 MPI实现(如`OpenMPI`)及 `mpi4py`:
+```bash
+conda install openmpi mpi4py -c conda-forge
+```
+
+### CLI快速分析
+使用 `pycadd-dynamic analysis` 命令可以快速开展常规的轨迹分析，并将结果保存至 `md_analysis/` 目录中。分析轨迹需要提供必要的拓扑及轨迹文件。
+
+使用 `pyCADD-Dynamic` 模块完成的模拟，这些文件通常位于 `leap/` 及 `md_result/` 目录中。即使模拟并非由 `pyCADD-Dynamic` 完成，在提供必要文件的路径后，您也可以尝试使用该命令进行分析。
+
+```bash
+pycadd-dynamic analysis -y TRAJ_FILE -ro OUTPUT_FILE -sp SOL_COM_TOP_FILE -cp COM_TOP_FILE -lp LIG_TOP_FILE -rp PRO_TOP_FILE [--no-hbond] [--no-rmsd] [--no-rmsf] [-h/--help] [-d START_FRAME END_FRAME STEP_SIZE]
+```
+* `-y` 指定AMBER模拟的轨迹文件，通常为 `.nc` `.mdcrd` `.crd` 格式
+* `-ro` 指定分析结果输出的文本文件(`.out`)，该文件中应该包含模拟过程每一帧的状态信息
+* `-sp` 指定溶剂复合物拓扑文件, 如`*_comsolvate.prmtop`
+* `-cp` 指定复合物拓扑文件, 如`*_com.prmtop`
+* `-lp` 指定配体拓扑文件, 如`*_lig.prmtop`
+* `-rp` 指定蛋白拓扑文件, 如`*_pro.prmtop`
+* `-h/--help` 查看帮助信息
+
+默认工作流(WORKFLOW)将进行以下分析：
+1. 计算模拟体系中蛋白 **alpha C** 的RMSD
+2. 计算模拟体系中蛋白各**残基的RMSF(基于alpha C)**
+3. 统计模拟过程的氢键数量、键长、键角等信息，及模拟过程的氢键存续(Lifetime)
+
+如果您不想以alpha C计算 (此时，请通过下述python包调用方法定制化您的分析过程)，或因其他原因需要跳过分析过程，可以使用以下参数：
+* `--no-hbond` 不进行氢键分析
+* `--no-rmsd` 不进行RMSD分析
+* `--no-rmsf` 不进行RMSF分析
+
+可选参数：
+* `-d / --decomp INT1 INT2 INT3`: 计算MM-GBSA结合自由能及能量分解。使用该参数时必须提供3个整数 `START_FRAME` `END_FRAME` `STEP_SIZE`，即分析起始帧，结束帧及步长。查看您的模拟输出文件(`.out`)以确定模拟的总帧数。  
+* `-n / --parallel INT`: 计算MM-GBSA结合自由能时，指定并行计算所用的CPU核心数量，默认为4。
+
+例如
+```bash
+pycadd-dynamic analysis -y md_result/production/production.nc -sp leap/*_comsolvate.prmtop -lp leap/*_lig.prmtop -rp leap/*_pro.prmtop -cp leap/*_com.prmtop -ro md_result/production/production.out -d 1 5000 10 -n 16
+```
+
+### python 包调用 Analyzer 分析工具
+除了使用CLI中固定的工作流进行快速分析外，也可以从 `pyCADD.Dynamic` 中导入 `Analyzer` 类并在python中定制化分析过程。
+```python
+# 如果AMBER 或 Ambertools安装不正确，导入时将收到额外提示
+from pyCADD.Dynamic import Analyzer
+```
+
+同样，分析需要提供必要的输出、拓扑及轨迹文件路径。使用 `Dynamic` 模块完成的模拟，这些文件通常位于 `leap/` 及 `md_result/` 目录中。
+
+```python
+traj_file = 'procudtion.nc'
+output_file = 'procudtion.out'
+sol_com_top_file = '*_comsolvate.prmtop'
+com_top_file = '*_com.prmtop'
+lig_top_file = '*_lig.prmtop'
+pro_top_file = '*_pro.prmtop'
+```
+
+然后，创建分析器实例来开展分析工作。
+```python
+analyzer = Analyzer(
+    traj_file_path = traj_file,
+    mdout_file_path = output_file,
+    comsolvated_topfile_path = sol_com_top_file,
+    com_topfile_path = com_top_file,
+    ligand_topfile_path = lig_top_file,
+    receptor_topfile_path = pro_top_file,
+    save_dir="md_analysis"
+)
+```
+
+#### RMSD & RMSF 分析
+```python
+# 默认以αC计算RMSD与RMSF 也可以通过Amber MASK格式指定其他原子
+# 默认参考帧ref为0帧（即第一帧）
+analyzer.calc_rmsd(mask='@CA', ref=0)
+analyzer.calc_rmsf(mask='@CA', ref=0)
+```
+
+#### 氢键分析
+分析器将检测并追踪模拟全过程中指定条件下的氢键（默认为包括蛋白残基间及蛋白残基-配体小分子间的全部氢键），然后统计氢键的数量、键长、键角等信息，及模拟过程的氢键存续(Lifetime)。
+```python
+# 默认分析所有可能存在的氢键
+analyzer.calc_hbond(
+    mask = ':*',
+    distance = 3.0,
+    angle = 135.0,
+    solvent_donor=None,
+    solvent_acceptor=None，
+    options=None
+)
+```
+* `mask`: 指定搜索氢键的原子组范围，使用Amber MASK格式，如`:1-10`表示分析第1-10号残基原子间的氢键，默认为`:*`表示分析所有可能存在的氢键，但不包括溶剂分子
+* `distance`: 指定氢键分析的键长阈值，默认为3.0Å，仅统计重原子间距离小于 `distance` 的氢键
+* `angle`: 指定氢键分析的键角阈值，默认为135.0°，仅统计 A-H-D 键角大于 `angle` 的氢键
+* `solvent_donor`: 指定溶剂中的供体原子Amber MASK，如':WAT@N'，默认None
+* `solvent_acceptor`: 指定溶剂中的受体原子Amber MASK, 如':WAT@O'，默认None。若 `solvent_donor` 与 `solvent_acceptor`不为None时，将搜索溶剂与溶质间的氢键，默认仅搜索溶质间的氢键
+* `options`: 其他将被传递到cpptraj的参数，默认为 `avgout HBOND_RESULTS.dat printatomnum nointramol`，参阅`cpptraj`文档获取更多帮助
+
+#### MM-GBSA 结合自由能计算与能量分解
+Dynamic Analyzer 使用 Amber 官方的 `MMPBSA.py.MPI` 进行结合自由能计算。
+
+为了使用`MMPBSA.py.MPI`，需要安装 MPI 实现 及 `mpi4py`:
+```bash
+conda install openmpi mpi4py -c conda-forge
+```
+
+调用 `MMPBSA.py.MPI` 对轨迹指定范围内的帧计算MM-GBSA结合自由能，并计算残基能量分解情况。
+
+```python
+# INT1 INT2 INT3 分别指定计算自由能的起始帧、结束帧及步长
+# cpu_num 指定并行计算所用的CPU核心数量
+decomp_start_fm = 1
+decomp_end_fm = 5000
+decomp_step_size = 10
+cpu_num = 16
+
+analyzer.create_energy_inputfile(
+    start_frame=decomp_start_fm, end_frame=decomp_end_fm, interval=decomp_step_size, job_type='decomp'
+)
+analyzer.run_energy_calc(cpu_num=cpu_num)
+```
+
+以上所有分析结果可在当前目录下的 `md_analysis` 中找到并用于进一步统计分析与绘图。

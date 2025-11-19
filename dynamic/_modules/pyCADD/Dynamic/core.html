@@ -1,0 +1,1024 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Dynamic.core &mdash; pyCADD.Dynamic 2.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f5cff4aa"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyCADD.Dynamic
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pyCADD.Dynamic.html">pyCADD.Dynamic package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dynamic.html">Dynamic User Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyCADD.Dynamic</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyCADD.Dynamic.core</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyCADD.Dynamic.core</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Core molecular dynamics simulation preparation and execution functions.</span>
+
+<span class="sd">This module provides the main functionality for preparing molecular systems and</span>
+<span class="sd">running molecular dynamics simulations using Amber tools. It includes protein</span>
+<span class="sd">preparation, ligand parameterization, system building, and simulation execution.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">from</span> <span class="nn">pyCADD.Dynamic.constant</span> <span class="kn">import</span> <span class="n">CPU_NUM</span><span class="p">,</span> <span class="n">DEFAULT_STRIP_MASKS</span><span class="p">,</span> <span class="n">PMEMD</span><span class="p">,</span> <span class="n">SANDER</span>
+<span class="kn">from</span> <span class="nn">pyCADD.Dynamic.template</span> <span class="kn">import</span> <span class="n">LeapInput</span><span class="p">,</span> <span class="n">MMGBSAInput</span>
+<span class="kn">from</span> <span class="nn">pyCADD.Dynamic.utils</span> <span class="kn">import</span> <span class="n">_trace_progress</span><span class="p">,</span> <span class="n">calc_am1bcc</span><span class="p">,</span> <span class="n">run_parmchk2</span>
+<span class="kn">from</span> <span class="nn">pyCADD.utils.common</span> <span class="kn">import</span> <span class="n">ChDir</span><span class="p">,</span> <span class="n">File</span>
+<span class="kn">from</span> <span class="nn">pyCADD.utils.tool</span> <span class="kn">import</span> <span class="n">is_mpirun_available</span><span class="p">,</span> <span class="n">read_file</span><span class="p">,</span> <span class="n">shell_run</span><span class="p">,</span> <span class="n">timeit</span><span class="p">,</span> <span class="n">write_file</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="protein_prepare">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.protein_prepare">[docs]</a>
+<span class="k">def</span> <span class="nf">protein_prepare</span><span class="p">(</span>
+    <span class="n">protein_file</span><span class="p">:</span> <span class="n">File</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">keep_water</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">File</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepares protein structure for molecular dynamics simulation.</span>
+
+<span class="sd">    Processes a protein PDB file using pdb4amber to clean up the structure,</span>
+<span class="sd">    add missing atoms, and prepare it for Amber force field parameterization.</span>
+<span class="sd">    The preparation includes removing/adding atoms and fixing structural issues.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        protein_file (File | str): Input protein PDB file to be processed.</span>
+<span class="sd">        save_dir (str, optional): Directory to save processed files.</span>
+<span class="sd">            Defaults to current working directory.</span>
+<span class="sd">        keep_water (bool, optional): Whether to retain water molecules in final structure.</span>
+<span class="sd">            Defaults to False.</span>
+<span class="sd">        overwrite (bool, optional): Whether to overwrite existing prepared files.</span>
+<span class="sd">            Defaults to False.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        File: Processed protein file ready for MD simulation setup.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The preparation process involves multiple steps:</span>
+<span class="sd">        1. Remove water and add missing atoms (dry step)</span>
+<span class="sd">        2. Remove all hydrogens (noH step)</span>
+<span class="sd">        3. Final cleanup and preparation</span>
+<span class="sd">        If keep_water=True, water molecules from original file are preserved.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        FileNotFoundError: If the input protein file doesn&#39;t exist.</span>
+<span class="sd">        RuntimeError: If pdb4amber processing fails.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">protein_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">protein_file</span><span class="p">)</span>
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">protein_file</span><span class="o">.</span><span class="n">file_path</span>
+    <span class="n">file_prefix</span> <span class="o">=</span> <span class="n">protein_file</span><span class="o">.</span><span class="n">file_prefix</span>
+
+    <span class="n">dry_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">file_prefix</span> <span class="o">+</span> <span class="s2">&quot;_dry.pdb&quot;</span><span class="p">)</span>
+    <span class="n">noH_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">file_prefix</span> <span class="o">+</span> <span class="s2">&quot;_noH.pdb&quot;</span><span class="p">)</span>
+    <span class="n">prepared_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">file_prefix</span> <span class="o">+</span> <span class="s2">&quot;_prepared.pdb&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">overwrite</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">prepared_file_path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">File</span><span class="p">(</span><span class="n">prepared_file_path</span><span class="p">)</span>
+
+    <span class="n">shell_run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pdb4amber -i </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> -o </span><span class="si">{</span><span class="n">dry_file_path</span><span class="si">}</span><span class="s2"> -p --dry --add-missing-atoms &quot;</span><span class="p">)</span>
+    <span class="n">shell_run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pdb4amber -i </span><span class="si">{</span><span class="n">dry_file_path</span><span class="si">}</span><span class="s2"> -o </span><span class="si">{</span><span class="n">noH_file_path</span><span class="si">}</span><span class="s2"> -y&quot;</span><span class="p">)</span>
+    <span class="n">shell_run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pdb4amber -i </span><span class="si">{</span><span class="n">noH_file_path</span><span class="si">}</span><span class="s2"> -o </span><span class="si">{</span><span class="n">prepared_file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">keep_water</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">ChDir</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">save_dir</span><span class="p">):</span>
+            <span class="n">shell_run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pdb4amber -i </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> -o tmp.pdb&quot;</span><span class="p">)</span>
+            <span class="n">shell_run</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;cat tmp.pdb | grep &quot;HOH&quot; &gt; water.pdb&#39;</span><span class="p">)</span>
+            <span class="n">shell_run</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;cat </span><span class="si">{</span><span class="n">prepared_file_path</span><span class="si">}</span><span class="s1"> | grep -v &quot;END&quot; &gt; tmp.pdb &amp;&amp; </span><span class="se">\</span>
+<span class="s1">                cat water.pdb | sed &quot;s/HOH/WAT/&quot; &gt;&gt; tmp.pdb &amp;&amp; </span><span class="se">\</span>
+<span class="s1">                echo END &gt;&gt; tmp.pdb&#39;</span>
+            <span class="p">)</span>
+            <span class="n">shell_run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pdb4amber -i tmp.pdb -o </span><span class="si">{</span><span class="n">prepared_file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">shell_run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;rm tmp.pdb water.pdb&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">File</span><span class="p">(</span><span class="n">prepared_file_path</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="molecule_prepare">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.molecule_prepare">[docs]</a>
+<span class="k">def</span> <span class="nf">molecule_prepare</span><span class="p">(</span>
+    <span class="n">ligand_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
+    <span class="n">charge_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;resp&quot;</span><span class="p">,</span> <span class="s2">&quot;bcc&quot;</span><span class="p">,</span> <span class="s2">&quot;resp2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;resp&quot;</span><span class="p">,</span>
+    <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dft</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;B3LYP&quot;</span><span class="p">,</span>
+    <span class="n">basis_set</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;6-31g*&quot;</span><span class="p">,</span>
+    <span class="n">cpu_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="n">mem_use</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;8GB&quot;</span><span class="p">,</span>
+    <span class="n">solvent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;water&quot;</span><span class="p">,</span>
+    <span class="n">delta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">File</span><span class="p">,</span> <span class="n">File</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepares small molecule/ligand for molecular dynamics simulation.</span>
+
+<span class="sd">    Generates Amber-compatible parameter and coordinate files for a small molecule</span>
+<span class="sd">    by calculating partial charges using quantum mechanical methods (RESP, AM1-BCC,</span>
+<span class="sd">    or RESP2) and creating force field parameters using GAFF.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ligand_file (File): Input ligand structure file (SDF, MOL2, PDB, etc.).</span>
+<span class="sd">        charge_method (Literal[&quot;resp&quot;, &quot;bcc&quot;, &quot;resp2&quot;], optional): Method for charge calculation.</span>
+<span class="sd">            Defaults to &quot;resp&quot;.</span>
+<span class="sd">        charge (int, optional): Net charge of the molecule. If None, will be determined automatically.</span>
+<span class="sd">        multiplicity (int, optional): Spin multiplicity. If None, will be determined automatically.</span>
+<span class="sd">        dft (str, optional): DFT functional for quantum calculations. Defaults to &quot;B3LYP&quot;.</span>
+<span class="sd">        basis_set (str, optional): Basis set for quantum calculations. Defaults to &quot;6-31g*&quot;.</span>
+<span class="sd">        cpu_num (int, optional): Number of CPUs for quantum calculations. Defaults to 4.</span>
+<span class="sd">        mem_use (str, optional): Memory allocation for quantum calculations. Defaults to &quot;8GB&quot;.</span>
+<span class="sd">        solvent (str, optional): Solvent for implicit solvation in quantum calculations.</span>
+<span class="sd">            Defaults to &quot;water&quot;.</span>
+<span class="sd">        delta (float, optional): Interpolation parameter for RESP2 method. Defaults to 0.5.</span>
+<span class="sd">        save_dir (str, optional): Directory to save generated files.</span>
+<span class="sd">            Defaults to current working directory.</span>
+<span class="sd">        overwrite (bool, optional): Whether to overwrite existing parameter files.</span>
+<span class="sd">            Defaults to False.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple[File, File]: Tuple containing (parameter_file, coordinate_file) where:</span>
+<span class="sd">            - parameter_file: Amber parameter file (.prmtop)</span>
+<span class="sd">            - coordinate_file: Amber coordinate file (.inpcrd)</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If unsupported charge method is specified.</span>
+<span class="sd">        RuntimeError: If antechamber or other Amber tools fail.</span>
+<span class="sd">        FileNotFoundError: If input ligand file doesn&#39;t exist.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The function automatically handles:</span>
+<span class="sd">        - Charge and multiplicity determination if not provided</span>
+<span class="sd">        - GAFF parameter assignment using antechamber</span>
+<span class="sd">        - Missing parameter generation using parmchk2</span>
+<span class="sd">        - System building using tleap</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">ligand_file</span><span class="o">.</span><span class="n">file_path</span>
+    <span class="n">file_prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ligand_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">charge_method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">cpu_num</span> <span class="o">=</span> <span class="n">cpu_num</span> <span class="ow">or</span> <span class="n">CPU_NUM</span>
+    <span class="n">charge</span> <span class="o">=</span> <span class="n">charge</span> <span class="ow">or</span> <span class="mi">0</span>
+    <span class="n">multiplicity</span> <span class="o">=</span> <span class="n">multiplicity</span> <span class="ow">or</span> <span class="mi">1</span>
+    <span class="n">solvent</span> <span class="o">=</span> <span class="n">solvent</span> <span class="ow">or</span> <span class="s2">&quot;water&quot;</span>
+    <span class="n">mol2_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">.mol2&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">mol2_file_path</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">File</span><span class="p">(</span><span class="n">mol2_file_path</span><span class="p">),</span> <span class="n">run_parmchk2</span><span class="p">(</span><span class="n">mol2_file_path</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Calculating the partial charge of ligand...&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">charge_method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;bcc&quot;</span><span class="p">:</span>
+        <span class="n">calc_method</span> <span class="o">=</span> <span class="n">calc_am1bcc</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;save_dir&quot;</span><span class="p">:</span> <span class="n">save_dir</span><span class="p">,</span>
+            <span class="s2">&quot;charge&quot;</span><span class="p">:</span> <span class="n">charge</span><span class="p">,</span>
+            <span class="s2">&quot;multiplicity&quot;</span><span class="p">:</span> <span class="n">multiplicity</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">pyCADD.Density.base</span> <span class="kn">import</span> <span class="n">Gauss</span>
+
+        <span class="n">gauss</span> <span class="o">=</span> <span class="n">Gauss</span><span class="p">()</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;charge&quot;</span><span class="p">:</span> <span class="n">charge</span><span class="p">,</span>
+            <span class="s2">&quot;multiplicity&quot;</span><span class="p">:</span> <span class="n">multiplicity</span><span class="p">,</span>
+            <span class="s2">&quot;dft&quot;</span><span class="p">:</span> <span class="n">dft</span><span class="p">,</span>
+            <span class="s2">&quot;basis_set&quot;</span><span class="p">:</span> <span class="n">basis_set</span><span class="p">,</span>
+            <span class="s2">&quot;mem_use&quot;</span><span class="p">:</span> <span class="n">mem_use</span><span class="p">,</span>
+            <span class="s2">&quot;cpu_num&quot;</span><span class="p">:</span> <span class="n">cpu_num</span><span class="p">,</span>
+            <span class="s2">&quot;save_dir&quot;</span><span class="p">:</span> <span class="n">save_dir</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">charge_method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;resp2&quot;</span><span class="p">:</span>
+            <span class="n">calc_method</span> <span class="o">=</span> <span class="n">gauss</span><span class="o">.</span><span class="n">calc_resp2</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;delta&quot;</span><span class="p">:</span> <span class="n">delta</span><span class="p">})</span>
+        <span class="k">elif</span> <span class="n">charge_method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;resp&quot;</span><span class="p">:</span>
+            <span class="n">calc_method</span> <span class="o">=</span> <span class="n">gauss</span><span class="o">.</span><span class="n">calc_resp</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;solvent&quot;</span><span class="p">:</span> <span class="n">solvent</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported charge calculation type: </span><span class="si">{</span><span class="n">charge_method</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">charged_mol2_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">calc_method</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+    <span class="n">frcmod_file</span> <span class="o">=</span> <span class="n">run_parmchk2</span><span class="p">(</span><span class="n">charged_mol2_file</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">charged_mol2_file</span><span class="p">,</span> <span class="n">frcmod_file</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_create_leap_inputfile</span><span class="p">(</span>
+    <span class="n">protein_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">ligand_file_path</span><span class="p">:</span> <span class="n">File</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">frcmod_file_path</span><span class="p">:</span> <span class="n">File</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">file_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">box_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+    <span class="n">box_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;TIP3PBOX&quot;</span><span class="p">,</span>
+    <span class="n">solvatebox</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;solvatebox&quot;</span><span class="p">,</span>
+    <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">File</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates a tLEaP input file for system preparation.</span>
+
+<span class="sd">    Generates a tLEaP input script for building an Amber molecular system</span>
+<span class="sd">    including protein, ligand (optional), solvent box, and counter ions.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        protein_file_path (str): Path to the prepared protein PDB file.</span>
+<span class="sd">        ligand_file_path (File | str, optional): Path to the ligand MOL2 file.</span>
+<span class="sd">            Defaults to None for protein-only systems.</span>
+<span class="sd">        frcmod_file_path (File | str, optional): Path to additional force field</span>
+<span class="sd">            parameters file. Defaults to None.</span>
+<span class="sd">        file_prefix (str, optional): Prefix for output files. Defaults to &quot;Untitled&quot;.</span>
+<span class="sd">        box_size (float, optional): Distance from solute to box edge in Angstroms.</span>
+<span class="sd">            Defaults to 10.0.</span>
+<span class="sd">        box_type (str, optional): Type of water box model. Defaults to &quot;TIP3PBOX&quot;.</span>
+<span class="sd">        solvatebox (str, optional): Solvation command type. Defaults to &quot;solvatebox&quot;.</span>
+<span class="sd">        save_dir (str, optional): Directory to save the input file.</span>
+<span class="sd">            Defaults to current working directory.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        File: Generated tLEaP input file object.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The generated input file includes commands for:</span>
+<span class="sd">        - Loading appropriate force fields</span>
+<span class="sd">        - Loading protein and ligand structures</span>
+<span class="sd">        - Adding solvent box and neutralizing ions</span>
+<span class="sd">        - Saving parameter and coordinate files</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_prefix</span> <span class="o">=</span> <span class="n">file_prefix</span> <span class="ow">or</span> <span class="s2">&quot;Untitled&quot;</span>
+    <span class="n">protein_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">protein_file_path</span><span class="p">)</span>
+    <span class="n">ligand_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">ligand_file_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">ligand_file_path</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">frcmod_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">frcmod_file_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">frcmod_file_path</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">input_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_tleap.in&quot;</span><span class="p">)</span>
+    <span class="n">leap_input</span> <span class="o">=</span> <span class="n">LeapInput</span><span class="p">(</span>
+        <span class="n">protein_file_path</span><span class="o">=</span><span class="n">protein_file</span><span class="p">,</span>
+        <span class="n">ligand_file_path</span><span class="o">=</span><span class="n">ligand_file</span><span class="p">,</span>
+        <span class="n">frcmod_file_path</span><span class="o">=</span><span class="n">frcmod_file</span><span class="p">,</span>
+        <span class="n">file_prefix</span><span class="o">=</span><span class="n">file_prefix</span><span class="p">,</span>
+        <span class="n">box_size</span><span class="o">=</span><span class="n">box_size</span><span class="p">,</span>
+        <span class="n">box_type</span><span class="o">=</span><span class="n">box_type</span><span class="p">,</span>
+        <span class="n">solvatebox</span><span class="o">=</span><span class="n">solvatebox</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">leap_input</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">File</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_strip_prmtop_str</span><span class="p">(</span><span class="n">prmtop_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span> <span class="n">strip_masks</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">ChDir</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">save_dir</span><span class="p">):</span>
+        <span class="n">stripped_file_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prmtop_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_stripped.prmtop&quot;</span>
+        <span class="n">strip_cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;parmed </span><span class="si">{</span><span class="n">prmtop_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> &lt;&lt; EOF</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">strip_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;strip </span><span class="si">{</span><span class="n">strip_masks</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">strip_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;parmout </span><span class="si">{</span><span class="n">stripped_file_path</span><span class="si">}</span><span class="se">\n</span><span class="s2">EOF&quot;</span>
+        <span class="n">shell_run</span><span class="p">(</span><span class="n">strip_cmd</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">File</span><span class="p">(</span><span class="n">stripped_file_path</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="leap_prepare">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.leap_prepare">[docs]</a>
+<span class="k">def</span> <span class="nf">leap_prepare</span><span class="p">(</span>
+    <span class="n">protein_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
+    <span class="n">ligand_file</span><span class="p">:</span> <span class="n">File</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">frcmod_file</span><span class="p">:</span> <span class="n">File</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">box_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+    <span class="n">box_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;TIP3PBOX&quot;</span><span class="p">,</span>
+    <span class="n">solvatebox</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;solvatebox&quot;</span><span class="p">,</span>
+    <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">File</span><span class="p">,</span> <span class="n">File</span><span class="p">,</span> <span class="n">File</span><span class="p">,</span> <span class="n">File</span><span class="p">,</span> <span class="n">File</span><span class="p">,</span> <span class="n">File</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepares solvated molecular system using tLEaP.</span>
+
+<span class="sd">    Builds a complete molecular dynamics system by combining protein, ligand (optional),</span>
+<span class="sd">    solvent, and counter ions using Amber&#39;s tLEaP program. Generates topology and</span>
+<span class="sd">    coordinate files ready for MD simulation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        protein_file (File): Prepared protein structure file.</span>
+<span class="sd">        ligand_file (File, optional): Ligand MOL2 file with parameters. Defaults to None.</span>
+<span class="sd">        frcmod_file (File, optional): Additional force field parameter file. Defaults to None.</span>
+<span class="sd">        box_size (float, optional): Distance from solute to box boundary in Angstroms.</span>
+<span class="sd">            Defaults to 10.0.</span>
+<span class="sd">        box_type (str, optional): Water model for solvation. Defaults to &quot;TIP3PBOX&quot;.</span>
+<span class="sd">        solvatebox (str, optional): Solvation command type. Defaults to &quot;solvatebox&quot;.</span>
+<span class="sd">        save_dir (str, optional): Directory to save output files.</span>
+<span class="sd">            Defaults to current working directory.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: Tuple containing (topology_file, coordinate_file, pdb_file, com_topfile, pro_topfile, lig_topfile) where:</span>
+<span class="sd">            - topology_file: Amber parameter/topology file (.prmtop)</span>
+<span class="sd">            - coordinate_file: Amber coordinate file (.inpcrd)</span>
+<span class="sd">            - pdb_file: PDB file of the solvated system</span>
+<span class="sd">            - com_topfile: Combined system topology file (.prmtop)</span>
+<span class="sd">            - pro_topfile: Protein-only topology file (.prmtop)</span>
+<span class="sd">            - lig_topfile: Ligand-only topology file (.prmtop) or None if no ligand</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: If tLEaP execution fails.</span>
+<span class="sd">        FileNotFoundError: If input files don&#39;t exist.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The function automatically:</span>
+<span class="sd">        - Generates appropriate file prefixes based on input files</span>
+<span class="sd">        - Creates tLEaP input script and executes it</span>
+<span class="sd">        - Converts coordinates to PDB format for visualization</span>
+<span class="sd">        - Handles both protein-only and protein-ligand systems</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">file_prefix</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">protein_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">ligand_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">ligand_file</span>
+        <span class="k">else</span> <span class="n">protein_file</span><span class="o">.</span><span class="n">file_prefix</span>
+    <span class="p">)</span>
+    <span class="n">leap_inputfile</span> <span class="o">=</span> <span class="n">_create_leap_inputfile</span><span class="p">(</span>
+        <span class="n">protein_file_path</span><span class="o">=</span><span class="n">protein_file</span><span class="p">,</span>
+        <span class="n">ligand_file_path</span><span class="o">=</span><span class="n">ligand_file</span><span class="p">,</span>
+        <span class="n">frcmod_file_path</span><span class="o">=</span><span class="n">frcmod_file</span><span class="p">,</span>
+        <span class="n">file_prefix</span><span class="o">=</span><span class="n">file_prefix</span><span class="p">,</span>
+        <span class="n">box_size</span><span class="o">=</span><span class="n">box_size</span><span class="p">,</span>
+        <span class="n">box_type</span><span class="o">=</span><span class="n">box_type</span><span class="p">,</span>
+        <span class="n">solvatebox</span><span class="o">=</span><span class="n">solvatebox</span><span class="p">,</span>
+        <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">com_topfile_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_com.prmtop&quot;</span><span class="p">)</span>
+    <span class="n">pro_topfile_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_pro.prmtop&quot;</span><span class="p">)</span>
+    <span class="n">lig_topfile_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_lig.prmtop&quot;</span><span class="p">)</span>
+    <span class="n">comsolvate_topfile_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_comsolvate.prmtop&quot;</span><span class="p">)</span>
+    <span class="n">comsolvate_crdfile_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_comsolvate.inpcrd&quot;</span><span class="p">)</span>
+    <span class="n">comsolvate_pdbfile_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_comsolvate.pdb&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">ChDir</span><span class="p">(</span><span class="n">save_dir</span><span class="p">):</span>
+        <span class="n">shell_run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tleap -f </span><span class="si">{</span><span class="n">leap_inputfile</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">write_file</span><span class="p">(</span><span class="n">com_topfile_path</span><span class="p">,</span> <span class="n">_get_strip_prmtop_str</span><span class="p">(</span><span class="n">File</span><span class="p">(</span><span class="n">com_topfile_path</span><span class="p">),</span> <span class="n">DEFAULT_STRIP_MASKS</span><span class="p">))</span>
+        <span class="n">write_file</span><span class="p">(</span><span class="n">pro_topfile_path</span><span class="p">,</span> <span class="n">_get_strip_prmtop_str</span><span class="p">(</span><span class="n">File</span><span class="p">(</span><span class="n">pro_topfile_path</span><span class="p">),</span> <span class="n">DEFAULT_STRIP_MASKS</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">ligand_file</span><span class="p">:</span>
+            <span class="n">write_file</span><span class="p">(</span><span class="n">lig_topfile_path</span><span class="p">,</span> <span class="n">_get_strip_prmtop_str</span><span class="p">(</span><span class="n">File</span><span class="p">(</span><span class="n">lig_topfile_path</span><span class="p">),</span> <span class="n">DEFAULT_STRIP_MASKS</span><span class="p">))</span>
+
+    <span class="n">shell_run</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;ambpdb -p </span><span class="si">{</span><span class="n">comsolvate_topfile_path</span><span class="si">}</span><span class="s2"> &lt; </span><span class="si">{</span><span class="n">comsolvate_crdfile_path</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">comsolvate_pdbfile_path</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">File</span><span class="p">(</span><span class="n">comsolvate_topfile_path</span><span class="p">),</span>
+        <span class="n">File</span><span class="p">(</span><span class="n">comsolvate_crdfile_path</span><span class="p">),</span>
+        <span class="n">File</span><span class="p">(</span><span class="n">comsolvate_pdbfile_path</span><span class="p">),</span>
+        <span class="n">File</span><span class="p">(</span><span class="n">com_topfile_path</span><span class="p">),</span>
+        <span class="n">File</span><span class="p">(</span><span class="n">pro_topfile_path</span><span class="p">),</span>
+        <span class="n">File</span><span class="p">(</span><span class="n">lig_topfile_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">ligand_file</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="BaseProcess">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.BaseProcess">[docs]</a>
+<span class="k">class</span> <span class="nc">BaseProcess</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for molecular dynamics simulation processes.</span>
+
+<span class="sd">    Provides common functionality for parsing MD input files and managing</span>
+<span class="sd">    simulation process parameters. This is an abstract base class that</span>
+<span class="sd">    defines the interface for all MD simulation processes.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        input_file (File): MD input file containing simulation parameters.</span>
+<span class="sd">        process_name (str): Name identifier for this simulation process.</span>
+<span class="sd">        cfg (list): Parsed configuration from the input file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BaseProcess.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.BaseProcess.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span> <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the base MD process.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_file (File): Amber MD input file with simulation parameters.</span>
+<span class="sd">            process_name (str): Unique name for this simulation process.</span>
+<span class="sd">            **kwargs: Additional attributes to set on the process instance.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The input file is automatically parsed to extract configuration</span>
+<span class="sd">            sections and parameters. Additional keyword arguments are set</span>
+<span class="sd">            as instance attributes for process customization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_name</span> <span class="o">=</span> <span class="n">process_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_input_config</span><span class="p">(</span><span class="n">input_file</span><span class="o">.</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_input_config</span><span class="p">(</span><span class="n">input_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parses Amber MD input file to extract configuration sections.</span>
+
+<span class="sd">        Analyzes an Amber MD input file and extracts all configuration sections</span>
+<span class="sd">        (namelist sections like &amp;cntrl, &amp;ewald, etc.) along with their parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_file (str): Path to the Amber MD input file to parse.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: List of dictionaries, each containing a configuration section with:</span>
+<span class="sd">                - _index: Section order in the file</span>
+<span class="sd">                - _type: Section type (e.g., &#39;cntrl&#39;, &#39;ewald&#39;)</span>
+<span class="sd">                - parameter_name: parameter_value pairs from the section</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The parser handles Amber&#39;s namelist format where sections start with</span>
+<span class="sd">            &amp; and end with /, and parameters are specified as key=value pairs.</span>
+<span class="sd">            Empty sections and END markers are automatically skipped.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">type_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;&amp;(.*?)\n&quot;</span>
+        <span class="n">config_pattern</span> <span class="o">=</span> <span class="s2">&quot;(?&lt;=&amp;</span><span class="si">{_type}</span><span class="se">\n</span><span class="s2">).*&quot;</span>
+        <span class="n">item_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(\w+)=(.*?)(?=(?:,\s*\w+=|$))&quot;</span>
+
+        <span class="n">config_list</span> <span class="o">=</span> <span class="n">read_file</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">config_list</span><span class="p">):</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">config</span> <span class="o">==</span> <span class="s2">&quot;END&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">_type</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">type_pattern</span><span class="p">,</span> <span class="n">config</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">config_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;_index&quot;</span><span class="p">:</span> <span class="n">index</span><span class="p">,</span> <span class="s2">&quot;_type&quot;</span><span class="p">:</span> <span class="n">_type</span><span class="p">}</span>
+            <span class="n">_config_list</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">config_pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">_type</span><span class="o">=</span><span class="n">_type</span><span class="p">),</span> <span class="n">config</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">S</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">item_pattern</span><span class="p">,</span> <span class="n">_config_list</span><span class="p">):</span>
+                <span class="n">config_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="n">output_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output_list</span>
+
+<div class="viewcode-block" id="BaseProcess.run">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.BaseProcess.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Executes the simulation process.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            **kwargs: Process-specific arguments required for execution.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotImplementedError: This method must be implemented by subclasses.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Subclasses must override this method to implement the specific</span>
+<span class="sd">            execution logic for their simulation type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MDProcess">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess">[docs]</a>
+<span class="k">class</span> <span class="nc">MDProcess</span><span class="p">(</span><span class="n">BaseProcess</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Molecular dynamics simulation process implementation.</span>
+
+<span class="sd">    Handles execution of Amber MD simulations including minimization, heating,</span>
+<span class="sd">    equilibration, and production runs. Automatically parses input parameters</span>
+<span class="sd">    and manages file paths for simulation output.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        control_cfg (dict): Parsed &amp;cntrl section from input file.</span>
+<span class="sd">        is_minimize (bool): Whether this is a minimization process.</span>
+<span class="sd">        is_restrained (bool): Whether restraints are applied.</span>
+<span class="sd">        is_production (bool): Whether this is a production run.</span>
+<span class="sd">        total_step (int): Total number of simulation steps.</span>
+<span class="sd">        step_size (float): Time step size in picoseconds.</span>
+<span class="sd">        cmd (str): Command string for simulation execution.</span>
+<span class="sd">        topology_file (File): Topology file for the system.</span>
+<span class="sd">        inpcrd_file (File): Input coordinate file.</span>
+<span class="sd">        mdout_file_path (str): Path to simulation output file.</span>
+<span class="sd">        mdcrd_file_path (str): Path to trajectory coordinate file.</span>
+<span class="sd">        mdrst_file_path (str): Path to restart coordinate file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MDProcess.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">input_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
+        <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">use_gpu</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">cpu_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the MD process with input parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_file (File): Amber MD input file with simulation parameters.</span>
+<span class="sd">            process_name (str): Unique name for this simulation process.</span>
+<span class="sd">            use_gpu (bool, optional): Whether to use GPU acceleration. Defaults to True.</span>
+<span class="sd">            cpu_num (int, optional): Number of CPU cores to use if not using GPU. Defaults to half of available CPUs.</span>
+<span class="sd">            **kwargs: Additional attributes for process customization.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Automatically determines simulation type (minimization vs dynamics)</span>
+<span class="sd">            based on the &#39;imin&#39; parameter in the input file. Step size and</span>
+<span class="sd">            total steps are extracted from appropriate input parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">process_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">control_cfg</span> <span class="o">=</span> <span class="p">[</span><span class="n">cfg</span> <span class="k">for</span> <span class="n">cfg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span> <span class="k">if</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;cntrl&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_minimize</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;imin&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_restrained</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ntr&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_production</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;nstlim&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;maxcyc&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">control_cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dt&quot;</span><span class="p">))</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_minimize</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_gpu</span> <span class="o">=</span> <span class="n">use_gpu</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cpu_num</span> <span class="o">=</span> <span class="n">cpu_num</span> <span class="ow">or</span> <span class="n">CPU_NUM</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">topology_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inpcrd_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdout_file_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdcrd_file_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdrst_file_path</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="MDProcess.run">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">topology_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
+        <span class="n">inpcrd_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
+        <span class="n">reference_file</span><span class="p">:</span> <span class="n">File</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">nohup</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MDProcess&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Executes the molecular dynamics simulation.</span>
+
+<span class="sd">        Runs the MD simulation using either PMEMD (for dynamics) or SANDER (for minimization)</span>
+<span class="sd">        with the specified topology and coordinate files. Handles output file management</span>
+<span class="sd">        and progress tracking.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            topology_file (File): Amber topology file (.prmtop) for the system.</span>
+<span class="sd">            inpcrd_file (File): Input coordinate file (.inpcrd or .rst).</span>
+<span class="sd">            reference_file (File | str, optional): Reference structure for restrained simulations.</span>
+<span class="sd">                Defaults to None.</span>
+<span class="sd">            save_dir (str, optional): Directory to save simulation outputs.</span>
+<span class="sd">                Defaults to current working directory.</span>
+<span class="sd">            nohup (bool, optional): Whether to run in background with progress tracking.</span>
+<span class="sd">                Defaults to False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            MDProcess: Self-reference with updated file paths and execution status.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            The method automatically:</span>
+<span class="sd">            - Selects appropriate MD engine (PMEMD/SANDER) based on simulation type</span>
+<span class="sd">            - Generates output file paths based on process name</span>
+<span class="sd">            - Logs simulation parameters (steps, time step, total time)</span>
+<span class="sd">            - Provides real-time progress tracking for background runs</span>
+<span class="sd">            - Handles reference files for restrained simulations</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the simulation execution fails.</span>
+<span class="sd">            FileNotFoundError: If required input files don&#39;t exist.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">topology_file</span> <span class="o">=</span> <span class="n">topology_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inpcrd_file</span> <span class="o">=</span> <span class="n">inpcrd_file</span>
+        <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdout_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">process_name</span><span class="si">}</span><span class="s2">.out&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdcrd_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">process_name</span><span class="si">}</span><span class="s2">.nc&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdrst_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">process_name</span><span class="si">}</span><span class="s2">.rst&quot;</span><span class="p">)</span>
+        <span class="n">simulation_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span> <span class="o">/</span> <span class="mi">1000</span>
+        <span class="n">pmemd</span> <span class="o">=</span> <span class="n">PMEMD</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_gpu</span> <span class="k">else</span> <span class="n">SANDER</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cpu_num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cpu_num</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_minimize</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Simulation total steps: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">total_step</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Simulation step size: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">step_size</span><span class="si">}</span><span class="s2"> ps&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Simulation total time: </span><span class="si">{</span><span class="n">simulation_time</span><span class="si">}</span><span class="s2"> ns&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pmemd</span><span class="si">}</span><span class="s2"> -O&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -i </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">input_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -o </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mdout_file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -c </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">inpcrd_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -p </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">topology_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -r </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mdrst_file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_minimize</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -x </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mdcrd_file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">reference_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -ref </span><span class="si">{</span><span class="n">reference_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">nohup</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;nohup </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="si">}</span><span class="s2"> &gt; /dev/null 2&gt;&amp;1 &amp;&quot;</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Process </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">process_name</span><span class="si">}</span><span class="s2"> running command: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running process </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">process_name</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+        <span class="n">shell_run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nohup</span><span class="p">:</span>
+            <span class="n">_trace_progress</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mdout_file_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_step</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Process </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">process_name</span><span class="si">}</span><span class="s2"> finished.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MinimizeProcess">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MinimizeProcess">[docs]</a>
+<span class="k">class</span> <span class="nc">MinimizeProcess</span><span class="p">(</span><span class="n">MDProcess</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Energy minimization simulation process.</span>
+
+<span class="sd">    Specialized MD process for performing energy minimization using SANDER.</span>
+<span class="sd">    Inherits all functionality from MDProcess but is specifically configured</span>
+<span class="sd">    for minimization calculations.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        Minimization processes use SANDER engine and don&#39;t generate trajectory</span>
+<span class="sd">        files. The process automatically detects minimization mode from the</span>
+<span class="sd">        input file&#39;s &#39;imin=1&#39; parameter.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MinimizeProcess.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MinimizeProcess.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">input_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
+        <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">use_gpu</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">cpu_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the minimization process.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_file (File): Amber minimization input file with imin=1.</span>
+<span class="sd">            process_name (str): Unique name for this minimization process.</span>
+<span class="sd">            use_gpu (bool, optional): Whether to use GPU acceleration. Defaults to False.</span>
+<span class="sd">            cpu_num (int, optional): Number of CPUs to use if not using GPU. Defaults to half of available CPUs.</span>
+<span class="sd">            **kwargs: Additional attributes for process customization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">process_name</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="n">use_gpu</span><span class="p">,</span> <span class="n">cpu_num</span><span class="o">=</span><span class="n">cpu_num</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="NPTProcess">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.NPTProcess">[docs]</a>
+<span class="k">class</span> <span class="nc">NPTProcess</span><span class="p">(</span><span class="n">MDProcess</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Isothermal-isobaric (NPT) molecular dynamics process.</span>
+
+<span class="sd">    Performs MD simulation in the NPT ensemble where temperature and pressure</span>
+<span class="sd">    are held constant. Commonly used for equilibration and production phases</span>
+<span class="sd">    to maintain realistic density and pressure conditions.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        is_production (bool): Whether this is a production run requiring</span>
+<span class="sd">            background execution with progress tracking.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="NPTProcess.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.NPTProcess.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span> <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">is_production</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the NPT simulation process.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_file (File): Amber MD input file configured for NPT simulation.</span>
+<span class="sd">            process_name (str): Unique name for this NPT process.</span>
+<span class="sd">            is_production (bool, optional): Whether this is a production run.</span>
+<span class="sd">                Production runs use background execution. Defaults to False.</span>
+<span class="sd">            **kwargs: Additional attributes for process customization.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            NPT simulations require appropriate barostat and thermostat settings</span>
+<span class="sd">            in the input file (ntp&gt;0, ntt&gt;0). Production runs automatically</span>
+<span class="sd">            use nohup execution for long simulations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">process_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_production</span> <span class="o">=</span> <span class="n">is_production</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="NVTProcess">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.NVTProcess">[docs]</a>
+<span class="k">class</span> <span class="nc">NVTProcess</span><span class="p">(</span><span class="n">MDProcess</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Canonical (NVT) molecular dynamics process.</span>
+
+<span class="sd">    Performs MD simulation in the NVT ensemble where temperature and volume</span>
+<span class="sd">    are held constant. Typically used for heating phases and some equilibration</span>
+<span class="sd">    steps before switching to NPT conditions.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        is_production (bool): Whether this is a production run requiring</span>
+<span class="sd">            background execution with progress tracking.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="NVTProcess.__init__">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.NVTProcess.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span> <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">is_production</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the NVT simulation process.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_file (File): Amber MD input file configured for NVT simulation.</span>
+<span class="sd">            process_name (str): Unique name for this NVT process.</span>
+<span class="sd">            is_production (bool, optional): Whether this is a production run.</span>
+<span class="sd">                Production runs use background execution. Defaults to False.</span>
+<span class="sd">            **kwargs: Additional attributes for process customization.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            NVT simulations require thermostat settings in the input file (ntt&gt;0)</span>
+<span class="sd">            but no barostat (ntp=0). Commonly used for gradual heating from</span>
+<span class="sd">            0 K to target temperature.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">process_name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_production</span> <span class="o">=</span> <span class="n">is_production</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="run_simulation">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.run_simulation">[docs]</a>
+<span class="nd">@timeit</span>
+<span class="k">def</span> <span class="nf">run_simulation</span><span class="p">(</span>
+    <span class="n">comsolvate_topfile</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
+    <span class="n">comsolvate_crdfile</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
+    <span class="n">process_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MDProcess</span><span class="p">],</span>
+    <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MDProcess</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Executes a series of molecular dynamics simulation processes.</span>
+
+<span class="sd">    Runs a complete MD simulation workflow by sequentially executing a list</span>
+<span class="sd">    of simulation processes (minimization, heating, equilibration, production).</span>
+<span class="sd">    Each process uses the output coordinates from the previous step as input.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        comsolvate_topfile (File): Amber topology file for the solvated system.</span>
+<span class="sd">        comsolvate_crdfile (File): Initial coordinate file for the solvated system.</span>
+<span class="sd">        process_list (list[MDProcess]): List of MD processes to execute in order.</span>
+<span class="sd">            Each process contains its own input parameters and settings.</span>
+<span class="sd">        save_dir (str, optional): Base directory to save all simulation outputs.</span>
+<span class="sd">            Defaults to current working directory.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The function automatically:</span>
+<span class="sd">        - Creates separate subdirectories for each simulation process</span>
+<span class="sd">        - Chains coordinates between processes (output → input)</span>
+<span class="sd">        - Handles restrained simulations with appropriate reference structures</span>
+<span class="sd">        - Uses nohup for production runs to allow background execution</span>
+<span class="sd">        - Provides progress tracking for long simulations</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        MDProcess: The final completed simulation process in the workflow.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: If any simulation process fails.</span>
+<span class="sd">        FileNotFoundError: If input topology or coordinate files don&#39;t exist.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">process</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">process_list</span><span class="p">):</span>
+        <span class="n">process_output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">process_name</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">process_output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">inpcrd_file</span> <span class="o">=</span> <span class="n">comsolvate_crdfile</span> <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">File</span><span class="p">(</span><span class="n">finished_process</span><span class="o">.</span><span class="n">mdrst_file_path</span><span class="p">)</span>
+        <span class="n">reference_file</span> <span class="o">=</span> <span class="n">inpcrd_file</span> <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">is_restrained</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">nohup</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">is_production</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="n">finished_process</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="n">topology_file</span><span class="o">=</span><span class="n">comsolvate_topfile</span><span class="p">,</span>
+            <span class="n">inpcrd_file</span><span class="o">=</span><span class="n">inpcrd_file</span><span class="p">,</span>
+            <span class="n">save_dir</span><span class="o">=</span><span class="n">process_output_dir</span><span class="p">,</span>
+            <span class="n">reference_file</span><span class="o">=</span><span class="n">reference_file</span><span class="p">,</span>
+            <span class="n">nohup</span><span class="o">=</span><span class="n">nohup</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">finished_process</span></div>
+
+
+
+<div class="viewcode-block" id="create_energy_inputfile">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.create_energy_inputfile">[docs]</a>
+<span class="k">def</span> <span class="nf">create_energy_inputfile</span><span class="p">(</span>
+    <span class="n">job_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">startframe</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">endframe</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">step_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">decomp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">File</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates MM-PBSA/MM-GBSA input file for binding energy calculations.</span>
+
+<span class="sd">    Generates an input file for Amber&#39;s MM-PBSA or MM-GBSA calculations to</span>
+<span class="sd">    analyze protein-ligand binding energies from MD trajectory data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        job_type (str): Type of energy calculation. Valid options:</span>
+<span class="sd">            - &quot;pb/gb&quot;: Both Poisson-Boltzmann and Generalized Born calculations</span>
+<span class="sd">            - &quot;gb&quot;: Generalized Born calculation only</span>
+<span class="sd">            - &quot;nmode&quot;: Normal mode entropy calculation</span>
+<span class="sd">        startframe (int): Starting frame number from trajectory (1-indexed).</span>
+<span class="sd">        endframe (int): Ending frame number from trajectory (1-indexed).</span>
+<span class="sd">        step_size (int): Frame interval for analysis (e.g., 10 = every 10th frame).</span>
+<span class="sd">        decomp (bool, optional): Whether to perform per-residue energy decomposition.</span>
+<span class="sd">            Defaults to False.</span>
+<span class="sd">        save_dir (str, optional): Directory to save the input file.</span>
+<span class="sd">            Defaults to current working directory.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        File: Generated MM-PBSA/MM-GBSA input file.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If an invalid job_type is specified.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The function automatically configures appropriate calculation sections</span>
+<span class="sd">        based on the job type. Energy decomposition provides detailed per-residue</span>
+<span class="sd">        contributions but significantly increases computation time.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mmgbsa_input</span> <span class="o">=</span> <span class="n">MMGBSAInput</span><span class="p">(</span><span class="n">start_frame</span><span class="o">=</span><span class="n">startframe</span><span class="p">,</span> <span class="n">end_frame</span><span class="o">=</span><span class="n">endframe</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="n">step_size</span><span class="p">)</span>
+    <span class="n">mmgbsa_input</span><span class="o">.</span><span class="n">add_general</span><span class="p">()</span>
+    <span class="k">match</span> <span class="n">job_type</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+        <span class="k">case</span> <span class="s2">&quot;pb/gb&quot;</span><span class="p">:</span>
+            <span class="n">mmgbsa_input</span><span class="o">.</span><span class="n">add_pb</span><span class="p">()</span>
+            <span class="n">mmgbsa_input</span><span class="o">.</span><span class="n">add_gb</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">decomp</span><span class="p">:</span>
+                <span class="n">mmgbsa_input</span><span class="o">.</span><span class="n">add_decomp</span><span class="p">()</span>
+        <span class="k">case</span> <span class="s2">&quot;gb&quot;</span><span class="p">:</span>
+            <span class="n">mmgbsa_input</span><span class="o">.</span><span class="n">add_gb</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">decomp</span><span class="p">:</span>
+                <span class="n">mmgbsa_input</span><span class="o">.</span><span class="n">add_decomp</span><span class="p">()</span>
+        <span class="k">case</span> <span class="s2">&quot;nmode&quot;</span><span class="p">:</span>
+            <span class="n">mmgbsa_input</span><span class="o">.</span><span class="n">add_nmode</span><span class="p">()</span>
+        <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid job_type: </span><span class="si">{</span><span class="n">job_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">input_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">job_type</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">.in&quot;</span><span class="p">)</span>
+    <span class="n">mmgbsa_input</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">File</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="run_energy_calculation">
+<a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.run_energy_calculation">[docs]</a>
+<span class="nd">@timeit</span>
+<span class="k">def</span> <span class="nf">run_energy_calculation</span><span class="p">(</span>
+    <span class="n">input_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
+    <span class="n">comsolvate_topfile</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
+    <span class="n">com_topfile</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
+    <span class="n">receptor_topfile</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
+    <span class="n">ligand_topfile</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
+    <span class="n">traj_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
+    <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">energy_decompose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">cpu_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">File</span><span class="p">,</span> <span class="n">File</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Executes MM-PBSA/MM-GBSA binding energy calculations.</span>
+
+<span class="sd">    Performs comprehensive binding energy analysis using Amber&#39;s MMPBSA.py.MPI</span>
+<span class="sd">    program with parallel processing. Calculates binding free energies and</span>
+<span class="sd">    optionally performs per-residue energy decomposition.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        input_file (File): MM-PBSA input file with calculation parameters.</span>
+<span class="sd">        comsolvate_topfile (File): Topology file for the complete solvated system.</span>
+<span class="sd">        com_topfile (File): Topology file for the protein-ligand complex (no solvent).</span>
+<span class="sd">        receptor_topfile (File): Topology file for the receptor/protein only.</span>
+<span class="sd">        ligand_topfile (File): Topology file for the ligand only.</span>
+<span class="sd">        traj_file (File): MD trajectory file (.nc or .dcd format).</span>
+<span class="sd">        save_dir (str, optional): Directory to save calculation results.</span>
+<span class="sd">            Defaults to current working directory.</span>
+<span class="sd">        energy_decompose (bool, optional): Whether per-residue decomposition was requested.</span>
+<span class="sd">            Defaults to False.</span>
+<span class="sd">        cpu_num (int, optional): Number of CPU cores for parallel calculation.</span>
+<span class="sd">            Defaults to system CPU_NUM constant.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple[File, File]: Tuple containing (energy_results, decomp_results):</span>
+<span class="sd">            - energy_results: CSV file with binding energy results</span>
+<span class="sd">            - decomp_results: CSV file with per-residue decomposition (if requested)</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: If MPI is not available or calculation fails.</span>
+<span class="sd">        FileNotFoundError: If required input files don&#39;t exist.</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The calculation requires:</span>
+<span class="sd">        - MPI installation for parallel processing</span>
+<span class="sd">        - Proper trajectory format compatibility with topology files</span>
+<span class="sd">        - Sufficient memory for large trajectory analysis</span>
+<span class="sd">        - All topology files must be consistent with the trajectory</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">output_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">input_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_FINAL_RESULTS_MMPBSA.csv&quot;</span><span class="p">),</span> <span class="n">exist</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">log_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">input_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">),</span> <span class="n">exist</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">decom_output_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">input_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_FINAL_RESULTS_DECOMP.csv&quot;</span><span class="p">),</span> <span class="n">exist</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Checking MPI available...&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_mpirun_available</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;MPI is not available. Please install MPI/mpi4py to run energy calculations.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">cpu_num</span> <span class="o">=</span> <span class="n">cpu_num</span> <span class="ow">or</span> <span class="n">CPU_NUM</span>
+    <span class="n">energy_cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;mpirun -np </span><span class="si">{</span><span class="n">cpu_num</span><span class="si">}</span><span class="s2"> --host localhost:</span><span class="si">{</span><span class="n">cpu_num</span><span class="si">}</span><span class="s2"> MMPBSA.py.MPI -O &quot;</span>
+    <span class="n">energy_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;-i </span><span class="si">{</span><span class="n">input_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="n">energy_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;-sp </span><span class="si">{</span><span class="n">comsolvate_topfile</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="n">energy_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;-cp </span><span class="si">{</span><span class="n">com_topfile</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="n">energy_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;-rp </span><span class="si">{</span><span class="n">receptor_topfile</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="n">energy_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;-lp </span><span class="si">{</span><span class="n">ligand_topfile</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="n">energy_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;-y </span><span class="si">{</span><span class="n">traj_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="n">energy_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;-o </span><span class="si">{</span><span class="n">output_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="k">if</span> <span class="n">energy_decompose</span><span class="p">:</span>
+        <span class="n">energy_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;-do </span><span class="si">{</span><span class="n">decom_output_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="n">energy_cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&gt; </span><span class="si">{</span><span class="n">log_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> 2&gt;&amp;1&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running Energy Calculation...&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">ChDir</span><span class="p">():</span>
+        <span class="n">shell_run</span><span class="p">(</span><span class="n">energy_cmd</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Energy Calculation Finished.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">File</span><span class="p">(</span><span class="n">output_file</span><span class="p">),</span> <span class="n">File</span><span class="p">(</span><span class="n">decom_output_file</span><span class="p">,</span> <span class="n">exist</span><span class="o">=</span><span class="n">energy_decompose</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
