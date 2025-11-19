@@ -19,7 +19,7 @@ fi
 # 设置路径（使用绝对路径）
 docs_dir="$(cd "$(dirname "$0")" && pwd)"
 build_dir="$docs_dir/build/html"
-push_dir=$docs_dir/gh-pages
+push_dir=$docs_dir/../gh-pages
 
 # 检查构建目录是否存在且不为空
 if [ ! -d "$build_dir" ] || [ -z "$(ls -A "$build_dir" 2>/dev/null)" ]; then
@@ -31,7 +31,7 @@ echo "准备部署目录..."
 # 如果部署目录已存在，先清空
 if [ -d "$push_dir" ]; then
     echo "清空已存在的部署目录..."
-    rm -rf "$push_dir"
+    rm -rf "$push_dir/d* $push_dir/index.html"
 fi
 
 mkdir -p "$push_dir"
