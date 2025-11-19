@@ -1,882 +1,492 @@
-import re
-import os
-import logging
+from typing import List, Union
 
-import pandas as pd
-from typing import List
-from pyCADD.utils.common import BaseFile
+from pyCADD.utils.common import File
 
-import numpy as np
-np.float = np.float64
-np.int = np.int64
+from .const import AMINO_ACIDS, ATOM_RECORDS
+from .utils import check_pdb
 
-from schrodinger import structure as struc
-from schrodinger.structure import StructureReader, StructureWriter, Structure
-from schrodinger.job import jobcontrol as jc
-from schrodinger.application.glide import poseviewconvert as pvc
 
-logger = logging.getLogger(__name__)
+class PDBLine:
+    def __init__(self, line: str) -> None:
+        """One line in a pdb file
 
-def check_pdb(pdb: str):
-    '''
-    检查PDB ID合法性
+        Args:
+            line (str): one line in a pdb file
+        """
+        self._line = line.strip()
+        self.record_name = ""  # record name
+        self.atom_idx = ""  # atom serial number
+        self.atom_name = ""  # atom type
+        self.alt_loc = ""  # alternate location indicator
+        self.res_name = ""  # residue name
+        self.chain_id = ""  # chainID
+        self.res_id = ""  # resSeq
+        self.insertion_code = ""  # iCode
+        self.coord_x = ""  # x
+        self.coord_y = ""  # y
+        self.coord_z = ""  # z
+        self.occupancy = ""  # occupancy
+        self.temp_factor = ""  # tempFactor
+        self.element = ""  # element symbol, right-justified
+        self.charge = ""  # charge on the atom
 
-    Return
-    -------
-    bool
-        合法返回True 否则返回False
-    '''
+        self._parse()
 
-    if re.fullmatch(r'^\d[0-9a-zA-Z]{3,}$', pdb):
-        return True
-    else:
-        return False
+    @property
+    def _slice_define(self):
+        return {
+            "record_name": (0, 6),
+            "atom_idx": (6, 11),
+            "atom_name": (12, 16),
+            "alt_loc": (16, 17),
+            "res_name": (17, 20),
+            "chain_id": (21, 22),
+            "res_id": (22, 26),
+            "insertion_code": (26, 27),
+            "coord_x": (30, 38),
+            "coord_y": (38, 46),
+            "coord_z": (46, 54),
+            "occupancy": (54, 60),
+            "temp_factor": (60, 66),
+            "element": (76, 78),
+            "charge": (78, 80),
+        }
 
-def get_input_pdbid() -> str:
-    '''
-    获取用户输入的PDBID并检查合法性
+    def _get_line_slice(self, start: int, end: int, strip: bool = True):
+        try:
+            info = self._line[start:end]
+        except Exception:
+            info = ""
+        return info.strip() if strip else info
 
-    Return
-    ----------
-    str
-        PDB ID字符串
-    '''
+    def _parse(self):
+        for key, (start, end) in self._slice_define.items():
+            setattr(self, key, self._get_line_slice(start, end))
 
-    pdbid = os.path.split(os.getcwd())[-1]
+    def __str__(self) -> str:
+        return f"<PDBLine {self.line} >"
 
-    if check_pdb(pdbid):        
-        return pdbid
-    else:
-        while True:
-            logger.info('To get PDB ID automatically, please change current folder to PDBID.')
-            pdbid = input('Input PDB ID:').strip().upper()
-            logger.info('PDB ID: %s' % pdbid)
-            if check_pdb(pdbid):
-                return pdbid
-            else:
-                logger.warning('Please enter correct PDB ID!')
+    def __repr__(self) -> str:
+        return self.__str__()
 
-def launch(cmd:str, timeout:int=None):
-    '''
-    使用jobcontrol启动一项job并等待结束
+    @property
+    def is_atom_line(self) -> bool:
+        return self._line.startswith("ATOM") or self._line.startswith("HETATM")
 
-    Parameters
-    ----------
-    cmd : str
-        等待执行的命令字符串
-    timeout : int
-        超时时限(秒)
-    '''
+    @property
+    def is_amino(self) -> bool:
+        return self.record_name in ATOM_RECORDS and self.res_name in AMINO_ACIDS
 
-    cmd_list = cmd.split(' ')  # launch_job以列表形式提交参数
-    job = jc.launch_job(cmd_list, timeout=timeout)
-    logger.debug('Command: %s' % cmd)
-    logger.debug('JobId: %s' % job.JobId)
-    logger.debug('Job Name: %s' % job.Name)
-    logger.debug('Job Status: %s' % job.Status)
-    job.wait()  # 阻塞进程 等待Job结束
+    @property
+    def is_hetatm(self) -> bool:
+        return self._line.startswith("HETATM")
 
-    # 如果任务失败 直接返回而不抛出异常 只输出错误信息 以防止多进程中的一个进程被意外kill
-    if not job.StructureOutputFile:
-        logger.debug('Job %s Failed' % job.Name)
-        return
-    else:
-        logger.debug('File %s saved.' % job.StructureOutputFile)
+    @property
+    def is_conect(self) -> bool:
+        return self._line.startswith("CONECT")
 
-def get_predict_structure(predict_file, output_file:str=None):
-    '''
-    调用Schrodinger API提取 合并指定预测结构
+    @property
+    def is_ter(self) -> bool:
+        return self._line.startswith("TER")
 
-    Parameters 
-    ----------
-    predict_file : str
-        预测结构文件(csv)路径
-    output_file : str
-        输出结构文件(pdb|mae|maegz)路径
-    '''
+    @property
+    def is_end(self) -> bool:
+        return self._line.startswith("END")
 
-    prefix = os.path.basename(predict_file).split('.')[0]
-    output_file = f'{prefix}.mae' if output_file is None else output_file
-    predict_ligand_df = pd.read_csv(predict_file)
-    ligand_sts = []
-    
-    for index, ligand in enumerate(predict_ligand_df['Ligand']):
-        ligand_file = ligand + '.mae'
-        ligand_file_path = os.path.join('ligands', ligand_file)
-        if not os.path.exists(ligand_file_path):
-            logger.warning('Ligand file %s not found!' % ligand_file_path)
-            continue
-        st = StructureReader.read(ligand_file_path)
-        st.property['i_user_SortedIndex'] = index
-        ligand_sts.append(st)
+    @property
+    def _formatter(self) -> str:
+        if len(self.get_atom_name()) == 4:
+            return "{:<6}{:>5} {:<4}{:1}{:<3} {:1}{:>4}{:1}   {:>8}{:>8}{:>8}{:>6}{:>6}          {:>2}{:>2}"
+        # start writing atom name at 14th column
+        return "{:<6}{:>5}  {:<3}{:1}{:<3} {:1}{:>4}{:1}   {:>8}{:>8}{:>8}{:>6}{:>6}          {:>2}{:>2}"
 
-    with StructureWriter(output_file) as writer:
-        writer.extend(ligand_sts)
+    @property
+    def line(self) -> str:
+        return self._formatter.format(
+            self.record_name,
+            self.atom_idx,
+            self.atom_name,
+            self.alt_loc,
+            self.res_name,
+            self.chain_id,
+            self.res_id,
+            self.insertion_code,
+            self.coord_x,
+            self.coord_y,
+            self.coord_z,
+            self.occupancy,
+            self.temp_factor,
+            self.element,
+            self.charge,
+        )
 
-class PDBFile(BaseFile):
-    '''
-    PDB文件类型
-    '''
-    def __init__(self, path, ligand_id=None) -> None:
-        '''
-        Parameters
-        ----------
-        path : str
-            PDB文件路径
-        ligand_id : str    
-            配体小分子名称
-        '''
+    def get_line(self) -> str:
+        """Get the line string from current attributes
+
+        Returns:
+            str: line string
+        """
+        return self.line
+
+    def get_atom_name(self) -> str:
+        """Get the atom name from the line
+
+        Returns:
+            str: atom name
+        """
+        atom_name = self.atom_name
+        if not atom_name:
+            return atom_name
+        elif atom_name[0].isdigit():  # for name such as: 1HB, 1HG2
+            atom_name = atom_name[1:] + atom_name[0]
+        return atom_name
+
+
+class PDBLineParser:
+    def __init__(self, pdb_str: str = None, pdb_file: str = None) -> None:
+        """Parse pdb file string or file.
+
+        Args:
+            pdb_str (str, optional): pdb string. Defaults to None.
+            pdb_file (str, optional): pdb file path. Required if pdb_str is not provided. Defaults to None.
+
+        Raises:
+            ValueError: Either pdb_str or pdb_file must be provided.
+        """
+        if pdb_str is None and pdb_file is None:
+            raise ValueError("Either pdb_str or pdb_file must be provided")
+        self.pdb_file = pdb_file
+        self.pdb_str = pdb_str if pdb_str is not None else self._read_pdb_file()
+        self.pdb_lines = []
+        self._idx_map = {}
+        self._parse_lines()
+
+    def __str__(self) -> str:
+        return "\n".join(self.get_line_str_list())
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def _parse_lines(self):
+        self.pdb_lines = [PDBLine(line) for line in self.pdb_str.splitlines() if line.strip()]
+        self._idx_map = {line.atom_idx: i for i, line in enumerate(self.pdb_lines)}
+
+    def _read_pdb_file(self):
+        """Read the pdb file if pdb_str is not provided
+
+        Returns:
+            str: pdb file content
+        """
+        with open(self.pdb_file) as f:
+            _pdb_str = f.read()
+        return _pdb_str
+
+    def get_lines(self):
+        """Get a list of all lines parsed from the pdb file.
+
+        Returns:
+            list[PDBLine]: pdb line object list
+        """
+        return self.pdb_lines
+
+    def get_atom_lines(self):
+        """Get a list of atom line objects parsed from the pdb file.
+
+        Returns:
+            list[PDBLine]: atom line object list
+        """
+        return [line for line in self.pdb_lines if line.is_atom_line]
+
+    def get_amino_lines(self):
+        """Get a list of amino acid line objects parsed from the pdb file.
+        Amino acid line is defined as the line with record name 'ATOM' and res_name in AMINO_ACIDS
+
+        Returns:
+            list[PDBLine]: amino acid line objects list
+        """
+        return [line for line in self.pdb_lines if line.is_amino]
+
+    def get_hetatm_lines(self):
+        """Get a list of HETATM line objects parsed from the pdb file.
+
+        Returns:
+            list[PDBLine]: HETATM line objects list
+        """
+        return [line for line in self.pdb_lines if line.is_hetatm]
+
+    def get_str_list(self):
+        """Get a list of pdb line strings.
+
+        Returns:
+            list[str]: pdb line strings list
+        """
+        return [line.get_line() for line in self.pdb_lines]
+
+    def save_pdb(self, file_path):
+        """Save the pdb file to the file_path
+
+        Args:
+            file_path (str): file path to save the pdb file
+        """
+        with open(file_path, "w") as f:
+            f.write("\n".join(self.get_line_str_list()))
+
+
+class PDBFile(File):
+    def __init__(self, path: str) -> None:
+        """PDB file class
+
+        Args:
+            path (str): file path string
+        """
         super().__init__(path)
-        self.pdbid = self.file_prefix
-        self.ligid = ligand_id
-        self.lig_resnum = None
-        self.structure = next(StructureReader(self.file_path))
-        
-    def _catch_lig(self) -> list:
-        '''
-        从PDB文件获取配体小分子信息
-        按行分割并返回列表
+        self.pdbid = self.file_prefix[:4] if check_pdb(self.file_prefix[:4]) else None
+        self.pdb_parser = PDBLineParser(pdb_file=self.file_path)
 
-        Return
-        ----------
-        list[dict]
-            配体小分子信息列表
-        '''
+    def _catch_lig(self) -> list:
         result_list = []
-        _items = ['id', 'chain', 'resid', 'atom_num']
-        with open(self.file_path, 'r') as f:
+        _items = ["id", "chain", "resid", "atom_num"]
+        with open(self.file_path, "r") as f:
             lines = f.read().splitlines()
         for line in lines:
-            if line.startswith('HET '):
-                match = ','.join(line.split()[1:])
-                lig_dict = {k:v for k,v in zip(_items, match.split(','))}
+            if line.startswith("HET "):
+                match = ",".join(line.split()[1:])
+                lig_dict = {k: v for k, v in zip(_items, match.split(","))}
                 result_list.append(lig_dict)
         return result_list
 
-    def _get_lig_info(self, lig_res) -> dict:
-        return {
-            'id': lig_res.pdbres.strip(), 
-            'chain': lig_res.chain, 
-            'resid': lig_res.resnum, 
-            'atom_num': len(lig_res)
-            }
+    def get_lines(self, return_str: bool = False) -> Union[list, str]:
+        """Get the pdb file content as a list of lines or a string
 
-    def _input_from_list(self, liglist:list) -> dict:
-        '''
-        获取索引的配体小分子信息(仅限于liglist内)
+        Args:
+            return_str (bool, optional): get the string instead of list[str]. Defaults to False.
 
-        Return
-        ----------
-        dict
-            配体小分子信息
-        '''
-        while True:
-            ligindex = int(input('Please specify ligand index:').strip())
-            if ligindex < len(liglist):
-                selected_lig = liglist[ligindex]
-                self.ligid = selected_lig.pdbres.strip()
-                self.lig_resnum = selected_lig.resnum
-                return self._get_lig_info(selected_lig)
-            else:
-                logger.warning('Wrong index, please try agagin.')
+        Returns:
+            list|str: pdb file content
+        """
+        return (
+            self.pdb_parser.get_str_list()
+            if not return_str
+            else "\n".join(self.pdb_parser.get_str_list())
+        )
 
-    def get_lig(self, ligand_id:str=None, select_first:bool=False) -> dict:
-        '''
-        从PDB文件获取指定配体小分子信息:
-            Name, Chain, Resid, Atom_num
-        
-        Parameters
-        ----------
-        ligand_id : str
-            配体小分子名称
-        select_first : bool
-            存在多个配体时 是否自动选择第一个(默认为False)
-        
-        Return
-        ----------
-        dict
-            配体小分子信息
-        '''
-        
-        ligand_id = self.ligid if ligand_id is None else ligand_id
-        assert ligand_id is not None, 'Ligand ID is not specified.'
-        ligand_id = ligand_id.strip().upper()
-        _all_match_lig = [res for res in self.structure.residue if res.pdbres.strip() == ligand_id]
+    def get_chain(self, chain_id: str, return_str: bool = False) -> Union[list, str]:
+        """Get the pdb file content of a single chain
 
-        if len(_all_match_lig) == 0:
-            raise ValueError(f'No ligand {ligand_id} found in PDB file.')
-        elif len(_all_match_lig) == 1:
-                self.ligid = _all_match_lig[0].pdbres.strip()
-                self.lig_resnum = _all_match_lig[0].resnum
-                return self._get_lig_info(_all_match_lig[0])
-        else:
-            if select_first:
-                first_lig = _all_match_lig[0]
-                self.ligid = first_lig.pdbres.strip()
-                self.lig_resnum = first_lig.resnum
-                logger.debug(f'Selected the first ligand: {first_lig.pdbres}:Chain {first_lig.chain}:{first_lig.resnum}' )
-                return self._get_lig_info(_all_match_lig[0])
+        Args:
+            chain_id (str): chain id
+            return_str (bool, optional): get the string instead of list[str]. Defaults to False.
 
-            fmt = '{0:<10}{1:<10}{2:<10}{3:<10}{4:<10}'
-            logger.debug('Crystal %s has multiple ligands' % self.pdbid)
-            print(fmt.format('Index', 'PDBID', 'Name', 'Chain', 'Resnum'))
-            for index, lig in enumerate(_all_match_lig):
-                print(fmt.format(index, self.pdbid, lig.pdbres, lig.chain, lig.resnum))
-            return self._input_from_list(_all_match_lig)
-        
-    def get_lig_name(self) -> str:
-        '''
-        从PDB文件获取配体小分子名称
-        按行分割并返回列表
+        Returns:
+            str: pdb file content of a single chain
+        """
+        chain_content = [
+            line.get_line()
+            for line in self.pdb_parser.get_atom_lines()
+            if line.chain_id == chain_id
+        ]
+        return "\n".join(chain_content) if return_str else chain_content
 
-        Return
-        ----------
-        str
-            配体小分子名称
-        '''
-        return self.ligid
-    
-    def keep_chain(self, chain_name:str=None, select_first_lig:bool=False) -> None:
-        '''
-        返回保留单链的结构
-        
-        Parameters
-        ----------
-        chain : str
-            需要保留的链(默认为配体所在链)
-        select_first_lig : bool
-            存在多个配体时 是否自动选择第一个(默认为False, 仅chain_name为None时生效)
 
-        '''
-        chain_name = chain_name if chain_name is not None else self.get_lig(select_first=select_first_lig)['chain']
-        singlechain_file = '%s-chain-%s.mae' % (self.pdbid, chain_name)
-        st = MaestroFile.get_first_structure(self.file_path)  # 读取原始PDB结构
-        st_chain_only = st.chain[chain_name].extractStructure()
-        st_chain_only.write(singlechain_file)
-        return MaestroFile(singlechain_file, self.ligid, self.lig_resnum)
+class EnsembleInputFile(File):
+    def __init__(self, path: str) -> None:
+        """Input file class for ensemble docking
 
-class MaestroFile(BaseFile):
-    '''
-    Maestro文件类型
-    '''
-    def __init__(self, path:str, ligand:str=None, lig_resnum:int=None) -> None:
+        Args:
+            path (_type_): file path
+        """
         super().__init__(path)
-        _pdbid_from_file = self.file_prefix.split('_')[0]
-        _pdbid_from_file = _pdbid_from_file if check_pdb(_pdbid_from_file) else _pdbid_from_file.split('-')[0]
-        self.pdbid = _pdbid_from_file if check_pdb(_pdbid_from_file) else None
-        self.ligid = ligand
-        self.lig_resnum = lig_resnum
-
-    @property
-    def st_reader(self) -> StructureReader:
-        return StructureReader(self.file_path)
-
-    @property
-    def structures(self) -> List[Structure]:
-        return [st for st in self.st_reader]
-    
-    @staticmethod
-    def get_first_structure(file_path: str) -> Structure:
-        '''
-        获取Maestro文件中的第一个结构
-
-        Parameters
-        ----------
-        file_path : str
-            Maestro文件路径
-        '''
-        return next(StructureReader(file_path))
-
-    @staticmethod
-    def convert_format(file_path, to_format: str) -> str:
-        '''
-        转换结构格式
-
-        Parameters
-        ----------
-        file_path : str
-            需要转换的文件路径
-        to_format : str
-            转换后的格式
-        
-        Return
-        ----------
-        str
-            转换后的文件路径
-        '''
-        st = MaestroFile.get_first_structure(file_path)
-        prefix, suffix = os.path.splitext(file_path)
-        if to_format == 'pdb':
-            converted_file = prefix + '.pdb'
-        elif to_format == 'mae':
-            converted_file = prefix + '.mae'
-        elif to_format == 'maegz':
-            converted_file = prefix + '.maegz'
-        else:
-            raise ValueError('Unsupported format: %s' % to_format)
-
-        st.write(converted_file)
-        return converted_file
-    
-    def minimize(self, side_chain:bool=True, missing_loop:bool=True, del_water:bool=True, overwrite:bool=False):
-        '''
-        优化结构并执行能量最小化
-        '''
-        pdbid = self.pdbid
-        minimized_file = pdbid + '_minimized.mae'
-        if not overwrite and os.path.exists(minimized_file):  # 如果已经进行过优化 为提高效率而跳过优化步骤
-            logger.debug('File %s is existed.' % minimized_file)
-            return ComplexFile(minimized_file)
-
-        _job_name = '%s-Minimize' % pdbid
-        prepwizard_command = 'prepwizard -f 3 -r 0.3 -propka_pH 7.0 -disulfides -s -j %s' % _job_name
-        if side_chain:
-            prepwizard_command += ' -fillsidechains'
-        if missing_loop:
-            prepwizard_command += ' -fillloops'
-        if del_water:
-            prepwizard_command += ' -watdist 0.0'
-
-        
-        prepwizard_command += ' %s' % self.file_path    # 将pdb文件传入prepwizard
-        prepwizard_command += ' %s' % minimized_file    # 将优化后的文件保存到minimized_file
-        launch(prepwizard_command)
-
-        if not os.path.exists(minimized_file):  
-            raise RuntimeError('%s Crystal Minimization Process Failed.' % pdbid)
-        else:
-            return ComplexFile(minimized_file)
-
-class ComplexFile(MaestroFile):
-    '''
-    Maestro单结构复合物文件类型
-    仅包含一个Entry
-    '''
-    def __init__(self, path:str, ligand:str=None, lig_resnum:int=None) -> None:
-        super().__init__(path, ligand, lig_resnum)
-        self.structure = self.structures[0]
-
-    def _get_mol_obj(self, ligname:str, lig_resnum:int=None) -> struc._Molecule:
-        '''
-        获取结构中的配体所在Molecule object
-
-        Parameters
-        ----------
-        ligname : str
-            配体名称
-        lig_resnum : int
-            配体编号
-        '''
-        for res in self.structure.residue:
-            if res.resnum == lig_resnum:
-                molnum = res.molecule_number
-                logger.debug('Exact match found: %s %d' % (res.pdbres, res.resnum))
-                return self.structure.molecule[molnum]
-            elif res.pdbres.strip() == ligname:
-                molnum = res.molecule_number
-                logger.debug('Approximate match found: %s %d' % (res.pdbres, res.resnum))
-                return self.structure.molecule[molnum]
-            
-        raise RuntimeError('No match found: %s' % (ligname))
-
-    def _del_covalent_bond(self, ligname) -> None:
-        '''
-        删除共价键
-
-        Parameters
-        ----------
-        ligname : str
-            配体名称
-        '''
-        bonds = self.structure.bond
-
-        for bond in bonds:
-            resname1 = bond.atom1.getResidue().pdbres.strip()
-            resname2 = bond.atom2.getResidue().pdbres.strip()
-            if resname1 == '%s' % ligname or resname2 == '%s' % ligname:
-                if resname1 != resname2:
-                    bond_to_del = bond
-                
-        if not bond_to_del:
-            raise RuntimeError('Can not delete covalent bonds automatically.')
-                
-        self.structure.deleteBond(bond_to_del.atom1, bond_to_del.atom2)
-        # 共价键删除后 需要将结构覆写回文件
-        self.structure.write(self.file_path)
-        
-    def get_lig_molnum(self, ligname:str=None, lig_resnum:int=None) -> str:
-        '''
-        以ligname为KEY 查找Maestro文件中的Molecule Number
-        
-        Parameters
-        ----------
-        ligname : str
-            配体小分子名称
-        lig_resnum : int
-            配体结构中的小分子编号
-
-        Return
-        ----------
-        str
-            Molecule Number
-        '''
-        ligname = ligname if ligname is not None else self.ligid
-        lig_resnum = lig_resnum if lig_resnum is not None else self.lig_resnum
-        assert ligname is not None, 'Ligand name is not specified.'
-        mol = self._get_mol_obj(ligname, lig_resnum)
-
-        # 判断该molecule是否仅包括小分子本身(是否存在共价连接) 自动移除共价连接
-        if len(mol.residue) != 1:  
-            logger.debug('%s in %s : A covalent bond may exist between the ligand and residue.' % (ligname, self.file_name))
-            logger.debug('An attempt will be made to remove the covalent bond automatically.')
-            self._del_covalent_bond(ligname)
-            mol = self._get_mol_obj(ligname)
-
-        return mol.number
-
-    def split(self, ligname:str=None, protein_dir:str=None, ligand_dir:str=None, complex_dir:str=None, save_fmt:str='pdb') -> tuple:
-        '''
-        将Maestro文件分割为受体与配体
-
-        Parameters
-        ----------
-        ligname : str
-            配体小分子名称
-        protein_dir : str
-            受体文件保存路径
-        ligand_dir : str
-            配体文件保存路径
-        complex_dir : str
-            复合物文件保存路径
-        save_fmt : str
-            保存文件的格式 默认为pdb
-
-        Return
-        ----------
-        tuple
-            分割后的文件(RecepFile, LigFile)
-        '''
-        st = self.structure
-        pdbid = self.pdbid
-        ligname = ligname if ligname is not None else self.ligid
-        assert ligname is not None, 'Ligand name is not specified.'
-        
-        protein_save_dir = protein_dir if protein_dir is not None else os.getcwd()
-        ligand_save_dir = ligand_dir if ligand_dir is not None else os.getcwd()
-        complex_save_dir = complex_dir if complex_dir is not None else os.getcwd()
-
-        _residue_list = [res for res in self.structure.residue if res.pdbres.strip() == ligname]
-        _res_info = ' '.join([res.chain + ':' + res.pdbres.strip() for res in _residue_list])
-
-        if len(_residue_list) != 1:
-            logger.debug(f'There are {len(_residue_list)} "{ligname}" in {self.file_name}: {_res_info}')
-            logger.debug('The First One is Selected.')
-        _residue = _residue_list[0]
-
-        complex_file = pvc.Complex(st, ligand_asl=_residue.getAsl(), ligand_properties=st.property.keys())
-
-        save_fmt = save_fmt if save_fmt.lower() == 'pdb' else 'mae'
-        _lig_file = os.path.join(ligand_save_dir, f'{pdbid}-lig-{ligname}.{save_fmt}')
-        _recep_file = os.path.join(protein_save_dir, f'{pdbid}-pro-{ligname}.{save_fmt}')
-        _complex_file = os.path.join(complex_save_dir, f'{pdbid}-com-{ligname}.{save_fmt}')
-
-        complex_file.writeLigand(_lig_file)
-        complex_file.writeReceptor(_recep_file) 
-        st.write(_complex_file)
-    
-        return ReceptorFile(_recep_file, self.ligid, self.lig_resnum), LigandFile(_lig_file, f'{pdbid}-lig-{ligname}', self.lig_resnum)
-
-class ReceptorFile(MaestroFile):
-    '''
-    Maestro受体文件类型
-    '''
-    def __init__(self, path:str, ligand:str=None, lig_resnum:int=None) -> None:
-        super().__init__(path, ligand, lig_resnum)
-        _pdb_from_file = self.file_name.split('-')[0]
-        _pdb_from_file = _pdb_from_file if check_pdb(_pdb_from_file) else "Unspecified"
-        self.pdbid = self.pdbid if self.pdbid else _pdb_from_file
-
-class LigandFile(MaestroFile):
-    '''
-    Maestro配体文件类型
-    '''
-    def __init__(self, path:str, ligand:str=None, lig_resnum:int=None) -> None:
-        super().__init__(path, ligand, lig_resnum)
-        _pdb_from_file = self.file_name.split('-')[0]
-        _pdb_from_file = _pdb_from_file if check_pdb(_pdb_from_file) else "Unspecified"
-        self.pdbid = self.pdbid if self.pdbid else _pdb_from_file
-        self.ligand_name = ligand if ligand is not None else self.file_prefix
-    
-    def calc_admet(self, overwrite:bool=False):
-        '''
-        计算化合物/配体的ADMET特征描述符
-        '''
-        prefix = self.file_prefix + '_ADMET'
-        admet_result_file = prefix + '.mae'
-
-        if os.path.exists(admet_result_file) and not overwrite:
-            logger.debug('File %s is existed.' % admet_result_file)
-            return LigandFile(admet_result_file)
-
-        launch(f'qikprop -outname {prefix} {self.file_path}')
-        try:
-            os.rename(prefix + '-out.mae', admet_result_file)
-        except Exception:
-            logger.warning(f'{prefix} ADMET Calculating Failed')
-            return None
-
-        return LigandFile(admet_result_file)
-        
-        
-class DockResultFile(MaestroFile):
-    '''
-    Maestro对接结果文件类型
-    仅含有2个Entry
-        * structures[0]: receptor
-        * structures[1]: ligand
-    当ligand_lib_only为True时，只含有ligand
-        * structures[0]: ligand
-    '''
-    def __init__(self, path:str, ligand:str=None, lig_resnum:int=None, docking_ligand:str=None, precision:str=None, ligand_only:bool=False) -> None:
-        super().__init__(path, ligand, lig_resnum)
-        self.internal_ligand_name = ligand if ligand is not None else self.file_prefix.split('_')[1]
-        self.internal_ligand_resnum = lig_resnum
-        self.docking_ligand_name = docking_ligand if docking_ligand is not None else self.file_prefix.split('_')[3]
-        self.precision = precision if precision is not None else self.file_prefix.split('_')[4]
-        self.ligand_only = ligand_only
-        # if self.ligand_only:
-        #     logger.debug('Docking Result File is Ligand Only.')
-
-    @property
-    def merged_file(self) -> ComplexFile:
-        '''
-        合并对接结果的受体与配体为一个复合物文件
-        '''
-        st = self.structures
-        _complex_file = f'{self.file_prefix}-complex.mae'
-        _complex_st = st[0].merge(st[1], copy_props=True)    
-        _complex_st.write(_complex_file)
-        return ComplexFile(_complex_file)
-
-    @property
-    def docking_receptor_st(self) -> Structure:
-        '''
-        返回对接结果的受体结构
-        '''
-        return self.structures[0]
-
-    @property
-    def docking_ligand_st(self) -> Structure:
-        '''
-        返回对接结果的配体结构
-        '''
-        if self.ligand_only:
-            return self.structures[0]
-        return self.structures[1]
-    
-    @property
-    def property(self) -> dict:
-        '''
-        返回对接结果的数据
-        '''
-        return self.extract_docking_data()
-
-    def get_receptor_file(self) -> ReceptorFile:
-        '''
-        获取对接结果中的受体文件
-        '''
-        docking_recep_st = self.docking_receptor_st
-        output_lig_file = f'{self.file_prefix}_recep_posture.mae'
-        docking_recep_st.write(output_lig_file)
-        return ReceptorFile(output_lig_file)
-        
-    def get_ligand_file(self) -> LigandFile:
-        '''
-        获取对接结果中的配体姿势文件
-        '''
-        docking_lig_st = self.docking_ligand_st
-        output_lig_file = f'{self.file_prefix}_lig_posture.mae'
-        docking_lig_st.write(output_lig_file)
-        return LigandFile(output_lig_file)
-    
-    def get_merged_file(self) -> ComplexFile:
-        '''
-        获取对接结果的合并文件
-        '''
-        return self.merged_file
-
-    def extract_docking_data(self) -> dict:
-        '''
-        提取对接数据
-        '''
-        lig_st = self.docking_ligand_st
-        self.prop_dic = {}
-        for key in lig_st.property.keys():
-            self.prop_dic[key] = lig_st.property[key]
-        
-        return self.prop_dic
-
-    def calc_mmgbsa(self, overwrite:bool=False) -> ComplexFile:
-        '''
-        计算MM-GBSA结合能
-        '''
-        prefix = self.file_prefix
-        mmgbsa_result_file = prefix + '_mmgbsa.maegz'
-        job_name = f'{prefix}_mmgbsa'
-
-        # 已计算则跳过计算过程
-        if os.path.exists(mmgbsa_result_file) and not overwrite:
-            logger.debug('File %s is existed.' % mmgbsa_result_file)
-            return ComplexFile(mmgbsa_result_file)
-
-        launch(f'prime_mmgbsa -j {job_name} {self.file_path}')
-        
-        try:
-            os.rename(f'{job_name}-out.maegz', mmgbsa_result_file)
-        except Exception:
-            logger.debug(f'{prefix} Prime MM-GB/SA Calculating Failed')
-            return None
-
-        return ComplexFile(mmgbsa_result_file)
-
-class GridFile(BaseFile):
-    '''
-    网格文件类型(.zip)
-    '''
-    def __init__(self, file_path: str, ligand:str=None, lig_resnum:int=None) -> None:
-        super().__init__(file_path)
-        self.ligand = ligand if ligand is not None else "Unspecified"
-        self.lig_resnum = lig_resnum
-        try:
-            _pdbid_from_file, _, internal_ligand = self.file_prefix.split('_')
-        except ValueError:
-            _pdbid_from_file = "Unspecified"
-            internal_ligand = "Unspecified"
-        self.pdbid = _pdbid_from_file if check_pdb(_pdbid_from_file) else None
-        # 共结晶配体名称
-        # sample grid file name: 1FBY_glide-grid_9CR.zip
-        self.internal_ligand = internal_ligand if internal_ligand is not None else "Unspecified"
-
-        
-class MultiInputFile(BaseFile):
-    '''
-    pyCADD受体列表输入文件
-    '''
-    def __init__(self, path, parse: bool=True) -> None:
-        '''
-        Parameters
-        ----------
-        path : str
-            受体列表输入文件路径
-        parse : bool
-            是否解析文件
-        '''
-        super().__init__(path)
-        self.config = None
-        self.pairs_list = None
         self.mappings = None
         self._pdbid_list = None
         self._ligand_list = None
-
-        if parse:
-            self.parse_file()
 
     @property
     def pdbid_list(self) -> list:
         if self._pdbid_list is None:
             self._pdbid_list = self.get_pdbid_list()
         return self._pdbid_list
-    
+
     @property
     def ligand_list(self) -> list:
         if self._ligand_list is None:
             self._ligand_list = self.get_ligand_list()
         return self._ligand_list
-    
-    @staticmethod
-    def _parse_from_csv(csv_file_path: str) -> None:
-        '''
-        解析csv输入文件
-        文件中含有多行的 逗号分隔的PDBID与配体ID
-        
-            example:
-                3A9E,REA
-                3KMZ,EQO
-                3KMR,EQN
-                4DQM,LUF
-                1DKF,BMS
-                5K13,6Q7
 
-        Parameters
-        ----------
-        file_path : str
-            csv输入文件路径
-        '''
-        file_path = csv_file_path
-        receptor_name = os.path.basename(file_path).split('.')[0] or "Undefine"
-        with open(file_path, 'r') as f:
+    @classmethod
+    def from_csv(cls, file_path: str, sep: str = ",", header: bool = False) -> "EnsembleInputFile":
+        """
+        Parse input file as csv format
+
+        Args:
+            file_path (str): csv file path
+            sep (str, optional): separator. Defaults to ','.
+            header (bool, optional): whether the csv file has header. Defaults to None.
+
+        csv examples:
+            ```
+            1XJ7,DHT
+            1XQ3,R18
+            2AM9,TES
+            2AM9,DTT
+            2YLP,TES
+            2YLP,056
+            ```
+
+        Returns:
+            EnsembleInputFile: instance of EnsembleInputFile
+        """
+        csv_file = File(file_path)
+        with open(csv_file.file_path, "r") as f:
             raw_list = f.read().splitlines()
-        
-        # pairs_list = [(pdbid.strip(), ligid.strip()) for pdbid, ligid in [line.split(',') for line in raw_list]]
-        pairs_list = []
-        for item in raw_list:
-            line = item.split(',')
-            if len(line) == 1:
-                pdbid = line[0]
-                ligid = None
+        if header:
+            raw_list = raw_list[1:]
+
+        mappings = []
+        for line in raw_list:
+            item = line.split(sep)
+            if len(item) == 1:
+                pdbid = line[0].strip()
+                ligand_name = ""
             elif len(line) >= 2:
-                pdbid, ligid = line[0].strip(), line[1].strip()
-            else:
-                raise RuntimeError('Input file may not be a csv file.')
+                pdbid, ligand_name = item[0].strip(), item[1].strip()
 
-            pairs_list.append((pdbid, ligid))
-        
-        # ligand_list = [ligid for pdbid, ligid in pairs_list]
-        mappings = [{'receptor': receptor_name, 'pdb': pdbid, 'ligand': ligid} for pdbid, ligid in pairs_list]
-        return pairs_list, mappings
-        
-    @staticmethod
-    def _parse_from_ini(config_file:str):
-        '''
-        从ini配置文件中获取受体与配体的对应关系
-        '''
-        from pyCADD.utils.tool import Myconfig
+            mappings.append({"receptor": csv_file.file_prefix, "pdb": pdbid, "ligand": ligand_name})
+        ins = cls(file_path)
+        ins.mappings = mappings
+        return ins
 
-        config = Myconfig()
+    @classmethod
+    def from_ini(cls, config_file: str) -> "EnsembleInputFile":
+        """Parse input file as ini format
+
+        Args:
+            config_file (str): ini file path
+
+        ini examples:
+            ```
+            [P10275]
+                1XJ7: DHT
+                1XQ3: R18
+                2AM9: TES,DTT
+                2YLP: TES,056
+            ```
+
+        Returns:
+            EnsembleInputFile: instance of EnsembleInputFile
+        """
+        from pyCADD.utils.common import FixedConfig
+
+        config = FixedConfig()
         config.read(config_file)
         receptors = [receptor for receptor in config.sections()]
-        # pdbid_list = []
-        pairs_list = []
         mappings = []
-        # for _list in [config.options(receptor) for receptor in receptors]:
-        #     pdbid_list.extend(_list)
-
         for receptor in receptors:
             for _item in config.items(receptor):
-                # PDB = LIG1,LIG2,LIG3
-                ligs = _item[1].split(',')
+                ligs = _item[1].split(",")
                 for lig in ligs:
-                    pairs_list.append((_item[0], lig))
-                    mappings.append({'receptor': receptor, 'pdb': _item[0], 'ligand': lig})
-        
-        return pairs_list, mappings
+                    mappings.append({"receptor": receptor, "pdb": _item[0], "ligand": lig})
+        ins = cls(config_file)
+        ins.mappings = mappings
+        return ins
 
-    @staticmethod
-    def _parse_from_yaml(yaml_file:str):
-        '''
-        从yaml文件中获取受体与配体的对应关系
-        '''
+    @classmethod
+    def from_yaml(cls, yaml_file: str) -> "EnsembleInputFile":
+        """Parse input file as yaml format
+
+        Args:
+            yaml_file (str): yaml file path
+
+
+        yaml examples:
+            ```
+            P10275:
+                1XJ7: DHT
+                1XQ3:
+                - R18
+                2AM9:
+                - TES
+                - DTT
+                2YLP:
+                - TES
+                - '056'
+
+        Returns:
+            EnsembleInputFile: instance of EnsembleInputFile
+        """
         import yaml
-        with open(yaml_file, 'r') as f:
+
+        with open(yaml_file, "r") as f:
             yaml_dict = yaml.load(f, Loader=yaml.FullLoader)
 
-        pairs_list = []
         mappings = []
         for receptor in yaml_dict.keys():
             for pdb, ligs in yaml_dict[receptor].items():
                 if isinstance(ligs, str):
                     ligs = [ligs]
                 for lig in ligs:
-                    pairs_list.append((pdb, lig))
-                    mappings.append({'receptor': receptor, 'pdb': pdb, 'ligand': lig})
-        return pairs_list, mappings
+                    mappings.append({"receptor": receptor, "pdb": pdb, "ligand": lig})
+        ins = cls(yaml_file)
+        ins.mappings = mappings
+        return ins
 
-    @staticmethod
-    def read_from_config(config_file:str) -> 'MultiInputFile':
-        '''
-        依据配置文件类型解析文件内容
+    @classmethod
+    def parse_file(cls, path: str, header: bool = False) -> "EnsembleInputFile":
+        """Parse input file
 
-        Parameters
-        ----------
-        config_file : str
-            配置文件路径
-        '''
-        if config_file.lower().endswith('.csv') or config_file.lower().endswith('.txt'):
-            pairs_list, mappings = MultiInputFile._parse_from_csv(config_file)
-        elif config_file.lower().endswith('.ini') or config_file.lower().endswith('.in'):
-            pairs_list, mappings = MultiInputFile._parse_from_ini(config_file)
-        elif config_file.lower().endswith('.yaml') or config_file.lower().endswith('.yml'):
-            pairs_list, mappings = MultiInputFile._parse_from_yaml(config_file)
+        Args:
+            path (str): file path
+            header (bool, optional): whether the file has header. Only for csv file. Defaults to False.
+
+        Raises:
+            ValueError: Unsupported file type
+
+        Returns:
+            EnsembleInputFile: instance of EnsembleInputFile
+        """
+        file = File(path)
+        if file.file_ext.lower() in ["csv", "txt"]:
+            return cls.from_csv(path, header=header)
+        elif file.file_ext.lower() == "ini":
+            return cls.from_ini(path)
+        elif file.file_ext.lower() in ["yaml", "yml"]:
+            return cls.from_yaml(path)
         else:
-            raise NotImplementedError(f'Unsupported file type: {config_file}')
-            
-        _input_file = MultiInputFile(config_file, parse=False)
-        _input_file.pairs_list = pairs_list
-        _input_file.mappings = mappings
-        return _input_file
+            raise ValueError(f"Unsupported file type: {file.file_path}")
 
-    def parse_file(self, file_path:str=None) -> None:
-        '''
-        解析输入文件
-        
-        Parameters
-        ----------
-        file_path : str
-            输入文件路径
-        '''
-        if file_path is None:
-            file_path = self.file_path
-        parsed_file = self.read_from_config(file_path)
-        self.pairs_list = parsed_file.pairs_list
-        self.pdbid_list = parsed_file.pdbid_list
-        self.ligand_list = parsed_file.ligand_list
-        self.mappings = parsed_file.mappings
-        
-    def read(self, file_path:str) -> None:
-        '''
-        读取输入文件
+    def read(self, file_path: str) -> None:
+        """Read and parse the input file
 
-        Parameters
-        ----------
-        file_path : str
-            输入文件路径
-        '''
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f'File {file_path} not found.')
-        self.parse_file(file_path)
-    
-    def get_pairs_list(self) -> list:
-        '''
-        获取受体信息列表
-        '''
-        if self.pairs_list is None:
-            self.parse_file()
-        return self.pairs_list
-    
-    def get_pdbid_list(self) -> list:
-        '''
-        获取受体信息列表中的PDBID列表
-        '''
-        if self.pairs_list is None:
-            self.parse_file()
-        return list(set([pdbid for pdbid, ligid in self.pairs_list]))
+        Args:
+            file_path (str): file path
+        """
+        self.mappings = self.parse_file(file_path).mappings
 
-    def get_ligand_list(self) -> list:
-        '''
-        获取受体信息列表中的配体列表
-        '''
-        if self.pairs_list is None:
-            self.parse_file()
-        return list(set([ligid for pdbid, ligid in self.pairs_list]))
+    def get_pairs_list(self) -> List[tuple]:
+        """Get the list of pairs. Pairs are defined as (pdb, ligand)
 
-    def get_pdbfile_path_list(self, pdb_dir: str) -> list:
-        '''
-        获取受体信息列表中的PDB文件路径列表
+        Returns:
+            list: list of pairs
+        """
+        if self.mappings is None:
+            self.read(self.file_path)
+        return [(item["pdb"], item["ligand"]) for item in self.mappings]
 
-        Parameters
-        ----------
-        pdb_dir : str
-            PDB文件所在目录
-        '''
-        return [os.path.join(pdb_dir, pdbid + '.pdb') for pdbid in self.pdbid_list]
-        
-    def get_gridfile_path_list(self, grid_dir: str) -> list:
-        '''
-        获取受体信息列表中的Grid文件路径列表
+    def get_pdbid_list(self) -> List[str]:
+        """Get the list of unique pdb ids
 
-        Parameters
-        ----------
-        grid_dir : str
-            Grid文件所在目录
-        '''
-        return [os.path.join(grid_dir, '%s_glide_grid_%s.zip' % (pdbid, ligid)) for pdbid, ligid in self.pairs_list]
+        Returns:
+            list: list of pdb ids
+        """
+        if self.mappings is None:
+            self.read(self.file_path)
+        return sorted(set([item["pdb"] for item in self.mappings]))
+
+    def get_ligand_list(self) -> List[str]:
+        """Get the list of unique ligands
+
+        Returns:
+            list: list of ligands
+        """
+        if self.mappings is None:
+            self.read(self.file_path)
+        return sorted(set([item["ligand"] for item in self.mappings]))

@@ -1,3 +1,4 @@
-import os
-if not os.path.exists(os.popen('which g16').read().strip()):
-    print('Gaussian 16 is not installed or not in PATH.\nDensity module may not work properly.')
+from pyCADD.utils.tool import is_gaussian_available
+if not is_gaussian_available():
+    print("Gauss may not be installed correctly. "
+          "Density module may not work properly.")

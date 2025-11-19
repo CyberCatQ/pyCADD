@@ -1,5 +1,5 @@
-__version__= '1.6.9'
-__update_date__ = '2023-12-26'
+__version__= '2.0.2'
+__update_date__ = '2025-11-19'
 __author__ = 'YH. W'
 __institution__ = 'Xiamen University, China'
 

@@ -1,7 +1,6 @@
 import os
 import sys
 import logging
-import getopt
 
 logger = logging.getLogger(__name__)
 

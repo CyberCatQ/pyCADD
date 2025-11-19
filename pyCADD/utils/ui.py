@@ -35,9 +35,6 @@ GAUSS = os.path.dirname(os.popen('which g16').read())
 
 
 class UI:
-    '''
-    pyCADD程序用户交互界面(user interface)
-    '''
 
     def __init__(self, menu_name: str = 'Main') -> None:
         self.version = __version__
@@ -71,9 +68,6 @@ class UI:
             
     @property
     def title(self) -> None:
-        '''
-        程序标题样式
-        '''
         return Text.assemble(
             ('pyCADD', 'bold medium_spring_green'), 
             ' -- A ', ('Python Package', 'bold yellow'), 
@@ -83,9 +77,6 @@ class UI:
 
     @property
     def basic_info(self) -> None:
-        '''
-        基础信息
-        '''
         return Text.assemble(
             'Developer: ', 
             ('YuHang Wu', 'bold'), 
@@ -96,9 +87,6 @@ class UI:
 
     @property
     def version_info(self) -> None:
-        '''
-        版本信息
-        '''
         return Text.assemble(
             'Version:  ',
             (self.version, 'bold blue'), 
@@ -109,9 +97,6 @@ class UI:
 
     @property
     def system_info(self) -> None:
-        '''
-        系统基本信息
-        '''
         return Text.assemble(
             'Platform: ', 
             (platform.system(), 'bold blue'),
@@ -131,21 +116,15 @@ class UI:
         self._info_index += 1
         return self._info_index
 
-    def create_panel(self, options: list = None, additional_info:'str | dict'=None, options_label: str = 'Analysis Options', show_panel: bool = True) -> None:
-        '''
-        建立并渲染UI
-        Parameters
-        ----------
-        options : list
-            选项框内容
-        additional_info : str | dict
-            选项框上方的额外信息  
-            传入字典时 可用于修改已存在的同key信息内容
-        options_label : str
-            选项框标签名
-        show_panel : bool
-            是否显示UI
-        '''
+    def create_panel(self, options: list = None, additional_info:str | dict=None, options_label: str = 'Analysis Options', show_panel: bool = True) -> None:
+        """Create panel for UI
+
+        Args:
+            options (list, optional): options to display on UI. Defaults to None.
+            additional_info (str | dict, optional): additional information to display above options. Defaults to None.
+            options_label (str, optional): label for the options panel. Defaults to 'Analysis Options'.
+            show_panel (bool, optional): whether to display the panel immediately. Defaults to True.
+        """
         if options:
             self.options = options
         else:
@@ -206,19 +185,10 @@ class UI:
             print(self.panel)
     
     def get_input(self, text:str, choices:list=None, default=None, show_default:bool=True, show_choices:bool=False):
-        '''
-        读取输入指令 返回flag
-        '''
         return Prompt.ask(text, choices=choices, default=default, show_choices=show_choices, show_default=show_default)
     
     def get_confirm(self, text:str, default=True):
-        '''
-        读取输入指令 返回确认值
-        '''
         return Confirm.ask(text, default=default)
     
     def clear_info(self):
-        '''
-        清空额外信息内容
-        '''
         self.additional_info = ''

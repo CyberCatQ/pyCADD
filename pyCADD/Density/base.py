@@ -1,221 +1,571 @@
-import os
+"""High-level Gaussian quantum chemistry calculation interface.
+
+This module provides the Gauss class which serves as a high-level interface for
+running Gaussian quantum chemistry calculations including geometry optimization,
+single-point energy calculations, and RESP/RESP2 charge calculations.
+"""
+
 import logging
+import os
+import tempfile
+
 logger = logging.getLogger(__name__)
 
-from pyCADD.Density import core
+from pyCADD.Density.core import (
+    _get_atom_lines,
+    _get_mol2_lines_with_charge,
+    generate_energy_input,
+    generate_opt_input,
+    merge_mol2_charge,
+)
+from pyCADD.utils.common import ChDir, File
+from pyCADD.utils.tool import _find_execu, read_file, shell_run, write_file
+
 
 class Gauss:
-    '''
-    Gaussian 计算调用模块
-    '''
+    """High-level interface for Gaussian quantum chemistry calculations.
 
-    def __init__(self, st_path: str) -> None:
-        self.charge = None                  # 电荷数
-        self.spin_multi = None              # 自旋多重度
-        self.dft = None                     # 泛函数
-        self.basis_set = None               # 基组
-        self.solvent = None                 # PCM模型溶剂
-        self.job = None                     # 任务名
+    This class provides methods for running various types of Gaussian calculations
+    including geometry optimization, single-point energy calculations, and RESP
+    charge calculations. It automatically manages input file generation, job
+    execution, and output file handling.
 
-        self.file_type = None               # 文件类型
-        self.st_path = st_path              # 原始结构文件路径
-        self.read_origin_st()
+    Attributes:
+        gauss (str): Path to the Gaussian executable (g16).
 
-    @classmethod
-    @property
-    def gauss(cls):
-        return core.get_gaussian()    # 高斯可执行文件路径
+    Example:
+        >>> gauss = Gauss()
+        >>> opt_file = gauss.calc_opt("molecule.sdf", charge=0, multiplicity=1)
+        >>> resp_file = gauss.calc_resp("molecule.sdf", charge=0)
+    """
 
-    @classmethod
-    @property
-    def system_info(cls):
-        '''
-        当前系统计算资源信息
-        
-        Return
-        ----------
-        cpu(s), memory
-        '''
-        cls.cpu_count, cls.mem = core._get_system_info(cls.gauss)
-        return cls.cpu_count, cls.mem
-    
-    def read_origin_st(self):
-        '''
-        读取原始结构文件名与格式信息
-        '''
+    def __init__(self) -> None:
+        """Initializes the Gauss calculator by locating the Gaussian executable.
 
-        self.base_name = os.path.basename(self.st_path).split('.')[0]
-        if self.st_path.endswith('.out'):
-            self.output_file = self.st_path
-            self.file_type = 'Gaussian out(.out)'
-        elif self.st_path.endswith('.chk'):
-            self.chk_file = self.st_path
-            self.file_type = 'check point(.chk)'
-        elif self.st_path.endswith('.fchk'):
-            self.fchk_file = self.st_path
-            self.file_type = 'format check point(.fchk)'
-        elif self.st_path.endswith('.gjf'):
-            self.input_file = self.st_path
-            self.file_type = 'Gaussian input(.gjf)'
-        else:
-            self.file_type = 'Other'
+        Raises:
+            FileNotFoundError: If the g16 executable is not found in the system PATH.
+        """
+        self.gauss = _find_execu("g16")
+        if not self.gauss:
+            raise FileNotFoundError("Gaussian executable 'g16' not found in system PATH.")
 
-    @classmethod
-    def set_system(cls, cpu_count, mem):
-        '''
-        计算资源设定
+    @staticmethod
+    def change_atom_type(mol2_block: str, atom_type: str = "gaff2", dumpto: str = None) -> str:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dumpto = dumpto or tmpdir
+            with ChDir(dumpto):
+                input_mol2_file = write_file("input.mol2", mol2_block)
+                output_mol2_file = File("output.mol2", exist=False)
+                shell_run(
+                    f"antechamber -fi mol2 -i {input_mol2_file} -fo mol2 -o {output_mol2_file.file_path} -at {atom_type}"
+                )
+                return output_mol2_file.read()
 
-        Parameters
-        ----------
-        cpu_count : int
-            计算使用核心数量
-        mem : str
-            计算使用内存大小
-        '''
-        core.system_default(cls.gauss, cpu_count, mem)
-        logger.debug('CPU & Memory usage has been changed.')
+    def run(self, gau_input: str, job_name: str = None, dumpto: str = None) -> str:
+        """Executes a Gaussian calculation with the provided input.
 
-    def set_charge(self, charge:int=0):
-        '''
-        设定电荷量
-        '''
-        self.charge = charge
-        logger.debug('Charge has been set to %s' % self.charge)
+        Runs a Gaussian calculation by writing the input to a file and executing
+        the Gaussian program. The calculation can be run in a temporary directory
+        or a specified output directory.
 
-    def set_multiplicity(self, spin_multi:int=1):
-        '''
-        设定自旋多重度
-        '''
-        self.spin_multi = spin_multi
-        logger.debug('Spin multiplicity has been set to %s' % self.spin_multi)
+        Args:
+            gau_input (str): Complete Gaussian input file content as a string.
+            job_name (str, optional): Base name for input and output files. Defaults to "gauss_job".
+            dumpto (str, optional): Directory path where calculation files should be saved.
+                If None, uses a temporary directory that is automatically cleaned up.
 
-    def set_DFT(self, dft: str):
-        '''
-        设定泛函数
-        '''
-        self.dft = dft
-        logger.debug('DFT has been set to %s' % self.dft)
+        Returns:
+            str: Content of the Gaussian output file.
 
-    def set_basis_set(self, basis_set: str):
-        '''
-        设定基组
-        '''
-        self.basis_set = basis_set
-        logger.debug('Basis set has been set to %s' % self.basis_set)
-    
-    def set_solvent(self, solvent: str):
-        '''
-        设定PCM模型溶剂
-        '''
-        self.solvent = solvent
-        logger.debug('PCM solvent has been set to %s' % self.solvent)
+        Raises:
+            RuntimeError: If the Gaussian calculation fails.
+            FileNotFoundError: If the Gaussian executable is not found.
 
-    def _print_current_info(self):
-        '''
-        显示当前设定状态
-        '''
+        Note:
+            When dumpto is None, all calculation files are created in a temporary
+            directory and only the output content is returned. When dumpto is
+            specified, all files are preserved in that directory.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            work_dir = dumpto if dumpto else tmpdir
+            os.makedirs(work_dir, exist_ok=True)
+            with ChDir(work_dir):
+                write_file(f"{job_name}.gjf", gau_input)
+                job_name = job_name or "gauss_job"
+                output_file = f"{job_name}.out"
+                shell_run(f"{self.gauss} < {job_name}.gjf > {output_file}")
+                return read_file(output_file)
 
-        logger.info('Current structure file: %s' % self.st_path)
-        logger.info('Current Setting: Charge = %s  Multiplicity = %s  DFT = %s  Basis_set = %s Solvent = %s' % (self.charge, self.spin_multi, self.dft, self.basis_set, self.solvent))
-        
-    def create_inputfile(self, job_name:str, loose:bool=True):
-        '''
-        创建当前设定状态下的输入文件
-        Parameter
-        ---------
-        job_name : str
-            任务名
-                * opt 结构优化
-                * energy 单点能量计算
-                * absorb 激发态激发能(吸收)
-                * emission 激发态发射能
-        loose : bool
-            是否提高优化任务中的收敛限 更快收敛
-        
-        Return
-        ----------
-        str
-            创建的高斯输入文件名称
-        '''
-        self._print_current_info()
-        if job_name == 'opt':
-            self.job = 'Optimize'
-            self.input_file, self.chk_file = core.generate_opt(self.st_path, self.charge, self.spin_multi, self.dft, self.basis_set, self.solvent, loose)
-        elif job_name == 'energy':
-            self.job = 'Single Point Energy'
-            self.input_file, self.chk_file = core.generate_energy(self.st_path, self.charge, self.spin_multi, self.dft, self.basis_set, self.solvent)
-        elif job_name == 'absorb':
-            self.job = 'Absorption Energy of Excited States'
-            # 计算吸收(激发)能量 KEYWORD即计算TDDFT下的单点能
-            self.input_file, self.chk_file = core.generate_energy(self.st_path, self.charge, self.spin_multi, self.dft, self.basis_set, self.solvent, correct=False, td=True)
-        elif job_name == 'emission':
-            self.job = 'Emission Energy of Excited States'
-            # 计算发射能量 Keyword即计算TDDFT下的结构优化
-            self.input_file, self.chk_file = core.generate_opt(self.st_path, self.charge, self.spin_multi, self.dft, self.basis_set, self.solvent, loose=False, correct=True, td=True)
+    @staticmethod
+    def convert_to_mol2_block(structure_file: str | File) -> str:
+        """Converts a molecular structure file to MOL2 format.
 
-        else:
-            logger.error('Invaild job name. No file is created.')
-            return
+        Uses OpenBabel to convert various molecular file formats (SDF, PDB, XYZ, etc.)
+        to MOL2 format and returns the content as a string.
 
-        logger.info('Current job name: %s' % self.job)
-        logger.info('Input file %s saved.' % self.input_file)
+        Args:
+            structure_file (str | File): Path to the input molecular structure file or File object.
 
-        return self.input_file
-    
-    def get_mo_info(self):
-        '''
-        获取HOMO/LUMO分子轨道信息
-        '''
-        info_dict = core.get_mo(self.fchk_file)
-        homo_dict = info_dict['homo']
-        lumo_dict = info_dict['lumo']
-        gap_value = info_dict['gap']
+        Returns:
+            str: Complete MOL2 format content of the converted structure.
 
-        self.homo_index = homo_dict['index']
-        self.homo_energy = homo_dict['energy']
-        self.lumo_index = lumo_dict['index']
-        self.lumo_energy = lumo_dict['energy']
-        self.gap = gap_value
+        Raises:
+            RuntimeError: If OpenBabel conversion fails.
+            FileNotFoundError: If the input structure file doesn't exist.
 
-    def extract_cube(self, mo:int):
-        '''
-        提取分子轨道cube格点文件
+        Note:
+            The conversion is performed in a temporary directory and only the
+            MOL2 content is returned. Supported input formats include most
+            common molecular file types recognized by OpenBabel.
+        """
+        structure_file = File(structure_file)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with ChDir(tmpdir):
+                mol2_file = File(f"{structure_file.file_prefix}.mol2", exist=False)
+                shell_run(
+                    f"obabel -i{structure_file.file_ext} {structure_file.file_path} -o mol2 -O {mol2_file.file_path}"
+                )
+                return mol2_file.read()
 
-        Parameters
-        ----------
-        mo : int
-            分子轨道(MO)编号
-        '''
-        logger.debug('Current fchk file: %s' % self.fchk_file)
-        logger.info('Extracting MO: %s' % mo)
-        cube_file = core.cube_file_generate(self.fchk_file, mo)
-        logger.info('MO %s cube file %s created.' % (mo, cube_file))
+    @staticmethod
+    def get_resp_mol2_block(gout_file: str | File) -> str:
+        """Extracts RESP charges from Gaussian output and generates MOL2 format.
 
-    def run(self):
-        '''
-        启动任务
-        '''
-        logger.info('Curren job: %s' % self.job)
-        logger.info('Current input file: %s' % self.input_file)
-        logger.info('Current system usage: CPU = %s  Mem = %s' % (self.cpu_count, self.mem) )
-        logger.info('Prepare to running calculation')
-        self.output_file = self.input_file.split('.')[0] + '.out'
+        Uses AmberTools antechamber to extract RESP (Restrained Electrostatic
+        Potential) charges from a Gaussian output file and create a MOL2 format
+        structure with the calculated charges.
 
-        
-        daemon = core.Daemon(cmd = "%s < %s > %s && formchk %s > /dev/null" %(self.gauss, self.input_file, self.output_file, self.chk_file))
-        daemon.start()
+        Args:
+            gout_file (str | File): Path to Gaussian output file (.out) containing ESP calculation
+                results or File object.
 
-        logger.info('Job has been submitted. You can safely exit the shell at any time.')
+        Returns:
+            str: Complete MOL2 format content with RESP charges assigned to atoms.
 
-        #logger.info('Start tracing output file ...')
-        #core.tail_gauss_job(self.output_file)
-        #logger.info('Calculation done. %s is saved.' % self.output_file)
+        Raises:
+            RuntimeError: If antechamber processing fails or if the Gaussian output
+                doesn't contain the required ESP information.
+            FileNotFoundError: If the Gaussian output file doesn't exist.
 
-        #self.fchk_file = core.generate_fchk(self.chk_file)
-        #fchk_file = self.chk_file.split('.')[0] + '.fchk'
-        #logger.info('Formchk file created %s.' % fchk_file)
-        
+        Note:
+            The input Gaussian calculation must have been performed with ESP
+            calculation keywords (e.g., "pop=MK IOp(6/33=2,6/42=6)") to generate
+            the electrostatic potential data required for RESP charge fitting.
+        """
+        gout_file = File(gout_file)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with ChDir(tmpdir):
+                mol2_file = File(f"{gout_file.file_prefix}.mol2", exist=False)
+                shell_run(
+                    f"antechamber -i {gout_file.file_path} -fi gout"
+                    f" -o {mol2_file.file_path} -fo mol2 -c resp"
+                )
+                return mol2_file.read()
 
-        
+    @staticmethod
+    def get_resp2_mol2_block(
+        gas_mol2_block: str, solvent_mol2_block: str, delta: float = 0.5
+    ) -> str:
+        """Generates RESP2 charges by interpolating between gas and solvent RESP charges.
 
+        Calculates RESP2 charges using the formula:
+        RESP2 = (1-δ) × RESP_gas + δ × RESP_solvent
+        where δ (delta) is the interpolation parameter.
 
+        Args:
+            gas_mol2_block (str): MOL2 format string containing gas-phase RESP charges.
+            solvent_mol2_block (str): MOL2 format string containing solvent-phase RESP charges.
+            delta (float, optional): Interpolation parameter (0.0 = pure gas, 1.0 = pure solvent).
+                Defaults to 0.5 for equal weighting.
+
+        Returns:
+            str: MOL2 format string with interpolated RESP2 charges.
+
+        Raises:
+            ValueError: If the number of atoms in gas and solvent MOL2 blocks don't match.
+            IndexError: If either MOL2 block has incomplete atomic information.
+
+        Note:
+            Both input MOL2 blocks must represent the same molecular structure with
+            identical atom ordering. The RESP2 method provides charges that balance
+            gas-phase and solution-phase electrostatic properties.
+        """
+        gas_resp_charges = [float(line[8]) for line in _get_atom_lines(gas_mol2_block)]
+        solvent_resp_charges = [float(line[8]) for line in _get_atom_lines(solvent_mol2_block)]
+        if not len(gas_resp_charges) == len(solvent_resp_charges):
+            raise ValueError("The number of atoms in gas and solvent mol2 blocks do not match.")
+        adjusted_charges = [
+            (1 - delta) * gas_charge + delta * solvent_charge
+            for gas_charge, solvent_charge in zip(gas_resp_charges, solvent_resp_charges)
+        ]
+        adjusted_charges = [round(charge, 6) for charge in adjusted_charges]
+        return _get_mol2_lines_with_charge(gas_mol2_block, adjusted_charges)
+
+    def calc_opt(
+        self,
+        structure_file: str | File,
+        charge: int,
+        multiplicity: int = 1,
+        dft: str = "B3LYP",
+        basis_set: str = "6-31g*",
+        solvent: str = "water",
+        loose: bool = True,
+        dispersion_correct: bool = False,
+        td: bool = False,
+        freq: bool = False,
+        mem_use: str = "4GB",
+        cpu_num: int = 4,
+        save_dir: str = None,
+    ) -> File:
+        """Performs geometry optimization calculation using Gaussian.
+
+        Executes a complete geometry optimization calculation with customizable
+        DFT method, basis set, and optimization parameters. The optimized structure
+        is saved to an output file.
+
+        Args:
+            structure_file (str | File): Path to the input molecular structure file or File object.
+            charge (int): Molecular charge (required parameter).
+            multiplicity (int, optional): Spin multiplicity. Defaults to 1.
+            dft (str, optional): DFT functional name. Defaults to "B3LYP".
+            basis_set (str, optional): Basis set specification. Defaults to "6-31g*".
+            solvent (str, optional): Solvent for implicit solvation model. Defaults to "water".
+            loose (bool, optional): Whether to use loose convergence criteria for faster optimization.
+                Defaults to True.
+            dispersion_correct (bool, optional): Whether to apply dispersion correction (GD3BJ).
+                Defaults to False.
+            td (bool, optional): Whether to perform time-dependent DFT optimization. Defaults to False.
+            freq (bool, optional): Whether to calculate vibrational frequencies after optimization.
+                Defaults to False.
+            mem_use (str, optional): Memory allocation string. Defaults to "4GB".
+            cpu_num (int, optional): Number of processors to use. Defaults to 4.
+            save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.
+
+        Returns:
+            File: Generated Gaussian output file containing optimization results.
+
+        Raises:
+            RuntimeError: If the Gaussian optimization calculation fails.
+            FileNotFoundError: If the input structure file doesn't exist.
+
+        Note:
+            The output file is named "{structure_prefix}_opt.out" and contains the
+            complete optimization trajectory and final optimized geometry.
+        """
+        structure_file = File(structure_file)
+        logger.info(f"Running geometry optimization for {structure_file.file_path}")
+        logger.info(f"Charge = {charge}, Multiplicity = {multiplicity}, Solvent = {solvent}")
+        opt_input = generate_opt_input(
+            structure_file,
+            charge=charge,
+            multiplicity=multiplicity,
+            dft=dft,
+            basis_set=basis_set,
+            solvent=solvent,
+            loose=loose,
+            dispersion_correct=dispersion_correct,
+            td=td,
+            freq=freq,
+            mem_use=mem_use,
+            cpu_num=cpu_num,
+        )
+        save_dir = save_dir or os.getcwd()
+        os.makedirs(save_dir, exist_ok=True)
+        opt_prefix = f"{structure_file.file_prefix}_opt"
+        opt_output_file = os.path.join(save_dir, f"{opt_prefix}.out")
+        opt_output = self.run(opt_input, "gauss_opt", dumpto=save_dir)
+        logger.info(f"Optimization output saved: {opt_output_file}")
+        return File(write_file(opt_output_file, opt_output))
+
+    def calc_energy(
+        self,
+        structure_file: str | File,
+        charge: int,
+        multiplicity: int = 1,
+        dft: str = "B3LYP",
+        basis_set: str = "6-31g*",
+        solvent: str = "water",
+        dispersion_correct: bool = False,
+        td: bool = False,
+        esp_calculate: bool = False,
+        mem_use: str = "4GB",
+        cpu_num: int = 4,
+        save_dir: str = None,
+    ) -> File:
+        """Performs single-point energy calculation using Gaussian.
+
+        Calculates the electronic energy of a molecular structure without geometry
+        optimization. Can include electrostatic potential calculation for RESP
+        charge fitting and time-dependent DFT for excited states.
+
+        Args:
+            structure_file (str | File): Path to the input molecular structure file or File object.
+            charge (int): Molecular charge (required parameter).
+            multiplicity (int, optional): Spin multiplicity. Defaults to 1.
+            dft (str, optional): DFT functional name. Defaults to "B3LYP".
+            basis_set (str, optional): Basis set specification. Defaults to "6-31g*".
+            solvent (str, optional): Solvent for implicit solvation model. Defaults to "water".
+                Set to None for gas-phase calculation.
+            dispersion_correct (bool, optional): Whether to apply dispersion correction (GD3BJ).
+                Defaults to False.
+            td (bool, optional): Whether to perform time-dependent DFT calculation. Defaults to False.
+            esp_calculate (bool, optional): Whether to calculate electrostatic potential for RESP
+                charge fitting. Defaults to False.
+            mem_use (str, optional): Memory allocation string. Defaults to "4GB".
+            cpu_num (int, optional): Number of processors to use. Defaults to 4.
+            save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.
+
+        Returns:
+            File: Path to the generated Gaussian output file containing energy results.
+
+        Raises:
+            RuntimeError: If the Gaussian energy calculation fails.
+            FileNotFoundError: If the input structure file doesn't exist.
+
+        Note:
+            Output file naming follows the pattern "{structure_prefix}_{solvent}_energy.out"
+            or "{structure_prefix}_gas_energy.out" for gas-phase calculations.
+            When esp_calculate=True, the output contains ESP data suitable for RESP fitting.
+        """
+        structure_file = File(structure_file)
+        logger.info(f"Running single point energy calculation for {structure_file.file_path}")
+        logger.info(
+            f"Charge = {charge}, Multiplicity = {multiplicity}, Solvent = {solvent if solvent else 'None(Gas)'}"
+        )
+        energy_input = generate_energy_input(
+            structure_file,
+            charge=charge,
+            multiplicity=multiplicity,
+            dft=dft,
+            basis_set=basis_set,
+            solvent=solvent,
+            dispersion_correct=dispersion_correct,
+            td=td,
+            esp_calculate=esp_calculate,
+            mem_use=mem_use,
+            cpu_num=cpu_num,
+        )
+        save_dir = save_dir or os.getcwd()
+        os.makedirs(save_dir, exist_ok=True)
+        ene_prefix = f"{structure_file.file_prefix}"
+        ene_prefix += f"_{solvent}" if solvent else "_gas"
+        ene_prefix += "_energy"
+        ene_result_file_path = os.path.join(save_dir, f"{ene_prefix}.out")
+        energy_output = self.run(energy_input, "gauss_energy", dumpto=save_dir)
+        logger.info(f"Energy calculation output saved: {ene_result_file_path}")
+        return File(write_file(ene_result_file_path, energy_output))
+
+    def calc_resp(
+        self,
+        structure_file: str | File,
+        charge: int,
+        multiplicity: int = 1,
+        dft: str = "B3LYP",
+        basis_set: str = "6-31g*",
+        solvent: str = "water",
+        mem_use: str = "4GB",
+        cpu_num: int = 4,
+        atom_type: str = "gaff2",
+        save_dir: str = None,
+    ) -> File:
+        """Performs complete RESP charge calculation workflow.
+
+        Executes a full RESP (Restrained Electrostatic Potential) charge calculation
+        workflow including geometry optimization and single-point energy calculation
+        with ESP analysis. The resulting charges are merged back into the original
+        molecular structure format.
+
+        Args:
+            structure_file (str | File): Path to the input molecular structure file or File object.
+            charge (int): Molecular charge (required parameter).
+            multiplicity (int, optional): Spin multiplicity. Defaults to 1.
+            dft (str, optional): DFT functional name. Defaults to "B3LYP".
+            basis_set (str, optional): Basis set specification. Defaults to "6-31g*".
+            solvent (str, optional): Solvent for implicit solvation model. Defaults to "water".
+            mem_use (str, optional): Memory allocation string. Defaults to "4GB".
+            cpu_num (int, optional): Number of processors to use. Defaults to 4.
+            atom_type (str, optional): Atom type to assign using antechamber. Defaults to "gaff2". None for no change.
+            save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.
+
+        Returns:
+            File: Path to the generated MOL2 file with RESP charges assigned to atoms.
+
+        Raises:
+            RuntimeError: If any step of the RESP calculation workflow fails.
+            FileNotFoundError: If the input structure file doesn't exist.
+
+        Note:
+            The complete workflow includes:
+            1. Geometry optimization with loose convergence
+            2. Single-point energy calculation with ESP analysis
+            3. RESP charge fitting using antechamber
+            4. Merging charges back into original molecular structure
+            Output file is named "{structure_prefix}_resp.mol2".
+        """
+        structure_file = File(structure_file)
+        logger.info(f"Running RESP calculation for {structure_file.file_path}")
+        save_dir = save_dir or os.getcwd()
+        os.makedirs(save_dir, exist_ok=True)
+        opt_output_file = self.calc_opt(
+            structure_file,
+            charge=charge,
+            multiplicity=multiplicity,
+            dft=dft,
+            basis_set=basis_set,
+            loose=True,
+            dispersion_correct=False,
+            mem_use=mem_use,
+            cpu_num=cpu_num,
+            save_dir=save_dir,
+        )
+        gas_resp_output_file = self.calc_energy(
+            opt_output_file,
+            charge=charge,
+            multiplicity=multiplicity,
+            dft=dft,
+            basis_set=basis_set,
+            solvent=solvent,
+            dispersion_correct=False,
+            td=False,
+            mem_use=mem_use,
+            cpu_num=cpu_num,
+            esp_calculate=True,
+            save_dir=save_dir,
+        )
+        ori_mol2 = self.convert_to_mol2_block(structure_file)
+        resp_mol2 = self.get_resp_mol2_block(gas_resp_output_file)
+        merged_mol2 = merge_mol2_charge(ori_mol2, resp_mol2)
+        merged_mol2_file_path = os.path.join(save_dir, f"{structure_file.file_prefix}_resp.mol2")
+        if atom_type is not None:
+            merged_mol2 = self.change_atom_type(merged_mol2, atom_type=atom_type)
+        logger.info(f"RESP output saved: {merged_mol2_file_path}")
+        return File(write_file(merged_mol2_file_path, merged_mol2))
+
+    def calc_resp2(
+        self,
+        structure_file: str | File,
+        charge: int,
+        multiplicity: int = 1,
+        dft: str = "B3LYP",
+        basis_set: str = "6-31g*",
+        solvent: str = "water",
+        mem_use: str = "4GB",
+        cpu_num: int = 4,
+        delta: float = 0.5,
+        atom_type: str = "gaff2",
+        save_dir: str = None,
+    ) -> File:
+        """Performs complete RESP2 charge calculation workflow.
+
+        Executes a full RESP2 charge calculation workflow that combines gas-phase
+        and solvent-phase RESP charges using interpolation. This method provides
+        charges that balance gas-phase and solution-phase electrostatic properties.
+
+        Args:
+            structure_file (str | File): Path to the input molecular structure file or File object.
+            charge (int): Molecular charge (required parameter).
+            multiplicity (int, optional): Spin multiplicity. Defaults to 1.
+            dft (str, optional): DFT functional name. Defaults to "B3LYP".
+            basis_set (str, optional): Basis set specification. Defaults to "6-31g*".
+            solvent (str, optional): Solvent for implicit solvation model. Defaults to "water".
+            mem_use (str, optional): Memory allocation string. Defaults to "4GB".
+            cpu_num (int, optional): Number of processors to use. Defaults to 4.
+            delta (float, optional): Interpolation parameter for RESP2 charge calculation.
+                0.0 = pure gas-phase, 1.0 = pure solvent-phase. Defaults to 0.5.
+            atom_type (str, optional): Atom type to assign using antechamber. Defaults to "gaff2". None for no change.
+            save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.
+
+        Returns:
+            File: Path to the generated MOL2 file with RESP2 charges assigned to atoms.
+
+        Raises:
+            RuntimeError: If any step of the RESP2 calculation workflow fails.
+            FileNotFoundError: If the input structure file doesn't exist.
+            ValueError: If gas and solvent calculations produce inconsistent atom counts.
+
+        Note:
+            The complete workflow includes:
+            1. Geometry optimization with loose convergence
+            2. Gas-phase single-point energy calculation with ESP analysis
+            3. Solvent-phase single-point energy calculation with ESP analysis
+            4. RESP charge fitting for both phases using antechamber
+            5. Interpolation of charges using RESP2 formula: (1-δ)*RESP_gas + δ*RESP_solvent
+            Output files include individual gas/solvent RESP files and final RESP2 file.
+        """
+        structure_file = File(structure_file)
+        logger.info(f"Running RESP2({delta}) calculation for {structure_file.file_path}")
+        save_dir = save_dir or os.getcwd()
+        os.makedirs(save_dir, exist_ok=True)
+        original_mol2_block = self.convert_to_mol2_block(structure_file)
+        opt_output_file = self.calc_opt(
+            structure_file=structure_file,
+            charge=charge,
+            multiplicity=multiplicity,
+            dft=dft,
+            basis_set=basis_set,
+            loose=True,
+            dispersion_correct=False,
+            mem_use=mem_use,
+            cpu_num=cpu_num,
+            save_dir=save_dir,
+        )
+        gas_resp_output_file = self.calc_energy(
+            structure_file=opt_output_file,
+            charge=charge,
+            multiplicity=multiplicity,
+            dft=dft,
+            basis_set=basis_set,
+            solvent=None,  # No solvent for gas phase
+            dispersion_correct=False,
+            td=False,
+            mem_use=mem_use,
+            cpu_num=cpu_num,
+            esp_calculate=True,
+            save_dir=save_dir,
+        )
+        gas_mol2_block = merge_mol2_charge(
+            self.get_resp_mol2_block(gas_resp_output_file), original_mol2_block
+        )
+        gas_resp_mol2_file_path = os.path.join(
+            save_dir, f"{structure_file.file_prefix}_gas_resp.mol2"
+        )
+        write_file(gas_resp_mol2_file_path, gas_mol2_block)
+        logger.info(f"Gas-phase energy calculation output saved: {gas_resp_mol2_file_path}")
+        solvent_resp_output_file = self.calc_energy(
+            structure_file=opt_output_file,
+            charge=charge,
+            multiplicity=multiplicity,
+            dft=dft,
+            basis_set=basis_set,
+            solvent=solvent,
+            dispersion_correct=False,
+            td=False,
+            mem_use=mem_use,
+            cpu_num=cpu_num,
+            esp_calculate=True,
+            save_dir=save_dir,
+        )
+        solvent_mol2_block = merge_mol2_charge(
+            self.get_resp_mol2_block(solvent_resp_output_file), original_mol2_block
+        )
+        solvent_resp_mol2_file_path = os.path.join(
+            save_dir, f"{structure_file.file_prefix}_solvent_resp.mol2"
+        )
+        write_file(solvent_resp_mol2_file_path, solvent_mol2_block)
+        resp2_mol2_file_path = os.path.join(save_dir, f"{structure_file.file_prefix}_resp2.mol2")
+        logger.info(f"Solvent-phase energy calculation output saved: {solvent_resp_mol2_file_path}")
+        resp2_mol2_block = self.get_resp2_mol2_block(
+            gas_mol2_block=gas_mol2_block,
+            solvent_mol2_block=solvent_mol2_block,
+            delta=delta,
+        )
+        if atom_type is not None:
+            resp2_mol2_block = self.change_atom_type(resp2_mol2_block, atom_type=atom_type)
+        result_file = File(
+            write_file(
+                resp2_mol2_file_path,
+                resp2_mol2_block,
+            )
+        )
+        logger.info(f"RESP2 output saved: {resp2_mol2_file_path}")
+        return result_file

@@ -1,0 +1,109 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyCADD"
+dynamic = ["version"]
+description = "A Python Package for Computer-aid Drug Design"
+readme = "README.md"
+license = {text = "GPL-3.0"}
+authors = [
+    {name = "YH. W", email = "yuhangxmu@stu.xmu.edu.cn"}
+]
+maintainers = [
+    {name = "YH. W", email = "yuhangxmu@stu.xmu.edu.cn"}
+]
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+keywords = ["drug-design", "computational-chemistry", "bioinformatics", "molecular-docking"]
+dependencies = [
+    "rich>=10.16",
+    "concurrent-log-handler>=0.9.20",
+    "scikit-learn",
+    "pandas>=1.4.1",
+    "openpyxl",
+    "pyyaml>=6.0",
+    "click",
+    "scipy",
+    "xlsxwriter>=3.0",
+    "requests",
+]
+
+[project.urls]
+Homepage = "https://github.com/CyberCatQ/pyCADD"
+Repository = "https://github.com/CyberCatQ/pyCADD"
+Documentation = "https://cybercatq.github.io/pyCADD/"
+"Bug Reports" = "https://github.com/CyberCatQ/pyCADD/issues"
+
+[project.scripts]
+pyCADD = "pyCADD.__main__:main"
+pycadd = "pyCADD.__main__:main"
+pycadd-dock = "pyCADD.Dock.env:main"
+pycadd-density = "pyCADD.Density.cli:main"
+pycadd-demand = "pyCADD.Demand.cli:main"
+pycadd-dynamic = "pyCADD.Dynamic.cli:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "pyCADD.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pyCADD*"]
+exclude = ["tests*", "docs*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.yml", "*.yaml", "*.json", "*.txt", "*.md"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov",
+    "black",
+    "flake8",
+    "mypy",
+    "sphinx",
+    "sphinx-rtd-theme",
+]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+    "myst-parser",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 100

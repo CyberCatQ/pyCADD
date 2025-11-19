@@ -3,12 +3,11 @@ pyCADD
 
 ## Features
 
+* 调用 Gaussian 计算、分析配体分子结构优化、单点能、RESP(2)电荷
+* 自动运行 AMBER 分子动力学模拟准备、运行和 MD 轨迹的基本分析
 * 自动化调用Schrodinger Python API执行晶体准备、格点文件生成与对接、MMGBSA结合能计算等功能
 * 调用多核并行计算 实现集合式对接与结果提取、数据分析
-* 调用Gaussian、Multiwfn计算、分析配体分子结构优化、单点能、RESP(2)电荷
-* 自动运行 AMBER 分子动力学模拟准备、运行和 MD轨迹的基本分析
-* 提供简单友好的用户界面
-* 支持CLI快速调用
+* CLI 快速调用
 
 ## Platform  
 
@@ -18,26 +17,19 @@ pyCADD
 
 ### Python Version  
 
-* 3.8 or Higher  
+* 3.10 or Higher  
 
-### Python Modules  
+### Environment Requirements
 
-* pandas
-* numpy
-* rich
-* concurrent_log_handler
-* scikit-learn
-* seaborn
-* xlsxwriter  
-* pyyaml
-* click
-* scipy
+依赖库详见 [environment.yml](environment.yml) 文件。
+* 建议使用 Conda/Mamba 创建独立的Python环境以避免包冲突
 
-#### NOTE
-
-使用 `pip install pyCADD` 命令时 将自动安装所需的packages
-
-您也可以使用 `pip install <package>` 命令安装
+```bash
+conda create -n pyCADD python=3.10
+conda activate pyCADD
+conda install -f environment.yml
+pip install pyCADD
+```
 
 ### Additional Requirements
 
@@ -47,11 +39,9 @@ pyCADD的不同模块需要安装不同的软件来完成自动化工作流。�
 | Module   |  Software   | Version |
 | -----------------  | -------- | -------- |
 | Dock     | [Schrodinger Suite](https://www.schrodinger.com/) | 2020-3 or newer |
-| Dynamic  | [AMBER](http://ambermd.org/) | 18 or newer |
-| Dynamic | [OpenBabel](https://openbabel.org/)  | 2.4 or newer |
+| Dynamic  | [AMBER](http://ambermd.org/) | 22 or newer |
 | Density & Dynamic | [Gaussian](http://gaussian.com/) | 16.A01 or newer(optional) |
-| Dynamic | [Multiwfn](http://sobereva.com/multiwfn/) |3.7 or newer (optional for RESP charge) |
-| Dynamic | [CUDA](https://developer.nvidia.com/cuda-zone) | 9.0 or newer (optional for pmemd.cuda) |
+| Dynamic | [CUDA](https://developer.nvidia.com/cuda-zone) | 11.7 or newer (optional for `pmemd.cuda`) |
 
 ### ！Attention
 * `pyCADD` 不包含以上所需程序的安装与许可证 您需要自行获得授权并安装恰当
@@ -59,18 +49,14 @@ pyCADD的不同模块需要安装不同的软件来完成自动化工作流。�
 
 ## Installation
 
-`pyCADD`已发布至PyPI
+`pyCADD`已发布至PyPI, 使用命令
 
-使用命令
-
+    conda install -f environment.yml
     pip install pyCADD
 
-即可安装 `pyCADD`  
+即可安装pyCADD。
 
-随后 您可以使用命令 `pycadd` 或 `pyCADD` 来启动应用程序  
-`pyCADD` 提供一个用户友好的界面使您能够轻易使用需要的功能, 请自行尝试。
-
-为了便于从命令行快速调用pyCADD的模块，还提供了以下CLI接口：
+为了便于从命令行快速调用pyCADD的模块，提供了以下CLI接口：
 
 | CLI | Module |
 | ---- | ------ |
@@ -105,18 +91,29 @@ pycadd-dock ensemble-dock --help
 * * *
 `pyCADD` 完全基于开发者自身实际需求开发, 更多其他功能及模块的使用教程尚未完全撰写, 但可能附有详尽注释。可参阅[文档](https://cybercatq.github.io/pyCADD)API部分及代码注释。  
 如果您有任何问题或建议, 请在[项目主页](https://github.com/CyberCatQ/pyCADD)提交Issue。  
-如果任何模块对您有帮助，欢迎为此项目点亮星星。
-
-UI等部分功能为作者练手之作， 可能不具有实用性。  
-此工具包仅限于学习和批评使用, 请勿用作其他用途。  
-源码仅包含中文注释。
+如果任何模块对您有帮助，欢迎为此项目点亮星星。  
+此工具包仅限于学习和批评使用, 维护周期不定，不建议用于商业用途。 
 
 YH. W  
 School of Pharmaceutical Sciences, Xiamen University  
-Copyight © 2023 XMU   
-2023-11-21
+Copyright © 2025 XMU   
+2025-10-28
 
 ## 更新日志
+* 2.0.0 (2025-10-28)
+  * 重构 Density 模块
+    * 无需依赖 Multiwfn 即可完成 RESP2 计算结果的解析与分析
+    * 明确模块功能定位，去除不常用功能
+    * 完全重写模板文件生成逻辑，去除第三方代码依赖
+  * 重构 Dynamic 模块，采用更加模块化的设计，提升代码可维护性
+    * 不再限制配体分子结构输入格式为 pdb
+  * 重构 Dock 模块，提升代码可维护性
+  * 所有模块 UI 功能停止维护并将逐渐移除，改为主要基于 CLI 调用
+  * 修复了一些已知 BUG
+  * 为所有关键模块重写了英文标准化代码注释
+  * 更新了部分文档
+  * 安装配置文件更新为 pyproject.toml，移除 setup.py
+
 * 1.6.9 (2023-12-26)
   * 将 Demand 数据获取修改为直接与PDB服务器API交互，确保获取最新PDB数据
   * 添加了对PDB蛋白链突变信息的解析
