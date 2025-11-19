@@ -12,7 +12,6 @@ Subpackages
    pyCADD.Density
    pyCADD.Dock
    pyCADD.Dynamic
-   pyCADD.VSW
    pyCADD.utils
 
 Module contents
@@ -20,5 +19,5 @@ Module contents
 
 .. automodule:: pyCADD
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

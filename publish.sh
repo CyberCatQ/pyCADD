@@ -10,16 +10,16 @@ cwd=$(pwd)
 cd "$(dirname "$0")"
 
 # 构建文档
-echo "构建 HTML 文档..."
-if ! make html; then
+echo "构建文档"
+if ! make distributed; then
     echo "错误: 文档构建失败"
     exit 1
 fi
 
 # 设置路径（使用绝对路径）
 docs_dir="$(cd "$(dirname "$0")" && pwd)"
-build_dir="$docs_dir/html"
-push_dir=$HOME/html
+build_dir="$docs_dir/build/html"
+push_dir=$docs_dir/gh-pages
 
 # 检查构建目录是否存在且不为空
 if [ ! -d "$build_dir" ] || [ -z "$(ls -A "$build_dir" 2>/dev/null)" ]; then
@@ -37,45 +37,9 @@ fi
 mkdir -p "$push_dir"
 cd "$push_dir"
 
-# 初始化 Git 仓库
-echo "初始化 Git 仓库..."
-git init
-
-# 设置用户信息（如果没有设置的话）
-if ! git config user.name >/dev/null 2>&1; then
-    git config user.name "GitHub Actions"
-fi
-if ! git config user.email >/dev/null 2>&1; then
-    git config user.email "actions@github.com"
-fi
-
-# 检查并设置远程仓库
-echo "设置远程仓库..."
-if git remote get-url origin >/dev/null 2>&1; then
-    # 远程仓库已存在，更新 URL
-    git remote set-url origin https://github.com/CyberCatQ/pyCADD.git
-else
-    # 远程仓库不存在，添加新的
-    git remote add origin https://github.com/CyberCatQ/pyCADD.git
-fi
-
 # 获取远程分支信息
 echo "获取远程分支信息..."
 git fetch origin
-
-# 检查并切换到 gh-pages 分支
-echo "切换到 gh-pages 分支..."
-if git ls-remote --heads origin gh-pages | grep -q gh-pages; then
-    # 远程 gh-pages 分支存在
-    echo "远程 gh-pages 分支已存在，切换到该分支..."
-    git checkout -b gh-pages origin/gh-pages
-    # 清空当前分支的所有文件
-    git rm -rf . 2>/dev/null || true
-else
-    # 远程 gh-pages 分支不存在，创建新分支
-    echo "创建新的 gh-pages 分支..."
-    git checkout --orphan gh-pages
-fi
 
 # 复制构建的文件
 echo "复制构建文件..."
@@ -90,8 +54,7 @@ git add .
 if git diff --staged --quiet; then
     echo "没有更改需要提交"
 else
-    git commit -m "Deploy to GitHub Pages - $(date '+%Y-%m-%d %H:%M:%S')"
-    
+    git commit -m "Update documentation"
     # 推送到远程
     echo "推送到 GitHub Pages..."
     git push origin gh-pages

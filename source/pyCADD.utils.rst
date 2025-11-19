@@ -9,45 +9,37 @@ pyCADD.utils.common module
 
 .. automodule:: pyCADD.utils.common
    :members:
-   :undoc-members:
    :show-inheritance:
-
-pyCADD.utils.env module
------------------------
-
-.. automodule:: pyCADD.utils.env
-   :members:
    :undoc-members:
-   :show-inheritance:
 
 pyCADD.utils.log module
 -----------------------
 
 .. automodule:: pyCADD.utils.log
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 pyCADD.utils.tool module
 ------------------------
 
 .. automodule:: pyCADD.utils.tool
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 pyCADD.utils.ui module
 ----------------------
 
 .. automodule:: pyCADD.utils.ui
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: pyCADD.utils
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

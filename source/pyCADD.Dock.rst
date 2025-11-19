@@ -1,6 +1,14 @@
 pyCADD.Dock package
 ===================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   pyCADD.Dock.schrodinger
+
 Submodules
 ----------
 
@@ -9,69 +17,53 @@ pyCADD.Dock.cli module
 
 .. automodule:: pyCADD.Dock.cli
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 pyCADD.Dock.common module
 -------------------------
 
 .. automodule:: pyCADD.Dock.common
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
-pyCADD.Dock.config module
--------------------------
+pyCADD.Dock.const module
+------------------------
 
-.. automodule:: pyCADD.Dock.config
+.. automodule:: pyCADD.Dock.const
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
-pyCADD.Dock.console module
---------------------------
+pyCADD.Dock.env module
+----------------------
 
-.. automodule:: pyCADD.Dock.console
+.. automodule:: pyCADD.Dock.env
    :members:
-   :undoc-members:
    :show-inheritance:
-
-pyCADD.Dock.core module
------------------------
-
-.. automodule:: pyCADD.Dock.core
-   :members:
    :undoc-members:
-   :show-inheritance:
-
-pyCADD.Dock.data module
------------------------
-
-.. automodule:: pyCADD.Dock.data
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pyCADD.Dock.ensemble module
----------------------------
-
-.. automodule:: pyCADD.Dock.ensemble
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 pyCADD.Dock.ui module
 ---------------------
 
 .. automodule:: pyCADD.Dock.ui
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
+
+pyCADD.Dock.utils module
+------------------------
+
+.. automodule:: pyCADD.Dock.utils
+   :members:
+   :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: pyCADD.Dock
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

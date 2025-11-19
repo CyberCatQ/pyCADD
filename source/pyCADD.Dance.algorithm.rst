@@ -9,29 +9,29 @@ pyCADD.Dance.algorithm.DL module
 
 .. automodule:: pyCADD.Dance.algorithm.DL
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 pyCADD.Dance.algorithm.consensus module
 ---------------------------------------
 
 .. automodule:: pyCADD.Dance.algorithm.consensus
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 pyCADD.Dance.algorithm.default\_params module
 ---------------------------------------------
 
 .. automodule:: pyCADD.Dance.algorithm.default_params
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: pyCADD.Dance.algorithm
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

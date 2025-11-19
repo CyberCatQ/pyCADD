@@ -17,29 +17,29 @@ pyCADD.Dance.common module
 
 .. automodule:: pyCADD.Dance.common
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 pyCADD.Dance.core module
 ------------------------
 
 .. automodule:: pyCADD.Dance.core
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 pyCADD.Dance.metrics module
 ---------------------------
 
 .. automodule:: pyCADD.Dance.metrics
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: pyCADD.Dance
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
