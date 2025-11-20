@@ -28,7 +28,6 @@ pyCADD
 conda create -n pyCADD python=3.10
 conda activate pyCADD
 conda install -f environment.yml
-pip install pyCADD
 ```
 
 ### Additional Requirements
@@ -40,8 +39,8 @@ pyCADD的不同模块需要安装不同的软件来完成自动化工作流。�
 | -----------------  | -------- | -------- |
 | Dock     | [Schrodinger Suite](https://www.schrodinger.com/) | 2020-3 or newer |
 | Dynamic  | [AMBER](http://ambermd.org/) | 22 or newer |
-| Density & Dynamic | [Gaussian](http://gaussian.com/) | 16.A01 or newer(optional) |
-| Dynamic | [CUDA](https://developer.nvidia.com/cuda-zone) | 11.7 or newer (optional for `pmemd.cuda`) |
+| Density & Dynamic | [Gaussian](http://gaussian.com/) | 16.A01 or newer |
+| Dynamic | [CUDA](https://developer.nvidia.com/cuda-zone) | 11.7 or newer (required by `pmemd.cuda`) |
 
 ### ！Attention
 * `pyCADD` 不包含以上所需程序的安装与许可证 您需要自行获得授权并安装恰当
