@@ -1,3 +1,4 @@
+name: pyCADD
 channels:
   - conda-forge
 dependencies:
@@ -15,4 +16,3 @@ dependencies:
   - ambertools>=23.6
   - pip:
     - concurrent_log_handler>=0.9.20
-    - pyCADD>=2.0.0
