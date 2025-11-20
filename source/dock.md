@@ -32,10 +32,10 @@ Dock 模块是通过串联分子对接软件 python API 来实现各类分子设
 
 请确保当前工作目录在您想要保存项目文件的目录中, 并在目录中额外准备：
 
-* 一个分行列出的, 包含所有受体蛋白所属 PDB ID的输入文件，支持的格式包括 **.csv** **.ini** **.in** **.yaml** **.yml**, 支持的输入文件格式请参阅 [为系综对接构建Dock输入文件的示例](#generate-input-files-for-ensemble-docking)。该输入文件可由`Demand`模块自动生成，或由您手动创建;  
+* 一个分行列出的, 包含所有受体蛋白所属 PDB ID的输入文件，支持的格式包括 **.csv** **.ini** **.in** **.yaml** **.yml**, 支持的输入文件格式请参阅 [为Ensemble Docking构建Dock输入文件的示例](#generate-input-files-for-ensemble-docking)。该输入文件可由`Demand`模块自动生成，或由您手动创建;  
 * 一个需要对接的化合物库 **3D结构文件** **.pdb*  **.mae* **.sdf* 或其他Schrodinger支持的格式  
-    如果晶体包含有多个不同名称(ID)的小分子配体, 请在文件中指明 (以逗号分隔) 以定义对接格点的中心;   
-    如包含相同名称的多个小分子，则 `Dock` 会自动选择其中之一定义为对接格点的中心。
+    如果晶体包含有多个不同名称(ID)的小分子配体, 请在文件中指明 (以逗号分隔) 以定义对接 Grid Box 的中心;   
+    如包含相同名称的多个小分子，则 `Dock` 会自动选择其中之一定义为对接 Grid Box 的中心。
 
 以下是一个输入文件的示例 *example.csv*：  
 ```
@@ -44,21 +44,24 @@ Dock 模块是通过串联分子对接软件 python API 来实现各类分子设
 4K6I,9RA
 ```
 
-还需要提供一个准备就绪的用于对接的化合物库文件(其中含有若干个结构)，如 *library_file.mae*，其中包含若干个已经完成了氢原子添加、质子化状态计算、能量最小化等预处理步骤的三维化合物结构。
+提供一个准备就绪的用于对接的化合物库文件(其中含有若干个结构)，如 *library_file.sdf*，其中包含若干个已经完成了氢原子添加、质子化状态计算、能量最小化等预处理步骤的三维化合物结构。
 
 然后 您可以通过命令
 ```bash
-pycadd-dock ensemble-dock example.csv library_file.mae -n 24 -p SP [--del_water] [-redock] [-O]
+pycadd-dock ensemble-dock example.csv library_file.sdf -n 24 -p SP [--del_water/-w] [--redock] [--rmsd/-r] [-s/--save_dir <DIR>] [-O]
 ```
 启动 Ensemble Docking。  
 - -n / --parallel <NUM> 指定使用的并行核心数量，如未设定将默认使用系统最大核心数量的 75%。
 - -p / --precision <SP | XP | HTVS> 指定对接精度，默认为 SP。
-- --del_water 指定是否删除晶体中的所有水分子。默认为保留口袋中心5埃范围内的水分子，其余删除。
+- -w / --del_water 指定是否删除晶体中的所有水分子。默认为保留口袋中心5埃范围内的水分子，其余删除。
 - --redock 指定是否进行回顾性对接。即首先将PDB晶体的共晶小分子对接回口袋中，默认为不进行。
-- -O / --overwrite 指定是否覆盖已有结果。当前路径下如已运行过ensemble docking并留有结果文件时，默认将跳过已执行过的准备工作及对接，指定该参数则重新运行完整工作流并覆盖已有文件。
+- -r / --rmsd 指定是否在对接过程中计算RMSD值。默认为不计算RMSD。
+- -s / --save_dir <DIR> 指定结果保存目录，默认为当前工作目录。
+- -O / --overwrite 指定是否覆盖已有结果。当前路径下如已运行过 Ensemble Docking 并留有结果文件时，默认将跳过已执行过的准备工作及对接，指定该参数则重新运行完整工作流并覆盖已有文件。
 
-Dock 模块将会下载每一个受体PDB结构，完成晶体准备过程，保留输入文件中指定小分子所结合的单一蛋白链，生成对接网格文件，就如同常规分子对接流程的蛋白准备的工作流一样。  
-然后，将*library_file.mae* 中的每一个化合物交叉对接到每一个受体中。对接结束后，**M** 个受体与 **N** 个配体的 Ensemble Docking 将会得到 **M x N** 的分数矩阵。单次对接不成功时, 矩阵中的对应位置将会留空。  
+Dock 模块将会下载每一个PDB结构，自动完成晶体准备过程，并保留输入文件中指定小分子所结合的单一蛋白链（显示为 `PDBID-chain-X` 样式），生成对接 grid 文件，就如同常规分子对接流程的蛋白准备的工作流一样。  
+然后，将*library_file.mae* 中的每一个化合物交叉对接到每一个受体中。对接结束后，**M** 个受体与 **N** 个配体的 Ensemble Docking 将会得到 **M x N** 的分数矩阵。单次对接不成功时, 矩阵中的对应位置将会留空。 
+分数矩阵可用于您进一步的分析，或用于机器/深度学习建模等工作。  
 
 使用 
 ```bash
@@ -66,32 +69,11 @@ pycadd-dock ensemble-dock --help
 ```
 以获取更多帮助信息。
 
-所有集合式对接工作完成后, 将自动提取重要的对接结果数据, 并保存在 `result` 目录下的 `_DOCK_FINAL_RESULTS.csv`字样的文件中, 且将产生汇总矩阵文件`matrix.csv`，该文件可直接用于 `Dance` 模块中用于机器学习建模等过程。
-
-此外, `result/docking_failed_SP.csv` 文件中将会记录此轮中未能成功对接的配体-受体对。重新运行 `pycadd-dock ensemble-dock` 时，该文件中的记录配对将被自动跳过以节约时间成本；如果您希望重新对接这些配体-受体对，请删除或重命名该文件。
+所有 Ensemble Docking 工作完成后, 将自动提取重要的对接结果数据, 并保存在 `result` 目录下的 `_DOCK_FINAL_RESULTS.csv`字样的文件中, 且将产生汇总矩阵文件`_matrix.csv`。
 
 如果 Ensemble Docking 环节由于某些原因或意外被迫中断，您可以重新运行命令，已完成的部分将会自动跳过。您也可以使用`-O/--overwrite`参数来完全从头运行整个Ensemble Docking。  
 
 数据提取环节意外中断时，可以使用数据提取命令来重新尝试提取及合并数据。数据提取仅尝试提取已有的结果文件，不会重新运行对接。未能成功提取的配体-受体对将会在矩阵中留空。
-```bash
-pycadd-dock extract-data example.csv ligand_file.mae -n 24 -p SP [--redock]
-```
-
-##  Generate Docking Reports 
-
-CLI命令 `pycadd-dock generate-report` 提供了将若干重要分子对接于多个配体并生成对比报告的功能。  
-与Ensemble Docking相似，晶体被下载并预处理完成后，所有晶体的共晶配体分子会被首先对接回晶体自身，以完成回顾性对接(Self-Docking)，并得到共晶分子的参考分数。接下来，化合物库中的分子继续依次被对接到蛋白晶体中。    
-最后，将自动为化合物库中的每一个配体生成一个独立的EXCEL报告文件，以便于直观比较当前分子与共晶分子的得分情况；该分子及共晶分子的2D结构图也会被自动保存在报告文件中。  
-
-使用命令
-```bash
-pycadd-dock generate-report example.csv ligand_file.mae -n 24 -p SP [--del_water] [-redock] [-O]
-```
-等待共晶分子的回顾性对接，及化合物库对接完成后，将会在当前目录下的 `result/` 文件夹生成对接结果文件及EXCEL报告文件。 
-
-本质上，该接口运行与`ensemble-dock`相同的工作流，并在最后增加了EXCEL报告的生成。因此，如您已经完成了`ensemble-dock`的工作流，预计对接流程将被跳过，您可以直接使用 `generate-report` 接口来快速生成EXCEL报告。  
-
-报告文件生成应该聚焦于少数重点分子，不建议为过多分子生成报告文件。
 
 
 ## Generate Input Files for Ensemble Docking
