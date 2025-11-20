@@ -5,8 +5,8 @@ pyCADD
 
 * 调用 Gaussian 计算、分析配体分子结构优化、单点能、RESP(2)电荷
 * 自动运行 AMBER 分子动力学模拟准备、运行和 MD 轨迹的基本分析
-* 自动化调用Schrodinger Python API执行晶体准备、格点文件生成与对接、MMGBSA结合能计算等功能
-* 调用多核并行计算 实现集合式对接与结果提取、数据分析
+* 自动化调用Schrodinger Python API执行晶体准备、格点文件生成与对接等功能
+* 调用多核并行计算，实现 Ensemble Docking 与结果提取、数据分析
 * CLI 快速调用
 
 ## Platform  
@@ -25,10 +25,8 @@ pyCADD
 * 建议使用 Conda/Mamba 创建独立的Python环境以避免包冲突
 
 ```bash
-conda create -n pyCADD python=3.10
+conda create -f environment.yml
 conda activate pyCADD
-conda install -f environment.yml
-pip install pyCADD
 ```
 
 ### Additional Requirements
@@ -40,8 +38,8 @@ pyCADD的不同模块需要安装不同的软件来完成自动化工作流。�
 | -----------------  | -------- | -------- |
 | Dock     | [Schrodinger Suite](https://www.schrodinger.com/) | 2020-3 or newer |
 | Dynamic  | [AMBER](http://ambermd.org/) | 22 or newer |
-| Density & Dynamic | [Gaussian](http://gaussian.com/) | 16.A01 or newer(optional) |
-| Dynamic | [CUDA](https://developer.nvidia.com/cuda-zone) | 11.7 or newer (optional for `pmemd.cuda`) |
+| Density & Dynamic | [Gaussian](http://gaussian.com/) | 16.A01 or newer |
+| Dynamic | [CUDA](https://developer.nvidia.com/cuda-zone) | 11.7 or newer (required by `pmemd.cuda`) |
 
 ### ！Attention
 * `pyCADD` 不包含以上所需程序的安装与许可证 您需要自行获得授权并安装恰当
@@ -49,12 +47,11 @@ pyCADD的不同模块需要安装不同的软件来完成自动化工作流。�
 
 ## Installation
 
-`pyCADD`已发布至PyPI, 使用命令
+`pyCADD`已发布至PyPI, 在上述通过 `environment.yml` 构建的环境中使用命令
 
-    conda install -f environment.yml
     pip install pyCADD
 
-即可安装pyCADD。
+即可安装和使用pyCADD。
 
 为了便于从命令行快速调用pyCADD的模块，提供了以下CLI接口：
 
@@ -64,7 +61,6 @@ pyCADD的不同模块需要安装不同的软件来完成自动化工作流。�
 | `pycadd-demand` | *Demand* |
 | `pycadd-density` | *Density* |
 | `pycadd-dynamic` | *Dynamic* |
-| `pycadd-dynamic analysis` | *Dynamic-Analyzer* |
 
 ## pyCADD Function
 
@@ -97,7 +93,7 @@ pycadd-dock ensemble-dock --help
 YH. W  
 School of Pharmaceutical Sciences, Xiamen University  
 Copyright © 2025 XMU   
-2025-10-28
+2025-11-20
 
 ## 更新日志
 * 2.0.0 (2025-10-28)
