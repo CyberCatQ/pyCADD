@@ -12,6 +12,11 @@ BUILDDIR      = .
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
+# api doc
+api:
+	@echo "Generating API documentation..."
+	@sphinx-apidoc -o source ../pyCADD
+
 # Distributed build targets
 distributed:
 	@echo "Building documentation with distributed environments..."
