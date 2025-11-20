@@ -1,6 +1,5 @@
 import os
 from configparser import ConfigParser
-from threading import Thread
 
 
 class BaseFile:
@@ -91,25 +90,6 @@ class FixedConfig(ConfigParser):
 
     def optionxform(self, optionstr):
         return optionstr
-
-
-class FixedThread(Thread):
-    def __init__(self, *args, **kwargs):
-        """Thread class with exception handling"""
-        super().__init__(*args, **kwargs)
-        self._exception = None
-
-    def run(self):
-        try:
-            if self._target:
-                self._target(*self._args, **self._kwargs)
-        except Exception as e:
-            self._exception = e
-
-    def join(self):
-        super().join()
-        if self._exception:
-            raise self._exception
 
 
 class TimeoutError(Exception):

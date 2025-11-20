@@ -15,7 +15,6 @@ importlib.reload(multiprocessing)
 from multiprocessing import Pool
 
 import requests
-import urllib3
 from rich.progress import (
     BarColumn,
     Progress,
@@ -26,11 +25,15 @@ from rich.progress import (
 )
 from rich.table import Column
 
-from .common import FixedThread, TimeoutError
+from .common import TimeoutError
 
 NUM_PARALLEL = multiprocessing.cpu_count() // 4 * 3
 logger = logging.getLogger(__name__)
 DEBUG = os.getenv('PYCADD_DEBUG')
+REQUEST_HEADER = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+}
+RCSB_PDB_API = "https://files.rcsb.org/download/"
 
 
 def read_file(file_path: str, as_json: bool = False) -> str:
@@ -202,6 +205,93 @@ def multiprocessing_run(func: Callable, iterable: Iterable, job_name: str, num_p
     return returns
 
 
+def download_files(
+    download_infos: dict[str, str],
+    output_dir: str = ".",
+    max_workers: int = 4,
+    max_retries: int = 3,
+    timeout: int = 300,
+) -> dict[str, bytes]:
+    import ssl
+    import concurrent
+
+    from requests.adapters import HTTPAdapter
+    from urllib3.util.retry import Retry
+
+    output_dir = os.path.abspath(output_dir)
+    os.makedirs(output_dir, exist_ok=True)
+    download_infos = {
+        os.path.join(output_dir, os.path.basename(file_name)): url
+        for file_name, url in download_infos.items()
+    }
+
+    def _download(url: str, file_path: str):
+        with requests.Session() as session:
+            session.headers.update(REQUEST_HEADER)
+            retry_strategy = Retry(
+                total=3,
+                backoff_factor=1,
+                status_forcelist=[429, 500, 502, 503, 504],
+            )
+            adapter = HTTPAdapter(max_retries=retry_strategy)
+            session.mount("http://", adapter)
+            session.mount("https://", adapter)
+            session.verify = True
+
+            for attempt in range(max_retries):
+                try:
+                    response = session.get(
+                        url, timeout=(30, timeout), stream=True, allow_redirects=True
+                    )
+                    if response.status_code == 200:
+                        with open(file_path, "ab") as f:
+                            for chunk in response.iter_content(chunk_size=8192):
+                                if chunk:
+                                    f.write(chunk)
+                        logger.info(f"File downloaded: {file_path}")
+                        return file_path
+                    elif response.status_code == 404:
+                        logger.warning(f"File not found or does not exist: {url}")
+                        return None
+                    else:
+                        logger.warning(
+                            f"[{attempt + 1}/{max_retries}] HTTP {response.status_code} for {url}"
+                        )
+                except (
+                    requests.exceptions.SSLError,
+                    requests.exceptions.ConnectionError,
+                    ssl.SSLEOFError,
+                ) as e:
+                    logger.warning(
+                        f"[{attempt + 1}/{max_retries}] SSL/Connection error for {url}: {e}"
+                    )
+                    if attempt < max_retries - 1:
+                        wait_time = min(2**attempt * 2, 30)
+                        time.sleep(wait_time)
+                except Exception as e:
+                    logger.warning(f"[{attempt + 1}/{max_retries}] Error downloading {url}: {e}")
+                    if attempt < max_retries - 1:
+                        time.sleep(2**attempt)
+        return None
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_to_url = {
+            executor.submit(_download, url, file_path): os.path.basename(file_path)
+            for file_path, url in download_infos.items()
+        }
+
+        results = {}
+        for future in concurrent.futures.as_completed(future_to_url):
+            file_name = future_to_url[future]
+            try:
+                results[file_name] = future.result()
+            except Exception as e:
+                logger.error(f"Download failed for {file_name}: {e}")
+                results[file_name] = None
+
+    return results
+
+
 def download_pdb(pdbid: str, save_dir: str = None, overwrite: bool = False) -> None:
     """Download a PDB file from RCSB PDB.
 
@@ -210,25 +300,15 @@ def download_pdb(pdbid: str, save_dir: str = None, overwrite: bool = False) -> N
         save_dir (str, optional): directory to save the pdb file. Defaults to current working directory.
         overwrite (bool, optional): whether to overwrite the pdb file when it exists. Defaults to False.
     """
-    base_url = 'https://files.rcsb.org/download/'
     pdbfile = f'{pdbid}.pdb'
-    save_dir = os.getcwd() if save_dir is None else save_dir
+    download_url = RCSB_PDB_API + pdbfile
+    save_dir = save_dir or os.getcwd()
+    save_dir = os.path.abspath(save_dir)
+    os.makedirs(save_dir, exist_ok=True)
     downloaded_file = os.path.join(save_dir, pdbfile)
-
     if os.path.exists(downloaded_file) and not overwrite:
         return
-
-    url = base_url + pdbfile
-    logger.debug(f'Downloading {pdbid} from URL {url}')
-    urllib3.disable_warnings()
-    response = requests.get(url)
-    if response.status_code != 200:
-        raise RuntimeError(f'Failed to download {pdbid}.pdb')
-    pdb_data = response.text
-    os.makedirs(save_dir, exist_ok=True)
-    with open(downloaded_file, 'w') as f:
-        f.write(pdb_data)
-
+    download_files({pdbfile: download_url}, output_dir=save_dir, max_workers=1)
     logger.debug(f'{pdbid}.pdb has been downloaded to {save_dir}')
 
 
@@ -240,15 +320,22 @@ def download_pdb_list(pdblist: list, save_dir: str = None, overwrite: bool = Fal
         save_dir (str, optional): directory to save the pdb files. Defaults to current working directory.
         overwrite (bool, optional): whether to overwrite the pdb files when they exist. Defaults to False.
     """
-    save_dir = os.getcwd() if save_dir is None else save_dir
-    threads = []
-    for pdbid in pdblist:
-        t = FixedThread(target=download_pdb, args=(pdbid, save_dir, overwrite))
-        threads.append(t)
-    for t in threads:
-        t.start()
-    for t in threads:
-        t.join()
+    download_info = {f'{pdbid}.pdb': RCSB_PDB_API + f'{pdbid}.pdb' for pdbid in pdblist}
+    save_dir = save_dir or os.getcwd()
+    save_dir = os.path.abspath(save_dir)
+    os.makedirs(save_dir, exist_ok=True)
+
+    if not overwrite:
+        download_info = {
+            k: v for k, v in download_info.items()
+            if not os.path.exists(os.path.join(save_dir, k))
+        }
+    if not download_info:
+        logger.debug("All PDB files already exist. No files to download.")
+        return
+
+    download_files(download_info, output_dir=save_dir, max_workers=4)
+    logger.debug(f"PDB files have been downloaded to {save_dir}")
 
 
 def timeit(func: Callable):

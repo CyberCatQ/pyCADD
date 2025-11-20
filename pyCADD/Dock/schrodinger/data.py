@@ -32,13 +32,12 @@ def extract_docking_data(
     if raw_data:
         raw_data = raw_data[1:] if include_receptor else raw_data
     result_data_list = []
-    data_dict = {
+    data = {
         "pdbid": docking_result_file.metadata.pdbid,
-        "precision": docking_result_file.metadata.precision,
         "internal_ligand_name": docking_result_file.metadata.internal_ligand_name,
         "docking_ligand_name": docking_result_file.metadata.docking_ligand_name,
+        "precision": docking_result_file.metadata.precision,
     }
-    data = data_dict.copy()
     for raw_data_dict in raw_data:
         data.update({key: raw_data_dict.get(value, None) for key, value in data_config.items()})
     result_data_list.append(data)

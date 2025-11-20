@@ -10,7 +10,7 @@ FORCE_FILED_DICT = {
 class DefaultDataConfig:
     def __init__(self) -> None:
         self.properties: dict = {
-            "Docking_Score": "r_i_docking_score",
+            "DockingScore": "r_i_docking_score",
             "rmsd": "r_i_glide_rmsd_to_input",
             "ligand_efficiency": "r_i_glide_ligand_efficiency",
             "rotatable_bonds": "i_i_glide_rotatable_bonds",

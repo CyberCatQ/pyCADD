@@ -4,7 +4,7 @@ from typing import Literal, Tuple, Union
 
 from pyCADD.Dock.schrodinger.common import DockResultFile, GridFile, MaestroFile
 from pyCADD.Dock.schrodinger.config import FORCE_FILED_DICT
-from pyCADD.Dock.schrodinger.utils import convert_format, launch
+from pyCADD.Dock.schrodinger.utils import convert_format
 from pyCADD.utils.common import ChDir
 from pyCADD.utils.tool import shell_run
 
@@ -108,9 +108,9 @@ def minimize(
         logger.debug(f"File already existed: {minimized_file}")
         return MaestroFile(minimized_file, metadata=metadata)
 
+    prepwizard = os.path.join(os.environ["SCHRODINGER"], "utilities", "prepwizard")
     with ChDir(save_dir):
-        job_name = f"{file.file_prefix}-Minimize"
-        prepwizard_command = f"prepwizard -f {force_field} -r {rmsd_cutoff} -propka_pH {ph} -disulfides -s -JOBNAME {job_name}"
+        prepwizard_command = f"{prepwizard} -f {force_field} -r {rmsd_cutoff} -propka_pH {ph} -disulfides -s -NOJOBID"
         if fill_side_chain:
             prepwizard_command += " -fillsidechains"
         if add_missing_loop:
@@ -122,7 +122,7 @@ def minimize(
         _minimized_file = f"_{file_prefix}.mae"
         prepwizard_command += f" {file.file_path} {_minimized_file}"
 
-        launch(prepwizard_command)
+        shell_run(prepwizard_command)
 
         try:
             shutil.move(_minimized_file, minimized_file)

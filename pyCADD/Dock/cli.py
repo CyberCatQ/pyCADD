@@ -166,7 +166,7 @@ def dock(grid_file_path, ligand_file_path, precision, force_field, rmsd, save_di
 @click.argument("input_file_path", type=str)
 @click.argument("library_file_path", type=str, required=False)
 @click.option(
-    "--parallel", "-n", default=os.cpu_count(), type=int, help="Number of parallel processes."
+    "--parallel", "-n", default=4, show_default=True, type=int, help="Number of parallel processes."
 )
 @click.option(
     "--del_water",
@@ -179,19 +179,21 @@ def dock(grid_file_path, ligand_file_path, precision, force_field, rmsd, save_di
     "--precision",
     default="SP",
     required=False,
+    show_default=True,
     type=click.Choice(["SP", "XP", "HTVS"]),
-    help="Docking Precision (SP/XP), default SP.",
+    help="Docking Precision (SP/XP/HTVS), default SP.",
 )
 @click.option(
     "--force_field",
     "-f",
     default="OPLS4",
+    show_default=True,
     type=click.Choice(["OPLS4", "OPLS3e", "OPLS3", "OPLS_2005"]),
     help="Force field for grid generation. Default OPLS4.",
 )
 @click.option("--redock", is_flag=True, help="Redock ligands from crystals to grids or not.")
-@click.option("--rmsd", "-r", is_flag=True, default=True, help="Calculate RMSD during docking.")
-@click.option("--save_dir", "-s", default=".", help="Directory to save the result file.")
+@click.option("--rmsd", "-r", is_flag=True, help="Calculate RMSD during docking.")
+@click.option("--save_dir", "-s", default=".", show_default=True, help="Directory to save the result file.")
 @click.option("--overwrite", "-O", is_flag=True, help="Overwrite the file.")
 def ensemble_dock(
     input_file_path,
@@ -229,3 +231,4 @@ def ensemble_dock(
         calc_rmsd=rmsd,
         overwrite=overwrite,
     )
+    control.extract_data()

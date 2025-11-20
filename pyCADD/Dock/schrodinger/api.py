@@ -21,7 +21,7 @@ from pyCADD.utils.tool import download_pdb, download_pdb_list
 from . import logger
 
 
-DATE = datetime.now().strftime("%Y%m%d%H%M")
+DATE = datetime.now().strftime("%Y%m%d")
 
 
 class DockControl:
@@ -263,6 +263,7 @@ class DockEnsemble:
         self.cocrystal_ligands = []
         self.library_files = []
         self.ensemble_docking_results = []
+        self.dock_result_data = []
 
         self.save_path = os.path.abspath(save_path) if save_path is not None else os.getcwd()
         os.makedirs(self.save_path, exist_ok=True)
@@ -477,6 +478,7 @@ class DockEnsemble:
         if not self.grid_files:
             raise ValueError("No grid files found.")
 
+        library_files = self.library_files
         if retrospective:
             cocrystal_ligand_files = self._split_cocrystal_lig()[1]
             logger.info(
@@ -496,11 +498,36 @@ class DockEnsemble:
                 overwrite=overwrite,
                 cpu_num=self.cpu_num,
             )
+        return self.ensemble_docking_results
+
+    def extract_data(self) -> List[dict]:
+        """Extract docking result data from ensemble docking results.
+
+        Returns:
+            List[dict]: Docking results
+        """
+        if not self.ensemble_docking_results:
+            raise ValueError("No ensemble docking results found.")
+
         self.dock_result_data = multi_extract_data(
             self.ensemble_docking_results, cpu_num=self.cpu_num
         )
-        result_file = os.path.join(self.save_path, "dock", f"dock_result_{DATE}.csv")
+        os.makedirs(os.path.join(self.save_path, "result"), exist_ok=True)
+        result_file = os.path.join(self.save_path, "result", f"{DATE}_DOCK_FINAL_RESULTS.csv")
         self.result_df = pd.DataFrame(self.dock_result_data)
         self.result_df.to_csv(result_file, index=False)
         logger.info(f"Docking result data saved to {result_file}")
+
+        self.result_df["DockingSite"] = self.result_df["pdbid"] + "-" + self.result_df["internal_ligand_name"]
+        self.result_df["LigandName"] = self.result_df["docking_ligand_name"] 
+        pivot_file = os.path.join(self.save_path, "result", f"{DATE}_matrix.csv")
+        pivot_df = self.result_df.pivot_table(
+            index="LigandName",
+            columns="DockingSite",
+            values="DockingScore",
+            aggfunc="first",
+        )
+        pivot_df.to_csv(pivot_file)
+        logger.info(f"Docking score matrix data saved to {pivot_file}")
+
         return self.dock_result_data
