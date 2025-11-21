@@ -8,6 +8,8 @@ cwd=$(pwd)
 
 # 切换到脚本所在目录
 cd "$(dirname "$0")"
+rm source/*.rst -f
+make api
 
 # 构建文档
 echo "构建文档"
@@ -49,18 +51,17 @@ cp -r "$build_dir"/* .
 touch .nojekyll
 
 # 提交更改
-echo "提交更改..."
-git add .
-if git diff --staged --quiet; then
-    echo "没有更改需要提交"
-else
-    git commit -m "Update documentation"
-    # 推送到远程
-    echo "推送到 GitHub Pages..."
-    git push origin gh-pages
-    echo "部署完成！"
-fi
+# echo "提交更改..."
+# git add .
+# if git diff --staged --quiet; then
+#     echo "没有更改需要提交"
+# else
+#     git commit -m "Update documentation"
+#     # 推送到远程
+#     echo "推送到 GitHub Pages..."
+#     git push origin gh-pages
+#     echo "部署完成！"
+# fi
 
-rm -rf "$push_dir"
 # 返回原目录
 cd "$cwd"

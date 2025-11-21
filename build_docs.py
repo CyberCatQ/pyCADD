@@ -114,6 +114,7 @@ except ImportError:
 
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
@@ -321,7 +322,7 @@ def merge_documentation():
             target_dir = final_dir / module_name.lower()
             shutil.copytree(temp_html, target_dir)
             print(f"   ✓ Copied {module_name} documentation")
-            shutil.rmtree(BUILD_DIR / f"{module_name}_temp")
+            # shutil.rmtree(BUILD_DIR / f"{module_name}_temp")
         else:
             print(f"   ❌ {module_name} documentation not found")
     

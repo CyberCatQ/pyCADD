@@ -1,7 +1,8 @@
 channels:
   - conda-forge
 dependencies:
-  - sphinx-build
+  - sphinx
   - sphinx_rtd_theme
-  - sphinx_markdown_tables
   - recommonmark
+  - pip:
+    - sphinx_markdown_tables
