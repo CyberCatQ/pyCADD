@@ -1,10 +1,10 @@
 import os
 import shutil
-from typing import Literal, Tuple, Union
+from typing import Literal
 
 from pyCADD.Dock.schrodinger.common import DockResultFile, GridFile, MaestroFile
 from pyCADD.Dock.schrodinger.config import FORCE_FILED_DICT
-from pyCADD.Dock.schrodinger.utils import convert_format, launch
+from pyCADD.Dock.schrodinger.utils import convert_format
 from pyCADD.utils.common import ChDir
 from pyCADD.utils.tool import shell_run
 
@@ -12,11 +12,11 @@ from . import Structure, evaluate_asl, logger
 
 
 def split_complex(
-    file: Union[MaestroFile, str],
+    file: MaestroFile | str,
     ligand_atom_indexes: list = None,
     ligand_asl: str = None,
     structure_index: int = 0,
-) -> Tuple[Structure, Structure]:
+) -> tuple[Structure, Structure]:
     """Split the complex structure into receptor and ligand.
 
     Args:
@@ -30,7 +30,7 @@ def split_complex(
         ValueError: Atom indexes or ASL identified multiple molecules or no atom.
 
     Returns:
-        Tuple[Structure, Structure]: Receptor and Ligand structures.
+        tuple[Structure, Structure]: Receptor and Ligand structures.
     """
     if isinstance(file, str):
         file = MaestroFile(path=file)
@@ -62,7 +62,7 @@ def split_complex(
 
 
 def minimize(
-    file: Union[MaestroFile, str],
+    file: MaestroFile | str,
     ph: float = 7.4,
     force_field: Literal["OPLS4", "OPLS3e", "OPLS3", "OPLS_2005"] = "OPLS4",
     fill_side_chain: bool = True,
@@ -76,7 +76,7 @@ def minimize(
     """Prepare the structure and run minimization using Schrodinger's prepwizard.
 
     Args:
-        file (Union[MaestroFile, str]): file path or MaestroFile object to be prepared and minimized.
+        file (MaestroFile | str): file path or MaestroFile object to be prepared and minimized.
         ph (float, optional): pH value to calculate protonation states. Defaults to 7.4.
         force_field (str): force field to use. Defaults to 'OPLS4'.
         fill_side_chain (bool, optional): whether to fill side chain. Defaults to True.
@@ -108,9 +108,9 @@ def minimize(
         logger.debug(f"File already existed: {minimized_file}")
         return MaestroFile(minimized_file, metadata=metadata)
 
+    prepwizard = os.path.join(os.environ["SCHRODINGER"], "utilities", "prepwizard")
     with ChDir(save_dir):
-        job_name = f"{file.file_prefix}-Minimize"
-        prepwizard_command = f"prepwizard -f {force_field} -r {rmsd_cutoff} -propka_pH {ph} -disulfides -s -JOBNAME {job_name}"
+        prepwizard_command = f"{prepwizard} -f {force_field} -r {rmsd_cutoff} -propka_pH {ph} -disulfides -s -NOJOBID"
         if fill_side_chain:
             prepwizard_command += " -fillsidechains"
         if add_missing_loop:
@@ -122,7 +122,7 @@ def minimize(
         _minimized_file = f"_{file_prefix}.mae"
         prepwizard_command += f" {file.file_path} {_minimized_file}"
 
-        launch(prepwizard_command)
+        shell_run(prepwizard_command)
 
         try:
             shutil.move(_minimized_file, minimized_file)
@@ -134,8 +134,8 @@ def minimize(
 
 
 def grid_generate(
-    file: Union[MaestroFile, str],
-    box_center: Tuple[float, float, float] = None,
+    file: MaestroFile | str,
+    box_center: tuple[float, float, float] = None,
     box_center_molnum: int = None,
     box_size: int = 20,
     force_field: Literal["OPLS4", "OPLS3e", "OPLS3", "OPLS_2005"] = "OPLS4",
@@ -145,7 +145,7 @@ def grid_generate(
     """Generate grid file for Glide docking.
 
     Args:
-        file (Union[MaestroFile, str]): structure to generate grid file.
+        file (MaestroFile | str): structure to generate grid file.
         box_center (tuple[float, float, float], optional): center XYZ of the grid box. Defaults to None.
         box_center_molnum (int, optional): the molecule number of the molecule that is set as the center.\
             This molecule will be removed during the grid box generation process,\
@@ -216,8 +216,8 @@ def grid_generate(
 
 
 def dock(
-    grid_file: Union[GridFile, str],
-    ligand_file: Union[MaestroFile, str],
+    grid_file: GridFile | str,
+    ligand_file: MaestroFile | str,
     force_field: Literal["OPLS4", "OPLS3e", "OPLS3", "OPLS_2005"] = "OPLS4",
     precision: Literal["SP", "XP", "HTVS"] = "SP",
     calc_rmsd: bool = False,
@@ -228,8 +228,8 @@ def dock(
     """Perform Glide ligand docking
 
     Args:
-        grid_file (Union[GridFile, str]): grid file object or path.
-        ligand_file (Union[MaestroFile, str]): Ligand file object or path.
+        grid_file (GridFile | str): grid file object or path.
+        ligand_file (MaestroFile | str): Ligand file object or path.
         force_field (str, optional): force field to use. Defaults to 'OPLS4'.
         precision (str, optional): docking precision. Defaults to 'SP'.
         calc_rmsd (bool, optional): Whether to calculate RMSD with co-crystal ligand. If True, grid file must be generated from a complex. Defaults to False.
@@ -317,7 +317,7 @@ def dock(
 
 
 def keep_single_chain(
-    structure_file: Union[MaestroFile, str],
+    structure_file: MaestroFile | str,
     by_resname: str = None,
     chain_id: str = None,
     save_dir: str = None,
@@ -326,7 +326,7 @@ def keep_single_chain(
     """Keep single chain from a structure file.
 
     Args:
-        structure_file (Union[MaestroFile, str]): Structure file object or path.
+        structure_file (MaestroFile | str): Structure file object or path.
         by_resname (str, optional): Residue or ligand name from the chain to be kept. Defaults to None.
         chain_id (str, optional): Chain ID to be kept. Defaults to None.
         save_dir (str, optional): Directory to save the results. Defaults to None.

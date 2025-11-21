@@ -56,19 +56,8 @@ class Processor:
         a molecular dynamics simulation workflow.
 
         Args:
-            work_dir (str, optional): Main working directory for simulation files.
-                Defaults to current working directory.
-            apo (bool, optional): Whether this is an apo (protein-only) system.
-                Defaults to False (protein-ligand system).
-
-        Note:
-            Automatically creates the following subdirectory structure:
-            - protein/: For prepared protein files
-            - molecule/: For ligand preparation files
-            - leap/: For system building files
-            - input_file/: For MD input files
-            - md_result/: For simulation output files
-            - md_analysis/: For trajectory analysis results
+            work_dir (str, optional): Main working directory for simulation files. Defaults to current working directory.
+            apo (bool, optional): Whether this is an apo (protein-only) system. Defaults to False (protein-ligand system).
         """
         self.work_dir = work_dir or os.getcwd()
         self.pro_dir = os.path.join(self.work_dir, "protein")
@@ -113,15 +102,12 @@ class Processor:
         structure, add missing atoms, and prepare it for use with Amber force fields.
 
         Args:
-            protein_file_path: Path to the input protein structure file (PDB format).
-            keep_water: Whether to retain crystal water molecules in the structure.
-                Defaults to False.
-            overwrite: Whether to overwrite existing prepared files.
-                Defaults to False.
+            protein_file_path (str | File): Path to the input protein structure file (PDB format).
+            keep_water (bool): Whether to retain crystal water molecules in the structure. Defaults to False.
+            overwrite (bool): Whether to overwrite existing prepared files. Defaults to False.
 
         Note:
-            The prepared protein file is automatically saved in the protein/
-            subdirectory and stored in self.pro_file for subsequent use.
+            The prepared protein file is automatically saved in the protein subdirectory and stored in self.pro_file for subsequent use.
         """
         protein_file = File(protein_file_path)
         self.pro_file = core.protein_prepare(
@@ -150,18 +136,17 @@ class Processor:
         and related Amber tools.
 
         Args:
-            molecule_file_path: Path to the input ligand structure file.
-            charge: Net charge of the ligand molecule. Defaults to 0.
-            multiplicity: Spin multiplicity of the ligand. Defaults to 1.
-            dft: DFT method for quantum chemistry calculations. Defaults to "B3LYP".
-            basis_set: Basis set for quantum chemistry calculations. Defaults to "6-31g*".
-            cpu_num: Number of CPU cores to use. Defaults to 4.
-            mem_use: Memory allocation for quantum calculations. Defaults to "8GB".
-            charge_method: Method for partial charge calculation ("resp", "bcc", "resp2").
-                Defaults to "resp".
-            solvent: Solvent model for charge calculation. Defaults to "water".
-            delta: Grid spacing for RESP charge fitting. Defaults to 0.5.
-            overwrite: Whether to overwrite existing prepared files. Defaults to False.
+            molecule_file_path (str | File): Path to the input ligand structure file.
+            charge (int): Net charge of the ligand molecule. Defaults to 0.
+            multiplicity (int): Spin multiplicity of the ligand. Defaults to 1.
+            dft (str): DFT method for quantum chemistry calculations. Defaults to "B3LYP".
+            basis_set (str): Basis set for quantum chemistry calculations. Defaults to "6-31g*".
+            cpu_num (int): Number of CPU cores to use. Defaults to 4.
+            mem_use (str): Memory allocation for quantum calculations. Defaults to "8GB".
+            charge_method (str): Method for partial charge calculation ("resp", "bcc", "resp2"). Defaults to "resp".
+            solvent (str): Solvent model for charge calculation. Defaults to "water".
+            delta (float): Grid spacing for RESP charge fitting. Defaults to 0.5.
+            overwrite (bool): Whether to overwrite existing prepared files. Defaults to False.
 
         Note:
             The prepared MOL2 and FRCMOD files are automatically saved in the
@@ -191,7 +176,7 @@ class Processor:
         """Load a previously prepared protein file.
 
         Args:
-            pro_file_path: Path to the prepared protein structure file.
+            pro_file_path (str | File): Path to the prepared protein structure file.
         """
         self.pro_file = File(pro_file_path)
 
@@ -199,7 +184,7 @@ class Processor:
         """Load a previously prepared ligand MOL2 file.
 
         Args:
-            mol_file_path: Path to the prepared ligand MOL2 file.
+            mol_file_path (str | File): Path to the prepared ligand MOL2 file.
         """
         self.mol2_file = File(mol_file_path)
 
@@ -207,7 +192,7 @@ class Processor:
         """Load a ligand force field parameter file.
 
         Args:
-            frcmod_file_path: Path to the ligand FRCMOD parameter file.
+            frcmod_file_path (str | File): Path to the ligand FRCMOD parameter file.
         """
         self.frcmod_file = File(frcmod_file_path)
 
@@ -223,10 +208,9 @@ class Processor:
         (if applicable), adding solvent and counter-ions using Amber's tLEaP program.
 
         Args:
-            box_size: Distance from solute to box edge in Angstroms. Defaults to 10.0.
-            box_type: Type of water box ("TIP3PBOX", "TIP4PBOX", etc.). Defaults to "TIP3PBOX".
-            solvatebox: Solvation command type ("solvatebox" or "solvateOct").
-                Defaults to "solvatebox".
+            box_size (float): Distance from solute to box edge in Angstroms. Defaults to 10.0.
+            box_type (str): Type of water box ("TIP3PBOX", "TIP4PBOX", etc.). Defaults to "TIP3PBOX".
+            solvatebox (str): Solvation command type ("solvatebox" or "solvateOct"). Defaults to "solvatebox".
 
         Raises:
             RuntimeError: If required protein or ligand files haven't been prepared.
@@ -271,8 +255,8 @@ class Processor:
         or using externally prepared files.
 
         Args:
-            file_path: Path to the prepared file.
-            file_type: Type of file to set. Valid options:
+            file_path (str | File): Path to the prepared file.
+            file_type (str): Type of file to set. Valid options:
                 - "pro": Prepared protein file
                 - "mol2": Prepared ligand MOL2 file
                 - "frcmod": Ligand force field parameter file
@@ -339,14 +323,13 @@ class Processor:
         followed by conjugate gradient algorithms, with optional positional restraints.
 
         Args:
-            maxcyc: Maximum number of minimization cycles. Defaults to 10000.
-            ncyc: Number of steepest descent cycles before switching to conjugate gradient.
-                Defaults to 5000.
-            cut: Nonbonded interaction cutoff distance in Angstroms. Defaults to 8.0.
-            restraint: Whether to apply positional restraints. Defaults to False.
-            restraint_mask: Amber mask syntax for restrained atoms. Required if restraint=True.
-            restraint_wt: Restraint force constant in kcal/mol/Å². Defaults to 2.0.
-            file_name: Output filename for the input file. Defaults to "minimize.in".
+            maxcyc (int): Maximum number of minimization cycles. Defaults to 10000.
+            ncyc (int): Number of steepest descent cycles before switching to conjugate gradient. Defaults to 5000.
+            cut (float): Nonbonded interaction cutoff distance in Angstroms. Defaults to 8.0.
+            restraint (bool): Whether to apply positional restraints. Defaults to False.
+            restraint_mask (str): Amber mask syntax for restrained atoms. Required if restraint=True.
+            restraint_wt (float): Restraint force constant in kcal/mol/Å². Defaults to 2.0.
+            file_name (str): Output filename for the input file. Defaults to "minimize.in".
             **kwargs: Additional minimization parameters.
 
         Returns:
@@ -391,13 +374,13 @@ class Processor:
         target temperature using a controlled heating protocol with optional restraints.
 
         Args:
-            target_temp: Target temperature in Kelvin. Defaults to 300.0.
-            heat_step: Number of steps for temperature ramping phase. Defaults to 9000.
-            total_step: Total simulation steps for heating protocol. Defaults to 10000.
-            step_length: Time step length in picoseconds. Defaults to 0.002.
-            restraint_mask: Optional Amber mask for restrained atoms.
-            restraint_wt: Restraint force constant in kcal/mol/Å². Defaults to 2.0.
-            file_name: Output filename for input file. Defaults to "heat.in".
+            target_temp (float): Target temperature in Kelvin. Defaults to 300.0.
+            heat_step (int): Number of steps for temperature ramping phase. Defaults to 9000.
+            total_step (int): Total simulation steps for heating protocol. Defaults to 10000.
+            step_length (float): Time step length in picoseconds. Defaults to 0.002.
+            restraint_mask (str): Optional Amber mask for restrained atoms.
+            restraint_wt (float): Restraint force constant in kcal/mol/Å². Defaults to 2.0.
+            file_name (str): Output filename for input file. Defaults to "heat.in".
 
         Returns:
             File: The created heating input file.
@@ -437,12 +420,12 @@ class Processor:
         with Langevin thermostat for temperature control.
 
         Args:
-            init_temp: Simulation temperature in Kelvin. Defaults to 300.0.
-            total_step: Total number of MD steps. Defaults to 500000 (1 ns at 2 fs steps).
-            step_length: Time step length in picoseconds. Defaults to 0.002.
-            irest: Restart flag (0=new simulation, 1=restart). Defaults to 1.
-            ntx: Coordinate/velocity reading option. Defaults to 5.
-            file_name: Output filename for input file. Defaults to "nvt.in".
+            init_temp (float): Simulation temperature in Kelvin. Defaults to 300.0.
+            total_step (int): Total number of MD steps. Defaults to 500000 (1 ns at 2 fs steps).
+            step_length (float): Time step length in picoseconds. Defaults to 0.002.
+            irest (int): Restart flag (0=new simulation, 1=restart). Defaults to 1.
+            ntx (int): Coordinate/velocity reading option. Defaults to 5.
+            file_name (str): Output filename for input file. Defaults to "nvt.in".
             **kwargs: Additional NVT simulation parameters.
 
         Returns:
@@ -479,13 +462,13 @@ class Processor:
         with both temperature and pressure control for production simulations.
 
         Args:
-            init_temp: Simulation temperature in Kelvin. Defaults to 300.0.
-            total_step: Total number of MD steps. Defaults to 50000000 (100 ns at 2 fs steps).
-            step_length: Time step length in picoseconds. Defaults to 0.002.
-            irest: Restart flag (0=new simulation, 1=restart). Defaults to 1.
-            ntx: Coordinate/velocity reading option. Defaults to 5.
-            taup: Pressure relaxation time in picoseconds. Defaults to 2.0.
-            file_name: Output filename for input file. Defaults to "npt.in".
+            init_temp (float): Simulation temperature in Kelvin. Defaults to 300.0.
+            total_step (int): Total number of MD steps. Defaults to 50000000 (100 ns at 2 fs steps).
+            step_length (float): Time step length in picoseconds. Defaults to 0.002.
+            irest (int): Restart flag (0=new simulation, 1=restart). Defaults to 1.
+            ntx (int): Coordinate/velocity reading option. Defaults to 5.
+            taup (float): Pressure relaxation time in picoseconds. Defaults to 2.0.
+            file_name (str): Output filename for input file. Defaults to "npt.in".
             **kwargs: Additional NPT simulation parameters.
 
         Returns:
@@ -525,10 +508,10 @@ class Processor:
         to the execution queue with appropriate process type and parameters.
 
         Args:
-            input_file: Path to the Amber input file for this process.
-            process_name: Descriptive name for this process step.
-            _type: Type of MD process ("minimize", "nvt", "npt"). Defaults to generic MDProcess.
-            process: Custom MDProcess subclass to use instead of auto-detected type.
+            input_file (str | File): Path to the Amber input file for this process.
+            process_name (str): Descriptive name for this process step.
+            _type (str): Type of MD process ("minimize", "nvt", "npt"). Defaults to generic MDProcess.
+            process (MDProcess): Custom MDProcess subclass to use instead of auto-detected type.
             **kwargs: Additional parameters passed to the process constructor.
 
         Note:
@@ -569,13 +552,13 @@ class Processor:
         to the simulation workflow queue.
 
         Args:
-            maxcyc: Maximum number of minimization cycles. Defaults to 10000.
-            ncyc: Number of steepest descent cycles. Defaults to 5000.
-            process_name: Name for this minimization step. Defaults to "minimize".
-            restraint: Whether to apply positional restraints. Defaults to False.
-            restraint_mask: Amber mask for restrained atoms if restraint=True.
-            use_gpu: Whether to use GPU acceleration if available. Defaults to False.
-            cpu_num: Number of CPU cores to use if not using GPU. Defaults to half of available CPUs.
+            maxcyc (int): Maximum number of minimization cycles. Defaults to 10000.
+            ncyc (int): Number of steepest descent cycles. Defaults to 5000.
+            process_name (str): Name for this minimization step. Defaults to "minimize".
+            restraint (bool): Whether to apply positional restraints. Defaults to False.
+            restraint_mask (str): Amber mask for restrained atoms if restraint=True.
+            use_gpu (bool): Whether to use GPU acceleration if available. Defaults to False.
+            cpu_num (int): Number of CPU cores to use if not using GPU. Defaults to half of available CPUs.
             **kwargs: Additional minimization parameters.
 
         Note:
@@ -605,17 +588,17 @@ class Processor:
         process_name: str = "nvt",
         is_production: bool = False,
         **kwargs,
-    ):
+    ) -> None:
         """Add NVT simulation process to workflow.
 
         Creates an NVT input file and adds the corresponding process
         to the simulation workflow queue.
 
         Args:
-            total_step: Total number of MD steps. Defaults to 500000 (1 ns).
-            step_length: Time step length in picoseconds. Defaults to 0.002.
-            process_name: Name for this NVT step. Defaults to "nvt".
-            is_production: Whether this is a production simulation. Defaults to False.
+            total_step (int): Total number of MD steps. Defaults to 500000 (1 ns).
+            step_length (float): Time step length in picoseconds. Defaults to 0.002.
+            process_name (str): Name for this NVT step. Defaults to "nvt".
+            is_production (bool): Whether this is a production simulation. Defaults to False.
             **kwargs: Additional NVT simulation parameters.
 
         Note:
@@ -640,18 +623,18 @@ class Processor:
         step_length: float = 0.002,
         process_name: str = "heat",
         **kwargs,
-    ):
+    ) -> None:
         """Add system heating process to workflow.
 
         Creates a heating input file and adds the corresponding process
         to the simulation workflow queue.
 
         Args:
-            target_temp: Target temperature in Kelvin. Defaults to 300.0.
-            heat_step: Number of steps for temperature ramping. Defaults to 9000.
-            total_step: Total simulation steps. Defaults to 10000.
-            step_length: Time step length in picoseconds. Defaults to 0.002.
-            process_name: Name for this heating step. Defaults to "heat".
+            target_temp (float): Target temperature in Kelvin. Defaults to 300.0.
+            heat_step (int): Number of steps for temperature ramping. Defaults to 9000.
+            total_step (int): Total simulation steps. Defaults to 10000.
+            step_length (float): Time step length in picoseconds. Defaults to 0.002.
+            process_name (str): Name for this heating step. Defaults to "heat".
             **kwargs: Additional heating parameters.
 
         Note:
@@ -677,17 +660,17 @@ class Processor:
         process_name: str = "npt",
         is_production: bool = False,
         **kwargs,
-    ):
+    ) -> None:
         """Add NPT simulation process to workflow.
 
         Creates an NPT input file and adds the corresponding process
         to the simulation workflow queue.
 
         Args:
-            total_step: Total number of MD steps. Defaults to 50000000 (100 ns).
-            step_length: Time step length in picoseconds. Defaults to 0.002.
-            process_name: Name for this NPT step. Defaults to "npt".
-            is_production: Whether this is a production simulation. Defaults to False.
+            total_step (int): Total number of MD steps. Defaults to 50000000 (100 ns).
+            step_length (float): Time step length in picoseconds. Defaults to 0.002.
+            process_name (str): Name for this NPT step. Defaults to "npt".
+            is_production (bool): Whether this is a production simulation. Defaults to False.
             **kwargs: Additional NPT simulation parameters.
 
         Note:
@@ -724,7 +707,7 @@ class Simulator:
         """Initialize Simulator with a configured Processor.
 
         Args:
-            processor: Processor instance with prepared system files and
+            processor (Processor): Processor instance with prepared system files and
                 process workflow.
 
         Note:
@@ -755,7 +738,7 @@ class Simulator:
         """Set the GPU device for CUDA calculations.
 
         Args:
-            cuda_device: GPU device ID to use (0, 1, 2, etc.).
+            cuda_device (int): GPU device ID to use (0, 1, 2, etc.).
 
         Note:
             Sets the CUDA_VISIBLE_DEVICES environment variable to
@@ -772,7 +755,7 @@ class Simulator:
         engine with automatic file management and error checking.
 
         Args:
-            cuda_device: Optional GPU device ID to use. If provided,
+            cuda_device (int | None): Optional GPU device ID to use. If provided,
                 overrides the current device setting.
 
         Raises:
@@ -835,7 +818,7 @@ class Analyzer:
             receptor_topfile (str | File): Path to receptor-only topology file.
             ligand_topfile (str | File): Path to ligand-only topology file.
             mdout_file (str | File): Path to MD output file for energy extraction.
-            save_dir: Directory for saving analysis results.
+            save_dir (str): Directory for saving analysis results.
 
         Note:
             Multiple topology files support different analysis types
@@ -904,10 +887,10 @@ class Analyzer:
         """Load topology files for different system components.
 
         Args:
-            comsolvated_topfile: Path to solvated complex topology.
-            com_topfile: Path to complex (protein-ligand) topology.
-            receptor_topfile: Path to receptor-only topology.
-            ligand_topfile: Path to ligand-only topology.
+            comsolvated_topfile (str | File): Path to solvated complex topology.
+            com_topfile (str | File): Path to complex (protein-ligand) topology.
+            receptor_topfile (str | File): Path to receptor-only topology.
+            ligand_topfile (str | File): Path to ligand-only topology.
 
         Note:
             Multiple topology files enable component-specific analysis
@@ -938,8 +921,8 @@ class Analyzer:
         providing insight into structural stability and conformational changes.
 
         Args:
-            mask: Amber mask syntax for atom selection. Defaults to "@CA" (alpha carbons).
-            ref: Reference frame number for RMSD calculation. Defaults to 0 (first frame).
+            mask (str): Amber mask syntax for atom selection. Defaults to "@CA" (alpha carbons).
+            ref (int): Reference frame number for RMSD calculation. Defaults to 0 (first frame).
             **kwargs: Additional parameters passed to analysis function.
 
         Note:
@@ -962,9 +945,8 @@ class Analyzer:
         dynamics in the protein structure.
 
         Args:
-            mask: Amber mask syntax for atom selection. Defaults to "@CA".
-            options: Analysis options ("byres" for per-residue, "byatom" for per-atom).
-                Defaults to "byres".
+            mask (str): Amber mask syntax for atom selection. Defaults to "@CA".
+            options (str): Analysis options ("byres" for per-residue, "byatom" for per-atom). Defaults to "byres".
             **kwargs: Additional parameters passed to analysis function.
 
         Note:
@@ -994,10 +976,10 @@ class Analyzer:
         providing insights into protein-ligand and internal protein interactions.
 
         Args:
-            mask: Amber mask syntax for donor/acceptor selection. Defaults to ":*" (all).
-            distance: Maximum donor-acceptor distance in Angstroms. Defaults to 3.0.
-            angle: Minimum donor-H-acceptor angle in degrees. Defaults to 135.0.
-            options: Additional options for hydrogen bond analysis.
+            mask (str): Amber mask syntax for donor/acceptor selection. Defaults to ":*" (all).
+            distance (float): Maximum donor-acceptor distance in Angstroms. Defaults to 3.0.
+            angle (float): Minimum donor-H-acceptor angle in degrees. Defaults to 135.0.
+            options (str): Additional options for hydrogen bond analysis.
             **kwargs: Additional parameters passed to analysis function.
 
         Note:
@@ -1024,7 +1006,7 @@ class Analyzer:
         binding interactions, conformational changes, or domain movements.
 
         Args:
-            mask: Amber mask syntax specifying two atom groups (e.g., ":1@CA :100@CA").
+            mask (str): Amber mask syntax specifying two atom groups (e.g., ":1@CA :100@CA").
             **kwargs: Additional parameters passed to analysis function.
 
         Note:
@@ -1044,7 +1026,7 @@ class Analyzer:
         binding geometry, or secondary structure dynamics.
 
         Args:
-            mask: Amber mask syntax specifying three atom groups for angle calculation
+            mask (str): Amber mask syntax specifying three atom groups for angle calculation
                 (e.g., ":1@CA :2@CA :3@CA").
             **kwargs: Additional parameters passed to analysis function.
 
@@ -1065,7 +1047,7 @@ class Analyzer:
         detailed analysis or visualization.
 
         Args:
-            frame: Frame number to extract (0-indexed).
+            frame (int): Frame number to extract (0-indexed).
             **kwargs: Additional parameters passed to extraction function.
 
         Note:
@@ -1085,8 +1067,8 @@ class Analyzer:
         ensemble analysis or representative structure selection.
 
         Args:
-            start: Starting frame number (0-indexed, inclusive).
-            end: Ending frame number (0-indexed, inclusive).
+            start (int): Starting frame number (0-indexed, inclusive).
+            end (int): Ending frame number (0-indexed, inclusive).
             **kwargs: Additional parameters passed to extraction function.
 
         Note:
@@ -1143,16 +1125,16 @@ class Analyzer:
         or energy decomposition using AMBER's MMPBSA.py tool.
 
         Args:
-            start_frame: First frame for energy analysis (1-indexed).
-            end_frame: Last frame for energy analysis (inclusive).
-            job_type: Type of energy calculation:
+            start_frame (int): First frame for energy analysis (1-indexed).
+            end_frame (int): Last frame for energy analysis (inclusive).
+            job_type (str): Type of energy calculation:
                 - "free": Free energy calculation (ΔG)
                 - "entropy": Entropy contribution calculation
                 - "decomp": Per-residue energy decomposition
-            method: Energy calculation method for "free" job type:
+            method (str): Energy calculation method for "free" job type:
                 - "pb/gbsa": Both PB and GB calculations
                 - "gbsa": GB calculation only
-            step_size: Frame sampling interval. Defaults to 10.
+            step_size (int): Frame sampling interval. Defaults to 10.
 
         Returns:
             File: Created input file for MMPBSA.py calculations.
@@ -1223,9 +1205,9 @@ class Analyzer:
         entropy contributions, or per-residue energy decomposition.
 
         Args:
-            energy_decompose: Optional decomposition specification.
-            cpu_num: Number of CPU cores to use. Defaults to system CPU_NUM.
-            input_file: Custom input file to use. Defaults to self.inputfile.
+            energy_decompose (str): Optional decomposition specification.
+            cpu_num (int): Number of CPU cores to use. Defaults to system CPU_NUM.
+            input_file (File): Custom input file to use. Defaults to self.inputfile.
 
         Raises:
             ValueError: If required input file or topology files are missing.

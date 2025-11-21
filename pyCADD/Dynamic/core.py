@@ -33,22 +33,18 @@ def protein_prepare(
 
     Args:
         protein_file (File | str): Input protein PDB file to be processed.
-        save_dir (str, optional): Directory to save processed files.
-            Defaults to current working directory.
-        keep_water (bool, optional): Whether to retain water molecules in final structure.
-            Defaults to False.
-        overwrite (bool, optional): Whether to overwrite existing prepared files.
-            Defaults to False.
+        save_dir (str, optional): Directory to save processed files. Defaults to current working directory.
+        keep_water (bool, optional): Whether to retain water molecules in final structure. Defaults to False.
+        overwrite (bool, optional): Whether to overwrite existing prepared files. Defaults to False.
 
     Returns:
         File: Processed protein file ready for MD simulation setup.
 
     Note:
         The preparation process involves multiple steps:
-        1. Remove water and add missing atoms (dry step)
-        2. Remove all hydrogens (noH step)
-        3. Final cleanup and preparation
-        If keep_water=True, water molecules from original file are preserved.
+            1. Remove water and add missing atoms (dry step). If keep_water=True, water molecules from original file are preserved.
+            2. Remove all hydrogens (noH step)
+            3. Final cleanup and preparation
 
     Raises:
         FileNotFoundError: If the input protein file doesn't exist.
@@ -106,21 +102,17 @@ def molecule_prepare(
 
     Args:
         ligand_file (File): Input ligand structure file (SDF, MOL2, PDB, etc.).
-        charge_method (Literal["resp", "bcc", "resp2"], optional): Method for charge calculation.
-            Defaults to "resp".
+        charge_method (str, optional): Method for charge calculation. Defaults to "resp".
         charge (int, optional): Net charge of the molecule. If None, will be determined automatically.
         multiplicity (int, optional): Spin multiplicity. If None, will be determined automatically.
         dft (str, optional): DFT functional for quantum calculations. Defaults to "B3LYP".
         basis_set (str, optional): Basis set for quantum calculations. Defaults to "6-31g*".
         cpu_num (int, optional): Number of CPUs for quantum calculations. Defaults to 4.
         mem_use (str, optional): Memory allocation for quantum calculations. Defaults to "8GB".
-        solvent (str, optional): Solvent for implicit solvation in quantum calculations.
-            Defaults to "water".
+        solvent (str, optional): Solvent for implicit solvation in quantum calculations. Defaults to "water".
         delta (float, optional): Interpolation parameter for RESP2 method. Defaults to 0.5.
-        save_dir (str, optional): Directory to save generated files.
-            Defaults to current working directory.
-        overwrite (bool, optional): Whether to overwrite existing parameter files.
-            Defaults to False.
+        save_dir (str, optional): Directory to save generated files. Defaults to current working directory.
+        overwrite (bool, optional): Whether to overwrite existing parameter files. Defaults to False.
 
     Returns:
         tuple[File, File]: Tuple containing (parameter_file, coordinate_file) where:
@@ -134,10 +126,10 @@ def molecule_prepare(
 
     Note:
         The function automatically handles:
-        - Charge and multiplicity determination if not provided
-        - GAFF parameter assignment using antechamber
-        - Missing parameter generation using parmchk2
-        - System building using tleap
+            - Charge and multiplicity determination if not provided
+            - GAFF parameter assignment using antechamber
+            - Missing parameter generation using parmchk2
+            - System building using tleap
     """
 
     save_dir = save_dir or os.getcwd()
@@ -204,27 +196,23 @@ def _create_leap_inputfile(
 
     Args:
         protein_file_path (str): Path to the prepared protein PDB file.
-        ligand_file_path (File | str, optional): Path to the ligand MOL2 file.
-            Defaults to None for protein-only systems.
-        frcmod_file_path (File | str, optional): Path to additional force field
-            parameters file. Defaults to None.
+        ligand_file_path (File | str, optional): Path to the ligand MOL2 file. Defaults to None for protein-only systems.
+        frcmod_file_path (File | str, optional): Path to additional force field parameters file. Defaults to None.
         file_prefix (str, optional): Prefix for output files. Defaults to "Untitled".
-        box_size (float, optional): Distance from solute to box edge in Angstroms.
-            Defaults to 10.0.
+        box_size (float, optional): Distance from solute to box edge in Angstroms. Defaults to 10.0.
         box_type (str, optional): Type of water box model. Defaults to "TIP3PBOX".
         solvatebox (str, optional): Solvation command type. Defaults to "solvatebox".
-        save_dir (str, optional): Directory to save the input file.
-            Defaults to current working directory.
+        save_dir (str, optional): Directory to save the input file. Defaults to current working directory.
 
     Returns:
         File: Generated tLEaP input file object.
 
     Note:
         The generated input file includes commands for:
-        - Loading appropriate force fields
-        - Loading protein and ligand structures
-        - Adding solvent box and neutralizing ions
-        - Saving parameter and coordinate files
+            - Loading appropriate force fields
+            - Loading protein and ligand structures
+            - Adding solvent box and neutralizing ions
+            - Saving parameter and coordinate files
     """
     file_prefix = file_prefix or "Untitled"
     protein_file = File(protein_file_path)
@@ -247,6 +235,16 @@ def _create_leap_inputfile(
 
 
 def _get_strip_prmtop_str(prmtop_file: File, strip_masks: str, save_dir: str = None) -> str:
+    """Get stripped prmtop string with strip masks.
+
+    Args:
+        prmtop_file (File): Parameter/topology file to be stripped.
+        strip_masks (str): Masks specifying atoms to strip.
+        save_dir (str, optional): Directory to save the stripped file. Defaults to None.
+
+    Returns:
+        str: Contents of the stripped parameter/topology file.
+    """
     with ChDir(path=save_dir):
         stripped_file_path = f"{prmtop_file.file_prefix}_stripped.prmtop"
         strip_cmd = f"parmed {prmtop_file.file_path} << EOF\n"
@@ -275,12 +273,10 @@ def leap_prepare(
         protein_file (File): Prepared protein structure file.
         ligand_file (File, optional): Ligand MOL2 file with parameters. Defaults to None.
         frcmod_file (File, optional): Additional force field parameter file. Defaults to None.
-        box_size (float, optional): Distance from solute to box boundary in Angstroms.
-            Defaults to 10.0.
+        box_size (float, optional): Distance from solute to box boundary in Angstroms. Defaults to 10.0.
         box_type (str, optional): Water model for solvation. Defaults to "TIP3PBOX".
         solvatebox (str, optional): Solvation command type. Defaults to "solvatebox".
-        save_dir (str, optional): Directory to save output files.
-            Defaults to current working directory.
+        save_dir (str, optional): Directory to save output files. Defaults to current working directory.
 
     Returns:
         tuple: Tuple containing (topology_file, coordinate_file, pdb_file, com_topfile, pro_topfile, lig_topfile) where:
@@ -297,10 +293,10 @@ def leap_prepare(
 
     Note:
         The function automatically:
-        - Generates appropriate file prefixes based on input files
-        - Creates tLEaP input script and executes it
-        - Converts coordinates to PDB format for visualization
-        - Handles both protein-only and protein-ligand systems
+            - Generates appropriate file prefixes based on input files
+            - Creates tLEaP input script and executes it
+            - Converts coordinates to PDB format for visualization
+            - Handles both protein-only and protein-ligand systems
     """
     save_dir = save_dir or os.getcwd()
     os.makedirs(save_dir, exist_ok=True)
@@ -327,10 +323,16 @@ def leap_prepare(
     comsolvate_pdbfile_path = os.path.join(save_dir, f"{file_prefix}_comsolvate.pdb")
     with ChDir(save_dir):
         shell_run(f"tleap -f {leap_inputfile.file_path}")
-        write_file(com_topfile_path, _get_strip_prmtop_str(File(com_topfile_path), DEFAULT_STRIP_MASKS))
-        write_file(pro_topfile_path, _get_strip_prmtop_str(File(pro_topfile_path), DEFAULT_STRIP_MASKS))
+        write_file(
+            com_topfile_path, _get_strip_prmtop_str(File(com_topfile_path), DEFAULT_STRIP_MASKS)
+        )
+        write_file(
+            pro_topfile_path, _get_strip_prmtop_str(File(pro_topfile_path), DEFAULT_STRIP_MASKS)
+        )
         if ligand_file:
-            write_file(lig_topfile_path, _get_strip_prmtop_str(File(lig_topfile_path), DEFAULT_STRIP_MASKS))
+            write_file(
+                lig_topfile_path, _get_strip_prmtop_str(File(lig_topfile_path), DEFAULT_STRIP_MASKS)
+            )
 
     shell_run(
         f"ambpdb -p {comsolvate_topfile_path} < {comsolvate_crdfile_path} > {comsolvate_pdbfile_path}"
@@ -511,23 +513,20 @@ class MDProcess(BaseProcess):
         Args:
             topology_file (File): Amber topology file (.prmtop) for the system.
             inpcrd_file (File): Input coordinate file (.inpcrd or .rst).
-            reference_file (File | str, optional): Reference structure for restrained simulations.
-                Defaults to None.
-            save_dir (str, optional): Directory to save simulation outputs.
-                Defaults to current working directory.
-            nohup (bool, optional): Whether to run in background with progress tracking.
-                Defaults to False.
+            reference_file (File | str, optional): Reference structure for restrained simulations. Defaults to None.
+            save_dir (str, optional): Directory to save simulation outputs. Defaults to current working directory.
+            nohup (bool, optional): Whether to run in background with progress tracking. Defaults to False.
 
         Returns:
             MDProcess: Self-reference with updated file paths and execution status.
 
         Note:
             The method automatically:
-            - Selects appropriate MD engine (PMEMD/SANDER) based on simulation type
-            - Generates output file paths based on process name
-            - Logs simulation parameters (steps, time step, total time)
-            - Provides real-time progress tracking for background runs
-            - Handles reference files for restrained simulations
+                - Selects appropriate MD engine (PMEMD/SANDER) based on simulation type
+                - Generates output file paths based on process name
+                - Logs simulation parameters (steps, time step, total time)
+                - Provides real-time progress tracking for background runs
+                - Handles reference files for restrained simulations
 
         Raises:
             RuntimeError: If the simulation execution fails.
@@ -614,8 +613,7 @@ class NPTProcess(MDProcess):
     to maintain realistic density and pressure conditions.
 
     Attributes:
-        is_production (bool): Whether this is a production run requiring
-            background execution with progress tracking.
+        is_production (bool): Whether this is a production run requiring background execution with progress tracking.
     """
 
     def __init__(
@@ -647,8 +645,7 @@ class NVTProcess(MDProcess):
     steps before switching to NPT conditions.
 
     Attributes:
-        is_production (bool): Whether this is a production run requiring
-            background execution with progress tracking.
+        is_production (bool): Whether this is a production run requiring background execution with progress tracking.
     """
 
     def __init__(
@@ -659,8 +656,7 @@ class NVTProcess(MDProcess):
         Args:
             input_file (File): Amber MD input file configured for NVT simulation.
             process_name (str): Unique name for this NVT process.
-            is_production (bool, optional): Whether this is a production run.
-                Production runs use background execution. Defaults to False.
+            is_production (bool, optional): Whether this is a production run. Production runs use background execution. Defaults to False.
             **kwargs: Additional attributes for process customization.
 
         Note:
@@ -688,18 +684,16 @@ def run_simulation(
     Args:
         comsolvate_topfile (File): Amber topology file for the solvated system.
         comsolvate_crdfile (File): Initial coordinate file for the solvated system.
-        process_list (list[MDProcess]): List of MD processes to execute in order.
-            Each process contains its own input parameters and settings.
-        save_dir (str, optional): Base directory to save all simulation outputs.
-            Defaults to current working directory.
+        process_list (list[MDProcess]): List of MD processes to execute in order. Each process contains its own input parameters and settings.
+        save_dir (str, optional): Base directory to save all simulation outputs. Defaults to current working directory.
 
     Note:
         The function automatically:
-        - Creates separate subdirectories for each simulation process
-        - Chains coordinates between processes (output → input)
-        - Handles restrained simulations with appropriate reference structures
-        - Uses nohup for production runs to allow background execution
-        - Provides progress tracking for long simulations
+            - Creates separate subdirectories for each simulation process
+            - Chains coordinates between processes (output → input)
+            - Handles restrained simulations with appropriate reference structures
+            - Uses nohup for production runs to allow background execution
+            - Provides progress tracking for long simulations
 
     Returns:
         MDProcess: The final completed simulation process in the workflow.
@@ -748,10 +742,8 @@ def create_energy_inputfile(
         startframe (int): Starting frame number from trajectory (1-indexed).
         endframe (int): Ending frame number from trajectory (1-indexed).
         step_size (int): Frame interval for analysis (e.g., 10 = every 10th frame).
-        decomp (bool, optional): Whether to perform per-residue energy decomposition.
-            Defaults to False.
-        save_dir (str, optional): Directory to save the input file.
-            Defaults to current working directory.
+        decomp (bool, optional): Whether to perform per-residue energy decomposition. Defaults to False.
+        save_dir (str, optional): Directory to save the input file. Defaults to current working directory.
 
     Returns:
         File: Generated MM-PBSA/MM-GBSA input file.
@@ -812,12 +804,9 @@ def run_energy_calculation(
         receptor_topfile (File): Topology file for the receptor/protein only.
         ligand_topfile (File): Topology file for the ligand only.
         traj_file (File): MD trajectory file (.nc or .dcd format).
-        save_dir (str, optional): Directory to save calculation results.
-            Defaults to current working directory.
-        energy_decompose (bool, optional): Whether per-residue decomposition was requested.
-            Defaults to False.
-        cpu_num (int, optional): Number of CPU cores for parallel calculation.
-            Defaults to system CPU_NUM constant.
+        save_dir (str, optional): Directory to save calculation results. Defaults to current working directory.
+        energy_decompose (bool, optional): Whether per-residue decomposition was requested. Defaults to False.
+        cpu_num (int, optional): Number of CPU cores for parallel calculation. Defaults to system CPU_NUM constant.
 
     Returns:
         tuple[File, File]: Tuple containing (energy_results, decomp_results):
@@ -830,10 +819,10 @@ def run_energy_calculation(
 
     Note:
         The calculation requires:
-        - MPI installation for parallel processing
-        - Proper trajectory format compatibility with topology files
-        - Sufficient memory for large trajectory analysis
-        - All topology files must be consistent with the trajectory
+            - MPI installation for parallel processing
+            - Proper trajectory format compatibility with topology files
+            - Sufficient memory for large trajectory analysis
+            - All topology files must be consistent with the trajectory
     """
     save_dir = save_dir or os.getcwd()
     os.makedirs(save_dir, exist_ok=True)

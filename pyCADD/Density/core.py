@@ -273,8 +273,8 @@ def _get_mol2_lines_with_charge(mol2_block: str, charge_list: list[float]):
 
     Args:
         mol2_block (str): Complete MOL2 format string containing molecular data.
-        charge_list (list[float]): List of new partial charges to assign to atoms. The list is
-            consumed (modified) during processing via pop(0) operations.
+        charge_list (list[float]): List of new partial charges to assign to atoms. 
+        The list is consumed (modified) during processing via pop(0) operations.
 
     Returns:
         str: Modified MOL2 format string with updated partial charges.

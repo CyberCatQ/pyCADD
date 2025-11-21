@@ -6,7 +6,7 @@ import os
 from . import logger
 
 
-def check_virtual_environment(package_name, environment_name):
+def check_virtual_environment(package_name: str, environment_name: str) -> bool:
     try:
         importlib.import_module(package_name)
         logger.debug(f"Already in virtual environment '{environment_name}'.")
@@ -16,7 +16,7 @@ def check_virtual_environment(package_name, environment_name):
         return False
 
 
-def create_environment(environment_name, schrodinger_home, root_path=None):
+def create_environment(environment_name: str, schrodinger_home: str, root_path: str = None) -> str:
     if root_path is None:
         root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     env_path = os.path.join(root_path, environment_name)

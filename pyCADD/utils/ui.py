@@ -132,16 +132,12 @@ class UI:
 
         if isinstance(additional_info, str):
             self._additional_info_dict[str(self.info_index)] = additional_info
-            # self.additional_info = self.additional_info + '\n' + additional_info
         elif isinstance(additional_info, dict):
             for key, value in additional_info.items():
                 self._additional_info_dict[key] = value
 
         grid_upper = Table(Column(self.title, justify='center'),
                            expand=True, show_edge=False, box=box.SIMPLE, padding=(1, 1))
-
-        #grid_upper.add_row(Padding(self.title, 1))
-        #grid_upper.add_row('-' * 48)
 
         grid_mid = Table.grid(expand=True)
         grid_mid.add_column(justify='center')

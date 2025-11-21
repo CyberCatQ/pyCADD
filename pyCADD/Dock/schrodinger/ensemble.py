@@ -1,5 +1,5 @@
 import os
-from typing import List, Literal, Tuple, Union
+from typing import Literal
 
 import numpy as np
 
@@ -45,21 +45,21 @@ def _write_struc(
 
 
 def split_structure(
-    multi_structure_file: Union[str, File],
+    multi_structure_file: str | File,
     save_dir: str = None,
     overwrite: bool = False,
     cpu_num: int = None,
-) -> List[MaestroFile]:
+) -> list[MaestroFile]:
     """Split a multi-structure file to single structure files.
 
     Args:
-        multi_structure_file (Union[str, File]): path or File object of structure file containing multiple structures.
+        multi_structure_file (str | File): path or File object of structure file containing multiple structures.
         save_dir (str, optional): directory to save the splited structure files. Defaults to None.
         overwrite (bool, optional): Whether to overwrite the existed file. Defaults to False.
         cpu_num (int, optional): cpu core number used to split structures. Defaults to 3/4 of available cores.
 
     Returns:
-        List[MaestroFile]: list of splited structure file.
+        list[MaestroFile]: list of splited structure file.
     """
     save_dir = os.path.abspath(save_dir) if save_dir is not None else multi_structure_file.file_dir
     if isinstance(multi_structure_file, str):
@@ -88,20 +88,20 @@ def split_structure(
 
 
 def multi_keep_single_chain(
-    structure_files: List[Union[str, MaestroFile]],
-    ligand_name_list: List[str] = None,
-    chain_id_list: List[str] = None,
+    structure_files: list[str | MaestroFile],
+    ligand_name_list: list[str] = None,
+    chain_id_list: list[str] = None,
     save_dir: str = None,
     overwrite: bool = False,
     cpu_num: int = None,
-) -> List[MaestroFile]:
+) -> list[MaestroFile]:
     """Keep the single chain for multiple structures.
 
     Args:
-        structure_files (List[Union[str, MaestroFile]]): Structure files to be processed.
-        ligand_name_list (List[str], optional): Ligand name list for each structure. Only the chain where the ligand is located will be retained.\
+        structure_files (list[str | MaestroFile]): Structure files to be processed.
+        ligand_name_list (list[str], optional): Ligand name list for each structure. Only the chain where the ligand is located will be retained.\
             Should have the same length as structure_files. Defaults to None.
-        chain_id_list (List[str], optional): Chain ID list for each structure to keep. Should have the same length as structure_files. \
+        chain_id_list (list[str], optional): Chain ID list for each structure to keep. Should have the same length as structure_files. \
             Will be ignored if ligand_name_list is provided. Defaults to None.
         save_dir (str, optional): directory to save the structure files. Defaults to None.
         overwrite (bool, optional): Whether to overwrite the existed file. Defaults to False.
@@ -112,7 +112,7 @@ def multi_keep_single_chain(
         ValueError: The number of ligand name list is not equal to the number of structure files.
 
     Returns:
-        List[MaestroFile]: list of structure files with single chain.
+        list[MaestroFile]: list of structure files with single chain.
     """
     save_dir = os.path.abspath(save_dir) if save_dir is not None else os.getcwd()
     os.makedirs(save_dir, exist_ok=True)
@@ -154,7 +154,7 @@ def multi_keep_single_chain(
 
 
 def multi_minimize(
-    structure_files: List[Union[str, File]],
+    structure_files: list[str | File],
     ph: float = 7.4,
     force_field: Literal["OPLS4", "OPLS3e", "OPLS3", "OPLS_2005"] = "OPLS4",
     fill_side_chain: bool = True,
@@ -165,11 +165,11 @@ def multi_minimize(
     save_dir: str = None,
     overwrite: bool = False,
     cpu_num: int = None,
-) -> List[MaestroFile]:
+) -> list[MaestroFile]:
     """Minimize multiple structures.
 
     Args:
-        structure_files (List[Union[str, File]]): list of structure file paths or File objects.
+        structure_files (list[str | File]): list of structure file paths or File objects.
         ph (float, optional): pH value to calculate protonation states. Defaults to 7.4.
         force_field (str): force field to use. Defaults to 'OPLS4'.
         fill_side_chain (bool, optional): whether to fill side chain. Defaults to True.
@@ -182,7 +182,7 @@ def multi_minimize(
         cpu_num (int, optional): cpu core number used to minimize structures. Defaults to 3/4 of available cores.
 
     Returns:
-        List[MaestroFile]: list of minimized structure file.
+        list[MaestroFile]: list of minimized structure file.
     """
     save_dir = os.path.abspath(save_dir) if save_dir is not None else os.getcwd()
     os.makedirs(save_dir, exist_ok=True)
@@ -214,21 +214,21 @@ def multi_minimize(
 
 
 def multi_grid_generate(
-    structure_files: List[Union[str, File]],
-    box_center_list: List[Tuple[float, float, float]] = None,
-    box_center_molnum_list: List[int] = None,
-    box_size_list: List[float] = None,
+    structure_files: list[str | File],
+    box_center_list: list[tuple[float, float, float]] = None,
+    box_center_molnum_list: list[int] = None,
+    box_size_list: list[float] = None,
     force_field: Literal["OPLS4", "OPLS3e", "OPLS3", "OPLS_2005"] = "OPLS4",
     save_dir: str = None,
     overwrite: bool = False,
     cpu_num: int = None,
-) -> List[GridFile]:
+) -> list[GridFile]:
     """Generate multiple grid files.
 
     Args:
-        structure_files (List[Union[str, File]]): list of structure file paths or File objects.
-        box_center_list (List[Tuple[float, float, float]], optional): list of box centers. Should be the same length as structure_files. Defaults to None.
-        box_center_molnum_list (List[int], optional): list of molecule numbers for box centers. Should be the same length as structure_files. Defaults to None.
+        structure_files (list[str | File]): list of structure file paths or File objects.
+        box_center_list (list[tuple[float, float, float]], optional): list of box centers. Should be the same length as structure_files. Defaults to None.
+        box_center_molnum_list (list[int], optional): list of molecule numbers for box centers. Should be the same length as structure_files. Defaults to None.
         box_size_list: list of box sizes. Should be the same length as structure_files. Defaults to [20, 20, ...] with the length of structure_files.
         force_field (str, optional): force field to use. Defaults to 'OPLS4'.
         save_dir (str, optional): directory to save the grid files. Defaults to None.
@@ -236,7 +236,7 @@ def multi_grid_generate(
         cpu_num (int, optional): cpu core number used to generate grid files. Defaults to 3/4 of available cores.
 
     Returns:
-        List[GridFile]: list of grid file.
+        list[GridFile]: list of grid file.
     """
     cpu_num = cpu_num if cpu_num is not None else NUM_PARALLEL
     save_dir = os.path.abspath(save_dir) if save_dir is not None else os.getcwd()
@@ -291,23 +291,23 @@ def multi_grid_generate(
 
 
 def get_docking_pairs(
-    grid_files: List[Union[str, File]], ligand_files: List[Union[str, File]]
-) -> List[Tuple[Union[str, File], Union[str, File]]]:
+    grid_files: list[str | File], ligand_files: list[str | File]
+) -> list:
     """Get all possible docking pairs from grid and ligand files, \
         which will establish a mapping relationship between each provided receptor and each provided ligand.
 
     Args:
-        grid_files (List[Union[str, File]]): Grid files.
-        ligand_files (List[Union[str, File]]): Ligand files.
+        grid_files (list[str | File]): Grid files.
+        ligand_files (list[str | File]): Ligand files.
 
     Returns:
-        tuple[Union[str, File], Union[str, File]: a tuple containing grid and ligand file. 
+        list: a list of tuples containing grid and ligand file. 
     """
     return [(grid, ligand) for grid in grid_files for ligand in ligand_files]
 
 
 def multi_dock(
-    docking_pairs: List[Tuple[GridFile, File]],
+    docking_pairs: list[tuple[GridFile, File]],
     force_field: Literal["OPLS4", "OPLS3e", "OPLS3", "OPLS_2005"] = "OPLS4",
     precision: Literal["SP", "XP", "HTVS"] = "SP",
     calc_rmsd: bool = False,
@@ -315,11 +315,11 @@ def multi_dock(
     save_dir: str = None,
     overwrite: bool = False,
     cpu_num: int = None,
-) -> List[DockResultFile]:
+) -> list[DockResultFile]:
     """Dock multiple ligands to multiple grids.
 
     Args:
-        docking_mapping (List[Tuple[GridFile, File]]): list of tuples containing grid and ligand file paths or File objects.\
+        docking_mapping (list[tuple[GridFile, File]]): list of tuples containing grid and ligand file paths or File objects.\
             e.g. [(grid1, ligand1), (grid2, ligand2)]
         force_field (str, optional): force field to use. Defaults to 'OPLS4'.
         precision (str, optional): docking precision. Defaults to 'SP'.
@@ -354,18 +354,18 @@ def multi_dock(
 
 
 def multi_extract_data(
-    dock_result_files: List[Union[str, File]], data_config: DataConfig = None, cpu_num: int = None
-) -> List[dict]:
+    dock_result_files: list[str | File], data_config: DataConfig = None, cpu_num: int = None
+) -> list[dict]:
     """Extract data from multiple docked result files.
 
     Args:
-        dock_result_files (List[Union[str, File]]): list of docked result file paths or File objects.
+        dock_result_files (list[str | File]): list of docked result file paths or File objects.
         extract_type (str, optional): data type to extract. Defaults to 'all'.
         save_dir (str, optional): directory to save the extracted data. Defaults to None.
         cpu_num (int, optional): cpu core number used to extract data. Defaults to 3/4 of available cores.
 
     Returns:
-        List[dict]: list of extracted data dict, which can be converted to DataFrame directly.
+        list[dict]: list of extracted data dict, which can be converted to DataFrame directly.
     """
     cpu_num = cpu_num if cpu_num is not None else NUM_PARALLEL
     logger.debug(f"Prepare to extract data from {len(dock_result_files)} docked result files")

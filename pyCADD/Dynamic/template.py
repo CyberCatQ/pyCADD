@@ -196,8 +196,7 @@ class LeapConstructor(BaseConstructor):
         """Initializes the tLEaP template constructor.
 
         Args:
-            state_dict (dict): Dictionary containing template parameters.
-                See class docstring for required and optional keys.
+            state_dict (dict): Dictionary containing template parameters. See class docstring for required and optional keys.
 
         Note:
             Automatically sets pro_lig attribute for complex naming in templates.
@@ -267,18 +266,15 @@ class SimulationConstructor(BaseConstructor):
         Supports both control (&cntrl) and weight (&wt) namelist formats.
 
         Args:
-            state_dict: Dictionary containing simulation parameters and their values.
-            type: Type of simulation namelist ('cntrl' for standard MD parameters,
-                'wt' for weight parameters).
-            end_cfg: Whether to add "END" string at the end of input file.
-                Defaults to True.
-            title: Optional title string for the simulation stage.
-                Defaults to None.
+            state_dict (dict): Dictionary containing simulation parameters and their values.
+            type (str): Type of simulation namelist ('cntrl' for standard MD parameters, 'wt' for weight parameters).
+            end_cfg (bool): Whether to add "END" string at the end of input file. Defaults to True.
+            title (str): Optional title string for the simulation stage. Defaults to None.
 
         Note:
             The constructor supports two main Amber MD input formats:
-            - &cntrl: Standard MD control parameters (imin, nstlim, dt, etc.)
-            - &wt: Weight parameters for restraints and temperature ramping
+                - &cntrl: Standard MD control parameters (imin, nstlim, dt, etc.)
+                - &wt: Weight parameters for restraints and temperature ramping
         """
         super().__init__(state_dict)
         self._type = type
@@ -348,15 +344,14 @@ class AnalysisConstructor(BaseConstructor):
         Amber trajectory analysis tools like cpptraj, MMPBSA, and nmode.
 
         Args:
-            state_dict: Dictionary containing analysis parameters and their values.
-            type: Type of analysis to perform:
+            state_dict (dict): Dictionary containing analysis parameters and their values.
+            type (str): Type of analysis to perform:
                 - 'general': General trajectory analysis (RMSD, RMSF, etc.)
                 - 'gb': Generalized Born solvation analysis
                 - 'pb': Poisson-Boltzmann solvation analysis  
                 - 'decomp': Energy decomposition analysis
                 - 'nmode': Normal mode analysis
-            title: Optional title string for the analysis job.
-                Defaults to None.
+            title (str): Optional title string for the analysis job. Defaults to None.
 
         Note:
             Different analysis types require specific parameter sets and
@@ -415,8 +410,7 @@ class MultiConstructorManager:
         """Initialize a MultiConstructorManager.
 
         Args:
-            constructor_list: Optional list of BaseConstructor instances to manage.
-                Defaults to empty list if None.
+            constructor_list (list): Optional list of BaseConstructor instances to manage. Defaults to empty list if None.
         """
         self.constructor_list = constructor_list if constructor_list is not None else []
 
@@ -455,7 +449,7 @@ class MultiConstructorManager:
         """Add a constructor to the management list.
 
         Args:
-            constructor: BaseConstructor instance to add to the manager.
+            constructor (BaseConstructor): BaseConstructor instance to add to the manager.
         """
         self.constructor_list.append(constructor)
 
@@ -463,7 +457,7 @@ class MultiConstructorManager:
         """Remove a constructor from the management list.
 
         Args:
-            constructor: BaseConstructor instance to remove from the manager.
+            constructor (BaseConstructor): BaseConstructor instance to remove from the manager.
 
         Raises:
             ValueError: If constructor is not found in the list.
@@ -490,7 +484,7 @@ class MultiConstructorManager:
         to the specified file path.
 
         Args:
-            file_path: Path where the combined output should be saved.
+            file_path (str): Path where the combined output should be saved.
 
         Returns:
             str: Path to the saved file.
@@ -600,21 +594,14 @@ class LeapInput(LeapConstructor):
         customizable system parameters for protein-ligand MD simulations.
 
         Args:
-            protein_file_path: Path to protein structure file (PDB format).
-            ligand_file_path: Optional path to ligand structure file.
-                Defaults to None for apo simulations.
-            frcmod_file_path: Optional path to custom force field modification file.
-                Defaults to None.
-            file_prefix: Prefix for generated output files.
-                Defaults to "Untitled" if None.
-            box_size: Size of solvation box in Angstroms.
-                Defaults to 10.0.
-            box_type: Type of water box (TIP3PBOX, TIP4PBOX, etc.).
-                Defaults to "TIP3PBOX".
-            solvatebox: Solvation command type.
-                Defaults to "solvatebox".
-            add_ions_type: Type of ions for neutralization.
-                Defaults to "Na+".
+            protein_file_path (str | File): Path to protein structure file (PDB format).
+            ligand_file_path (str | File): Optional path to ligand structure file. Defaults to None for apo simulations.
+            frcmod_file_path (str | File): Optional path to custom force field modification file. Defaults to None.
+            file_prefix (str): Prefix for generated output files. Defaults to "Untitled" if None.
+            box_size (float): Size of solvation box in Angstroms. Defaults to 10.0.
+            box_type (str): Type of water box (TIP3PBOX, TIP4PBOX, etc.). Defaults to "TIP3PBOX".
+            solvatebox (str): Solvation command type. Defaults to "solvatebox".
+            add_ions_type (str): Type of ions for neutralization. Defaults to "Na+".
             **kwargs: Additional parameters to override default values.
 
         Note:
@@ -662,20 +649,19 @@ class MinimizeInput(SimulationConstructor):
         for typical protein-ligand systems.
 
         Args:
-            title: Optional title for the minimization job.
-                Defaults to "Minimization".
+            title (str): Optional title for the minimization job. Defaults to "Minimization".
             **kwargs: Additional parameters to override defaults.
 
         Note:
             Default minimization parameters:
-            - imin=1: Energy minimization flag
-            - cut=8.0: Nonbonded cutoff distance (Å)
-            - ntpr=10: Print frequency
-            - ntb=1: Constant volume periodic boundaries
-            - ntr=0: No positional restraints
-            - ntc=1: No SHAKE constraints
-            - maxcyc=10000: Maximum minimization cycles
-            - ncyc=5000: Steepest descent cycles before conjugate gradient
+                - imin=1: Energy minimization flag
+                - cut=8.0: Nonbonded cutoff distance (Å)
+                - ntpr=10: Print frequency
+                - ntb=1: Constant volume periodic boundaries
+                - ntr=0: No positional restraints
+                - ntc=1: No SHAKE constraints
+                - maxcyc=10000: Maximum minimization cycles
+                - ncyc=5000: Steepest descent cycles before conjugate gradient
         """
         title = "Minimization" if title is None else title
         state_dict = MINIMIZE_DEFAULT.copy()
@@ -698,19 +684,16 @@ class RestrainedMinimizeInput(SimulationConstructor):
         restraints and force constants.
 
         Args:
-            restraintmask: Amber mask syntax specifying atoms to restrain
-                (e.g., ":1-100@CA,C,N,O" for protein backbone).
-            restraint_wt: Force constant for positional restraints in kcal/mol/Å².
-                Defaults to 2.0.
-            title: Optional title for the minimization job.
-                Defaults to "Restrained Minimization".
+            restraintmask (str): Amber mask syntax specifying atoms to restrain (e.g., ":1-100@CA,C,N,O" for protein backbone).
+            restraint_wt (float): Force constant for positional restraints in kcal/mol/Å². Defaults to 2.0.
+            title (str): Optional title for the minimization job. Defaults to "Restrained Minimization".
             **kwargs: Additional parameters to override defaults.
 
         Note:
             Builds on standard minimization with:
-            - ntr=1: Enable positional restraints
-            - restraintmask: Atom selection for restraints
-            - restraint_wt: Restraint force constant
+                - ntr=1: Enable positional restraints
+                - restraintmask: Atom selection for restraints
+                - restraint_wt: Restraint force constant
         """
         title = "Restrained Minimization" if title is None else title
         state_dict = MINIMIZE_DEFAULT.copy()
@@ -734,25 +717,23 @@ class NVTInput(SimulationConstructor):
         equilibration at 300 K using Langevin thermostat.
 
         Args:
-            end_cfg: Whether to add "END" string at end of input file.
-                Defaults to True.
-            title: Optional title for the simulation.
-                Defaults to "NVT Simulation".
+            end_cfg (bool): Whether to add "END" string at end of input file. Defaults to True.
+            title (str): Optional title for the simulation. Defaults to "NVT Simulation".
             **kwargs: Additional parameters to override defaults.
 
         Note:
             Default NVT parameters:
-            - imin=0: MD simulation flag
-            - ntx=5: Read coordinates and velocities
-            - irest=1: Restart simulation
-            - temp0=300: Target temperature (K)
-            - ntt=3: Langevin thermostat
-            - gamma_ln=2.0: Collision frequency (ps⁻¹)
-            - ntp=0: No pressure control
-            - ntb=1: Constant volume periodic boundaries
-            - ntc=2: SHAKE constraints on H-bonds
-            - ntf=2: Omit forces for constrained bonds
-            - nstlim=500000: Simulation steps (1 ns at dt=0.002 ps)
+                - imin=0: MD simulation flag
+                - ntx=5: Read coordinates and velocities
+                - irest=1: Restart simulation
+                - temp0=300: Target temperature (K)
+                - ntt=3: Langevin thermostat
+                - gamma_ln=2.0: Collision frequency (ps⁻¹)
+                - ntp=0: No pressure control
+                - ntb=1: Constant volume periodic boundaries
+                - ntc=2: SHAKE constraints on H-bonds
+                - ntf=2: Omit forces for constrained bonds
+                - nstlim=500000: Simulation steps (1 ns at dt=0.002 ps)
         """
         title = "NVT Simulation" if title is None else title
         state_dict = NVT_DEFAULT.copy()
@@ -791,23 +772,17 @@ class HeatInput:
         by temperature maintenance using Amber weight parameters.
 
         Args:
-            target_temp: Target temperature for heating in Kelvin.
-                Defaults to 300.0.
-            heat_step: Number of steps for temperature ramping phase.
-                Must be less than total_step. Defaults to 9000.
-            total_step: Total simulation steps for entire heating protocol.
-                Defaults to 10000.
-            step_length: Time step length in picoseconds.
-                Defaults to 0.002.
-            restraint_wt: Optional restraint force constant in kcal/mol/Å².
-                Defaults to None.
-            restraintmask: Optional Amber mask for restrained atoms.
-                Defaults to None.
+            target_temp (float): Target temperature for heating in Kelvin. Defaults to 300.0.
+            heat_step (int): Number of steps for temperature ramping phase. Must be less than total_step. Defaults to 9000.
+            total_step (int): Total simulation steps for entire heating protocol. Defaults to 10000.
+            step_length (float): Time step length in picoseconds. Defaults to 0.002.
+            restraint_wt (float): Optional restraint force constant in kcal/mol/Å². Defaults to None.
+            restraintmask (str): Optional Amber mask for restrained atoms. Defaults to None.
 
         Note:
             Creates two-stage heating protocol:
-            1. Ramping: 0 K → target_temp over heat_step steps
-            2. Maintenance: target_temp held for remaining steps
+                1. Ramping: 0 K → target_temp over heat_step steps
+                2. Maintenance: target_temp held for remaining steps
         """
         self.stage_1_dict = self.HEAT_TEMPLATE.copy()
         self.stage_1_dict.update({"ISTEP2": heat_step, "VALUE2": target_temp})
@@ -858,9 +833,9 @@ class HeatInput:
 
         Note:
             Configures NVT for heating with:
-            - irest=0, ntx=1: Cold start from coordinates only
-            - tempi=0.0: Initial temperature 0 K
-            - Custom output frequencies for heating monitoring
+                - irest=0, ntx=1: Cold start from coordinates only
+                - tempi=0.0: Initial temperature 0 K
+                - Custom output frequencies for heating monitoring
         """
         nvt_part = NVTInput(
             end_cfg=False,
@@ -886,14 +861,14 @@ class HeatInput:
         during the heating simulation.
 
         Args:
-            stage_dict: Optional custom weight parameters dictionary.
+            stage_dict (dict): Optional custom weight parameters dictionary.
                 If None, uses default two-stage heating protocol.
 
         Note:
             Default protocol adds:
-            1. Stage 1: Linear ramp from 0 K to target temperature
-            2. Stage 2: Hold at target temperature
-            3. END directive to terminate weight section
+                1. Stage 1: Linear ramp from 0 K to target temperature
+                2. Stage 2: Hold at target temperature
+                3. END directive to terminate weight section
         """
         if stage_dict is None:
             self.manager.add_constructor(
@@ -943,7 +918,7 @@ class HeatInput:
         file content to the specified path.
 
         Args:
-            file_path: Path where the heating input file should be saved.
+            file_path (str): Path where the heating input file should be saved.
         """
         self._default_workflow()
         self.manager.save(file_path)
@@ -965,23 +940,21 @@ class NPTInput(SimulationConstructor):
         Berendsen barostat.
 
         Args:
-            end_cfg: Whether to add "END" string at end of input file.
-                Defaults to True.
-            title: Optional title for the simulation.
-                Defaults to "NPT Simulation".
+            end_cfg (bool): Whether to add "END" string at end of input file. Defaults to True.
+            title (str): Optional title for the simulation. Defaults to "NPT Simulation".
             **kwargs: Additional parameters to override defaults.
 
         Note:
             Default NPT parameters:
-            - imin=0: MD simulation flag
-            - ntx=5: Read coordinates and velocities
-            - irest=1: Restart simulation
-            - temp0=300: Target temperature (K)
-            - ntt=3: Langevin thermostat
-            - ntp=1: Isotropic pressure scaling
-            - taup=2.0: Pressure relaxation time (ps)
-            - ntb=2: Constant pressure periodic boundaries
-            - nstlim=50000000: Long production simulation (100 ns)
+                - imin=0: MD simulation flag
+                - ntx=5: Read coordinates and velocities
+                - irest=1: Restart simulation
+                - temp0=300: Target temperature (K)
+                - ntt=3: Langevin thermostat
+                - ntp=1: Isotropic pressure scaling
+                - taup=2.0: Pressure relaxation time (ps)
+                - ntb=2: Constant pressure periodic boundaries
+                - nstlim=50000000: Long production simulation (100 ns)
         """
         title = "NPT Simulation" if title is None else title
         state_dict = NPT_DEFAULT.copy()
@@ -1041,15 +1014,13 @@ class MMGBSAInput:
         general parameters for trajectory processing.
 
         Args:
-            start_frame: First trajectory frame to analyze (1-indexed).
-            end_frame: Last trajectory frame to analyze (inclusive).
-            step_size: Frame interval for analysis sampling.
-                Defaults to 1 (analyze every frame).
+            start_frame (int): First trajectory frame to analyze (1-indexed).
+            end_frame (int): Last trajectory frame to analyze (inclusive).
+            step_size (int): Frame interval for analysis sampling. Defaults to 1 (analyze every frame).
 
         Note:
             Frame numbering follows AMBER convention (1-indexed).
-            Analysis will process frames: start_frame, start_frame+step_size,
-            ..., up to end_frame.
+            Analysis will process frames: start_frame, start_frame+step_size, ..., up to end_frame.
         """
 
         self.general_dict = MMGBSA_GENERAL_DEFAULT.copy()
@@ -1063,7 +1034,7 @@ class MMGBSAInput:
         file handling options, and output control settings.
 
         Args:
-            title: Optional title comment for the analysis.
+            title (str): Optional title comment for the analysis.
             **kwargs: Additional general parameters to override defaults.
 
         Note:
@@ -1162,6 +1133,6 @@ class MMGBSAInput:
         """Save MM/GBSA input file to disk.
 
         Args:
-            file_path: Path where the MMPBSA.py input file should be saved.
+            file_path (str): Path where the MMPBSA.py input file should be saved.
         """
         self.manager.save(file_path)

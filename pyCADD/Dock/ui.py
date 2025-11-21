@@ -1,4 +1,3 @@
-import os
 from pyCADD.utils.ui import UI
 
 

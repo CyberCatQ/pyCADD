@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from typing import List, Literal, Tuple, Union
+from typing import Literal
 
 import pandas as pd
 
@@ -21,7 +21,7 @@ from pyCADD.utils.tool import download_pdb, download_pdb_list
 from . import logger
 
 
-DATE = datetime.now().strftime("%Y%m%d%H%M")
+DATE = datetime.now().strftime("%Y%m%d")
 
 
 class DockControl:
@@ -70,7 +70,7 @@ class DockControl:
         ligand_resname: str = None,
         ligand_atom_indexes: list = None,
         ligand_asl: str = None,
-    ) -> Tuple[str, str]:
+    ) -> tuple[str, str]:
         """Split structure to protein and ligand.
 
         Args:
@@ -106,7 +106,7 @@ class DockControl:
 
     def minimize(
         self,
-        structure_file: Union[str, MaestroFile] = None,
+        structure_file: str | MaestroFile = None,
         ph: float = 7.4,
         force_field: Literal["OPLS4", "OPLS3e", "OPLS3", "OPLS_2005"] = "OPLS4",
         fill_side_chain: bool = True,
@@ -119,7 +119,7 @@ class DockControl:
         """Minimize the protein structure.
 
         Args:
-            structure_file (Union[MaestroFile, str], optional): structure to minimize. If not specified, use the initial protein structure. Defaults to None.
+            structure_file (MaestroFile | str, optional): structure to minimize. If not specified, use the initial protein structure. Defaults to None.
             ph (float, optional): pH value to calculate protonation states. Defaults to 7.4.
             force_field (str): force field to use. Defaults to 'OPLS4'.
             fill_side_chain (bool, optional): whether to fill side chain. Defaults to True.
@@ -149,8 +149,8 @@ class DockControl:
 
     def grid_generate(
         self,
-        structure_file: Union[str, MaestroFile] = None,
-        box_center: Tuple[float, float, float] = None,
+        structure_file: str | MaestroFile = None,
+        box_center: tuple[float, float, float] = None,
         box_center_molnum: int = None,
         box_center_resname: str = None,
         box_size: int = 20,
@@ -160,7 +160,7 @@ class DockControl:
         """Generate grid file for docking.
 
         Args:
-            structure_file (Union[MaestroFile, str]): structure to generate grid file. If not specified, use the minimized structure.
+            structure_file (MaestroFile | str): structure to generate grid file. If not specified, use the minimized structure.
             box_center (tuple[float, float, float], optional): center XYZ of the grid box. Defaults to None.
             box_center_molnum (int, optional): the molecule number of the molecule that is set as the center.\
                 This molecule will be removed during the grid box generation process,\
@@ -199,7 +199,7 @@ class DockControl:
 
     def dock(
         self,
-        ligand_file: Union[str, MaestroFile],
+        ligand_file: str | MaestroFile,
         grid_file: GridFile = None,
         force_field: Literal["OPLS4", "OPLS3e", "OPLS3", "OPLS_2005"] = "OPLS4",
         precision: Literal["SP", "XP", "HTVS"] = "SP",
@@ -210,8 +210,8 @@ class DockControl:
         """Perform molecule docking.
 
         Args:
-            ligand_file (Union[MaestroFile, str]): Ligand file object or path.
-            grid_file (Union[GridFile, str]): grid file object or path. If not specified, use the grid file generated before.
+            ligand_file (MaestroFile | str): Ligand file object or path.
+            grid_file (GridFile | str): grid file object or path. If not specified, use the grid file generated before.
             force_field (str, optional): force field to use. Defaults to 'OPLS4'.
             precision (str, optional): docking precision. Defaults to 'SP'.
             calc_rmsd (bool, optional): Whether to calculate RMSD with co-crystal ligand. If True, grid file must be generated from a complex. Defaults to False.
@@ -242,12 +242,12 @@ class DockEnsemble:
     """
 
     def __init__(
-        self, input_file: Union[str, EnsembleInputFile], save_path: str = None, cpu_num: int = None
+        self, input_file: str | EnsembleInputFile, save_path: str = None, cpu_num: int = None
     ) -> None:
         """Docking Control for Ensemble Docking
 
         Args:
-            input_file (Union[str, EnsembleInputFile]): Input file object or path for ensemble docking.
+            input_file (str | EnsembleInputFile): Input file object or path for ensemble docking.
             save_path (str, optional): directory to save the result files. Defaults to None.
             cpu_num (int, optional): number of CPU cores to use in parallel. Defaults to 3 / 4 cores.
         """
@@ -263,6 +263,7 @@ class DockEnsemble:
         self.cocrystal_ligands = []
         self.library_files = []
         self.ensemble_docking_results = []
+        self.dock_result_data = []
 
         self.save_path = os.path.abspath(save_path) if save_path is not None else os.getcwd()
         os.makedirs(self.save_path, exist_ok=True)
@@ -292,16 +293,16 @@ class DockEnsemble:
             ]
 
     def load_library(
-        self, ligand_file: Union[str, MaestroFile], overwrite: bool = False
-    ) -> List[MaestroFile]:
+        self, ligand_file: str | MaestroFile, overwrite: bool = False
+    ) -> list[MaestroFile]:
         """Load the compound/ligand library and split them into multiple single structure files for ensemble docking.
 
         Args:
-            ligand_file (Union[str, MaestroFile]): library file object or path.
+            ligand_file (str | MaestroFile): library file object or path.
             overwrite (bool, optional): Whether to overwrite existing files. Defaults to False.
 
         Returns:
-            List[MaestroFile]: Splitted ligands files list
+            list[MaestroFile]: Splitted ligands files list
         """
         if isinstance(ligand_file, str):
             ligand_file = MaestroFile(ligand_file)
@@ -336,12 +337,12 @@ class DockEnsemble:
         watdist: float = 5.0,
         rmsd_cutoff: float = 0.3,
         overwrite: bool = False,
-    ) -> List[MaestroFile]:
+    ) -> list[MaestroFile]:
         """Minimize the structure file for ensemble docking.
 
         Args:
             ph (float, optional): pH value for the structure file. Defaults to 7.4.
-            force_field (Literal["OPLS4", "OPLS3e", "OPLS3", "OPLS_2005"], optional): Force field for the structure file. Defaults to "OPLS4".
+            force_field (str, optional): Force field for the structure file. Defaults to "OPLS4".
             fill_side_chain (bool, optional): Whether to fill side chain. Defaults to True.
             add_missing_loop (bool, optional): Whether to add missing loop. Defaults to True.
             del_water (bool, optional): Whether to delete water. Defaults to True.
@@ -350,7 +351,7 @@ class DockEnsemble:
             overwrite (bool, optional): Whether to overwrite existing files. Default to False.
 
         Returns:
-            List[MaestroFile]: Minimized structure files list
+            list[MaestroFile]: Minimized structure files list
         """
 
         with ChDir(self.save_path):
@@ -392,11 +393,11 @@ class DockEnsemble:
 
         return self.minimized_files
 
-    def _split_cocrystal_lig(self) -> Tuple[list, list]:
+    def _split_cocrystal_lig(self) -> tuple[list, list]:
         """Split the cocrystal ligand and protein from the minimized structure file.
 
         Returns:
-            Tuple[list, list]: protein_files, ligand_files
+            tuple[list, list]: protein_files, ligand_files
         """
         protein_files = []
         ligand_files = []
@@ -420,19 +421,19 @@ class DockEnsemble:
         box_size: int = 20,
         force_field: Literal["OPLS4", "OPLS3e", "OPLS3", "OPLS_2005"] = "OPLS4",
         overwrite: bool = False,
-    ) -> List[GridFile]:
+    ) -> list[GridFile]:
         """Generate grid files for docking.
 
         Args:
             box_size (int, optional): Box size of the grid. Defaults to 20.
-            force_field (Literal['OPLS4', 'OPLS3e', 'OPLS3', 'OPLS_2005'], optional): Force field for the grid. Defaults to 'OPLS4'.
+            force_field (str, optional): Force field for the grid. Defaults to 'OPLS4'.
             overwrite (bool, optional): Whether to overwrite existing files. Default to False.
 
         Raises:
             ValueError: No minimized structure files found.
 
         Returns:
-            List[GridFile]: Grid files list
+            list[GridFile]: Grid files list
         """
         if not self.minimized_files:
             raise ValueError("No minimized structure files found.")
@@ -457,13 +458,13 @@ class DockEnsemble:
         calc_rmsd: bool = False,
         include_receptor: bool = False,
         overwrite: bool = False,
-    ) -> List[dict]:
+    ) -> list[dict]:
         """Perform ensemble docking.
 
         Args:
             retrospective (bool, optional): Whether to add cocrystal molecules to ligands during ensemble docking. Defaults to False.
-            force_field (Literal['OPLS4', 'OPLS3e', 'OPLS3', 'OPLS_2005'], optional): Force field for the docking. Defaults to 'OPLS4'.
-            precision (Literal['SP', 'XP', 'HTVS'], optional): _description_. Defaults to 'SP'.
+            force_field (str, optional): Force field for the docking. Defaults to 'OPLS4'.
+            precision (str, optional): _description_. Defaults to 'SP'.
             calc_rmsd (bool, optional): Whether to calculate RMSD. Defaults to False.
             include_receptor (bool, optional): Whether to include receptor in the docking. Defaults to False.
             overwrite (bool, optional): Whether to overwrite existing files. Default to False.
@@ -472,11 +473,12 @@ class DockEnsemble:
             ValueError: No grid files found.
 
         Returns:
-            List[dict]: Docking results
+            list[dict]: Docking results
         """
         if not self.grid_files:
             raise ValueError("No grid files found.")
 
+        library_files = self.library_files
         if retrospective:
             cocrystal_ligand_files = self._split_cocrystal_lig()[1]
             logger.info(
@@ -496,11 +498,36 @@ class DockEnsemble:
                 overwrite=overwrite,
                 cpu_num=self.cpu_num,
             )
+        return self.ensemble_docking_results
+
+    def extract_data(self) -> list[dict]:
+        """Extract docking result data from ensemble docking results.
+
+        Returns:
+            list[dict]: Docking results
+        """
+        if not self.ensemble_docking_results:
+            raise ValueError("No ensemble docking results found.")
+
         self.dock_result_data = multi_extract_data(
             self.ensemble_docking_results, cpu_num=self.cpu_num
         )
-        result_file = os.path.join(self.save_path, "dock", f"dock_result_{DATE}.csv")
+        os.makedirs(os.path.join(self.save_path, "result"), exist_ok=True)
+        result_file = os.path.join(self.save_path, "result", f"{DATE}_DOCK_FINAL_RESULTS.csv")
         self.result_df = pd.DataFrame(self.dock_result_data)
         self.result_df.to_csv(result_file, index=False)
         logger.info(f"Docking result data saved to {result_file}")
+
+        self.result_df["DockingSite"] = self.result_df["pdbid"] + "-" + self.result_df["internal_ligand_name"]
+        self.result_df["LigandName"] = self.result_df["docking_ligand_name"] 
+        pivot_file = os.path.join(self.save_path, "result", f"{DATE}_matrix.csv")
+        pivot_df = self.result_df.pivot_table(
+            index="LigandName",
+            columns="DockingSite",
+            values="DockingScore",
+            aggfunc="first",
+        )
+        pivot_df.to_csv(pivot_file)
+        logger.info(f"Docking score matrix data saved to {pivot_file}")
+
         return self.dock_result_data

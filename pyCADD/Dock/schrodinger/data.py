@@ -1,5 +1,4 @@
 import os
-from typing import List, Union
 
 import pandas as pd
 
@@ -10,16 +9,16 @@ from . import logger
 
 
 def extract_docking_data(
-    docking_result_file: Union[DockResultFile, str], data_config: DataConfig = None
-) -> List[dict]:
+    docking_result_file: DockResultFile | str, data_config: DataConfig = None
+) -> list[dict]:
     """Extract docking data from a docking result file.
 
     Args:
-        docking_result_file (Union[DockResultFile, str]): docking result file or path to the file.
+        docking_result_file (DockResultFile | str): docking result file or path to the file.
         data_config (DataConfig, optional): data extracting config. By default, the configuration corresponding to the docking precision is used.
 
     Returns:
-        List[dict]: docking result data list.
+        list[dict]: docking result data list.
     """
     if isinstance(docking_result_file, str):
         docking_result_file = DockResultFile(docking_result_file)
@@ -32,13 +31,12 @@ def extract_docking_data(
     if raw_data:
         raw_data = raw_data[1:] if include_receptor else raw_data
     result_data_list = []
-    data_dict = {
+    data = {
         "pdbid": docking_result_file.metadata.pdbid,
-        "precision": docking_result_file.metadata.precision,
         "internal_ligand_name": docking_result_file.metadata.internal_ligand_name,
         "docking_ligand_name": docking_result_file.metadata.docking_ligand_name,
+        "precision": docking_result_file.metadata.precision,
     }
-    data = data_dict.copy()
     for raw_data_dict in raw_data:
         data.update({key: raw_data_dict.get(value, None) for key, value in data_config.items()})
     result_data_list.append(data)
@@ -47,7 +45,7 @@ def extract_docking_data(
 
 
 def save_docking_data(
-    docking_result_file: Union[DockResultFile, str],
+    docking_result_file: DockResultFile | str,
     data_config: DataConfig = None,
     save_dir: str = None,
     overwrite: bool = False,
@@ -55,7 +53,7 @@ def save_docking_data(
     """Save docking data to a CSV file. The file name is the same as the docking result file.
 
     Args:
-        docking_result_file (Union[DockResultFile, str]): docking result file or path to the file.
+        docking_result_file (DockResultFile | str): docking result file or path to the file.
         data_config (DataConfig, optional): data extracting config. By default, the configuration corresponding to the docking precision is used.
         save_dir (str, optional): directory to save the data. Defaults to None.
         overwrite (bool, optional): whether to overwrite the existing file. Defaults to False.

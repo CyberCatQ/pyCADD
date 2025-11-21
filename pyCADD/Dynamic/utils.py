@@ -34,8 +34,7 @@ def calc_am1bcc(
         charge (int): Net charge of the molecule.
         multiplicity (int, optional): Spin multiplicity of the molecule. Defaults to 1.
         force_field (str, optional): Force field to assign atom types. Defaults to "gaff2".
-        save_dir (str, optional): Directory to save the output MOL2 file.
-            Defaults to current working directory.
+        save_dir (str, optional): Directory to save the output MOL2 file. Defaults to current working directory.
 
     Returns:
         File: MOL2 file with AM1-BCC charges and GAFF2 atom types.
@@ -106,8 +105,7 @@ def run_parmchk2(
 
     Args:
         mol2_file_path (str | File): File or Path to MOL2 file with assigned atom types (from antechamber).
-        save_dir (str, optional): Directory to save the frcmod parameter file.
-            Defaults to current working directory.
+        save_dir (str, optional): Directory to save the frcmod parameter file. Defaults to current working directory.
 
     Returns:
         File: Generated frcmod file containing missing force field parameters.
@@ -144,10 +142,10 @@ def _trace_progress(output_file_path: str, step: int):
 
     Note:
         The function monitors the output file by:
-        - Looking for "NSTEP" lines to get current step number
-        - Looking for "Final" keyword to detect completion
-        - Updating a progress bar every second
-        - Automatically stopping when simulation finishes
+            - Looking for "NSTEP" lines to get current step number
+            - Looking for "Final" keyword to detect completion
+            - Updating a progress bar every second
+            - Automatically stopping when simulation finishes
 
         This is typically used with background (nohup) simulations to provide
         real-time feedback on simulation progress.
