@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dance User Guide &mdash; pyCADD.Dance 2.0.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
@@ -83,7 +83,7 @@
 <h2>数据准备 Data preparation<a class="headerlink" href="#data-preparation" title="Link to this heading"></a></h2>
 <p>数据预处理部分。</p>
 <p>导入pyCADD.Dance模块的Dancer对象</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyCADD.Dance</span> <span class="kn">import</span> <span class="n">Dancer</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.Dance</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dancer</span>
 <span class="n">dancer</span> <span class="o">=</span> <span class="n">Dancer</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -123,7 +123,7 @@ csv文件将被保存至dm_result/data_csv/</p>
 <h2>建模与评估 Modeling and Evaluation<a class="headerlink" href="#modeling-and-evaluation" title="Link to this heading"></a></h2>
 <p>建模与模型评估部分。</p>
 <p>导入pyCADD.Dance模块的Matrix与Evaluator对象</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyCADD.Dance</span> <span class="kn">import</span> <span class="n">Matrix</span><span class="p">,</span> <span class="n">Evaluator</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.Dance</span><span class="w"> </span><span class="kn">import</span> <span class="n">Matrix</span><span class="p">,</span> <span class="n">Evaluator</span>
 </pre></div>
 </div>
 <p>载入预处理完成的数据集 并划分训练与测试集</p>
@@ -142,7 +142,7 @@ csv文件将被保存至dm_result/data_csv/</p>
 </pre></div>
 </div>
 <p>导入所有需要的模型 并创建模型实例</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
 <span class="c1"># from sklearn.ensemble import RandomForestClassifier</span>
 <span class="c1"># from xgboost import XGBClassifier</span>
 
@@ -153,7 +153,7 @@ csv文件将被保存至dm_result/data_csv/</p>
 </div>
 <p>设定自定义的模型超参数网格空间
 pyCADD.Dance提供了LR RF 与 GBT的默认超参数 您也可以自主指定</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyCADD.Dance.algorithm</span> <span class="kn">import</span> <span class="n">default_params</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.Dance.algorithm</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_params</span>
 <span class="n">default_lr_params</span> <span class="o">=</span> <span class="n">default_params</span><span class="o">.</span><span class="n">LR_DEFAULT_PARAMS</span>
 <span class="c1"># default_rf_params = default_params.RF_DEFAULT_PARAMS</span>
 <span class="c1"># default_gbt_params = default_params.GBT_DEFAULT_PARAMS</span>

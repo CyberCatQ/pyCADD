@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dynamic User Guide &mdash; pyCADD.Dynamic 2.0.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
@@ -165,7 +165,7 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 <h2>Python 调用 Dynamic 模块<a class="headerlink" href="#python-dynamic" title="Link to this heading"></a></h2>
 <p>首先 从模块中导入结构预处理器 <code class="docutils literal notranslate"><span class="pre">Processor</span></code> 及实施分子动力学模拟的模拟器 <code class="docutils literal notranslate"><span class="pre">Simulator</span></code>, 然后创建一个预处理器实例 <code class="docutils literal notranslate"><span class="pre">processor</span></code></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 如果AMBER 或 Ambertools安装不正确，导入时将收到额外提示</span>
-<span class="kn">from</span> <span class="nn">pyCADD.Dynamic</span> <span class="kn">import</span> <span class="n">Processor</span><span class="p">,</span> <span class="n">Simulator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.Dynamic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Processor</span><span class="p">,</span> <span class="n">Simulator</span>
 <span class="c1"># 实例化的同时，将在当前目录创建所有必要的文件夹</span>
 <span class="n">processor</span> <span class="o">=</span> <span class="n">Processor</span><span class="p">()</span>     
 </pre></div>
@@ -335,7 +335,7 @@ pycadd-dynamic<span class="w"> </span>simulate<span class="w"> </span>--help
 <h3>python 包调用 Analyzer 分析工具<a class="headerlink" href="#python-analyzer" title="Link to this heading"></a></h3>
 <p>除了使用CLI中固定的工作流进行快速分析外，也可以从 <code class="docutils literal notranslate"><span class="pre">pyCADD.Dynamic</span></code> 中导入 <code class="docutils literal notranslate"><span class="pre">Analyzer</span></code> 类并在python中定制化分析过程。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 如果AMBER 或 Ambertools安装不正确，导入时将收到额外提示</span>
-<span class="kn">from</span> <span class="nn">pyCADD.Dynamic</span> <span class="kn">import</span> <span class="n">Analyzer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.Dynamic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Analyzer</span>
 </pre></div>
 </div>
 <p>同样，分析需要提供必要的输出、拓扑及轨迹文件路径。使用 <code class="docutils literal notranslate"><span class="pre">Dynamic</span></code> 模块完成的模拟，这些文件通常位于 <code class="docutils literal notranslate"><span class="pre">leap/</span></code> 及 <code class="docutils literal notranslate"><span class="pre">md_result/</span></code> 目录中。</p>

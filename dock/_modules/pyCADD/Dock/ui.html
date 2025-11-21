@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyCADD.Dock.ui &mdash; pyCADD.Dock 2.0.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -71,17 +71,16 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pyCADD.Dock.ui</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">pyCADD.utils.ui</span> <span class="kn">import</span> <span class="n">UI</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.utils.ui</span><span class="w"> </span><span class="kn">import</span> <span class="n">UI</span>
 
 
 <div class="viewcode-block" id="UI_dock">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.ui.UI_dock">[docs]</a>
-<span class="k">class</span> <span class="nc">UI_dock</span><span class="p">(</span><span class="n">UI</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UI_dock</span><span class="p">(</span><span class="n">UI</span><span class="p">):</span>
 
 <div class="viewcode-block" id="UI_dock.__init__">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.ui.UI_dock.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">menu_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Dock Mode&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">menu_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Dock Mode&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">menu_name</span><span class="o">=</span><span class="n">menu_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">main_options</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;1. PDB file download + Optimize&quot;</span><span class="p">,</span>
@@ -98,7 +97,7 @@
 
 <div class="viewcode-block" id="UI_dock.run">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.ui.UI_dock.run">[docs]</a>
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Dock Module UI is not implemented yet.&quot;</span><span class="p">)</span></div>
 </div>
 

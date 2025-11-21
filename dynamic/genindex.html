@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Index &mdash; pyCADD.Dynamic 2.0.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
@@ -78,6 +78,7 @@
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
@@ -88,6 +89,7 @@
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
+ | <a href="#W"><strong>W</strong></a>
  
 </div>
 <h2 id="_">_</h2>
@@ -136,6 +138,14 @@
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor._state_dict">_state_dict (pyCADD.Dynamic.template.BaseConstructor attribute)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor._state_keys">_state_keys (pyCADD.Dynamic.template.BaseConstructor attribute)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.AnalysisConstructor._type">_type (pyCADD.Dynamic.template.AnalysisConstructor attribute)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="A">A</h2>
@@ -175,6 +185,8 @@
 </li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer">Analyzer (class in pyCADD.Dynamic.common)</a>
 </li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.apo">apo (pyCADD.Dynamic.common.Processor attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -203,14 +215,38 @@
 </li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.calc_rmsf">calc_rmsf() (pyCADD.Dynamic.common.Analyzer method)</a>
 </li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.BaseProcess.cfg">cfg (pyCADD.Dynamic.core.BaseProcess attribute)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.cmd">cmd (pyCADD.Dynamic.core.MDProcess attribute)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.com_topfile">com_topfile (pyCADD.Dynamic.common.Processor attribute)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.comsolvate_crdfile">comsolvate_crdfile (pyCADD.Dynamic.common.Processor attribute)</a>
+
+      <ul>
+        <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator.comsolvate_crdfile">(pyCADD.Dynamic.common.Simulator attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.comsolvate_pdbfile">comsolvate_pdbfile (pyCADD.Dynamic.common.Processor attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.comsolvate_topfile">comsolvate_topfile (pyCADD.Dynamic.common.Processor attribute)</a>
+
+      <ul>
+        <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator.comsolvate_topfile">(pyCADD.Dynamic.common.Simulator attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager.constructor_list">constructor_list (pyCADD.Dynamic.template.MultiConstructorManager attribute)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.control_cfg">control_cfg (pyCADD.Dynamic.core.MDProcess attribute)</a>
+</li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.create_energy_inputfile">create_energy_inputfile() (in module pyCADD.Dynamic.core)</a>
 
       <ul>
         <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.create_energy_inputfile">(pyCADD.Dynamic.common.Analyzer method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.create_heat_input">create_heat_input() (pyCADD.Dynamic.common.Processor method)</a>
 </li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.create_minimize_input">create_minimize_input() (pyCADD.Dynamic.common.Processor method)</a>
@@ -218,6 +254,8 @@
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.create_npt_input">create_npt_input() (pyCADD.Dynamic.common.Processor method)</a>
 </li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.create_nvt_input">create_nvt_input() (pyCADD.Dynamic.common.Processor method)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator.cuda_device">cuda_device (pyCADD.Dynamic.common.Simulator attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -248,19 +286,29 @@
   </ul></td>
 </tr></table>
 
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.frcmod_file">frcmod_file (pyCADD.Dynamic.common.Processor attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.general_dict">general_dict (pyCADD.Dynamic.template.MMGBSAInput attribute)</a>
+</li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.get_attr">get_attr() (pyCADD.Dynamic.template.BaseConstructor method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.get_state_dict">get_state_dict() (pyCADD.Dynamic.template.BaseConstructor method)</a>
 
       <ul>
         <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.get_state_dict">(pyCADD.Dynamic.template.HeatInput method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.get_water_resnum">get_water_resnum() (pyCADD.Dynamic.common.Processor method)</a>
 </li>
   </ul></td>
@@ -269,7 +317,7 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.HEAT_TEMPLATE">HEAT_TEMPLATE (pyCADD.Dynamic.template.HeatInput attribute)</a>
+      <li><a href="pyCADD.Dynamic.html#id0">HEAT_TEMPLATE (pyCADD.Dynamic.template.HeatInput attribute)</a>, <a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.HEAT_TEMPLATE">[1]</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -281,7 +329,25 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.inpcrd_file">inpcrd_file (pyCADD.Dynamic.core.MDProcess attribute)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.BaseProcess.input_file">input_file (pyCADD.Dynamic.core.BaseProcess attribute)</a>
+</li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.MultiConstructorManager.is_empty">is_empty() (pyCADD.Dynamic.template.MultiConstructorManager method)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.is_minimize">is_minimize (pyCADD.Dynamic.core.MDProcess attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.is_production">is_production (pyCADD.Dynamic.core.MDProcess attribute)</a>
+
+      <ul>
+        <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.NPTProcess.is_production">(pyCADD.Dynamic.core.NPTProcess attribute)</a>
+</li>
+        <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.NVTProcess.is_production">(pyCADD.Dynamic.core.NVTProcess attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.is_restrained">is_restrained (pyCADD.Dynamic.core.MDProcess attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -299,10 +365,12 @@
 </li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.LeapInput">LeapInput (class in pyCADD.Dynamic.template)</a>
 </li>
-      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.load_frcmod_file">load_frcmod_file() (pyCADD.Dynamic.common.Processor method)</a>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.lig_topfile">lig_topfile (pyCADD.Dynamic.common.Processor attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.load_frcmod_file">load_frcmod_file() (pyCADD.Dynamic.common.Processor method)</a>
+</li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.load_mdout">load_mdout() (pyCADD.Dynamic.common.Analyzer method)</a>
 </li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.load_processed_molfile">load_processed_molfile() (pyCADD.Dynamic.common.Processor method)</a>
@@ -319,18 +387,38 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.manager">manager (pyCADD.Dynamic.template.HeatInput attribute)</a>
+
+      <ul>
+        <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput.manager">(pyCADD.Dynamic.template.MMGBSAInput attribute)</a>
+</li>
+      </ul></li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.cli.md_prepare">md_prepare() (in module pyCADD.Dynamic.cli)</a>
 </li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.md_process_list">md_process_list (pyCADD.Dynamic.common.Processor attribute)</a>
+
+      <ul>
+        <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator.md_process_list">(pyCADD.Dynamic.common.Simulator attribute)</a>
+</li>
+      </ul></li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.cli.md_simulate">md_simulate() (in module pyCADD.Dynamic.cli)</a>
 </li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.cli.md_workflow">md_workflow() (in module pyCADD.Dynamic.cli)</a>
 </li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.mdcrd_file_path">mdcrd_file_path (pyCADD.Dynamic.core.MDProcess attribute)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.mdout_file_path">mdout_file_path (pyCADD.Dynamic.core.MDProcess attribute)</a>
+</li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess">MDProcess (class in pyCADD.Dynamic.core)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.mdrst_file_path">mdrst_file_path (pyCADD.Dynamic.core.MDProcess attribute)</a>
 </li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.MinimizeInput">MinimizeInput (class in pyCADD.Dynamic.template)</a>
 </li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.MinimizeProcess">MinimizeProcess (class in pyCADD.Dynamic.core)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.MMGBSAInput">MMGBSAInput (class in pyCADD.Dynamic.template)</a>
 </li>
       <li>
@@ -354,8 +442,8 @@
         <li><a href="pyCADD.Dynamic.html#module-pyCADD.Dynamic.utils">pyCADD.Dynamic.utils</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.mol2_file">mol2_file (pyCADD.Dynamic.common.Processor attribute)</a>
+</li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.molecule_prepare">molecule_prepare() (in module pyCADD.Dynamic.core)</a>
 
       <ul>
@@ -386,7 +474,15 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.pro_file">pro_file (pyCADD.Dynamic.common.Processor attribute)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.pro_topfile">pro_topfile (pyCADD.Dynamic.common.Processor attribute)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.BaseProcess.process_name">process_name (pyCADD.Dynamic.core.BaseProcess attribute)</a>
+</li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor">Processor (class in pyCADD.Dynamic.common)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator.processor">processor (pyCADD.Dynamic.common.Simulator attribute)</a>
 </li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.protein_prepare">protein_prepare() (in module pyCADD.Dynamic.core)</a>
 
@@ -408,6 +504,8 @@
         <li><a href="pyCADD.Dynamic.html#module-pyCADD.Dynamic.analysis">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     pyCADD.Dynamic.cli
 
@@ -415,8 +513,6 @@
         <li><a href="pyCADD.Dynamic.html#module-pyCADD.Dynamic.cli">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     pyCADD.Dynamic.common
 
@@ -498,10 +594,10 @@
       </ul></li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.set_attr">set_attr() (pyCADD.Dynamic.template.BaseConstructor method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator.set_cuda_device">set_cuda_device() (pyCADD.Dynamic.common.Simulator method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.set_prepared_file">set_prepared_file() (pyCADD.Dynamic.common.Processor method)</a>
 </li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator.show_cuda_device">show_cuda_device() (pyCADD.Dynamic.common.Simulator method)</a>
@@ -510,12 +606,20 @@
 </li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Simulator">Simulator (class in pyCADD.Dynamic.common)</a>
 </li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.stage_1_dict">stage_1_dict (pyCADD.Dynamic.template.HeatInput attribute)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.HeatInput.stage_2_dict">stage_2_dict (pyCADD.Dynamic.template.HeatInput attribute)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.step_size">step_size (pyCADD.Dynamic.core.MDProcess attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.AnalysisConstructor.title">title (pyCADD.Dynamic.template.AnalysisConstructor attribute)</a>
+</li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.to_dict">to_dict() (pyCADD.Dynamic.template.BaseConstructor method)</a>
 </li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.template.BaseConstructor.to_str">to_str() (pyCADD.Dynamic.template.BaseConstructor method)</a>
@@ -538,9 +642,31 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.top_file">top_file (pyCADD.Dynamic.common.Analyzer attribute)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.top_file_path">top_file_path (pyCADD.Dynamic.common.Analyzer attribute)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.topology_file">topology_file (pyCADD.Dynamic.core.MDProcess attribute)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.total_step">total_step (pyCADD.Dynamic.core.MDProcess attribute)</a>
+</li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.trace_angle">trace_angle() (pyCADD.Dynamic.common.Analyzer method)</a>
 </li>
       <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.trace_distance">trace_distance() (pyCADD.Dynamic.common.Analyzer method)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.traj">traj (pyCADD.Dynamic.common.Analyzer attribute)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.traj_file">traj_file (pyCADD.Dynamic.common.Analyzer attribute)</a>
+</li>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Analyzer.traj_file_path">traj_file_path (pyCADD.Dynamic.common.Analyzer attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pyCADD.Dynamic.html#pyCADD.Dynamic.common.Processor.work_dir">work_dir (pyCADD.Dynamic.common.Processor attribute)</a>
 </li>
   </ul></td>
 </tr></table>

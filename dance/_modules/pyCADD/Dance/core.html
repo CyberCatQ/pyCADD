@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyCADD.Dance.core &mdash; pyCADD.Dance 2.0.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -71,116 +71,114 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pyCADD.Dance.core</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">Series</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">Series</span>
 
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_auc_score</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="p">(</span><span class="n">GridSearchCV</span><span class="p">,</span> <span class="n">RandomizedSearchCV</span><span class="p">,</span>
-                                     <span class="n">RepeatedStratifiedKFold</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_auc_score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridSearchCV</span><span class="p">,</span> <span class="n">RandomizedSearchCV</span><span class="p">,</span> <span class="n">RepeatedStratifiedKFold</span>
 
 
 <div class="viewcode-block" id="hyperparam_tuning">
 <a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.core.hyperparam_tuning">[docs]</a>
-<span class="k">def</span> <span class="nf">hyperparam_tuning</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">param_gird</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">scoring</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;roc_auc&#39;</span><span class="p">,</span> <span class="n">cv</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;grid&#39;</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    超参数调优</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">hyperparam_tuning</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">param_gird</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span>
+    <span class="n">scoring</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;roc_auc&quot;</span><span class="p">,</span>
+    <span class="n">cv</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="n">n_jobs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;grid&quot;</span><span class="p">,</span>
+    <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Hyperparameter optimization for machine learning models.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    model : object</span>
-<span class="sd">        需要调优的模型</span>
-<span class="sd">    param_grid : dict</span>
-<span class="sd">        超参数网格</span>
-<span class="sd">    X : DataFrame</span>
-<span class="sd">        训练集</span>
-<span class="sd">    y : Series</span>
-<span class="sd">        训练集标签</span>
-<span class="sd">    scoring : str</span>
-<span class="sd">        评估标准</span>
-<span class="sd">    cv : int</span>
-<span class="sd">        训练集分割数</span>
-<span class="sd">    n_jobs : int</span>
-<span class="sd">        训练进程数</span>
-<span class="sd">    method : str</span>
-<span class="sd">        调优方法</span>
-<span class="sd">        * grid: 网格搜索</span>
-<span class="sd">        * random: 随机搜索</span>
-<span class="sd">        </span>
-<span class="sd">    save_dir : str | None</span>
-<span class="sd">        参数文件保存路径 为None则不保存</span>
-<span class="sd">    model_name : str</span>
-<span class="sd">        模型名称</span>
+<span class="sd">    Args:</span>
+<span class="sd">        model (Any): Model instance to optimize.</span>
+<span class="sd">        param_gird (dict): Hyperparameter grid/distribution dictionary.</span>
+<span class="sd">        X (DataFrame): Training feature data.</span>
+<span class="sd">        y (Series): Training labels.</span>
+<span class="sd">        scoring (str): Evaluation metric. Defaults to &#39;roc_auc&#39;.</span>
+<span class="sd">        cv (int): Number of cross-validation splits. Defaults to 5.</span>
+<span class="sd">        n_jobs (int): Number of parallel jobs. Defaults to -1 (use all processors).</span>
+<span class="sd">        method (str): Optimization method. Options:</span>
+<span class="sd">            - &#39;grid&#39;: Grid search</span>
+<span class="sd">            - &#39;random&#39;: Random search</span>
+<span class="sd">        save_dir (str, optional): Directory to save parameter file. If None, no file is saved.</span>
+<span class="sd">        model_name (str, optional): Name of the model for file naming.</span>
 
-<span class="sd">    Return</span>
-<span class="sd">    ----------</span>
-<span class="sd">    dict</span>
-<span class="sd">        调优后的模型参数</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dictionary containing optimized model parameters.</span>
 
-    <span class="c1"># 调优方法</span>
-    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;grid&#39;</span><span class="p">:</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If method is not &#39;grid&#39; or &#39;random&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Optimization method</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;grid&quot;</span><span class="p">:</span>
         <span class="n">cv_search</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span>
-            <span class="n">estimator</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="n">param_gird</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="n">scoring</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">cv</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;random&#39;</span><span class="p">:</span>
+            <span class="n">estimator</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="n">param_gird</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="n">scoring</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">cv</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;random&quot;</span><span class="p">:</span>
         <span class="n">cv_search</span> <span class="o">=</span> <span class="n">RandomizedSearchCV</span><span class="p">(</span>
-            <span class="n">estimator</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">param_distributions</span><span class="o">=</span><span class="n">param_gird</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="n">scoring</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">cv</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)</span>
+            <span class="n">estimator</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">param_distributions</span><span class="o">=</span><span class="n">param_gird</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="n">scoring</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">cv</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span>
+        <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid method: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">method</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid method: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">method</span><span class="p">)</span>
 
     <span class="n">cv_search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
     <span class="n">best_params</span> <span class="o">=</span> <span class="n">cv_search</span><span class="o">.</span><span class="n">best_params_</span>
     <span class="n">best_score</span> <span class="o">=</span> <span class="n">cv_search</span><span class="o">.</span><span class="n">best_score_</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Best parameters: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">best_params</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;AUC score: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">best_score</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best parameters: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">best_params</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;AUC score: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">best_score</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">save_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">params_file</span> <span class="o">=</span> <span class="s1">&#39;best_params_</span><span class="si">%s</span><span class="s1">.json&#39;</span> <span class="o">%</span> <span class="p">(</span>
-            <span class="n">model_name</span> <span class="k">if</span> <span class="n">model_name</span> <span class="k">else</span> <span class="n">model</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">params_file</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">params_file</span> <span class="o">=</span> <span class="s2">&quot;best_params_</span><span class="si">%s</span><span class="s2">.json&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">model_name</span> <span class="k">if</span> <span class="n">model_name</span> <span class="k">else</span> <span class="n">model</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">params_file</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">best_params</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">best_params</span></div>
 
 
 
-<span class="k">def</span> <span class="nf">_score</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_train</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">X_test</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y_train</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">y_test</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">score_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    模型评估</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_score</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">X_train</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">X_test</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">y_train</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span>
+    <span class="n">y_test</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span>
+    <span class="n">score_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluate model performance.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    model : object</span>
-<span class="sd">        需要评估的模型</span>
-<span class="sd">    X_train : DataFrame</span>
-<span class="sd">        训练集</span>
-<span class="sd">    X_test : DataFrame</span>
-<span class="sd">        测试集</span>
-<span class="sd">    y_train : Series</span>
-<span class="sd">        训练集标签</span>
-<span class="sd">    y_test : Series</span>
-<span class="sd">        测试集标签</span>
-<span class="sd">    score_func : callable</span>
-<span class="sd">        评估方法</span>
-<span class="sd">        即 sklearn.metrics 函数</span>
+<span class="sd">    Args:</span>
+<span class="sd">        model (Any): Model instance to evaluate.</span>
+<span class="sd">        X_train (DataFrame): Training feature data.</span>
+<span class="sd">        X_test (DataFrame): Testing feature data.</span>
+<span class="sd">        y_train (Series): Training labels.</span>
+<span class="sd">        y_test (Series): Testing labels.</span>
+<span class="sd">        score_func (Callable): Evaluation function from sklearn.metrics.</span>
 
-<span class="sd">    Return</span>
-<span class="sd">    ----------</span>
-<span class="sd">    tuple(float, float)</span>
-<span class="sd">        训练集和测试集的ROC-AUC值</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple containing (train_score, test_score).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># 适用于sklearn模型与Consensus模型</span>
-    <span class="c1"># 相同模型连续fit 不会记录历史模型权重等信息 而是直接覆盖 故不需要重新初始化模型</span>
+    <span class="c1"># Compatible with sklearn models and Consensus models</span>
+    <span class="c1"># Consecutive fit operations don&#39;t record historical model weights - they overwrite directly</span>
+    <span class="c1"># Therefore, no need to reinitialize the model</span>
     <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
 
-    <span class="c1"># 概率预测</span>
+    <span class="c1"># Probability prediction</span>
     <span class="n">y_train_predicted</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_train</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
     <span class="n">y_test_predicted</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]</span>
 
-    <span class="c1"># 按照概率排序并以评分方法计算评分</span>
+    <span class="c1"># Sort by probability and calculate scores using the evaluation method</span>
     <span class="n">train_score</span> <span class="o">=</span> <span class="n">score_func</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">y_train_predicted</span><span class="p">)</span>
     <span class="n">test_score</span> <span class="o">=</span> <span class="n">score_func</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_test_predicted</span><span class="p">)</span>
 
@@ -189,33 +187,26 @@
 
 <div class="viewcode-block" id="calc_scp_score">
 <a class="viewcode-back" href="../../../pyCADD.Dance.html#pyCADD.Dance.core.calc_scp_score">[docs]</a>
-<span class="k">def</span> <span class="nf">calc_scp_score</span><span class="p">(</span><span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y_true</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">score_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">roc_auc_score</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    获取单构象Performance计算ROC-AUC值</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_scp_score</span><span class="p">(</span>
+    <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y_true</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">score_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">roc_auc_score</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate Single Conformation Performance (SCP) scores.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    X : DataFrame</span>
-<span class="sd">        数据特征</span>
-<span class="sd">    y_true : Series</span>
-<span class="sd">        标签</span>
-<span class="sd">    lower_is_better : bool</span>
-<span class="sd">        评估指标是否为下降性指标</span>
-<span class="sd">    score_func : callable</span>
-<span class="sd">        评估方法</span>
-<span class="sd">        即 sklearn.metrics 函数 默认为ROC-AUC</span>
+<span class="sd">    Args:</span>
+<span class="sd">        X (DataFrame): Feature data with conformations as columns.</span>
+<span class="sd">        y_true (Series): True labels.</span>
+<span class="sd">        lower_is_better (bool): Whether the evaluation metric is a descending indicator.</span>
+<span class="sd">        score_func (Callable): Evaluation function from sklearn.metrics. Defaults to roc_auc_score.</span>
 
-<span class="sd">    Return</span>
-<span class="sd">    ----------</span>
-<span class="sd">    dict</span>
-<span class="sd">        {&#39;PDB&#39;: SCP AUC}</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dictionary mapping conformation names to their SCP scores.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">results_dict</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="c1"># 所有构象的Performance</span>
+    <span class="c1"># Performance of all conformations</span>
     <span class="n">comformations</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">columns</span>
 
-    <span class="c1"># 对每个构象进行评估</span>
+    <span class="c1"># Evaluate each conformation</span>
     <span class="k">for</span> <span class="n">comformation</span> <span class="ow">in</span> <span class="n">comformations</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">lower_is_better</span><span class="p">:</span>
             <span class="n">scp</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">comformation</span><span class="p">]</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span>
@@ -227,27 +218,22 @@
 
 
 
-<span class="k">def</span> <span class="nf">_get_cv_scp_score</span><span class="p">(</span><span class="n">splits</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">score_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">roc_auc_score</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    在交叉测试cv中报告每一次cv的测试集部分的评分结果集</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_cv_scp_score</span><span class="p">(</span>
+    <span class="n">splits</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">score_func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">roc_auc_score</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get SCP scores across cross-validation splits.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    splits : list   </span>
-<span class="sd">        索引列表(训练集, 测试集)</span>
-<span class="sd">    X : DataFrame</span>
-<span class="sd">        总数据集 依据索引从中划分训练集和测试集</span>
-<span class="sd">    y : Series</span>
-<span class="sd">        标签</span>
-<span class="sd">    score_func : callable</span>
-<span class="sd">        评估方法</span>
-<span class="sd">        即 sklearn.metrics 函数 默认为ROC-AUC</span>
+<span class="sd">    Reports evaluation scores for the test set portion of each CV split.</span>
 
-<span class="sd">    Return</span>
-<span class="sd">    ----------</span>
-<span class="sd">    DataFrame</span>
-<span class="sd">        SCP策略测试AUC矩阵</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        splits (list): List of (train_indices, test_indices) tuples.</span>
+<span class="sd">        X (DataFrame): Complete dataset used to split train and test sets based on indices.</span>
+<span class="sd">        y (Series): Target labels.</span>
+<span class="sd">        score_func (Callable): Evaluation function from sklearn.metrics. Defaults to roc_auc_score.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        DataFrame containing SCP strategy test scores across CV splits.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">scp_aucs</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -261,66 +247,50 @@
     <span class="k">return</span> <span class="n">cv_scp_auc_results</span>
 
 
-<span class="k">def</span> <span class="nf">_get_splits</span><span class="p">(</span><span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">n_repeats</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">k_folds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    创建数据索引 </span>
-<span class="sd">    即训练集与测试/验证集的索引号 用于多重交叉验证</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_splits</span><span class="p">(</span>
+    <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">n_repeats</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">k_folds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create data indices for repeated cross-validation.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    X : DataFrame</span>
-<span class="sd">        数据特征</span>
-<span class="sd">    y : Series</span>
-<span class="sd">        数据标签</span>
-<span class="sd">    n_repeats : int</span>
-<span class="sd">        重复划分次数 n</span>
-<span class="sd">    k_folds : int</span>
-<span class="sd">        数据划分折数 k</span>
-<span class="sd">    random_state : int</span>
-<span class="sd">        随机种子 相同的种子会产生相同的划分</span>
+<span class="sd">    Generates train/test indices for multiple rounds of cross-validation.</span>
 
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    list</span>
-<span class="sd">        索引列表(训练集, 测试/验证集)</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">cv</span> <span class="o">=</span> <span class="n">RepeatedStratifiedKFold</span><span class="p">(</span>
-        <span class="n">n_repeats</span><span class="o">=</span><span class="n">n_repeats</span><span class="p">,</span> <span class="n">n_splits</span><span class="o">=</span><span class="n">k_folds</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+<span class="sd">    Args:</span>
+<span class="sd">        X (DataFrame): Feature data.</span>
+<span class="sd">        y (Series): Target labels.</span>
+<span class="sd">        n_repeats (int): Number of repetitions.</span>
+<span class="sd">        k_folds (int): Number of folds per repetition.</span>
+<span class="sd">        random_state (int): Random seed. Same seed produces identical splits.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of (train_indices, test_indices) tuples.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cv</span> <span class="o">=</span> <span class="n">RepeatedStratifiedKFold</span><span class="p">(</span><span class="n">n_repeats</span><span class="o">=</span><span class="n">n_repeats</span><span class="p">,</span> <span class="n">n_splits</span><span class="o">=</span><span class="n">k_folds</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">[</span><span class="o">*</span><span class="n">cv</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)]</span>
 
 
-<span class="k">def</span> <span class="nf">_repeat_cross_validation</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">splits</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">score_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    对模型实施多重交叉验证</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_repeat_cross_validation</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">splits</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">score_func</span><span class="p">:</span> <span class="n">Callable</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform repeated cross-validation on a model.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    model : object</span>
-<span class="sd">        需要评估的模型</span>
-<span class="sd">    splits : list</span>
-<span class="sd">        索引列表(训练集, 测试集)</span>
-<span class="sd">        由RepeatedStratifiedKFold创建的索引</span>
-<span class="sd">    X : DataFrame</span>
-<span class="sd">        总数据集 依据索引从中划分训练集和测试集</span>
-<span class="sd">    y : Series  </span>
-<span class="sd">        标签</span>
-<span class="sd">    score_func : callable</span>
-<span class="sd">        评估方法</span>
+<span class="sd">    Args:</span>
+<span class="sd">        model (Any): Model instance to evaluate.</span>
+<span class="sd">        splits (list): List of (train_indices, test_indices) tuples from RepeatedStratifiedKFold.</span>
+<span class="sd">        X (DataFrame): Complete dataset used to split train and test sets based on indices.</span>
+<span class="sd">        y (Series): Target labels.</span>
+<span class="sd">        score_func (Callable): Evaluation function.</span>
 
-<span class="sd">    Return</span>
-<span class="sd">    ----------</span>
-<span class="sd">    list</span>
-<span class="sd">        n x m 次模型交叉验证结果</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        List of test scores from n × k cross-validation runs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">validation_results</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">for</span> <span class="n">train_index</span><span class="p">,</span> <span class="n">test_index</span> <span class="ow">in</span> <span class="n">splits</span><span class="p">:</span>
-        <span class="c1"># 单次交叉验证中取得训练集和测试集数据</span>
+        <span class="c1"># Get training and testing data for single cross-validation fold</span>
         <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_index</span><span class="p">],</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_index</span><span class="p">]</span>
         <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_index</span><span class="p">],</span> <span class="n">y</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_index</span><span class="p">]</span>
-        <span class="c1"># 拟合模型并进行评估打分</span>
-        <span class="n">train_score</span><span class="p">,</span> <span class="n">test_score</span> <span class="o">=</span> <span class="n">_score</span><span class="p">(</span>
-            <span class="n">model</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">score_func</span><span class="p">)</span>
+        <span class="c1"># Fit model and perform evaluation scoring</span>
+        <span class="n">train_score</span><span class="p">,</span> <span class="n">test_score</span> <span class="o">=</span> <span class="n">_score</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">score_func</span><span class="p">)</span>
         <span class="n">validation_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">test_score</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">validation_results</span>

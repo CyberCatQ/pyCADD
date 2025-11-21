@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyCADD.Dance.algorithm.consensus &mdash; pyCADD.Dance 2.0.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -71,149 +71,169 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pyCADD.Dance.algorithm.consensus</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">Series</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">Series</span>
 
 
-<span class="k">class</span> <span class="nc">_Consensus</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    共识算法基类</span>
-<span class="sd">    新的共识性方法(基于公式的方法)应该继承此类</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_Consensus</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for consensus algorithms.</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        lower_is_better : bool</span>
-<span class="sd">            数据特征是否为下降性指标</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">    New consensus methods (formula-based methods) should inherit from this class.</span>
+<span class="sd">    Provides a common interface for consensus-based molecular screening approaches.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize consensus algorithm.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            lower_is_better (bool): Whether data features represent descending indicators</span>
+<span class="sd">                (e.g., lower binding energy is better).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lower_is_better</span> <span class="o">=</span> <span class="n">lower_is_better</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;class&#39;</span> <span class="p">:</span> <span class="s1">&#39;Consensus Strategy&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;lower_is_better&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower_is_better</span><span class="p">,</span>
-            <span class="p">}</span>
+            <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;Consensus Strategy&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lower_is_better&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower_is_better</span><span class="p">,</span>
+        <span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        获取参数 为兼容sklearn的参数设计</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get parameters for sklearn compatibility.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dictionary containing algorithm parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
 
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        共识算法拟合 待重载实现</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit the consensus algorithm.</span>
+
+<span class="sd">        To be overridden by subclasses with specific implementation.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotImplementedError: If not implemented by subclass.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">limit_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        按照算法进行预测</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">limit_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make predictions using the consensus algorithm.</span>
 
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        X : DataFrame</span>
-<span class="sd">            输入数据</span>
-<span class="sd">        y : Series</span>
-<span class="sd">            输入数据的标签</span>
-<span class="sd">        limit_num : int</span>
-<span class="sd">            预测结果的数量n 排名前n的结果将被断言为阳性</span>
+<span class="sd">        Args:</span>
+<span class="sd">            X (DataFrame): Input feature data.</span>
+<span class="sd">            y (Series, optional): Input data labels (used to determine number of positives if limit_num is None).</span>
+<span class="sd">            limit_num (int, optional): Number of top-ranked results to predict as positive.</span>
+<span class="sd">                If None, uses the number of positive samples in y.</span>
 
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Series</span>
-<span class="sd">            预测结果</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="c1"># 共识性方法实际并不进行拟合</span>
-        <span class="c1"># 而是根据公式计算出预测结果</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Series containing binary predictions (0 or 1).</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If result is None when trying to predict.</span>
+<span class="sd">            ValueError: If y is required but not provided when limit_num is None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Consensus methods don&#39;t actually perform fitting</span>
+        <span class="c1"># but calculate predictions based on formulas</span>
 
         <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Result is None while using </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> method to predict. X is required.&#39;</span><span class="p">)</span>
+                <span class="sa">f</span><span class="s2">&quot;Result is None while using </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> method to predict. X is required.&quot;</span>
+            <span class="p">)</span>
 
         <span class="n">_predict_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-        <span class="n">_predict_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="s1">&#39;probability&#39;</span><span class="p">]</span>
-        <span class="n">_predict_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;probability&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">_predict_df</span><span class="p">[</span><span class="s1">&#39;prediction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">_predict_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="s2">&quot;probability&quot;</span><span class="p">]</span>
+        <span class="n">_predict_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;probability&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">_predict_df</span><span class="p">[</span><span class="s2">&quot;prediction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
 
         <span class="k">if</span> <span class="n">limit_num</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;y is required when limit_num is None.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;y is required when limit_num is None.&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;No limit_num specified, TOP </span><span class="si">{</span><span class="n">y</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s1"> results (same as the number of true positive samples) will be predicted as positive.&#39;</span><span class="p">)</span>
+                <span class="sa">f</span><span class="s2">&quot;No limit_num specified, TOP </span><span class="si">{</span><span class="n">y</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s2"> results (same as the number of true positive samples) will be predicted as positive.&quot;</span>
+            <span class="p">)</span>
             <span class="n">limit_num</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 
         <span class="n">_predict_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">limit_num</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">_predict_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">limit_num</span><span class="p">:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="n">_predict_df</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">_predict_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">_predict_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">_predict_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;prediction&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_predict_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;prediction&quot;</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        按照算法进行概率预测</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="c1"># 共识性方法实际并不进行拟合</span>
-        <span class="c1"># 而是根据公式计算出预测结果 没有概率</span>
-        <span class="c1"># 直接返回计算结果的Numpy array</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make probability predictions using the consensus algorithm.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            X (DataFrame, optional): Input feature data.</span>
+<span class="sd">            y (Series, optional): Input data labels (for compatibility).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Numpy array with shape (n_samples, 2) containing probabilities.</span>
+<span class="sd">            Column 0: probability of negative class</span>
+<span class="sd">            Column 1: probability of positive class (consensus scores)</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If result is None when trying to predict.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Consensus methods don&#39;t actually perform fitting</span>
+        <span class="c1"># but calculate results based on formulas - no actual probabilities</span>
+        <span class="c1"># Directly return calculated results as Numpy array</span>
 
         <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Result is None while using </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> method to predict. X is required.&#39;</span><span class="p">)</span>
+                <span class="sa">f</span><span class="s2">&quot;Result is None while using </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> method to predict. X is required.&quot;</span>
+            <span class="p">)</span>
 
-        <span class="c1"># array [[name, value], [name, value], ...]</span>
-        <span class="c1"># 为兼容在sklearn中的predict_proba 第0维度为样本名(sklearn中为预测值) 第1维度为值(sklearn中为概率)</span>
-        <span class="c1"># 第1维度为主要排序的维度 并用于生成AUC等</span>
+        <span class="c1"># Array format: [[name, value], [name, value], ...]</span>
+        <span class="c1"># For sklearn predict_proba compatibility: dimension 0 = sample name (prediction in sklearn), dimension 1 = value (probability in sklearn)</span>
+        <span class="c1"># Dimension 1 is the primary sorting dimension and used for generating AUC etc.</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="Average">
 <a class="viewcode-back" href="../../../../pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.Average">[docs]</a>
-<span class="k">class</span> <span class="nc">Average</span><span class="p">(</span><span class="n">_Consensus</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    算数平均值模型</span>
-<span class="sd">    算术平均数定义为：</span>
-<span class="sd">        平均数 = 求和(x_i) / 总数</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Average</span><span class="p">(</span><span class="n">_Consensus</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Arithmetic mean consensus model.</span>
+
+<span class="sd">    Calculates arithmetic mean of molecular descriptor values across conformations.</span>
+<span class="sd">    Arithmetic mean is defined as: mean = sum(x_i) / count</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Average.__init__">
 <a class="viewcode-back" href="../../../../pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.Average.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize arithmetic mean consensus algorithm.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            lower_is_better (bool): Whether lower values indicate better performance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">lower_is_better</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;Arithmetic mean&#39;</span><span class="p">})</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;Arithmetic mean&quot;</span><span class="p">})</span></div>
 
 
 <div class="viewcode-block" id="Average.fit">
 <a class="viewcode-back" href="../../../../pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.Average.fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ignore_nan</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        计算算数平均</span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        X : DataFrame</span>
-<span class="sd">            数据特征 即用于计算平均值的数据</span>
-<span class="sd">        y : Series</span>
-<span class="sd">            数据标签 实际不使用在当前计算中 为了兼容性而存在</span>
-<span class="sd">        ignore_nan : bool</span>
-<span class="sd">            是否忽视缺失值(所有0值被视为缺失值)</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="c1"># 在预处理阶段 X的所有NaN被填充为0</span>
-        <span class="c1"># 在计算阶段 X的所有0被重新填充为NaN 在计算Mean时将被忽略</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ignore_nan</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate arithmetic mean across conformations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            X (DataFrame): Feature data containing molecular descriptors across conformations.</span>
+<span class="sd">            y (Series, optional): Data labels (not used in calculation, exists for compatibility).</span>
+<span class="sd">            ignore_nan (bool): Whether to ignore missing values (all 0 values are treated as missing).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># In preprocessing stage, all NaN in X are filled with 0</span>
+        <span class="c1"># In calculation stage, all 0s in X are refilled as NaN and ignored during mean calculation</span>
         <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="k">if</span> <span class="n">ignore_nan</span> <span class="k">else</span> <span class="n">X</span>
 
-        <span class="c1"># mean计算自动忽略NaN</span>
+        <span class="c1"># mean calculation automatically ignores NaN</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower_is_better</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span></div>
@@ -223,59 +243,61 @@
 
 <div class="viewcode-block" id="Mean">
 <a class="viewcode-back" href="../../../../pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.Mean">[docs]</a>
-<span class="k">class</span> <span class="nc">Mean</span><span class="p">(</span><span class="n">Average</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    算术平均值模型</span>
-<span class="sd">    Mean作为Average的别称</span>
-<span class="sd">    &#39;&#39;&#39;</span></div>
+<span class="k">class</span><span class="w"> </span><span class="nc">Mean</span><span class="p">(</span><span class="n">Average</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Arithmetic mean consensus model.</span>
+
+<span class="sd">    Alias for the Average class providing the same arithmetic mean functionality.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="Geo_Average">
 <a class="viewcode-back" href="../../../../pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.Geo_Average">[docs]</a>
-<span class="k">class</span> <span class="nc">Geo_Average</span><span class="p">(</span><span class="n">_Consensus</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    几何平均值模型</span>
-<span class="sd">    几何平均值定义为：</span>
-<span class="sd">        几何平均数 = 连续乘积(x_i)^(1/n)</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Geo_Average</span><span class="p">(</span><span class="n">_Consensus</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Geometric mean consensus model.</span>
+
+<span class="sd">    Calculates geometric mean of molecular descriptor values across conformations.</span>
+<span class="sd">    Geometric mean is defined as: geo_mean = (product(x_i))^(1/n)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Geo_Average.__init__">
 <a class="viewcode-back" href="../../../../pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.Geo_Average.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize geometric mean consensus algorithm.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            lower_is_better (bool): Whether lower values indicate better performance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">lower_is_better</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;Geometric mean&#39;</span><span class="p">})</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;Geometric mean&quot;</span><span class="p">})</span></div>
 
 
 <div class="viewcode-block" id="Geo_Average.fit">
 <a class="viewcode-back" href="../../../../pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.Geo_Average.fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ignore_nan</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        计算几何平均</span>
-<span class="sd">        取绝对值进行计算后 再赋予符号</span>
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        X : DataFrame</span>
-<span class="sd">            数据特征 即用于计算平均值的数据</span>
-<span class="sd">        y : Series</span>
-<span class="sd">            数据标签 实际不使用在当前计算中 为了兼容性而存在</span>
-<span class="sd">        ignore_nan : bool</span>
-<span class="sd">            是否忽视缺失值(所有0值被视为缺失值)</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="c1"># 在预处理阶段 X的所有NaN被填充为0</span>
-        <span class="c1"># 在计算阶段 X的所有0被重新填充为NaN 在计算Mean时将被忽略</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ignore_nan</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate geometric mean across conformations.</span>
+
+<span class="sd">        Takes absolute values for calculation, then applies sign.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            X (DataFrame): Feature data containing molecular descriptors across conformations.</span>
+<span class="sd">            y (Series, optional): Data labels (not used in calculation, exists for compatibility).</span>
+<span class="sd">            ignore_nan (bool): Whether to ignore missing values (all 0 values are treated as missing).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># In preprocessing stage, all NaN in X are filled with 0</span>
+        <span class="c1"># In calculation stage, all 0s in X are refilled as NaN and ignored during calculation</span>
         <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="k">if</span> <span class="n">ignore_nan</span> <span class="k">else</span> <span class="n">X</span>
 
-        <span class="c1"># 取绝对值进行计算后 再赋予符号</span>
+        <span class="c1"># Take absolute values for calculation, then apply sign</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">Series</span><span class="p">(</span>
             <span class="nb">pow</span><span class="p">(</span>
-                <span class="c1"># 绝对值连续乘积</span>
+                <span class="c1"># Absolute value continuous product</span>
                 <span class="n">X</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(),</span>
-                <span class="c1"># 开项数次根</span>
-                <span class="mi">1</span><span class="o">/</span><span class="n">X</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="c1"># Take nth root where n is the number of valid values</span>
+                <span class="mi">1</span> <span class="o">/</span> <span class="n">X</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
             <span class="p">),</span>
-            <span class="n">name</span><span class="o">=</span><span class="s1">&#39;GEO&#39;</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;GEO&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower_is_better</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span></div>
@@ -285,35 +307,45 @@
 
 <div class="viewcode-block" id="GeoMean">
 <a class="viewcode-back" href="../../../../pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.GeoMean">[docs]</a>
-<span class="k">class</span> <span class="nc">GeoMean</span><span class="p">(</span><span class="n">Geo_Average</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    几何平均值模型</span>
-<span class="sd">    GeoMean作为Geo_Average的别称</span>
-<span class="sd">    &#39;&#39;&#39;</span></div>
+<span class="k">class</span><span class="w"> </span><span class="nc">GeoMean</span><span class="p">(</span><span class="n">Geo_Average</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Geometric mean consensus model.</span>
+
+<span class="sd">    Alias for the Geo_Average class providing the same geometric mean functionality.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="Minimum">
 <a class="viewcode-back" href="../../../../pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.Minimum">[docs]</a>
-<span class="k">class</span> <span class="nc">Minimum</span><span class="p">(</span><span class="n">_Consensus</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    最小值模型</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Minimum</span><span class="p">(</span><span class="n">_Consensus</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Minimum value consensus model.</span>
+
+<span class="sd">    Selects the minimum value across conformations for each molecule.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Minimum.__init__">
 <a class="viewcode-back" href="../../../../pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.Minimum.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize minimum value consensus algorithm.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            lower_is_better (bool): Whether lower values indicate better performance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">lower_is_better</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;Minimum&#39;</span><span class="p">})</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;Minimum&quot;</span><span class="p">})</span></div>
 
 
 <div class="viewcode-block" id="Minimum.fit">
 <a class="viewcode-back" href="../../../../pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.Minimum.fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ignore_nan</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        取得最小值</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ignore_nan</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate minimum values across conformations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            X (DataFrame): Feature data containing molecular descriptors across conformations.</span>
+<span class="sd">            y (Series, optional): Data labels (not used in calculation, exists for compatibility).</span>
+<span class="sd">            ignore_nan (bool): Whether to ignore missing values (all 0 values are treated as missing).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="k">if</span> <span class="n">ignore_nan</span> <span class="k">else</span> <span class="n">X</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower_is_better</span><span class="p">:</span>
@@ -324,25 +356,35 @@
 
 <div class="viewcode-block" id="Maximum">
 <a class="viewcode-back" href="../../../../pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.Maximum">[docs]</a>
-<span class="k">class</span> <span class="nc">Maximum</span><span class="p">(</span><span class="n">_Consensus</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    最大值模型</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Maximum</span><span class="p">(</span><span class="n">_Consensus</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Maximum value consensus model.</span>
+
+<span class="sd">    Selects the maximum value across conformations for each molecule.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Maximum.__init__">
 <a class="viewcode-back" href="../../../../pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.Maximum.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize maximum value consensus algorithm.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            lower_is_better (bool): Whether lower values indicate better performance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">lower_is_better</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;Maximum&#39;</span><span class="p">})</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;Maximum&quot;</span><span class="p">})</span></div>
 
 
 <div class="viewcode-block" id="Maximum.fit">
 <a class="viewcode-back" href="../../../../pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.Maximum.fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ignore_nan</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        取得最大值</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ignore_nan</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate maximum values across conformations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            X (DataFrame): Feature data containing molecular descriptors across conformations.</span>
+<span class="sd">            y (Series, optional): Data labels (not used in calculation, exists for compatibility).</span>
+<span class="sd">            ignore_nan (bool): Whether to ignore missing values (all 0 values are treated as missing).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="k">if</span> <span class="n">ignore_nan</span> <span class="k">else</span> <span class="n">X</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower_is_better</span><span class="p">:</span>
@@ -350,99 +392,85 @@
 </div>
 
 
-<span class="c1"># 函数接口</span>
+
+<span class="c1"># Functional interfaces</span>
 
 
 <div class="viewcode-block" id="average">
 <a class="viewcode-back" href="../../../../pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.average">[docs]</a>
-<span class="k">def</span> <span class="nf">average</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;ave&#39;</span><span class="p">,</span> <span class="s1">&#39;geo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;ave&#39;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    平均值算法 : 计算并生成DataFrame对接数据的平均值列  </span>
-<span class="sd">    ave 算数平均</span>
-<span class="sd">    geo 几何平均</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">average</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;ave&quot;</span><span class="p">,</span> <span class="s2">&quot;geo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ave&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Series</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate average values across molecular conformations.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    data : DataFrame</span>
-<span class="sd">        待计算数据</span>
-<span class="sd">    method : str</span>
-<span class="sd">        平均值计算方法 ( 算术平均值ave | 几何平均值geo )</span>
+<span class="sd">    Provides functional interface for average calculations:</span>
+<span class="sd">    - &#39;ave&#39;: Arithmetic mean</span>
+<span class="sd">    - &#39;geo&#39;: Geometric mean</span>
 
-<span class="sd">    Return</span>
-<span class="sd">    ----------</span>
-<span class="sd">    Series</span>
-<span class="sd">        平均值结果数据列</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;AVE&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;AVE&#39;</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;GEO&#39;</span><span class="p">:</span>
-        <span class="c1"># 首先消除符号再计算几何平均</span>
-        <span class="c1"># 最后添加符号</span>
-        <span class="k">return</span> <span class="n">Series</span><span class="p">(</span><span class="o">-</span> <span class="nb">pow</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(),</span> <span class="mi">1</span><span class="o">/</span><span class="n">data</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;GEO&#39;</span><span class="p">)</span>
+<span class="sd">    Args:</span>
+<span class="sd">        data (DataFrame): DataFrame containing molecular data to calculate averages from.</span>
+<span class="sd">        method (str): Average calculation method (&#39;ave&#39; for arithmetic mean | &#39;geo&#39; for geometric mean).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Series containing average values.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: If method is not &#39;ave&#39; or &#39;geo&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;AVE&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;AVE&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">method</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;GEO&quot;</span><span class="p">:</span>
+        <span class="c1"># First eliminate signs then calculate geometric mean</span>
+        <span class="c1"># Finally add sign</span>
+        <span class="k">return</span> <span class="n">Series</span><span class="p">(</span><span class="o">-</span><span class="nb">pow</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">(),</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">data</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;GEO&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Invalid average value method.&#39;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Invalid average value method.&quot;</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="minimum">
 <a class="viewcode-back" href="../../../../pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.minimum">[docs]</a>
-<span class="k">def</span> <span class="nf">minimum</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    最小值(最优评分) : 提取DataFrame数据列中的最小值(如最佳对接分数)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">minimum</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Series</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract minimum values (best scores) from DataFrame columns.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    data : DataFrame</span>
-<span class="sd">        待计算数据</span>
+<span class="sd">    Useful for extracting optimal scores such as best docking scores.</span>
 
-<span class="sd">    Return</span>
-<span class="sd">    ----------</span>
-<span class="sd">    Series</span>
-<span class="sd">        最小值结果数据列</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;MIN&#39;</span><span class="p">)</span></div>
+<span class="sd">    Args:</span>
+<span class="sd">        data (DataFrame): DataFrame containing molecular data to extract minimums from.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Series containing minimum values for each row.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MIN&quot;</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="maximum">
 <a class="viewcode-back" href="../../../../pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.maximum">[docs]</a>
-<span class="k">def</span> <span class="nf">maximum</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    最大值 : 提取DataFrame数据列中的最大值</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">maximum</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Series</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract maximum values from DataFrame columns.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    data : DataFrame</span>
-<span class="sd">        待计算数据</span>
+<span class="sd">    Args:</span>
+<span class="sd">        data (DataFrame): DataFrame containing molecular data to extract maximums from.</span>
 
-<span class="sd">    Return</span>
-<span class="sd">    ----------</span>
-<span class="sd">    Series</span>
-<span class="sd">        最大值结果数据列</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;MAX&#39;</span><span class="p">)</span></div>
+<span class="sd">    Returns:</span>
+<span class="sd">        Series containing maximum values for each row.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;MAX&quot;</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="std">
 <a class="viewcode-back" href="../../../../pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.std">[docs]</a>
-<span class="k">def</span> <span class="nf">std</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    计算标准偏差</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">std</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Series</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate standard deviation.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    data : DataFrame</span>
-<span class="sd">        待计算数据</span>
-<span class="sd">    axis : int</span>
-<span class="sd">        计算坐标轴 row: 0, column: 1</span>
+<span class="sd">    Args:</span>
+<span class="sd">        data (DataFrame): DataFrame containing molecular data to calculate standard deviation from.</span>
+<span class="sd">        axis (int): Calculation axis (0 for rows, 1 for columns).</span>
 
-<span class="sd">    Return</span>
-<span class="sd">    ----------</span>
-<span class="sd">    Series</span>
-<span class="sd">        标准差结果数据列</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;std&#39;</span><span class="p">)</span></div>
+<span class="sd">    Returns:</span>
+<span class="sd">        Series containing standard deviation values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;std&quot;</span><span class="p">)</span></div>
 
 </pre></div>
 

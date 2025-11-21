@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyCADD.Dock.common &mdash; pyCADD.Dock 2.0.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -71,20 +71,18 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pyCADD.Dock.common</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.utils.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">File</span>
 
-<span class="kn">from</span> <span class="nn">pyCADD.utils.common</span> <span class="kn">import</span> <span class="n">File</span>
-
-<span class="kn">from</span> <span class="nn">.const</span> <span class="kn">import</span> <span class="n">AMINO_ACIDS</span><span class="p">,</span> <span class="n">ATOM_RECORDS</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">check_pdb</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.const</span><span class="w"> </span><span class="kn">import</span> <span class="n">AMINO_ACIDS</span><span class="p">,</span> <span class="n">ATOM_RECORDS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_pdb</span>
 
 
 <div class="viewcode-block" id="PDBLine">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.PDBLine">[docs]</a>
-<span class="k">class</span> <span class="nc">PDBLine</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PDBLine</span><span class="p">:</span>
 <div class="viewcode-block" id="PDBLine.__init__">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.PDBLine.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;One line in a pdb file</span>
 
 <span class="sd">        Args:</span>
@@ -111,7 +109,7 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_slice_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_slice_define</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;record_name&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
             <span class="s2">&quot;atom_idx&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">11</span><span class="p">),</span>
@@ -130,56 +128,56 @@
             <span class="s2">&quot;charge&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">78</span><span class="p">,</span> <span class="mi">80</span><span class="p">),</span>
         <span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">_get_line_slice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">strip</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_line_slice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">strip</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">info</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">return</span> <span class="n">info</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">if</span> <span class="n">strip</span> <span class="k">else</span> <span class="n">info</span>
 
-    <span class="k">def</span> <span class="nf">_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slice_define</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_line_slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;PDBLine </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="si">}</span><span class="s2"> &gt;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_atom_line</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_atom_line</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;ATOM&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;HETATM&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_amino</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_amino</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">record_name</span> <span class="ow">in</span> <span class="n">ATOM_RECORDS</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">res_name</span> <span class="ow">in</span> <span class="n">AMINO_ACIDS</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_hetatm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_hetatm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;HETATM&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_conect</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_conect</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;CONECT&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_ter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_ter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;TER&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;END&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_formatter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_formatter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_atom_name</span><span class="p">())</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{:&lt;6}{:&gt;5}</span><span class="s2"> </span><span class="si">{:&lt;4}{:1}{:&lt;3}</span><span class="s2"> </span><span class="si">{:1}{:&gt;4}{:1}</span><span class="s2">   </span><span class="si">{:&gt;8}{:&gt;8}{:&gt;8}{:&gt;6}{:&gt;6}</span><span class="s2">          </span><span class="si">{:&gt;2}{:&gt;2}</span><span class="s2">&quot;</span>
         <span class="c1"># start writing atom name at 14th column</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{:&lt;6}{:&gt;5}</span><span class="s2">  </span><span class="si">{:&lt;3}{:1}{:&lt;3}</span><span class="s2"> </span><span class="si">{:1}{:&gt;4}{:1}</span><span class="s2">   </span><span class="si">{:&gt;8}{:&gt;8}{:&gt;8}{:&gt;6}{:&gt;6}</span><span class="s2">          </span><span class="si">{:&gt;2}{:&gt;2}</span><span class="s2">&quot;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">line</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">line</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formatter</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">record_name</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">atom_idx</span><span class="p">,</span>
@@ -200,7 +198,7 @@
 
 <div class="viewcode-block" id="PDBLine.get_line">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.PDBLine.get_line">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_line</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_line</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the line string from current attributes</span>
 
 <span class="sd">        Returns:</span>
@@ -211,7 +209,7 @@
 
 <div class="viewcode-block" id="PDBLine.get_atom_name">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.PDBLine.get_atom_name">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_atom_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_atom_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the atom name from the line</span>
 
 <span class="sd">        Returns:</span>
@@ -229,10 +227,10 @@
 
 <div class="viewcode-block" id="PDBLineParser">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.PDBLineParser">[docs]</a>
-<span class="k">class</span> <span class="nc">PDBLineParser</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PDBLineParser</span><span class="p">:</span>
 <div class="viewcode-block" id="PDBLineParser.__init__">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.PDBLineParser.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdb_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">pdb_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdb_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">pdb_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse pdb file string or file.</span>
 
 <span class="sd">        Args:</span>
@@ -251,17 +249,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_parse_lines</span><span class="p">()</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_line_str_list</span><span class="p">())</span>
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_parse_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pdb_lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">PDBLine</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdb_str</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span> <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_idx_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">line</span><span class="o">.</span><span class="n">atom_idx</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdb_lines</span><span class="p">)}</span>
 
-    <span class="k">def</span> <span class="nf">_read_pdb_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_read_pdb_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Read the pdb file if pdb_str is not provided</span>
 
 <span class="sd">        Returns:</span>
@@ -273,7 +271,7 @@
 
 <div class="viewcode-block" id="PDBLineParser.get_lines">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.PDBLineParser.get_lines">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a list of all lines parsed from the pdb file.</span>
 
 <span class="sd">        Returns:</span>
@@ -284,7 +282,7 @@
 
 <div class="viewcode-block" id="PDBLineParser.get_atom_lines">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.PDBLineParser.get_atom_lines">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_atom_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_atom_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a list of atom line objects parsed from the pdb file.</span>
 
 <span class="sd">        Returns:</span>
@@ -295,7 +293,7 @@
 
 <div class="viewcode-block" id="PDBLineParser.get_amino_lines">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.PDBLineParser.get_amino_lines">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_amino_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_amino_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a list of amino acid line objects parsed from the pdb file.</span>
 <span class="sd">        Amino acid line is defined as the line with record name &#39;ATOM&#39; and res_name in AMINO_ACIDS</span>
 
@@ -307,7 +305,7 @@
 
 <div class="viewcode-block" id="PDBLineParser.get_hetatm_lines">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.PDBLineParser.get_hetatm_lines">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_hetatm_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_hetatm_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a list of HETATM line objects parsed from the pdb file.</span>
 
 <span class="sd">        Returns:</span>
@@ -318,7 +316,7 @@
 
 <div class="viewcode-block" id="PDBLineParser.get_str_list">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.PDBLineParser.get_str_list">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_str_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_str_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a list of pdb line strings.</span>
 
 <span class="sd">        Returns:</span>
@@ -329,7 +327,7 @@
 
 <div class="viewcode-block" id="PDBLineParser.save_pdb">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.PDBLineParser.save_pdb">[docs]</a>
-    <span class="k">def</span> <span class="nf">save_pdb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_pdb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the pdb file to the file_path</span>
 
 <span class="sd">        Args:</span>
@@ -343,10 +341,10 @@
 
 <div class="viewcode-block" id="PDBFile">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.PDBFile">[docs]</a>
-<span class="k">class</span> <span class="nc">PDBFile</span><span class="p">(</span><span class="n">File</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PDBFile</span><span class="p">(</span><span class="n">File</span><span class="p">):</span>
 <div class="viewcode-block" id="PDBFile.__init__">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.PDBFile.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;PDB file class</span>
 
 <span class="sd">        Args:</span>
@@ -357,7 +355,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pdb_parser</span> <span class="o">=</span> <span class="n">PDBLineParser</span><span class="p">(</span><span class="n">pdb_file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_catch_lig</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_catch_lig</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
         <span class="n">result_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">_items</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;resid&quot;</span><span class="p">,</span> <span class="s2">&quot;atom_num&quot;</span><span class="p">]</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -371,7 +369,7 @@
 
 <div class="viewcode-block" id="PDBFile.get_lines">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.PDBFile.get_lines">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">return_str</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">return_str</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span> <span class="o">|</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the pdb file content as a list of lines or a string</span>
 
 <span class="sd">        Args:</span>
@@ -389,7 +387,7 @@
 
 <div class="viewcode-block" id="PDBFile.get_chain">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.PDBFile.get_chain">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_chain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">return_str</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_chain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">return_str</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span> <span class="o">|</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the pdb file content of a single chain</span>
 
 <span class="sd">        Args:</span>
@@ -411,10 +409,10 @@
 
 <div class="viewcode-block" id="EnsembleInputFile">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile">[docs]</a>
-<span class="k">class</span> <span class="nc">EnsembleInputFile</span><span class="p">(</span><span class="n">File</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EnsembleInputFile</span><span class="p">(</span><span class="n">File</span><span class="p">):</span>
 <div class="viewcode-block" id="EnsembleInputFile.__init__">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Input file class for ensemble docking</span>
 
 <span class="sd">        Args:</span>
@@ -427,13 +425,13 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">pdbid_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pdbid_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pdbid_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_pdbid_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pdbid_list</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pdbid_list</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">ligand_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ligand_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ligand_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ligand_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ligand_list</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ligand_list</span>
@@ -441,7 +439,7 @@
 <div class="viewcode-block" id="EnsembleInputFile.from_csv">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.from_csv">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_csv</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sep</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">header</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;EnsembleInputFile&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_csv</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sep</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">header</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;EnsembleInputFile&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parse input file as csv format</span>
 
@@ -487,7 +485,7 @@
 <div class="viewcode-block" id="EnsembleInputFile.from_ini">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.from_ini">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_ini</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;EnsembleInputFile&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_ini</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;EnsembleInputFile&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse input file as ini format</span>
 
 <span class="sd">        Args:</span>
@@ -505,7 +503,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            EnsembleInputFile: instance of EnsembleInputFile</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">pyCADD.utils.common</span> <span class="kn">import</span> <span class="n">FixedConfig</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.utils.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">FixedConfig</span>
 
         <span class="n">config</span> <span class="o">=</span> <span class="n">FixedConfig</span><span class="p">()</span>
         <span class="n">config</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
@@ -524,30 +522,16 @@
 <div class="viewcode-block" id="EnsembleInputFile.from_yaml">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.from_yaml">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_yaml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">yaml_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;EnsembleInputFile&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_yaml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">yaml_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;EnsembleInputFile&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse input file as yaml format</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            yaml_file (str): yaml file path</span>
 
-
-<span class="sd">        yaml examples:</span>
-<span class="sd">            ```</span>
-<span class="sd">            P10275:</span>
-<span class="sd">                1XJ7: DHT</span>
-<span class="sd">                1XQ3:</span>
-<span class="sd">                - R18</span>
-<span class="sd">                2AM9:</span>
-<span class="sd">                - TES</span>
-<span class="sd">                - DTT</span>
-<span class="sd">                2YLP:</span>
-<span class="sd">                - TES</span>
-<span class="sd">                - &#39;056&#39;</span>
-
 <span class="sd">        Returns:</span>
 <span class="sd">            EnsembleInputFile: instance of EnsembleInputFile</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">import</span> <span class="nn">yaml</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">yaml_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">yaml_dict</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
@@ -567,7 +551,7 @@
 <div class="viewcode-block" id="EnsembleInputFile.parse_file">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.parse_file">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">parse_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">header</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;EnsembleInputFile&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">header</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;EnsembleInputFile&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse input file</span>
 
 <span class="sd">        Args:</span>
@@ -593,7 +577,7 @@
 
 <div class="viewcode-block" id="EnsembleInputFile.read">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.read">[docs]</a>
-    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Read and parse the input file</span>
 
 <span class="sd">        Args:</span>
@@ -604,7 +588,7 @@
 
 <div class="viewcode-block" id="EnsembleInputFile.get_pairs_list">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.get_pairs_list">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_pairs_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_pairs_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the list of pairs. Pairs are defined as (pdb, ligand)</span>
 
 <span class="sd">        Returns:</span>
@@ -617,7 +601,7 @@
 
 <div class="viewcode-block" id="EnsembleInputFile.get_pdbid_list">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.get_pdbid_list">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_pdbid_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_pdbid_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the list of unique pdb ids</span>
 
 <span class="sd">        Returns:</span>
@@ -630,7 +614,7 @@
 
 <div class="viewcode-block" id="EnsembleInputFile.get_ligand_list">
 <a class="viewcode-back" href="../../../pyCADD.Dock.html#pyCADD.Dock.common.EnsembleInputFile.get_ligand_list">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_ligand_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ligand_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the list of unique ligands</span>
 
 <span class="sd">        Returns:</span>

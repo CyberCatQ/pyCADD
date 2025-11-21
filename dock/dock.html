@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dock User Guide &mdash; pyCADD.Dock 2.0.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
@@ -48,7 +48,6 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Dock User Guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#download-pdb-file-s">Download PDB file(s)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#docking-of-many-to-many-ensemble-docking">Docking of Many-to-many (Ensemble Docking)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#generate-docking-reports">Generate Docking Reports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#generate-input-files-for-ensemble-docking">Generate Input Files for Ensemble Docking</a></li>
 </ul>
 </li>
@@ -110,8 +109,8 @@ python3 -m pip install pycadd -U
 <p><code class="docutils literal notranslate"><span class="pre">pyCADD</span></code> 的 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">ensemble-dock</span></code> 提供了高性能多核并行系综对接 (Ensemble Docking) 计算及数据处理的CLI接口。</p>
 <p>请确保当前工作目录在您想要保存项目文件的目录中, 并在目录中额外准备：</p>
 <ul class="simple">
-<li><p>一个分行列出的, 包含所有受体蛋白所属 PDB ID的输入文件，支持的格式包括 <strong>.csv</strong> <strong>.ini</strong> <strong>.in</strong> <strong>.yaml</strong> <strong>.yml</strong>, 支持的输入文件格式请参阅 <a class="reference external" href="#generate-input-files-for-ensemble-docking">为系综对接构建Dock输入文件的示例</a>。该输入文件可由<code class="docutils literal notranslate"><span class="pre">Demand</span></code>模块自动生成，或由您手动创建;</p></li>
-<li><p>一个需要对接的化合物库 <strong>3D结构文件</strong> *<em>.pdb</em>  *<em>.mae</em> *<em>.sdf</em> 或其他Schrodinger支持的格式<br />如果晶体包含有多个不同名称(ID)的小分子配体, 请在文件中指明 (以逗号分隔) 以定义对接格点的中心;<br />如包含相同名称的多个小分子，则 <code class="docutils literal notranslate"><span class="pre">Dock</span></code> 会自动选择其中之一定义为对接格点的中心。</p></li>
+<li><p>一个分行列出的, 包含所有受体蛋白所属 PDB ID的输入文件，支持的格式包括 <strong>.csv</strong> <strong>.ini</strong> <strong>.in</strong> <strong>.yaml</strong> <strong>.yml</strong>, 支持的输入文件格式请参阅 <a class="reference external" href="#generate-input-files-for-ensemble-docking">为Ensemble Docking构建Dock输入文件的示例</a>。该输入文件可由<code class="docutils literal notranslate"><span class="pre">Demand</span></code>模块自动生成，或由您手动创建;</p></li>
+<li><p>一个需要对接的化合物库 <strong>3D结构文件</strong> *<em>.pdb</em>  *<em>.mae</em> *<em>.sdf</em> 或其他Schrodinger支持的格式<br />如果晶体包含有多个不同名称(ID)的小分子配体, 请在文件中指明 (以逗号分隔) 以定义对接 Grid Box 的中心;<br />如包含相同名称的多个小分子，则 <code class="docutils literal notranslate"><span class="pre">Dock</span></code> 会自动选择其中之一定义为对接 Grid Box 的中心。</p></li>
 </ul>
 <p>以下是一个输入文件的示例 <em>example.csv</em>：</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">3</span><span class="n">OAP</span><span class="p">,</span><span class="mi">9</span><span class="n">CR</span>
@@ -119,43 +118,31 @@ python3 -m pip install pycadd -U
 <span class="mi">4</span><span class="n">K6I</span><span class="p">,</span><span class="mi">9</span><span class="n">RA</span>
 </pre></div>
 </div>
-<p>还需要提供一个准备就绪的用于对接的化合物库文件(其中含有若干个结构)，如 <em>library_file.mae</em>，其中包含若干个已经完成了氢原子添加、质子化状态计算、能量最小化等预处理步骤的三维化合物结构。</p>
+<p>提供一个准备就绪的用于对接的化合物库文件(其中含有若干个结构)，如 <em>library_file.sdf</em>，其中包含若干个已经完成了氢原子添加、质子化状态计算、能量最小化等预处理步骤的三维化合物结构。</p>
 <p>然后 您可以通过命令</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-dock<span class="w"> </span>ensemble-dock<span class="w"> </span>example.csv<span class="w"> </span>library_file.mae<span class="w"> </span>-n<span class="w"> </span><span class="m">24</span><span class="w"> </span>-p<span class="w"> </span>SP<span class="w"> </span><span class="o">[</span>--del_water<span class="o">]</span><span class="w"> </span><span class="o">[</span>-redock<span class="o">]</span><span class="w"> </span><span class="o">[</span>-O<span class="o">]</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-dock<span class="w"> </span>ensemble-dock<span class="w"> </span>example.csv<span class="w"> </span>library_file.sdf<span class="w"> </span>-n<span class="w"> </span><span class="m">24</span><span class="w"> </span>-p<span class="w"> </span>SP<span class="w"> </span><span class="o">[</span>--del_water/-w<span class="o">]</span><span class="w"> </span><span class="o">[</span>--redock<span class="o">]</span><span class="w"> </span><span class="o">[</span>--rmsd/-r<span class="o">]</span><span class="w"> </span><span class="o">[</span>-s/--save_dir<span class="w"> </span>&lt;DIR&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>-O<span class="o">]</span>
 </pre></div>
 </div>
 <p>启动 Ensemble Docking。</p>
 <ul class="simple">
 <li><p>-n / –parallel <NUM> 指定使用的并行核心数量，如未设定将默认使用系统最大核心数量的 75%。</p></li>
 <li><p>-p / –precision &lt;SP | XP | HTVS&gt; 指定对接精度，默认为 SP。</p></li>
-<li><p>–del_water 指定是否删除晶体中的所有水分子。默认为保留口袋中心5埃范围内的水分子，其余删除。</p></li>
+<li><p>-w / –del_water 指定是否删除晶体中的所有水分子。默认为保留口袋中心5埃范围内的水分子，其余删除。</p></li>
 <li><p>–redock 指定是否进行回顾性对接。即首先将PDB晶体的共晶小分子对接回口袋中，默认为不进行。</p></li>
-<li><p>-O / –overwrite 指定是否覆盖已有结果。当前路径下如已运行过ensemble docking并留有结果文件时，默认将跳过已执行过的准备工作及对接，指定该参数则重新运行完整工作流并覆盖已有文件。</p></li>
+<li><p>-r / –rmsd 指定是否在对接过程中计算RMSD值。默认为不计算RMSD。</p></li>
+<li><p>-s / –save_dir <DIR> 指定结果保存目录，默认为当前工作目录。</p></li>
+<li><p>-O / –overwrite 指定是否覆盖已有结果。当前路径下如已运行过 Ensemble Docking 并留有结果文件时，默认将跳过已执行过的准备工作及对接，指定该参数则重新运行完整工作流并覆盖已有文件。</p></li>
 </ul>
-<p>Dock 模块将会下载每一个受体PDB结构，完成晶体准备过程，保留输入文件中指定小分子所结合的单一蛋白链，生成对接网格文件，就如同常规分子对接流程的蛋白准备的工作流一样。<br />然后，将<em>library_file.mae</em> 中的每一个化合物交叉对接到每一个受体中。对接结束后，<strong>M</strong> 个受体与 <strong>N</strong> 个配体的 Ensemble Docking 将会得到 <strong>M x N</strong> 的分数矩阵。单次对接不成功时, 矩阵中的对应位置将会留空。</p>
+<p>Dock 模块将会下载每一个PDB结构，自动完成晶体准备过程，并保留输入文件中指定小分子所结合的单一蛋白链（显示为 <code class="docutils literal notranslate"><span class="pre">PDBID-chain-X</span></code> 样式），生成对接 grid 文件，就如同常规分子对接流程的蛋白准备的工作流一样。<br />然后，将<em>library_file.mae</em> 中的每一个化合物交叉对接到每一个受体中。对接结束后，<strong>M</strong> 个受体与 <strong>N</strong> 个配体的 Ensemble Docking 将会得到 <strong>M x N</strong> 的分数矩阵。单次对接不成功时, 矩阵中的对应位置将会留空。
+分数矩阵可用于您进一步的分析，或用于机器/深度学习建模等工作。</p>
 <p>使用</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-dock<span class="w"> </span>ensemble-dock<span class="w"> </span>--help
 </pre></div>
 </div>
 <p>以获取更多帮助信息。</p>
-<p>所有集合式对接工作完成后, 将自动提取重要的对接结果数据, 并保存在 <code class="docutils literal notranslate"><span class="pre">result</span></code> 目录下的 <code class="docutils literal notranslate"><span class="pre">_DOCK_FINAL_RESULTS.csv</span></code>字样的文件中, 且将产生汇总矩阵文件<code class="docutils literal notranslate"><span class="pre">matrix.csv</span></code>，该文件可直接用于 <code class="docutils literal notranslate"><span class="pre">Dance</span></code> 模块中用于机器学习建模等过程。</p>
-<p>此外, <code class="docutils literal notranslate"><span class="pre">result/docking_failed_SP.csv</span></code> 文件中将会记录此轮中未能成功对接的配体-受体对。重新运行 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">ensemble-dock</span></code> 时，该文件中的记录配对将被自动跳过以节约时间成本；如果您希望重新对接这些配体-受体对，请删除或重命名该文件。</p>
+<p>所有 Ensemble Docking 工作完成后, 将自动提取重要的对接结果数据, 并保存在 <code class="docutils literal notranslate"><span class="pre">result</span></code> 目录下的 <code class="docutils literal notranslate"><span class="pre">_DOCK_FINAL_RESULTS.csv</span></code>字样的文件中, 且将产生汇总矩阵文件<code class="docutils literal notranslate"><span class="pre">_matrix.csv</span></code>。</p>
 <p>如果 Ensemble Docking 环节由于某些原因或意外被迫中断，您可以重新运行命令，已完成的部分将会自动跳过。您也可以使用<code class="docutils literal notranslate"><span class="pre">-O/--overwrite</span></code>参数来完全从头运行整个Ensemble Docking。</p>
 <p>数据提取环节意外中断时，可以使用数据提取命令来重新尝试提取及合并数据。数据提取仅尝试提取已有的结果文件，不会重新运行对接。未能成功提取的配体-受体对将会在矩阵中留空。</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-dock<span class="w"> </span>extract-data<span class="w"> </span>example.csv<span class="w"> </span>ligand_file.mae<span class="w"> </span>-n<span class="w"> </span><span class="m">24</span><span class="w"> </span>-p<span class="w"> </span>SP<span class="w"> </span><span class="o">[</span>--redock<span class="o">]</span>
-</pre></div>
-</div>
-</section>
-<section id="generate-docking-reports">
-<h2>Generate Docking Reports<a class="headerlink" href="#generate-docking-reports" title="Link to this heading"></a></h2>
-<p>CLI命令 <code class="docutils literal notranslate"><span class="pre">pycadd-dock</span> <span class="pre">generate-report</span></code> 提供了将若干重要分子对接于多个配体并生成对比报告的功能。<br />与Ensemble Docking相似，晶体被下载并预处理完成后，所有晶体的共晶配体分子会被首先对接回晶体自身，以完成回顾性对接(Self-Docking)，并得到共晶分子的参考分数。接下来，化合物库中的分子继续依次被对接到蛋白晶体中。<br />最后，将自动为化合物库中的每一个配体生成一个独立的EXCEL报告文件，以便于直观比较当前分子与共晶分子的得分情况；该分子及共晶分子的2D结构图也会被自动保存在报告文件中。</p>
-<p>使用命令</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycadd-dock<span class="w"> </span>generate-report<span class="w"> </span>example.csv<span class="w"> </span>ligand_file.mae<span class="w"> </span>-n<span class="w"> </span><span class="m">24</span><span class="w"> </span>-p<span class="w"> </span>SP<span class="w"> </span><span class="o">[</span>--del_water<span class="o">]</span><span class="w"> </span><span class="o">[</span>-redock<span class="o">]</span><span class="w"> </span><span class="o">[</span>-O<span class="o">]</span>
-</pre></div>
-</div>
-<p>等待共晶分子的回顾性对接，及化合物库对接完成后，将会在当前目录下的 <code class="docutils literal notranslate"><span class="pre">result/</span></code> 文件夹生成对接结果文件及EXCEL报告文件。</p>
-<p>本质上，该接口运行与<code class="docutils literal notranslate"><span class="pre">ensemble-dock</span></code>相同的工作流，并在最后增加了EXCEL报告的生成。因此，如您已经完成了<code class="docutils literal notranslate"><span class="pre">ensemble-dock</span></code>的工作流，预计对接流程将被跳过，您可以直接使用 <code class="docutils literal notranslate"><span class="pre">generate-report</span></code> 接口来快速生成EXCEL报告。</p>
-<p>报告文件生成应该聚焦于少数重点分子，不建议为过多分子生成报告文件。</p>
 </section>
 <section id="generate-input-files-for-ensemble-docking">
 <h2>Generate Input Files for Ensemble Docking<a class="headerlink" href="#generate-input-files-for-ensemble-docking" title="Link to this heading"></a></h2>

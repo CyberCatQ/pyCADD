@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyCADD.Density package &mdash; pyCADD.Density 2.0.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
@@ -48,6 +48,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-pyCADD.Density.base">pyCADD.Density.base module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#pyCADD.Density.base.Gauss"><code class="docutils literal notranslate"><span class="pre">Gauss</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Density.base.Gauss.gauss"><code class="docutils literal notranslate"><span class="pre">Gauss.gauss</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pyCADD.Density.base.Gauss.__init__"><code class="docutils literal notranslate"><span class="pre">Gauss.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pyCADD.Density.base.Gauss.change_atom_type"><code class="docutils literal notranslate"><span class="pre">Gauss.change_atom_type()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pyCADD.Density.base.Gauss.run"><code class="docutils literal notranslate"><span class="pre">Gauss.run()</span></code></a></li>
@@ -121,22 +122,30 @@ single-point energy calculations, and RESP/RESP2 charge calculations.</p>
 including geometry optimization, single-point energy calculations, and RESP
 charge calculations. It automatically manages input file generation, job
 execution, and output file handling.</p>
-<dl>
-<dt>Attributes:</dt><dd><p>gauss (str): Path to the Gaussian executable (g16).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.gauss">
+<span class="sig-name descname"><span class="pre">gauss</span></span><a class="headerlink" href="#pyCADD.Density.base.Gauss.gauss" title="Link to this definition"></a></dt>
+<dd><p>Path to the Gaussian executable (g16).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
-<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gauss</span> <span class="o">=</span> <span class="n">Gauss</span><span class="p">()</span>
+</dl>
+</dd></dl>
+
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gauss</span> <span class="o">=</span> <span class="n">Gauss</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">opt_file</span> <span class="o">=</span> <span class="n">gauss</span><span class="o">.</span><span class="n">calc_opt</span><span class="p">(</span><span class="s2">&quot;molecule.sdf&quot;</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">multiplicity</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">resp_file</span> <span class="o">=</span> <span class="n">gauss</span><span class="o">.</span><span class="n">calc_resp</span><span class="p">(</span><span class="s2">&quot;molecule.sdf&quot;</span><span class="p">,</span> <span class="n">charge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
-</dd>
-</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Density.base.Gauss.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Density/base.html#Gauss.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Density.base.Gauss.__init__" title="Link to this definition"></a></dt>
 <dd><p>Initializes the Gauss calculator by locating the Gaussian executable.</p>
-<dl class="simple">
-<dt>Raises:</dt><dd><p>FileNotFoundError: If the g16 executable is not found in the system PATH.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>FileNotFoundError</strong> – If the g16 executable is not found in the system PATH.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -153,24 +162,34 @@ execution, and output file handling.</p>
 <p>Runs a Gaussian calculation by writing the input to a file and executing
 the Gaussian program. The calculation can be run in a temporary directory
 or a specified output directory.</p>
-<dl>
-<dt>Args:</dt><dd><p>gau_input (str): Complete Gaussian input file content as a string.
-job_name (str, optional): Base name for input and output files. Defaults to “gauss_job”.
-dumpto (str, optional): Directory path where calculation files should be saved.</p>
-<blockquote>
-<div><p>If None, uses a temporary directory that is automatically cleaned up.</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gau_input</strong> (<em>str</em>) – Complete Gaussian input file content as a string.</p></li>
+<li><p><strong>job_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Base name for input and output files. Defaults to “gauss_job”.</p></li>
+<li><p><strong>dumpto</strong> (<em>str</em><em>, </em><em>optional</em>) – Directory path where calculation files should be saved.
+If None, uses a temporary directory that is automatically cleaned up.</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>str: Content of the Gaussian output file.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Content of the Gaussian output file.</p>
 </dd>
-<dt>Raises:</dt><dd><p>RuntimeError: If the Gaussian calculation fails.
-FileNotFoundError: If the Gaussian executable is not found.</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
-<dt>Note:</dt><dd><p>When dumpto is None, all calculation files are created in a temporary
-directory and only the output content is returned. When dumpto is
-specified, all files are preserved in that directory.</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – If the Gaussian calculation fails.</p></li>
+<li><p><strong>FileNotFoundError</strong> – If the Gaussian executable is not found.</p></li>
+</ul>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When dumpto is None, all calculation files are created in a temporary
+directory and only the output content is returned. When dumpto is
+specified, all files are preserved in that directory.</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -179,19 +198,29 @@ specified, all files are preserved in that directory.</p>
 <dd><p>Converts a molecular structure file to MOL2 format.</p>
 <p>Uses OpenBabel to convert various molecular file formats (SDF, PDB, XYZ, etc.)
 to MOL2 format and returns the content as a string.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>structure_file (str | File): Path to the input molecular structure file or File object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>structure_file</strong> (<em>str</em><em> | </em><em>File</em>) – Path to the input molecular structure file or File object.</p>
 </dd>
-<dt>Returns:</dt><dd><p>str: Complete MOL2 format content of the converted structure.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Complete MOL2 format content of the converted structure.</p>
 </dd>
-<dt>Raises:</dt><dd><p>RuntimeError: If OpenBabel conversion fails.
-FileNotFoundError: If the input structure file doesn’t exist.</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
-<dt>Note:</dt><dd><p>The conversion is performed in a temporary directory and only the
-MOL2 content is returned. Supported input formats include most
-common molecular file types recognized by OpenBabel.</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – If OpenBabel conversion fails.</p></li>
+<li><p><strong>FileNotFoundError</strong> – If the input structure file doesn’t exist.</p></li>
+</ul>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The conversion is performed in a temporary directory and only the
+MOL2 content is returned. Supported input formats include most
+common molecular file types recognized by OpenBabel.</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -201,25 +230,31 @@ common molecular file types recognized by OpenBabel.</p>
 <p>Uses AmberTools antechamber to extract RESP (Restrained Electrostatic
 Potential) charges from a Gaussian output file and create a MOL2 format
 structure with the calculated charges.</p>
-<dl>
-<dt>Args:</dt><dd><dl class="simple">
-<dt>gout_file (str | File): Path to Gaussian output file (.out) containing ESP calculation</dt><dd><p>results or File object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>gout_file</strong> (<em>str</em><em> | </em><em>File</em>) – Path to Gaussian output file (.out) containing ESP calculation
+results or File object.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Complete MOL2 format content with RESP charges assigned to atoms.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – If antechamber processing fails or if the Gaussian output
+    doesn’t contain the required ESP information.</p></li>
+<li><p><strong>FileNotFoundError</strong> – If the Gaussian output file doesn’t exist.</p></li>
+</ul>
 </dd>
 </dl>
-</dd>
-<dt>Returns:</dt><dd><p>str: Complete MOL2 format content with RESP charges assigned to atoms.</p>
-</dd>
-<dt>Raises:</dt><dd><dl class="simple">
-<dt>RuntimeError: If antechamber processing fails or if the Gaussian output</dt><dd><p>doesn’t contain the required ESP information.</p>
-</dd>
-</dl>
-<p>FileNotFoundError: If the Gaussian output file doesn’t exist.</p>
-</dd>
-<dt>Note:</dt><dd><p>The input Gaussian calculation must have been performed with ESP
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The input Gaussian calculation must have been performed with ESP
 calculation keywords (e.g., “pop=MK IOp(6/33=2,6/42=6)”) to generate
 the electrostatic potential data required for RESP charge fitting.</p>
-</dd>
-</dl>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -229,24 +264,33 @@ the electrostatic potential data required for RESP charge fitting.</p>
 <p>Calculates RESP2 charges using the formula:
 RESP2 = (1-δ) × RESP_gas + δ × RESP_solvent
 where δ (delta) is the interpolation parameter.</p>
-<dl>
-<dt>Args:</dt><dd><p>gas_mol2_block (str): MOL2 format string containing gas-phase RESP charges.
-solvent_mol2_block (str): MOL2 format string containing solvent-phase RESP charges.
-delta (float, optional): Interpolation parameter (0.0 = pure gas, 1.0 = pure solvent).</p>
-<blockquote>
-<div><p>Defaults to 0.5 for equal weighting.</p>
-</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gas_mol2_block</strong> (<em>str</em>) – MOL2 format string containing gas-phase RESP charges.</p></li>
+<li><p><strong>solvent_mol2_block</strong> (<em>str</em>) – MOL2 format string containing solvent-phase RESP charges.</p></li>
+<li><p><strong>delta</strong> (<em>float</em><em>, </em><em>optional</em>) – Interpolation parameter (0.0 = pure gas, 1.0 = pure solvent). Defaults to 0.5 for equal weighting.</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>str: MOL2 format string with interpolated RESP2 charges.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>MOL2 format string with interpolated RESP2 charges.</p>
 </dd>
-<dt>Raises:</dt><dd><p>ValueError: If the number of atoms in gas and solvent MOL2 blocks don’t match.
-IndexError: If either MOL2 block has incomplete atomic information.</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
-<dt>Note:</dt><dd><p>Both input MOL2 blocks must represent the same molecular structure with
-identical atom ordering. The RESP2 method provides charges that balance
-gas-phase and solution-phase electrostatic properties.</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If the number of atoms in gas and solvent MOL2 blocks don’t match.</p></li>
+<li><p><strong>IndexError</strong> – If either MOL2 block has incomplete atomic information.</p></li>
+</ul>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Both input MOL2 blocks must represent the same molecular structure with
+identical atom ordering. The RESP2 method provides charges that balance
+gas-phase and solution-phase electrostatic properties.</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -256,39 +300,42 @@ gas-phase and solution-phase electrostatic properties.</p>
 <p>Executes a complete geometry optimization calculation with customizable
 DFT method, basis set, and optimization parameters. The optimized structure
 is saved to an output file.</p>
-<dl>
-<dt>Args:</dt><dd><p>structure_file (str | File): Path to the input molecular structure file or File object.
-charge (int): Molecular charge (required parameter).
-multiplicity (int, optional): Spin multiplicity. Defaults to 1.
-dft (str, optional): DFT functional name. Defaults to “B3LYP”.
-basis_set (str, optional): Basis set specification. Defaults to “6-31g*”.
-solvent (str, optional): Solvent for implicit solvation model. Defaults to “water”.
-loose (bool, optional): Whether to use loose convergence criteria for faster optimization.</p>
-<blockquote>
-<div><p>Defaults to True.</p>
-</div></blockquote>
-<dl class="simple">
-<dt>dispersion_correct (bool, optional): Whether to apply dispersion correction (GD3BJ).</dt><dd><p>Defaults to False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure_file</strong> (<em>str</em><em> | </em><em>File</em>) – Path to the input molecular structure file or File object.</p></li>
+<li><p><strong>charge</strong> (<em>int</em>) – Molecular charge (required parameter).</p></li>
+<li><p><strong>multiplicity</strong> (<em>int</em><em>, </em><em>optional</em>) – Spin multiplicity. Defaults to 1.</p></li>
+<li><p><strong>dft</strong> (<em>str</em><em>, </em><em>optional</em>) – DFT functional name. Defaults to “B3LYP”.</p></li>
+<li><p><strong>basis_set</strong> (<em>str</em><em>, </em><em>optional</em>) – Basis set specification. Defaults to “6-31g*”.</p></li>
+<li><p><strong>solvent</strong> (<em>str</em><em>, </em><em>optional</em>) – Solvent for implicit solvation model. Defaults to “water”.</p></li>
+<li><p><strong>loose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use loose convergence criteria for faster optimization. Defaults to True.</p></li>
+<li><p><strong>dispersion_correct</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to apply dispersion correction (GD3BJ). Defaults to False.</p></li>
+<li><p><strong>td</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to perform time-dependent DFT optimization. Defaults to False.</p></li>
+<li><p><strong>freq</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to calculate vibrational frequencies after optimization. Defaults to False.</p></li>
+<li><p><strong>mem_use</strong> (<em>str</em><em>, </em><em>optional</em>) – Memory allocation string. Defaults to “4GB”.</p></li>
+<li><p><strong>cpu_num</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of processors to use. Defaults to 4.</p></li>
+<li><p><strong>save_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – Directory to save calculation result files. If None, saves in current directory.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Generated Gaussian output file containing optimization results.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>File</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – If the Gaussian optimization calculation fails.</p></li>
+<li><p><strong>FileNotFoundError</strong> – If the input structure file doesn’t exist.</p></li>
+</ul>
 </dd>
 </dl>
-<p>td (bool, optional): Whether to perform time-dependent DFT optimization. Defaults to False.
-freq (bool, optional): Whether to calculate vibrational frequencies after optimization.</p>
-<blockquote>
-<div><p>Defaults to False.</p>
-</div></blockquote>
-<p>mem_use (str, optional): Memory allocation string. Defaults to “4GB”.
-cpu_num (int, optional): Number of processors to use. Defaults to 4.
-save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.</p>
-</dd>
-<dt>Returns:</dt><dd><p>File: Generated Gaussian output file containing optimization results.</p>
-</dd>
-<dt>Raises:</dt><dd><p>RuntimeError: If the Gaussian optimization calculation fails.
-FileNotFoundError: If the input structure file doesn’t exist.</p>
-</dd>
-<dt>Note:</dt><dd><p>The output file is named “{structure_prefix}_opt.out” and contains the
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The output file is named “{structure_prefix}_opt.out” and contains the
 complete optimization trajectory and final optimized geometry.</p>
-</dd>
-</dl>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -298,39 +345,42 @@ complete optimization trajectory and final optimized geometry.</p>
 <p>Calculates the electronic energy of a molecular structure without geometry
 optimization. Can include electrostatic potential calculation for RESP
 charge fitting and time-dependent DFT for excited states.</p>
-<dl>
-<dt>Args:</dt><dd><p>structure_file (str | File): Path to the input molecular structure file or File object.
-charge (int): Molecular charge (required parameter).
-multiplicity (int, optional): Spin multiplicity. Defaults to 1.
-dft (str, optional): DFT functional name. Defaults to “B3LYP”.
-basis_set (str, optional): Basis set specification. Defaults to “6-31g*”.
-solvent (str, optional): Solvent for implicit solvation model. Defaults to “water”.</p>
-<blockquote>
-<div><p>Set to None for gas-phase calculation.</p>
-</div></blockquote>
-<dl class="simple">
-<dt>dispersion_correct (bool, optional): Whether to apply dispersion correction (GD3BJ).</dt><dd><p>Defaults to False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure_file</strong> (<em>str</em><em> | </em><em>File</em>) – Path to the input molecular structure file or File object.</p></li>
+<li><p><strong>charge</strong> (<em>int</em>) – Molecular charge (required parameter).</p></li>
+<li><p><strong>multiplicity</strong> (<em>int</em><em>, </em><em>optional</em>) – Spin multiplicity. Defaults to 1.</p></li>
+<li><p><strong>dft</strong> (<em>str</em><em>, </em><em>optional</em>) – DFT functional name. Defaults to “B3LYP”.</p></li>
+<li><p><strong>basis_set</strong> (<em>str</em><em>, </em><em>optional</em>) – Basis set specification. Defaults to “6-31g*”.</p></li>
+<li><p><strong>solvent</strong> (<em>str</em><em>, </em><em>optional</em>) – Solvent for implicit solvation model. Defaults to “water”. Set to None for gas-phase calculation.</p></li>
+<li><p><strong>dispersion_correct</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to apply dispersion correction (GD3BJ). Defaults to False.</p></li>
+<li><p><strong>td</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to perform time-dependent DFT calculation. Defaults to False.</p></li>
+<li><p><strong>esp_calculate</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to calculate electrostatic potential for RESP charge fitting. Defaults to False.</p></li>
+<li><p><strong>mem_use</strong> (<em>str</em><em>, </em><em>optional</em>) – Memory allocation string. Defaults to “4GB”.</p></li>
+<li><p><strong>cpu_num</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of processors to use. Defaults to 4.</p></li>
+<li><p><strong>save_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – Directory to save calculation result files. If None, saves in current directory.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the generated Gaussian output file containing energy results.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>File</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – If the Gaussian energy calculation fails.</p></li>
+<li><p><strong>FileNotFoundError</strong> – If the input structure file doesn’t exist.</p></li>
+</ul>
 </dd>
 </dl>
-<p>td (bool, optional): Whether to perform time-dependent DFT calculation. Defaults to False.
-esp_calculate (bool, optional): Whether to calculate electrostatic potential for RESP</p>
-<blockquote>
-<div><p>charge fitting. Defaults to False.</p>
-</div></blockquote>
-<p>mem_use (str, optional): Memory allocation string. Defaults to “4GB”.
-cpu_num (int, optional): Number of processors to use. Defaults to 4.
-save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.</p>
-</dd>
-<dt>Returns:</dt><dd><p>File: Path to the generated Gaussian output file containing energy results.</p>
-</dd>
-<dt>Raises:</dt><dd><p>RuntimeError: If the Gaussian energy calculation fails.
-FileNotFoundError: If the input structure file doesn’t exist.</p>
-</dd>
-<dt>Note:</dt><dd><p>Output file naming follows the pattern “{structure_prefix}_{solvent}_energy.out”
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Output file naming follows the pattern “{structure_prefix}_{solvent}_energy.out”
 or “{structure_prefix}_gas_energy.out” for gas-phase calculations.
 When esp_calculate=True, the output contains ESP data suitable for RESP fitting.</p>
-</dd>
-</dl>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -341,31 +391,47 @@ When esp_calculate=True, the output contains ESP data suitable for RESP fitting.
 workflow including geometry optimization and single-point energy calculation
 with ESP analysis. The resulting charges are merged back into the original
 molecular structure format.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>structure_file (str | File): Path to the input molecular structure file or File object.
-charge (int): Molecular charge (required parameter).
-multiplicity (int, optional): Spin multiplicity. Defaults to 1.
-dft (str, optional): DFT functional name. Defaults to “B3LYP”.
-basis_set (str, optional): Basis set specification. Defaults to “6-31g*”.
-solvent (str, optional): Solvent for implicit solvation model. Defaults to “water”.
-mem_use (str, optional): Memory allocation string. Defaults to “4GB”.
-cpu_num (int, optional): Number of processors to use. Defaults to 4.
-atom_type (str, optional): Atom type to assign using antechamber. Defaults to “gaff2”. None for no change.
-save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure_file</strong> (<em>str</em><em> | </em><em>File</em>) – Path to the input molecular structure file or File object.</p></li>
+<li><p><strong>charge</strong> (<em>int</em>) – Molecular charge (required parameter).</p></li>
+<li><p><strong>multiplicity</strong> (<em>int</em><em>, </em><em>optional</em>) – Spin multiplicity. Defaults to 1.</p></li>
+<li><p><strong>dft</strong> (<em>str</em><em>, </em><em>optional</em>) – DFT functional name. Defaults to “B3LYP”.</p></li>
+<li><p><strong>basis_set</strong> (<em>str</em><em>, </em><em>optional</em>) – Basis set specification. Defaults to “6-31g*”.</p></li>
+<li><p><strong>solvent</strong> (<em>str</em><em>, </em><em>optional</em>) – Solvent for implicit solvation model. Defaults to “water”.</p></li>
+<li><p><strong>mem_use</strong> (<em>str</em><em>, </em><em>optional</em>) – Memory allocation string. Defaults to “4GB”.</p></li>
+<li><p><strong>cpu_num</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of processors to use. Defaults to 4.</p></li>
+<li><p><strong>atom_type</strong> (<em>str</em><em>, </em><em>optional</em>) – Atom type to assign using antechamber. Defaults to “gaff2”. None for no change.</p></li>
+<li><p><strong>save_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – Directory to save calculation result files. If None, saves in current directory.</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>File: Path to the generated MOL2 file with RESP charges assigned to atoms.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the generated MOL2 file with RESP charges assigned to atoms.</p>
 </dd>
-<dt>Raises:</dt><dd><p>RuntimeError: If any step of the RESP calculation workflow fails.
-FileNotFoundError: If the input structure file doesn’t exist.</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>File</p>
 </dd>
-<dt>Note:</dt><dd><p>The complete workflow includes:
-1. Geometry optimization with loose convergence
-2. Single-point energy calculation with ESP analysis
-3. RESP charge fitting using antechamber
-4. Merging charges back into original molecular structure
-Output file is named “{structure_prefix}_resp.mol2”.</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – If any step of the RESP calculation workflow fails.</p></li>
+<li><p><strong>FileNotFoundError</strong> – If the input structure file doesn’t exist.</p></li>
+</ul>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The complete workflow includes:</dt><dd><ol class="arabic simple">
+<li><p>Geometry optimization with loose convergence</p></li>
+<li><p>Single-point energy calculation with ESP analysis</p></li>
+<li><p>RESP charge fitting using antechamber</p></li>
+<li><p>Merging charges back into original molecular structure</p></li>
+</ol>
+</dd>
+</dl>
+<p>Output file is named “{structure_prefix}_resp.mol2”.</p>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -375,37 +441,51 @@ Output file is named “{structure_prefix}_resp.mol2”.</p>
 <p>Executes a full RESP2 charge calculation workflow that combines gas-phase
 and solvent-phase RESP charges using interpolation. This method provides
 charges that balance gas-phase and solution-phase electrostatic properties.</p>
-<dl>
-<dt>Args:</dt><dd><p>structure_file (str | File): Path to the input molecular structure file or File object.
-charge (int): Molecular charge (required parameter).
-multiplicity (int, optional): Spin multiplicity. Defaults to 1.
-dft (str, optional): DFT functional name. Defaults to “B3LYP”.
-basis_set (str, optional): Basis set specification. Defaults to “6-31g*”.
-solvent (str, optional): Solvent for implicit solvation model. Defaults to “water”.
-mem_use (str, optional): Memory allocation string. Defaults to “4GB”.
-cpu_num (int, optional): Number of processors to use. Defaults to 4.
-delta (float, optional): Interpolation parameter for RESP2 charge calculation.</p>
-<blockquote>
-<div><p>0.0 = pure gas-phase, 1.0 = pure solvent-phase. Defaults to 0.5.</p>
-</div></blockquote>
-<p>atom_type (str, optional): Atom type to assign using antechamber. Defaults to “gaff2”. None for no change.
-save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure_file</strong> (<em>str</em><em> | </em><em>File</em>) – Path to the input molecular structure file or File object.</p></li>
+<li><p><strong>charge</strong> (<em>int</em>) – Molecular charge (required parameter).</p></li>
+<li><p><strong>multiplicity</strong> (<em>int</em><em>, </em><em>optional</em>) – Spin multiplicity. Defaults to 1.</p></li>
+<li><p><strong>dft</strong> (<em>str</em><em>, </em><em>optional</em>) – DFT functional name. Defaults to “B3LYP”.</p></li>
+<li><p><strong>basis_set</strong> (<em>str</em><em>, </em><em>optional</em>) – Basis set specification. Defaults to “6-31g*”.</p></li>
+<li><p><strong>solvent</strong> (<em>str</em><em>, </em><em>optional</em>) – Solvent for implicit solvation model. Defaults to “water”.</p></li>
+<li><p><strong>mem_use</strong> (<em>str</em><em>, </em><em>optional</em>) – Memory allocation string. Defaults to “4GB”.</p></li>
+<li><p><strong>cpu_num</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of processors to use. Defaults to 4.</p></li>
+<li><p><strong>delta</strong> (<em>float</em><em>, </em><em>optional</em>) – Interpolation parameter for RESP2 charge calculation.
+0.0 = pure gas-phase, 1.0 = pure solvent-phase. Defaults to 0.5.</p></li>
+<li><p><strong>atom_type</strong> (<em>str</em><em>, </em><em>optional</em>) – Atom type to assign using antechamber. Defaults to “gaff2”. None for no change.</p></li>
+<li><p><strong>save_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – Directory to save calculation result files. If None, saves in current directory.</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>File: Path to the generated MOL2 file with RESP2 charges assigned to atoms.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the generated MOL2 file with RESP2 charges assigned to atoms.</p>
 </dd>
-<dt>Raises:</dt><dd><p>RuntimeError: If any step of the RESP2 calculation workflow fails.
-FileNotFoundError: If the input structure file doesn’t exist.
-ValueError: If gas and solvent calculations produce inconsistent atom counts.</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>File</p>
 </dd>
-<dt>Note:</dt><dd><p>The complete workflow includes:
-1. Geometry optimization with loose convergence
-2. Gas-phase single-point energy calculation with ESP analysis
-3. Solvent-phase single-point energy calculation with ESP analysis
-4. RESP charge fitting for both phases using antechamber
-5. Interpolation of charges using RESP2 formula: (1-δ)*RESP_gas + δ*RESP_solvent
-Output files include individual gas/solvent RESP files and final RESP2 file.</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – If any step of the RESP2 calculation workflow fails.</p></li>
+<li><p><strong>FileNotFoundError</strong> – If the input structure file doesn’t exist.</p></li>
+<li><p><strong>ValueError</strong> – If gas and solvent calculations produce inconsistent atom counts.</p></li>
+</ul>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>The complete workflow includes:</dt><dd><ol class="arabic simple">
+<li><p>Geometry optimization with loose convergence</p></li>
+<li><p>Gas-phase single-point energy calculation with ESP analysis</p></li>
+<li><p>Solvent-phase single-point energy calculation with ESP analysis</p></li>
+<li><p>RESP charge fitting for both phases using antechamber</p></li>
+<li><p>Interpolation of charges using RESP2 formula: (1-δ)*RESP_gas + δ*RESP_solvent</p></li>
+</ol>
+</dd>
+</dl>
+<p>Output files include individual gas/solvent RESP files and final RESP2 file.</p>
+</div>
 </dd></dl>
 
 </dd></dl>
@@ -425,20 +505,30 @@ structures, and handling charge calculations for quantum chemistry workflows.</p
 <dd><p>Generates a Gaussian input file from a molecular structure.</p>
 <p>Creates a Gaussian input (.gjf) file by combining molecular geometry from
 OpenBabel with specified quantum chemistry parameters.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>structure_file (str | File): Path to the input molecular structure file or File object.
-keyword (str): Gaussian calculation keywords (e.g., “# opt B3LYP/6-31G*”).
-chk_file (str, optional): Name of the checkpoint file. Defaults to structure_file prefix + “.chk”.
-title (str, optional): Title for the calculation. Defaults to structure_file prefix + “ Gaussian Input”.
-charge (int, optional): Molecular charge. Defaults to 0.
-multiplicity (int, optional): Spin multiplicity. Defaults to 1.
-mem_use (str, optional): Memory allocation string. Defaults to “4GB”.
-cpu_num (int, optional): Number of processors to use. Defaults to 4.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure_file</strong> (<em>str</em><em> | </em><em>File</em>) – Path to the input molecular structure file or File object.</p></li>
+<li><p><strong>keyword</strong> (<em>str</em>) – Gaussian calculation keywords (e.g., “# opt B3LYP/6-31G*”).</p></li>
+<li><p><strong>chk_file</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the checkpoint file. Defaults to structure_file prefix + “.chk”.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – Title for the calculation. Defaults to structure_file prefix + “ Gaussian Input”.</p></li>
+<li><p><strong>charge</strong> (<em>int</em><em>, </em><em>optional</em>) – Molecular charge. Defaults to 0.</p></li>
+<li><p><strong>multiplicity</strong> (<em>int</em><em>, </em><em>optional</em>) – Spin multiplicity. Defaults to 1.</p></li>
+<li><p><strong>mem_use</strong> (<em>str</em><em>, </em><em>optional</em>) – Memory allocation string. Defaults to “4GB”.</p></li>
+<li><p><strong>cpu_num</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of processors to use. Defaults to 4.</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>str: Content of the generated Gaussian input file.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Content of the generated Gaussian input file.</p>
 </dd>
-<dt>Raises:</dt><dd><p>FileNotFoundError: If the structure file doesn’t exist.
-RuntimeError: If OpenBabel conversion fails.</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>FileNotFoundError</strong> – If the structure file doesn’t exist.</p></li>
+<li><p><strong>RuntimeError</strong> – If OpenBabel conversion fails.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -449,26 +539,35 @@ RuntimeError: If OpenBabel conversion fails.</p>
 <dd><p>Generates Gaussian input for geometry optimization calculations.</p>
 <p>Creates a Gaussian input file optimized for geometry optimization with
 customizable DFT method, basis set, and calculation options.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>structure_file (str | File): Path to the input molecular structure file or File object.
-charge (int): Molecular charge (required parameter).
-multiplicity (int, optional): Spin multiplicity. Defaults to 1.
-dft (str, optional): DFT functional name. Defaults to “B3LYP”.
-basis_set (str, optional): Basis set specification. Defaults to “6-31g*”.
-solvent (str, optional): Solvent for implicit solvation model. Defaults to “water”.
-loose (bool, optional): Whether to use loose convergence criteria. Defaults to True.
-dispersion_correct (bool, optional): Whether to apply dispersion correction (GD3BJ). Defaults to True.
-td (bool, optional): Whether to perform time-dependent DFT calculation. Defaults to False.
-freq (bool, optional): Whether to calculate vibrational frequencies. Defaults to False.
-mem_use (str, optional): Memory allocation string. Defaults to “4GB”.
-cpu_num (int, optional): Number of processors to use. Defaults to 4.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure_file</strong> (<em>str</em><em> | </em><em>File</em>) – Path to the input molecular structure file or File object.</p></li>
+<li><p><strong>charge</strong> (<em>int</em>) – Molecular charge (required parameter).</p></li>
+<li><p><strong>multiplicity</strong> (<em>int</em><em>, </em><em>optional</em>) – Spin multiplicity. Defaults to 1.</p></li>
+<li><p><strong>dft</strong> (<em>str</em><em>, </em><em>optional</em>) – DFT functional name. Defaults to “B3LYP”.</p></li>
+<li><p><strong>basis_set</strong> (<em>str</em><em>, </em><em>optional</em>) – Basis set specification. Defaults to “6-31g*”.</p></li>
+<li><p><strong>solvent</strong> (<em>str</em><em>, </em><em>optional</em>) – Solvent for implicit solvation model. Defaults to “water”.</p></li>
+<li><p><strong>loose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use loose convergence criteria. Defaults to True.</p></li>
+<li><p><strong>dispersion_correct</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to apply dispersion correction (GD3BJ). Defaults to True.</p></li>
+<li><p><strong>td</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to perform time-dependent DFT calculation. Defaults to False.</p></li>
+<li><p><strong>freq</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to calculate vibrational frequencies. Defaults to False.</p></li>
+<li><p><strong>mem_use</strong> (<em>str</em><em>, </em><em>optional</em>) – Memory allocation string. Defaults to “4GB”.</p></li>
+<li><p><strong>cpu_num</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of processors to use. Defaults to 4.</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>str: Content of the generated Gaussian optimization input file.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Content of the generated Gaussian optimization input file.</p>
 </dd>
-<dt>Note:</dt><dd><p>The checkpoint file is automatically named as “{structure_prefix}_opt.chk” or
-“{structure_prefix}_opt_td.chk” if TD-DFT is enabled.</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The checkpoint file is automatically named as “{structure_prefix}_opt.chk” or
+“{structure_prefix}_opt_td.chk” if TD-DFT is enabled.</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -477,25 +576,34 @@ cpu_num (int, optional): Number of processors to use. Defaults to 4.</p>
 <dd><p>Generates Gaussian input for single-point energy calculations.</p>
 <p>Creates a Gaussian input file for single-point energy calculations with
 options for electrostatic potential (ESP) calculation and TD-DFT.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>structure_file (str | File): Path to the input molecular structure file or File object.
-charge (int): Molecular charge (required parameter).
-multiplicity (int): Spin multiplicity (required parameter).
-dft (str, optional): DFT functional name. Defaults to “B3LYP”.
-basis_set (str, optional): Basis set specification. Defaults to “6-31g*”.
-solvent (str, optional): Solvent for implicit solvation model. Defaults to “water”.
-dispersion_correct (bool, optional): Whether to apply dispersion correction (GD3BJ). Defaults to True.
-td (bool, optional): Whether to perform time-dependent DFT calculation. Defaults to False.
-esp_calculate (bool, optional): Whether to calculate electrostatic potential for RESP charges. Defaults to False.
-mem_use (str, optional): Memory allocation string. Defaults to “4GB”.
-cpu_num (int, optional): Number of processors to use. Defaults to 4.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure_file</strong> (<em>str</em><em> | </em><em>File</em>) – Path to the input molecular structure file or File object.</p></li>
+<li><p><strong>charge</strong> (<em>int</em>) – Molecular charge (required parameter).</p></li>
+<li><p><strong>multiplicity</strong> (<em>int</em>) – Spin multiplicity (required parameter).</p></li>
+<li><p><strong>dft</strong> (<em>str</em><em>, </em><em>optional</em>) – DFT functional name. Defaults to “B3LYP”.</p></li>
+<li><p><strong>basis_set</strong> (<em>str</em><em>, </em><em>optional</em>) – Basis set specification. Defaults to “6-31g*”.</p></li>
+<li><p><strong>solvent</strong> (<em>str</em><em>, </em><em>optional</em>) – Solvent for implicit solvation model. Defaults to “water”.</p></li>
+<li><p><strong>dispersion_correct</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to apply dispersion correction (GD3BJ). Defaults to True.</p></li>
+<li><p><strong>td</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to perform time-dependent DFT calculation. Defaults to False.</p></li>
+<li><p><strong>esp_calculate</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to calculate electrostatic potential for RESP charges. Defaults to False.</p></li>
+<li><p><strong>mem_use</strong> (<em>str</em><em>, </em><em>optional</em>) – Memory allocation string. Defaults to “4GB”.</p></li>
+<li><p><strong>cpu_num</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of processors to use. Defaults to 4.</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><p>str: Content of the generated Gaussian single-point energy input file.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Content of the generated Gaussian single-point energy input file.</p>
 </dd>
-<dt>Note:</dt><dd><p>When esp_calculate is True, the calculation includes “pop=MK IOp(6/33=2,6/42=6)”
-keywords for Merz-Kollman population analysis suitable for RESP charge fitting.</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When esp_calculate is True, the calculation includes “pop=MK IOp(6/33=2,6/42=6)”
+keywords for Merz-Kollman population analysis suitable for RESP charge fitting.</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -504,18 +612,28 @@ keywords for Merz-Kollman population analysis suitable for RESP charge fitting.<
 <dd><p>Converts a Gaussian checkpoint file to formatted checkpoint file.</p>
 <p>Uses the Gaussian formchk utility to convert a binary checkpoint (.chk) file
 to a formatted checkpoint (.fchk) file that can be read by other programs.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>chk_file_path (str | File): Path to the Gaussian checkpoint file or File object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>chk_file_path</strong> (<em>str</em><em> | </em><em>File</em>) – Path to the Gaussian checkpoint file or File object.</p>
 </dd>
-<dt>Returns:</dt><dd><p>str: Path to the generated formatted checkpoint file (.fchk).</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the generated formatted checkpoint file (.fchk).</p>
 </dd>
-<dt>Raises:</dt><dd><p>RuntimeError: If the formchk command fails.
-FileNotFoundError: If the checkpoint file doesn’t exist.</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
-<dt>Note:</dt><dd><p>The output .fchk file is created in the same directory as the input .chk file
-with the same base name but .fchk extension.</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>RuntimeError</strong> – If the formchk command fails.</p></li>
+<li><p><strong>FileNotFoundError</strong> – If the checkpoint file doesn’t exist.</p></li>
+</ul>
 </dd>
 </dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The output .fchk file is created in the same directory as the input .chk file
+with the same base name but .fchk extension.</p>
+</div>
 </dd></dl>
 
 <dl class="py function">
@@ -525,22 +643,35 @@ with the same base name but .fchk extension.</p>
 <p>Extracts partial charges from the charge_mol2_block and applies them to the
 corresponding atoms in the origin_mol2_block, preserving the original structure
 and connectivity while updating the charges.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>charge_mol2_block (str): MOL2 format string containing the source charges.
-origin_mol2_block (str): MOL2 format string to receive the new charges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>charge_mol2_block</strong> (<em>str</em>) – MOL2 format string containing the source charges.</p></li>
+<li><p><strong>origin_mol2_block</strong> (<em>str</em>) – MOL2 format string to receive the new charges.</p></li>
+</ul>
 </dd>
-<dt>Returns:</dt><dd><dl class="simple">
-<dt>str: Modified MOL2 format string with charges from charge_mol2_block</dt><dd><p>applied to the structure from origin_mol2_block.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Modified MOL2 format string with charges from charge_mol2_block</dt><dd><p>applied to the structure from origin_mol2_block.</p>
 </dd>
 </dl>
+</p>
 </dd>
-<dt>Raises:</dt><dd><p>IndexError: If the number of atoms differs between the two MOL2 blocks.
-ValueError: If either MOL2 block has invalid format.</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
-<dt>Note:</dt><dd><p>Both MOL2 blocks must have the same number of atoms with complete
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>IndexError</strong> – If the number of atoms differs between the two MOL2 blocks.</p></li>
+<li><p><strong>ValueError</strong> – If either MOL2 block has invalid format.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Both MOL2 blocks must have the same number of atoms with complete
 atomic information for proper charge transfer.</p>
-</dd>
-</dl>
+</div>
 </dd></dl>
 
 </section>

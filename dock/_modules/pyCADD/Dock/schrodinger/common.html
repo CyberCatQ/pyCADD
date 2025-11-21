@@ -1,0 +1,661 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Dock.schrodinger.common &mdash; pyCADD.Dock 2.0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=c2377ec0"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            pyCADD.Dock
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pyCADD.Dock.html">pyCADD.Dock package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pyCADD.Dock.schrodinger.html">pyCADD.Dock.schrodinger package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../dock.html">Dock User Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pyCADD.Dock</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyCADD.Dock.schrodinger.common</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyCADD.Dock.schrodinger.common</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.utils.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">File</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">AslLigandSearcher</span><span class="p">,</span> <span class="n">Ligand</span><span class="p">,</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">StructureReader</span><span class="p">,</span> <span class="n">struc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataConfig</span>
+
+<span class="n">DEBUG</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;PYCADD_DEBUG&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="MetaData">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MetaData">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MetaData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Data class for metadata&quot;&quot;&quot;</span>
+
+    <span class="n">pdbid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">ligand_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">docking_ligand_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">precision</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">_PARSE_DICT</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;pdbid&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;ligand_name&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;docking_ligand_name&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;precision&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">internal_ligand_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ligand_name</span>
+
+<div class="viewcode-block" id="MetaData.parse_from_filename">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MetaData.parse_from_filename">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_from_filename</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sep</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">parse_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MetaData&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse metadata from the filename</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file_name (str): file name or path</span>
+<span class="sd">            sep (str, optional): separator. Defaults to &#39;_&#39;.</span>
+<span class="sd">            parse_dict (dict, optional): specify position index that metadata parse attrs from the file name. Defaults to {&#39;pdbid&#39;: 0, &#39;ligand_name&#39;: 1, &#39;action&#39;: 2, &#39;docking_ligand_name&#39;: 3, &#39;precision&#39;: 4}.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            MetaData: metadata object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">position_index_map</span> <span class="o">=</span> <span class="n">parse_dict</span> <span class="k">if</span> <span class="n">parse_dict</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_PARSE_DICT</span>
+        <span class="n">file_name</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_name</span><span class="p">))</span>
+        <span class="n">metadatas</span> <span class="o">=</span> <span class="n">file_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">)</span>
+        <span class="n">ins</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">position_index_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">pos</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">metadatas</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">ins</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">metadatas</span><span class="p">[</span><span class="n">pos</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">ins</span></div>
+
+
+<div class="viewcode-block" id="MetaData.parse_from_dict">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MetaData.parse_from_dict">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">metadata_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MetaData&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse metadata from the dictionary</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            metadata_dict (dict): metadata dictionary</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            MetaData: metadata object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ins</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metadata_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ins</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">ins</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ins</span></div>
+
+
+<div class="viewcode-block" id="MetaData.parse_from_metadata">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MetaData.parse_from_metadata">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_from_metadata</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="s2">&quot;MetaData&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MetaData&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse metadata from the metadata object</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            metadata (MetaData): metadata object</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            MetaData: metadata object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="MetaData.generate_file_name">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MetaData.generate_file_name">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_file_name</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">attributes</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pdbid&quot;</span><span class="p">,</span> <span class="s2">&quot;ligand_name&quot;</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;docking_ligand_name&quot;</span><span class="p">,</span> <span class="s2">&quot;precision&quot;</span><span class="p">],</span>
+        <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;_&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate file name from metadata</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            attributes (list, optional): attributes to be included in the file name. Defaults to [&#39;pdbid&#39;, &#39;ligand_name&#39;, &#39;action&#39;, &#39;docking_ligand_name&#39;, &#39;precision&#39;].</span>
+<span class="sd">            sep (str, optional): separator. Defaults to &#39;_&#39;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: file name without extension</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            &gt;&gt;&gt; metadata = MetaData(pdbid=&#39;1ABC&#39;, ligand_name=&#39;LIG&#39;, action=&#39;glide-dock&#39;, docking_ligand_name=&#39;LIG&#39;, precision=&#39;SP&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; metadata.generate_file_name()</span>
+<span class="sd">            &#39;1ABC_LIG_glide-dock_LIG_SP&#39;</span>
+<span class="sd">            &gt;&gt;&gt; metadata.generate_file_name(attributes=[&#39;pdbid&#39;, &#39;ligand_name&#39;, &#39;action&#39;], sep=&#39;-&#39;)</span>
+<span class="sd">            &#39;1ABC-LIG-glide-dock&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attribute </span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2"> is not found in the metadata.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">))</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">])</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MetaData.copy">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MetaData.copy">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MetaData&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the deep copy of the metadata</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            MetaData: metadata object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MetaData.set">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MetaData.set">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the attribute value</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            attr (str): attribute name</span>
+<span class="sd">            value (any): attribute value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MetaData.NoDefault">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MetaData.NoDefault">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">NoDefault</span><span class="p">:</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="MetaData.get">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MetaData.get">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">NoDefault</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the attribute value</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            attr (str): attribute name</span>
+<span class="sd">            default (any): default value that will be returned if the attribute is not found; without it, an AttributeError will be raised in this case.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Any: attribute value. If the attribute is not found, return provided default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">NoDefault</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MetaData.delete">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MetaData.delete">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete the attribute</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            attr (str): attribute name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">delattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="BaseMaestroFile">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.BaseMaestroFile">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseMaestroFile</span><span class="p">(</span><span class="n">File</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMaestroFile.__init__">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.BaseMaestroFile.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="n">MetaData</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Base Mastro file class</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): file path</span>
+<span class="sd">            metadata (MetaData, optional): metadata object. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">BaseMaestroFile</span><span class="p">):</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">file_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">MetaData</span><span class="o">.</span><span class="n">parse_from_filename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">MetaData</span><span class="o">.</span><span class="n">parse_from_metadata</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="GridFile">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.GridFile">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GridFile</span><span class="p">(</span><span class="n">BaseMaestroFile</span><span class="p">):</span>
+<div class="viewcode-block" id="GridFile.__init__">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.GridFile.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="n">MetaData</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mastro grid file class</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): file path</span>
+<span class="sd">            metadata (MetaData, optional): metadata object. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="LigandSearched">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.LigandSearched">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LigandSearched</span><span class="p">(</span><span class="n">Ligand</span><span class="p">):</span>
+<div class="viewcode-block" id="LigandSearched.__init__">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.LigandSearched.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ligand_obj</span><span class="p">:</span> <span class="n">Ligand</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="o">=</span> <span class="n">ligand_obj</span><span class="o">.</span><span class="vm">__dict__</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ligand</span> <span class="o">=</span> <span class="n">ligand_obj</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pdbres</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ligand</span><span class="o">.</span><span class="n">pdbres</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">chain</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ligand</span><span class="o">.</span><span class="n">atom_objects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">chain</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resnum</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ligand</span><span class="o">.</span><span class="n">atom_objects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">getResidue</span><span class="p">()</span><span class="o">.</span><span class="n">resnum</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">molnum</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mol_num</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;LigandSearched: name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pdbres</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s2"> chain=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">chain</span><span class="si">}</span><span class="s2"> resnum=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">resnum</span><span class="si">}</span><span class="s2"> molnum=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">molnum</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="MaestroFile">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MaestroFile">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MaestroFile</span><span class="p">(</span><span class="n">BaseMaestroFile</span><span class="p">):</span>
+
+<div class="viewcode-block" id="MaestroFile.__init__">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MaestroFile.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="n">MetaData</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Maestro file class</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): file path</span>
+<span class="sd">            metadata (MetaData, optional): metadata object. Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ligands</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">st_reader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StructureReader</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="n">StructureReader</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">structures</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Structure</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">st</span> <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">st_reader</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&lt;Maestro File at </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">)</span><span class="si">}</span><span class="s2"> structure(s)&gt;&quot;</span>
+        <span class="k">if</span> <span class="n">DEBUG</span><span class="p">:</span>
+            <span class="n">info</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">info</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MaestroFile.get_structure">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MaestroFile.get_structure">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_structure</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the structure from the file</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            file_path (str): maestro file path</span>
+<span class="sd">            index (int, optional): index of the structure to get. Defaults to 0.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Structure: Maestro structure object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">MaestroFile</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="MaestroFile.get_chain_structure">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MaestroFile.get_chain_structure">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_chain_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chain_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">structure_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the chain structure from the structure file</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            chain_id (str): chain ID</span>
+<span class="sd">            structure_index (int): index of the structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Structure: Maestro structure object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="n">structure_index</span><span class="p">]</span><span class="o">.</span><span class="n">chain</span><span class="p">[</span><span class="n">chain_id</span><span class="p">]</span><span class="o">.</span><span class="n">extractStructure</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="MaestroFile.get_residue">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MaestroFile.get_residue">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_residue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resnum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">structure_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">struc</span><span class="o">.</span><span class="n">_Residue</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the Residue object from the structure</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mol_resnum (int): qeury molecule residue number</span>
+<span class="sd">            structure_index (int): index of the structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            struc.Residue: Maestro Residue object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">res</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="n">structure_index</span><span class="p">]</span><span class="o">.</span><span class="n">residue</span> <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">resnum</span> <span class="o">==</span> <span class="n">resnum</span><span class="p">),</span> <span class="kc">None</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MaestroFile.get_molecule_by_res">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MaestroFile.get_molecule_by_res">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_molecule_by_res</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">resnum</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">structure_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">struc</span><span class="o">.</span><span class="n">_Molecule</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the Molecule object from the structure by residue number.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            resnum (int): qeury molecule residue number</span>
+<span class="sd">            structure_index (int): index of the structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            struc._Molecule: Maestro Molecule object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_residue</span><span class="p">(</span><span class="n">resnum</span><span class="p">,</span> <span class="n">structure_index</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="n">structure_index</span><span class="p">]</span><span class="o">.</span><span class="n">molecule</span><span class="p">[</span><span class="n">res</span><span class="o">.</span><span class="n">molecule_number</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="MaestroFile.get_covalent_bond">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MaestroFile.get_covalent_bond">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_covalent_bond</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resnum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">structure_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get list of covalent bond(s) between query molecule and other residues.</span>
+<span class="sd">        Return None if no covalent bond is found.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            resnum (int): query residue number of the molecule</span>
+<span class="sd">            structure_index (int): index of the structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: list of covalent bond(s) between query molecule and other residues</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bonds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="n">structure_index</span><span class="p">]</span><span class="o">.</span><span class="n">bond</span>
+        <span class="n">covalent_bonds</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">bond</span> <span class="ow">in</span> <span class="n">bonds</span><span class="p">:</span>
+            <span class="n">resnum1</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">atom1</span><span class="o">.</span><span class="n">getResidue</span><span class="p">()</span><span class="o">.</span><span class="n">resnum</span>
+            <span class="n">resnum2</span> <span class="o">=</span> <span class="n">bond</span><span class="o">.</span><span class="n">atom2</span><span class="o">.</span><span class="n">getResidue</span><span class="p">()</span><span class="o">.</span><span class="n">resnum</span>
+            <span class="k">if</span> <span class="n">resnum1</span> <span class="o">!=</span> <span class="n">resnum2</span> <span class="ow">and</span> <span class="n">resnum</span> <span class="ow">in</span> <span class="p">(</span><span class="n">resnum1</span><span class="p">,</span> <span class="n">resnum2</span><span class="p">):</span>
+                <span class="n">covalent_bonds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bond</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">covalent_bonds</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">covalent_bonds</span></div>
+
+
+<div class="viewcode-block" id="MaestroFile.get_molnum_by_res">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MaestroFile.get_molnum_by_res">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_molnum_by_res</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol_resnum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">structure_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the molecule number from the structure by residue number.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mol_resnum (int, optional): query residue number. Defaults to None.</span>
+<span class="sd">            structure_index (int): index of the structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Molecule number</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_residue</span><span class="p">(</span><span class="n">mol_resnum</span><span class="p">,</span> <span class="n">structure_index</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Residue </span><span class="si">{</span><span class="n">mol_resnum</span><span class="si">}</span><span class="s2"> not found in the structure.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">molecule_number</span></div>
+
+
+<div class="viewcode-block" id="MaestroFile.find_ligands">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.MaestroFile.find_ligands">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">find_ligands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">specified_names</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">included_names</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">excluded_names</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_heavy_atom_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_atom_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">allow_amino_acid_only_molecules</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">allow_ion_only_molecules</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">structure_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">LigandSearched</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find all ligands from the structure file</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            specified_names (list, optional): PDB residue names which will be considered as ligands. \</span>
+<span class="sd">                Any found residues not in this list will be filtered out if this list is not None. Defaults to None.</span>
+<span class="sd">            included_names (list, optional): PDB residue names which always be considered as ligands. Defaults to None.</span>
+<span class="sd">            excluded_names (list, optional): PDB residue names which will never be considered as ligands. Defaults to None.</span>
+<span class="sd">            min_heavy_atom_count (int, optional): Minimum number of heavy atoms required in each ligand molecule. Defaults to None.</span>
+<span class="sd">            max_atom_count (int, optional): Maximum number of heavy atoms for a ligand molecule (does not include hydrogens). Defaults to None.</span>
+<span class="sd">            allow_amino_acid_only_molecules (bool, optional): If True, consider small molecules containing only amino acids to be ligands. Defaults to False.</span>
+<span class="sd">            allow_ion_only_molecules (bool, optional): If True, Consider charged molecules to be ligands. Defaults to False.</span>
+<span class="sd">            structure_index (int): Index of the structure</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[LigandSearched]: List of found Ligand objects.</span>
+<span class="sd">                useful properties: pdbres, chain, resnum, mol_num, centriod, st, atom_indexes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">included_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">included_names</span><span class="p">)</span> <span class="k">if</span> <span class="n">included_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">excluded_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">excluded_names</span><span class="p">)</span> <span class="k">if</span> <span class="n">excluded_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">allow_amino_acid_only_molecules</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">allow_amino_acid_only_molecules</span><span class="p">)</span>
+        <span class="n">allow_ion_only_molecules</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">allow_ion_only_molecules</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;included_residue_names&quot;</span><span class="p">:</span> <span class="n">included_names</span><span class="p">,</span>
+            <span class="s2">&quot;excluded_residue_names&quot;</span><span class="p">:</span> <span class="n">excluded_names</span><span class="p">,</span>
+            <span class="s2">&quot;allow_amino_acid_only_molecules&quot;</span><span class="p">:</span> <span class="n">allow_amino_acid_only_molecules</span><span class="p">,</span>
+            <span class="s2">&quot;allow_ion_only_molecules&quot;</span><span class="p">:</span> <span class="n">allow_ion_only_molecules</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">min_heavy_atom_count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s2">&quot;min_heavy_atom_count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">min_heavy_atom_count</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">max_atom_count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="s2">&quot;max_atom_count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_atom_count</span><span class="p">)</span>
+
+        <span class="n">searcher</span> <span class="o">=</span> <span class="n">AslLigandSearcher</span><span class="p">(</span><span class="o">**</span><span class="n">args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ligands</span> <span class="o">=</span> <span class="n">searcher</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="n">structure_index</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ligands</span> <span class="o">=</span> <span class="p">[</span><span class="n">LigandSearched</span><span class="p">(</span><span class="n">lig</span><span class="p">)</span> <span class="k">for</span> <span class="n">lig</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ligands</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">specified_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ligands</span> <span class="o">=</span> <span class="p">[</span><span class="n">lig</span> <span class="k">for</span> <span class="n">lig</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ligands</span> <span class="k">if</span> <span class="n">lig</span><span class="o">.</span><span class="n">pdbres</span> <span class="ow">in</span> <span class="n">specified_names</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ligands</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No ligand named </span><span class="si">{</span><span class="n">specified_names</span><span class="si">}</span><span class="s2"> found in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ligands</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DockResultFile">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.DockResultFile">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DockResultFile</span><span class="p">(</span><span class="n">MaestroFile</span><span class="p">):</span>
+<div class="viewcode-block" id="DockResultFile.__init__">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.DockResultFile.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="n">MetaData</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">include_receptor</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Docking result file class</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path (str): file path</span>
+<span class="sd">            metadata (MetaData, optional): metadata object. Defaults to None.</span>
+<span class="sd">            include_receptor (bool): True if the file contains receptor structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">include_receptor</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">MetaData</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">include_receptor</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;include_receptor&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">include_receptor</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">include_receptor</span> <span class="k">if</span> <span class="n">include_receptor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_receptor</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DockResultFile.get_receptor_structure">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.DockResultFile.get_receptor_structure">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_receptor_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the receptor structure from the docking result file</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Structure: Maestro structure object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_receptor</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="DockResultFile.get_ligand_structure">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.DockResultFile.get_ligand_structure">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_ligand_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Structure</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the docking ligand structure from the docking result file</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Structure: Maestro structure object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_receptor</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="DockResultFile.get_raw_results">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.DockResultFile.get_raw_results">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_raw_results</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the raw docking result information of all structures</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[dict]: raw docking result information</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">property</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span> <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="DockResultFile.get_results">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.common.DockResultFile.get_results">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_results</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the docking result information of all structures</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[dict]: docking result information</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">DataConfig</span><span class="p">(</span><span class="n">precision</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">precision</span><span class="p">)</span>
+        <span class="n">result_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;pdbid&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">pdbid</span><span class="p">,</span>
+            <span class="s2">&quot;precision&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">precision</span><span class="p">,</span>
+            <span class="s2">&quot;internal_ligand_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">internal_ligand_name</span><span class="p">,</span>
+            <span class="s2">&quot;docking_ligand_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">docking_ligand_name</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structures</span><span class="p">:</span>
+            <span class="n">_result_dict</span> <span class="o">=</span> <span class="n">result_dict</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">_result_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">st</span><span class="o">.</span><span class="n">property</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="p">)</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_result_dict</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">results</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyCADD.Dynamic.cli &mdash; pyCADD.Dynamic 2.0.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -70,19 +70,19 @@
            <div itemprop="articleBody">
              
   <h1>Source code for pyCADD.Dynamic.cli</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
-<span class="kn">import</span> <span class="nn">click</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">click</span>
 
 <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">pyCADD.Dynamic</span> <span class="kn">import</span> <span class="n">Processor</span><span class="p">,</span> <span class="n">Simulator</span><span class="p">,</span> <span class="n">Analyzer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.Dynamic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Processor</span><span class="p">,</span> <span class="n">Simulator</span><span class="p">,</span> <span class="n">Analyzer</span>
 
 
 <div class="viewcode-block" id="md_prepare">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.cli.md_prepare">[docs]</a>
-<span class="k">def</span> <span class="nf">md_prepare</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">md_prepare</span><span class="p">(</span>
     <span class="n">protein_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">molecule_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -151,7 +151,7 @@
 
 <div class="viewcode-block" id="md_simulate">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.cli.md_simulate">[docs]</a>
-<span class="k">def</span> <span class="nf">md_simulate</span><span class="p">(</span><span class="n">top_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">inpcrd_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">with_gpu</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">md_simulate</span><span class="p">(</span><span class="n">top_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">inpcrd_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">with_gpu</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
     <span class="n">processor</span> <span class="o">=</span> <span class="n">Processor</span><span class="p">()</span>
     <span class="n">processor</span><span class="o">.</span><span class="n">set_prepared_file</span><span class="p">(</span><span class="n">top_file</span><span class="p">,</span> <span class="s2">&quot;com_top&quot;</span><span class="p">)</span>
     <span class="n">processor</span><span class="o">.</span><span class="n">set_prepared_file</span><span class="p">(</span><span class="n">inpcrd_file</span><span class="p">,</span> <span class="s2">&quot;com_crd&quot;</span><span class="p">)</span>
@@ -173,7 +173,7 @@
 
 <div class="viewcode-block" id="md_workflow">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.cli.md_workflow">[docs]</a>
-<span class="k">def</span> <span class="nf">md_workflow</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">md_workflow</span><span class="p">(</span>
     <span class="n">protein_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">molecule_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -228,7 +228,7 @@
 
 
 <span class="nd">@click</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
-<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Command line interface for pyCADD-Dynamic.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -302,7 +302,7 @@
     <span class="n">help</span><span class="o">=</span><span class="s2">&quot;TIP3P Water Box size of simulation. Default to 10 Angstrom.&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">,</span> <span class="s2">&quot;-O&quot;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Overwrite existing files.&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span>
     <span class="n">protein_file</span><span class="p">,</span>
     <span class="n">molecule_file</span><span class="p">,</span>
     <span class="n">charge</span><span class="p">,</span>
@@ -350,7 +350,7 @@
     <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Specify GPU device code used in simulation. Default to 0&quot;</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="k">def</span> <span class="nf">simulate</span><span class="p">(</span><span class="n">top_file</span><span class="p">,</span> <span class="n">inpcrd_file</span><span class="p">,</span> <span class="n">with_gpu</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">simulate</span><span class="p">(</span><span class="n">top_file</span><span class="p">,</span> <span class="n">inpcrd_file</span><span class="p">,</span> <span class="n">with_gpu</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run molecular dynamics simulation.\nOnly supports running workflows automatically generated by prepare.</span>
 <span class="sd">    top_file : Specify solvated complex topology file (TOP format) path for MD.\n</span>
@@ -427,7 +427,7 @@
 <span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;--analysis&quot;</span><span class="p">,</span> <span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Perform analysis after simulation done.&quot;</span><span class="p">)</span>
 <span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;--overwrite&quot;</span><span class="p">,</span> <span class="s2">&quot;-O&quot;</span><span class="p">,</span> <span class="n">is_flag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Overwrite existing files.&quot;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">auto</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">auto</span><span class="p">(</span>
     <span class="n">protein_file</span><span class="p">,</span>
     <span class="n">molecule_file</span><span class="p">,</span>
     <span class="n">charge</span><span class="p">,</span>
@@ -533,7 +533,7 @@
     <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
     <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of parallel processes used in energy calculation.&quot;</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="k">def</span> <span class="nf">analysis</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">lp</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> <span class="n">cp</span><span class="p">,</span> <span class="n">ro</span><span class="p">,</span> <span class="n">no_hbond</span><span class="p">,</span> <span class="n">no_rmsd</span><span class="p">,</span> <span class="n">no_rmsf</span><span class="p">,</span> <span class="n">decomp</span><span class="p">,</span> <span class="n">nmode</span><span class="p">,</span> <span class="n">parallel</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">analysis</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">lp</span><span class="p">,</span> <span class="n">rp</span><span class="p">,</span> <span class="n">cp</span><span class="p">,</span> <span class="n">ro</span><span class="p">,</span> <span class="n">no_hbond</span><span class="p">,</span> <span class="n">no_rmsd</span><span class="p">,</span> <span class="n">no_rmsf</span><span class="p">,</span> <span class="n">decomp</span><span class="p">,</span> <span class="n">nmode</span><span class="p">,</span> <span class="n">parallel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Post-process for molecular dynamics simulation.\n</span>
 <span class="sd">    Workflow:\n</span>

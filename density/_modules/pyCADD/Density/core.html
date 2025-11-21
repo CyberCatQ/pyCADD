@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyCADD.Density.core &mdash; pyCADD.Density 2.0.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -76,12 +76,12 @@
 <span class="sd">structures, and handling charge calculations for quantum chemistry workflows.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 
-<span class="kn">from</span> <span class="nn">pyCADD.utils.common</span> <span class="kn">import</span> <span class="n">ChDir</span><span class="p">,</span> <span class="n">File</span>
-<span class="kn">from</span> <span class="nn">pyCADD.utils.tool</span> <span class="kn">import</span> <span class="n">read_file</span><span class="p">,</span> <span class="n">shell_run</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.utils.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChDir</span><span class="p">,</span> <span class="n">File</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.utils.tool</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_file</span><span class="p">,</span> <span class="n">shell_run</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -106,7 +106,7 @@
 
 <div class="viewcode-block" id="generate_gauss_input">
 <a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.core.generate_gauss_input">[docs]</a>
-<span class="k">def</span> <span class="nf">generate_gauss_input</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_gauss_input</span><span class="p">(</span>
     <span class="n">structure_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">,</span>
     <span class="n">keyword</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">chk_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -163,7 +163,7 @@
 
 <div class="viewcode-block" id="generate_opt_input">
 <a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.core.generate_opt_input">[docs]</a>
-<span class="k">def</span> <span class="nf">generate_opt_input</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_opt_input</span><span class="p">(</span>
     <span class="n">structure_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">,</span>
     <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -230,7 +230,7 @@
 
 <div class="viewcode-block" id="generate_energy_input">
 <a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.core.generate_energy_input">[docs]</a>
-<span class="k">def</span> <span class="nf">generate_energy_input</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_energy_input</span><span class="p">(</span>
     <span class="n">structure_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">,</span>
     <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -293,7 +293,7 @@
 
 <div class="viewcode-block" id="generate_fchk">
 <a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.core.generate_fchk">[docs]</a>
-<span class="k">def</span> <span class="nf">generate_fchk</span><span class="p">(</span><span class="n">chk_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_fchk</span><span class="p">(</span><span class="n">chk_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts a Gaussian checkpoint file to formatted checkpoint file.</span>
 
 <span class="sd">    Uses the Gaussian formchk utility to convert a binary checkpoint (.chk) file</span>
@@ -321,7 +321,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_get_atom_lines</span><span class="p">(</span><span class="n">mol2_block</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_atom_lines</span><span class="p">(</span><span class="n">mol2_block</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts and parses atom lines from a MOL2 format block.</span>
 
 <span class="sd">    Parses the atom section of a MOL2 format string and returns the atom</span>
@@ -349,7 +349,7 @@
     <span class="k">return</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">atom_lines</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="mi">9</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">_get_mol2_lines_with_charge</span><span class="p">(</span><span class="n">mol2_block</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">charge_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_mol2_lines_with_charge</span><span class="p">(</span><span class="n">mol2_block</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">charge_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Updates partial charges in a MOL2 format block with new charge values.</span>
 
 <span class="sd">    Replaces the partial charges (9th column) in the atom section of a MOL2 format</span>
@@ -357,8 +357,8 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        mol2_block (str): Complete MOL2 format string containing molecular data.</span>
-<span class="sd">        charge_list (list[float]): List of new partial charges to assign to atoms. The list is</span>
-<span class="sd">            consumed (modified) during processing via pop(0) operations.</span>
+<span class="sd">        charge_list (list[float]): List of new partial charges to assign to atoms. </span>
+<span class="sd">        The list is consumed (modified) during processing via pop(0) operations.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        str: Modified MOL2 format string with updated partial charges.</span>
@@ -392,7 +392,7 @@
 
 <div class="viewcode-block" id="merge_mol2_charge">
 <a class="viewcode-back" href="../../../pyCADD.Density.html#pyCADD.Density.core.merge_mol2_charge">[docs]</a>
-<span class="k">def</span> <span class="nf">merge_mol2_charge</span><span class="p">(</span><span class="n">charge_mol2_block</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">origin_mol2_block</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">merge_mol2_charge</span><span class="p">(</span><span class="n">charge_mol2_block</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">origin_mol2_block</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Merges partial charges from one MOL2 block into another MOL2 block.</span>
 
 <span class="sd">    Extracts partial charges from the charge_mol2_block and applies them to the</span>

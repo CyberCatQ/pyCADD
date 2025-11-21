@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyCADD.Demand package &mdash; pyCADD.Demand 2.0.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
@@ -58,10 +58,34 @@
 <li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.BaseQueryPDB.get_query"><code class="docutils literal notranslate"><span class="pre">BaseQueryPDB.get_query()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.DATA_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.DATA_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.PDBID_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.PDBID_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.TITLE_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.TITLE_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.RESOLUTION_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.RESOLUTION_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.AUTHOR_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.AUTHOR_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.REFERENCE_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.REFERENCE_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.REF_DOI_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.REF_DOI_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.POLYMER_ENTITY_NUM_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.POLYMER_ENTITY_NUM_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.NONPOLYMER_ENTITY_NUM_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.NONPOLYMER_ENTITY_NUM_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.POLYMER_ENTITY_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.POLYMER_ENTITY_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.POLYMER_NAME_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.POLYMER_NAME_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.POLYMER_TYPE_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.POLYMER_TYPE_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.POLYMER_MUTATION_NUM_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.POLYMER_MUTATION_NUM_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.POLYMER_MUTATION_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.POLYMER_MUTATION_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.POLYMER_CHAIN_ID_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.POLYMER_CHAIN_ID_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.POLYMER_UNIPROT_ID_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.POLYMER_UNIPROT_ID_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.NONPOLYMER_ENTITY_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.NONPOLYMER_ENTITY_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.NONPOLYMER_NAME_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.NONPOLYMER_NAME_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.NONPOLYMER_ID_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.NONPOLYMER_ID_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.NONPOLYMER_SMILES_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.NONPOLYMER_SMILES_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.NONPOLYMER_CHAIN_ID_KEYS"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.NONPOLYMER_CHAIN_ID_KEYS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pyCADD.Demand.config.QueryConfigKeys.__init__"><code class="docutils literal notranslate"><span class="pre">QueryConfigKeys.__init__()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-pyCADD.Demand.core">pyCADD.Demand.core module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#pyCADD.Demand.core.query_uniprot"><code class="docutils literal notranslate"><span class="pre">query_uniprot()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pyCADD.Demand.core.parse_uniport"><code class="docutils literal notranslate"><span class="pre">parse_uniport()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pyCADD.Demand.core.query_uniprot_id_on_pdb"><code class="docutils literal notranslate"><span class="pre">query_uniprot_id_on_pdb()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pyCADD.Demand.core.query_pdb"><code class="docutils literal notranslate"><span class="pre">query_pdb()</span></code></a></li>
@@ -152,27 +176,138 @@
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Demand.config.</span></span><span class="sig-name descname"><span class="pre">QueryConfigKeys</span></span><a class="reference internal" href="_modules/pyCADD/Demand/config.html#QueryConfigKeys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.DATA_KEYS">
+<span class="sig-name descname"><span class="pre">DATA_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['data',</span> <span class="pre">'entries']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.DATA_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.PDBID_KEYS">
+<span class="sig-name descname"><span class="pre">PDBID_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['rcsb_id']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.PDBID_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.TITLE_KEYS">
+<span class="sig-name descname"><span class="pre">TITLE_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['struct',</span> <span class="pre">'title']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.TITLE_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.RESOLUTION_KEYS">
+<span class="sig-name descname"><span class="pre">RESOLUTION_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['rcsb_entry_info',</span> <span class="pre">'resolution_combined',</span> <span class="pre">0]</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.RESOLUTION_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.AUTHOR_KEYS">
+<span class="sig-name descname"><span class="pre">AUTHOR_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['rcsb_primary_citation',</span> <span class="pre">'rcsb_authors']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.AUTHOR_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.REFERENCE_KEYS">
+<span class="sig-name descname"><span class="pre">REFERENCE_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['rcsb_primary_citation',</span> <span class="pre">'title']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.REFERENCE_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.REF_DOI_KEYS">
+<span class="sig-name descname"><span class="pre">REF_DOI_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['rcsb_primary_citation',</span> <span class="pre">'pdbx_database_id_DOI']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.REF_DOI_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.POLYMER_ENTITY_NUM_KEYS">
+<span class="sig-name descname"><span class="pre">POLYMER_ENTITY_NUM_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['rcsb_entry_info',</span> <span class="pre">'deposited_polymer_entity_instance_count']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.POLYMER_ENTITY_NUM_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.NONPOLYMER_ENTITY_NUM_KEYS">
+<span class="sig-name descname"><span class="pre">NONPOLYMER_ENTITY_NUM_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['rcsb_entry_info',</span> <span class="pre">'deposited_nonpolymer_entity_instance_count']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.NONPOLYMER_ENTITY_NUM_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.POLYMER_ENTITY_KEYS">
+<span class="sig-name descname"><span class="pre">POLYMER_ENTITY_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['polymer_entities']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.POLYMER_ENTITY_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.POLYMER_NAME_KEYS">
+<span class="sig-name descname"><span class="pre">POLYMER_NAME_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['rcsb_polymer_entity',</span> <span class="pre">'pdbx_description']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.POLYMER_NAME_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.POLYMER_TYPE_KEYS">
+<span class="sig-name descname"><span class="pre">POLYMER_TYPE_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['entity_poly',</span> <span class="pre">'rcsb_entity_polymer_type']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.POLYMER_TYPE_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.POLYMER_MUTATION_NUM_KEYS">
+<span class="sig-name descname"><span class="pre">POLYMER_MUTATION_NUM_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['entity_poly',</span> <span class="pre">'rcsb_mutation_count']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.POLYMER_MUTATION_NUM_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.POLYMER_MUTATION_KEYS">
+<span class="sig-name descname"><span class="pre">POLYMER_MUTATION_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['rcsb_polymer_entity',</span> <span class="pre">'pdbx_mutation']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.POLYMER_MUTATION_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.POLYMER_CHAIN_ID_KEYS">
+<span class="sig-name descname"><span class="pre">POLYMER_CHAIN_ID_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['entity_poly',</span> <span class="pre">'pdbx_strand_id']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.POLYMER_CHAIN_ID_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.POLYMER_UNIPROT_ID_KEYS">
+<span class="sig-name descname"><span class="pre">POLYMER_UNIPROT_ID_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['rcsb_polymer_entity_container_identifiers',</span> <span class="pre">'uniprot_ids']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.POLYMER_UNIPROT_ID_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.NONPOLYMER_ENTITY_KEYS">
+<span class="sig-name descname"><span class="pre">NONPOLYMER_ENTITY_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['nonpolymer_entities']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.NONPOLYMER_ENTITY_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.NONPOLYMER_NAME_KEYS">
+<span class="sig-name descname"><span class="pre">NONPOLYMER_NAME_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['nonpolymer_comp',</span> <span class="pre">'chem_comp',</span> <span class="pre">'name']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.NONPOLYMER_NAME_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.NONPOLYMER_ID_KEYS">
+<span class="sig-name descname"><span class="pre">NONPOLYMER_ID_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['nonpolymer_comp',</span> <span class="pre">'chem_comp',</span> <span class="pre">'id']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.NONPOLYMER_ID_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.NONPOLYMER_SMILES_KEYS">
+<span class="sig-name descname"><span class="pre">NONPOLYMER_SMILES_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['nonpolymer_comp',</span> <span class="pre">'rcsb_chem_comp_descriptor',</span> <span class="pre">'SMILES']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.NONPOLYMER_SMILES_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.NONPOLYMER_CHAIN_ID_KEYS">
+<span class="sig-name descname"><span class="pre">NONPOLYMER_CHAIN_ID_KEYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['rcsb_nonpolymer_entity_container_identifiers',</span> <span class="pre">'auth_asym_ids']</span></em><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.NONPOLYMER_CHAIN_ID_KEYS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyCADD.Demand.config.QueryConfigKeys.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pyCADD.Demand.config.QueryConfigKeys.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-pyCADD.Demand.core">
 <span id="pycadd-demand-core-module"></span><h2>pyCADD.Demand.core module<a class="headerlink" href="#module-pyCADD.Demand.core" title="Link to this heading"></a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="pyCADD.Demand.core.query_uniprot">
-<span class="sig-prename descclassname"><span class="pre">pyCADD.Demand.core.</span></span><span class="sig-name descname"><span class="pre">query_uniprot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uniprot_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Demand/core.html#query_uniprot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.core.query_uniprot" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="pyCADD.Demand.core.parse_uniport">
-<span class="sig-prename descclassname"><span class="pre">pyCADD.Demand.core.</span></span><span class="sig-name descname"><span class="pre">parse_uniport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uniprot_file_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Demand/core.html#parse_uniport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.core.parse_uniport" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Demand.core.</span></span><span class="sig-name descname"><span class="pre">parse_uniport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uniprot_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Demand/core.html#parse_uniport"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.core.parse_uniport" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pyCADD.Demand.core.query_uniprot_id_on_pdb">
-<span class="sig-prename descclassname"><span class="pre">pyCADD.Demand.core.</span></span><span class="sig-name descname"><span class="pre">query_uniprot_id_on_pdb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uniprot_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/pyCADD/Demand/core.html#query_uniprot_id_on_pdb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.core.query_uniprot_id_on_pdb" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Demand.core.</span></span><span class="sig-name descname"><span class="pre">query_uniprot_id_on_pdb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uniprot_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/pyCADD/Demand/core.html#query_uniprot_id_on_pdb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.core.query_uniprot_id_on_pdb" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pyCADD.Demand.core.query_pdb">
-<span class="sig-prename descclassname"><span class="pre">pyCADD.Demand.core.</span></span><span class="sig-name descname"><span class="pre">query_pdb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdb_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quert_cfg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Demand/core.html#query_pdb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.core.query_pdb" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Demand.core.</span></span><span class="sig-name descname"><span class="pre">query_pdb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdb_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Demand.config.BaseQueryCfg" title="pyCADD.Demand.config.BaseQueryCfg"><span class="pre">BaseQueryCfg</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Demand/core.html#query_pdb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.core.query_pdb" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -182,31 +317,12 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pyCADD.Demand.core.QueryClient">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Demand.core.</span></span><span class="sig-name descname"><span class="pre">QueryClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uniprot_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdb_list_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdbid_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Demand/core.html#QueryClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.core.QueryClient" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Demand.core.</span></span><span class="sig-name descname"><span class="pre">QueryClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uniprot_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdb_list_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Demand/core.html#QueryClient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.core.QueryClient" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Demand.core.QueryClient.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uniprot_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdb_list_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdbid_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Demand/core.html#QueryClient.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.core.QueryClient.__init__" title="Link to this definition"></a></dt>
-<dd><p>QueryClient for Demand module.</p>
-<section id="parameters">
-<h3>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>uniprot_id<span class="classifier">str, optional</span></dt><dd><p>Uniprot ID for query, by default None</p>
-</dd>
-<dt>pdb_list_file<span class="classifier">str, optional</span></dt><dd><p>List file including PDB ID for query, by default None</p>
-</dd>
-<dt>pdbid_column<span class="classifier">str, optional</span></dt><dd><p>Specify column name of PDB ID, by default ‘PDBID’</p>
-</dd>
-</dl>
-</section>
-<section id="raises">
-<h3>Raises<a class="headerlink" href="#raises" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>ValueError</dt><dd><p>Uniprot ID or PDB list file must be provided.</p>
-</dd>
-</dl>
-</section>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uniprot_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdb_list_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Demand/core.html#QueryClient.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.core.QueryClient.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pyCADD.Demand.core.QueryClient.uniprot_save_dir">
@@ -231,8 +347,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Demand.core.QueryClient.query">
 <span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Demand/core.html#QueryClient.query"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.core.QueryClient.query" title="Link to this definition"></a></dt>
-<dd><p>查询 pdb 数据</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Demand.core.QueryClient.clean_pdb_data">
@@ -247,38 +362,17 @@
 </ul>
 </dd>
 </dl>
-<section id="id1">
-<h3>Parameters<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>del_mutations<span class="classifier">bool</span></dt><dd><p>是否去除突变晶体</p>
-</dd>
-<dt>del_ignore_lig<span class="classifier">bool</span></dt><dd><p>是否去除非配体的小分子</p>
-</dd>
-</dl>
-</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Demand.core.QueryClient.get_mutation_pdb">
 <span class="sig-name descname"><span class="pre">get_mutation_pdb</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Demand/core.html#QueryClient.get_mutation_pdb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.core.QueryClient.get_mutation_pdb" title="Link to this definition"></a></dt>
-<dd><p>识别突变晶体</p>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Demand.core.QueryClient.generate_inputfile">
 <span class="sig-name descname"><span class="pre">generate_inputfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Demand/core.html#QueryClient.generate_inputfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Demand.core.QueryClient.generate_inputfile" title="Link to this definition"></a></dt>
-<dd><p>为 Dock 模块生成输入文件
-Parameters
-———-
-path : str</p>
-<blockquote>
-<div><p>输入文件路径</p>
-</div></blockquote>
-<dl class="simple">
-<dt>_format<span class="classifier">str</span></dt><dd><p>输入文件格式 (csv, ini, yml, yaml)</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 

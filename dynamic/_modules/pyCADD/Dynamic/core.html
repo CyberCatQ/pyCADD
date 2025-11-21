@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyCADD.Dynamic.core &mdash; pyCADD.Dynamic 2.0.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -77,23 +77,23 @@
 <span class="sd">preparation, ligand parameterization, system building, and simulation execution.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
 
-<span class="kn">from</span> <span class="nn">pyCADD.Dynamic.constant</span> <span class="kn">import</span> <span class="n">CPU_NUM</span><span class="p">,</span> <span class="n">DEFAULT_STRIP_MASKS</span><span class="p">,</span> <span class="n">PMEMD</span><span class="p">,</span> <span class="n">SANDER</span>
-<span class="kn">from</span> <span class="nn">pyCADD.Dynamic.template</span> <span class="kn">import</span> <span class="n">LeapInput</span><span class="p">,</span> <span class="n">MMGBSAInput</span>
-<span class="kn">from</span> <span class="nn">pyCADD.Dynamic.utils</span> <span class="kn">import</span> <span class="n">_trace_progress</span><span class="p">,</span> <span class="n">calc_am1bcc</span><span class="p">,</span> <span class="n">run_parmchk2</span>
-<span class="kn">from</span> <span class="nn">pyCADD.utils.common</span> <span class="kn">import</span> <span class="n">ChDir</span><span class="p">,</span> <span class="n">File</span>
-<span class="kn">from</span> <span class="nn">pyCADD.utils.tool</span> <span class="kn">import</span> <span class="n">is_mpirun_available</span><span class="p">,</span> <span class="n">read_file</span><span class="p">,</span> <span class="n">shell_run</span><span class="p">,</span> <span class="n">timeit</span><span class="p">,</span> <span class="n">write_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.Dynamic.constant</span><span class="w"> </span><span class="kn">import</span> <span class="n">CPU_NUM</span><span class="p">,</span> <span class="n">DEFAULT_STRIP_MASKS</span><span class="p">,</span> <span class="n">PMEMD</span><span class="p">,</span> <span class="n">SANDER</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.Dynamic.template</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeapInput</span><span class="p">,</span> <span class="n">MMGBSAInput</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.Dynamic.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_trace_progress</span><span class="p">,</span> <span class="n">calc_am1bcc</span><span class="p">,</span> <span class="n">run_parmchk2</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.utils.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChDir</span><span class="p">,</span> <span class="n">File</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.utils.tool</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_mpirun_available</span><span class="p">,</span> <span class="n">read_file</span><span class="p">,</span> <span class="n">shell_run</span><span class="p">,</span> <span class="n">timeit</span><span class="p">,</span> <span class="n">write_file</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="protein_prepare">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.protein_prepare">[docs]</a>
-<span class="k">def</span> <span class="nf">protein_prepare</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">protein_prepare</span><span class="p">(</span>
     <span class="n">protein_file</span><span class="p">:</span> <span class="n">File</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">keep_water</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -107,22 +107,18 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        protein_file (File | str): Input protein PDB file to be processed.</span>
-<span class="sd">        save_dir (str, optional): Directory to save processed files.</span>
-<span class="sd">            Defaults to current working directory.</span>
-<span class="sd">        keep_water (bool, optional): Whether to retain water molecules in final structure.</span>
-<span class="sd">            Defaults to False.</span>
-<span class="sd">        overwrite (bool, optional): Whether to overwrite existing prepared files.</span>
-<span class="sd">            Defaults to False.</span>
+<span class="sd">        save_dir (str, optional): Directory to save processed files. Defaults to current working directory.</span>
+<span class="sd">        keep_water (bool, optional): Whether to retain water molecules in final structure. Defaults to False.</span>
+<span class="sd">        overwrite (bool, optional): Whether to overwrite existing prepared files. Defaults to False.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        File: Processed protein file ready for MD simulation setup.</span>
 
 <span class="sd">    Note:</span>
 <span class="sd">        The preparation process involves multiple steps:</span>
-<span class="sd">        1. Remove water and add missing atoms (dry step)</span>
-<span class="sd">        2. Remove all hydrogens (noH step)</span>
-<span class="sd">        3. Final cleanup and preparation</span>
-<span class="sd">        If keep_water=True, water molecules from original file are preserved.</span>
+<span class="sd">            1. Remove water and add missing atoms (dry step). If keep_water=True, water molecules from original file are preserved.</span>
+<span class="sd">            2. Remove all hydrogens (noH step)</span>
+<span class="sd">            3. Final cleanup and preparation</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        FileNotFoundError: If the input protein file doesn&#39;t exist.</span>
@@ -161,7 +157,7 @@
 
 <div class="viewcode-block" id="molecule_prepare">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.molecule_prepare">[docs]</a>
-<span class="k">def</span> <span class="nf">molecule_prepare</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">molecule_prepare</span><span class="p">(</span>
     <span class="n">ligand_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
     <span class="n">charge_method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;resp&quot;</span><span class="p">,</span> <span class="s2">&quot;bcc&quot;</span><span class="p">,</span> <span class="s2">&quot;resp2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;resp&quot;</span><span class="p">,</span>
     <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -183,21 +179,17 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        ligand_file (File): Input ligand structure file (SDF, MOL2, PDB, etc.).</span>
-<span class="sd">        charge_method (Literal[&quot;resp&quot;, &quot;bcc&quot;, &quot;resp2&quot;], optional): Method for charge calculation.</span>
-<span class="sd">            Defaults to &quot;resp&quot;.</span>
+<span class="sd">        charge_method (str, optional): Method for charge calculation. Defaults to &quot;resp&quot;.</span>
 <span class="sd">        charge (int, optional): Net charge of the molecule. If None, will be determined automatically.</span>
 <span class="sd">        multiplicity (int, optional): Spin multiplicity. If None, will be determined automatically.</span>
 <span class="sd">        dft (str, optional): DFT functional for quantum calculations. Defaults to &quot;B3LYP&quot;.</span>
 <span class="sd">        basis_set (str, optional): Basis set for quantum calculations. Defaults to &quot;6-31g*&quot;.</span>
 <span class="sd">        cpu_num (int, optional): Number of CPUs for quantum calculations. Defaults to 4.</span>
 <span class="sd">        mem_use (str, optional): Memory allocation for quantum calculations. Defaults to &quot;8GB&quot;.</span>
-<span class="sd">        solvent (str, optional): Solvent for implicit solvation in quantum calculations.</span>
-<span class="sd">            Defaults to &quot;water&quot;.</span>
+<span class="sd">        solvent (str, optional): Solvent for implicit solvation in quantum calculations. Defaults to &quot;water&quot;.</span>
 <span class="sd">        delta (float, optional): Interpolation parameter for RESP2 method. Defaults to 0.5.</span>
-<span class="sd">        save_dir (str, optional): Directory to save generated files.</span>
-<span class="sd">            Defaults to current working directory.</span>
-<span class="sd">        overwrite (bool, optional): Whether to overwrite existing parameter files.</span>
-<span class="sd">            Defaults to False.</span>
+<span class="sd">        save_dir (str, optional): Directory to save generated files. Defaults to current working directory.</span>
+<span class="sd">        overwrite (bool, optional): Whether to overwrite existing parameter files. Defaults to False.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple[File, File]: Tuple containing (parameter_file, coordinate_file) where:</span>
@@ -211,10 +203,10 @@
 
 <span class="sd">    Note:</span>
 <span class="sd">        The function automatically handles:</span>
-<span class="sd">        - Charge and multiplicity determination if not provided</span>
-<span class="sd">        - GAFF parameter assignment using antechamber</span>
-<span class="sd">        - Missing parameter generation using parmchk2</span>
-<span class="sd">        - System building using tleap</span>
+<span class="sd">            - Charge and multiplicity determination if not provided</span>
+<span class="sd">            - GAFF parameter assignment using antechamber</span>
+<span class="sd">            - Missing parameter generation using parmchk2</span>
+<span class="sd">            - System building using tleap</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
@@ -239,7 +231,7 @@
             <span class="s2">&quot;multiplicity&quot;</span><span class="p">:</span> <span class="n">multiplicity</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">pyCADD.Density.base</span> <span class="kn">import</span> <span class="n">Gauss</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.Density.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Gauss</span>
 
         <span class="n">gauss</span> <span class="o">=</span> <span class="n">Gauss</span><span class="p">()</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span>
@@ -265,7 +257,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_create_leap_inputfile</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_create_leap_inputfile</span><span class="p">(</span>
     <span class="n">protein_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">ligand_file_path</span><span class="p">:</span> <span class="n">File</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">frcmod_file_path</span><span class="p">:</span> <span class="n">File</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -282,27 +274,23 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        protein_file_path (str): Path to the prepared protein PDB file.</span>
-<span class="sd">        ligand_file_path (File | str, optional): Path to the ligand MOL2 file.</span>
-<span class="sd">            Defaults to None for protein-only systems.</span>
-<span class="sd">        frcmod_file_path (File | str, optional): Path to additional force field</span>
-<span class="sd">            parameters file. Defaults to None.</span>
+<span class="sd">        ligand_file_path (File | str, optional): Path to the ligand MOL2 file. Defaults to None for protein-only systems.</span>
+<span class="sd">        frcmod_file_path (File | str, optional): Path to additional force field parameters file. Defaults to None.</span>
 <span class="sd">        file_prefix (str, optional): Prefix for output files. Defaults to &quot;Untitled&quot;.</span>
-<span class="sd">        box_size (float, optional): Distance from solute to box edge in Angstroms.</span>
-<span class="sd">            Defaults to 10.0.</span>
+<span class="sd">        box_size (float, optional): Distance from solute to box edge in Angstroms. Defaults to 10.0.</span>
 <span class="sd">        box_type (str, optional): Type of water box model. Defaults to &quot;TIP3PBOX&quot;.</span>
 <span class="sd">        solvatebox (str, optional): Solvation command type. Defaults to &quot;solvatebox&quot;.</span>
-<span class="sd">        save_dir (str, optional): Directory to save the input file.</span>
-<span class="sd">            Defaults to current working directory.</span>
+<span class="sd">        save_dir (str, optional): Directory to save the input file. Defaults to current working directory.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        File: Generated tLEaP input file object.</span>
 
 <span class="sd">    Note:</span>
 <span class="sd">        The generated input file includes commands for:</span>
-<span class="sd">        - Loading appropriate force fields</span>
-<span class="sd">        - Loading protein and ligand structures</span>
-<span class="sd">        - Adding solvent box and neutralizing ions</span>
-<span class="sd">        - Saving parameter and coordinate files</span>
+<span class="sd">            - Loading appropriate force fields</span>
+<span class="sd">            - Loading protein and ligand structures</span>
+<span class="sd">            - Adding solvent box and neutralizing ions</span>
+<span class="sd">            - Saving parameter and coordinate files</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">file_prefix</span> <span class="o">=</span> <span class="n">file_prefix</span> <span class="ow">or</span> <span class="s2">&quot;Untitled&quot;</span>
     <span class="n">protein_file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">protein_file_path</span><span class="p">)</span>
@@ -324,7 +312,17 @@
     <span class="k">return</span> <span class="n">File</span><span class="p">(</span><span class="n">input_file_path</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_get_strip_prmtop_str</span><span class="p">(</span><span class="n">prmtop_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span> <span class="n">strip_masks</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_strip_prmtop_str</span><span class="p">(</span><span class="n">prmtop_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span> <span class="n">strip_masks</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get stripped prmtop string with strip masks.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        prmtop_file (File): Parameter/topology file to be stripped.</span>
+<span class="sd">        strip_masks (str): Masks specifying atoms to strip.</span>
+<span class="sd">        save_dir (str, optional): Directory to save the stripped file. Defaults to None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: Contents of the stripped parameter/topology file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="n">ChDir</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">save_dir</span><span class="p">):</span>
         <span class="n">stripped_file_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prmtop_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_stripped.prmtop&quot;</span>
         <span class="n">strip_cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;parmed </span><span class="si">{</span><span class="n">prmtop_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> &lt;&lt; EOF</span><span class="se">\n</span><span class="s2">&quot;</span>
@@ -336,7 +334,7 @@
 
 <div class="viewcode-block" id="leap_prepare">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.leap_prepare">[docs]</a>
-<span class="k">def</span> <span class="nf">leap_prepare</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">leap_prepare</span><span class="p">(</span>
     <span class="n">protein_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
     <span class="n">ligand_file</span><span class="p">:</span> <span class="n">File</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">frcmod_file</span><span class="p">:</span> <span class="n">File</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -355,12 +353,10 @@
 <span class="sd">        protein_file (File): Prepared protein structure file.</span>
 <span class="sd">        ligand_file (File, optional): Ligand MOL2 file with parameters. Defaults to None.</span>
 <span class="sd">        frcmod_file (File, optional): Additional force field parameter file. Defaults to None.</span>
-<span class="sd">        box_size (float, optional): Distance from solute to box boundary in Angstroms.</span>
-<span class="sd">            Defaults to 10.0.</span>
+<span class="sd">        box_size (float, optional): Distance from solute to box boundary in Angstroms. Defaults to 10.0.</span>
 <span class="sd">        box_type (str, optional): Water model for solvation. Defaults to &quot;TIP3PBOX&quot;.</span>
 <span class="sd">        solvatebox (str, optional): Solvation command type. Defaults to &quot;solvatebox&quot;.</span>
-<span class="sd">        save_dir (str, optional): Directory to save output files.</span>
-<span class="sd">            Defaults to current working directory.</span>
+<span class="sd">        save_dir (str, optional): Directory to save output files. Defaults to current working directory.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple: Tuple containing (topology_file, coordinate_file, pdb_file, com_topfile, pro_topfile, lig_topfile) where:</span>
@@ -377,10 +373,10 @@
 
 <span class="sd">    Note:</span>
 <span class="sd">        The function automatically:</span>
-<span class="sd">        - Generates appropriate file prefixes based on input files</span>
-<span class="sd">        - Creates tLEaP input script and executes it</span>
-<span class="sd">        - Converts coordinates to PDB format for visualization</span>
-<span class="sd">        - Handles both protein-only and protein-ligand systems</span>
+<span class="sd">            - Generates appropriate file prefixes based on input files</span>
+<span class="sd">            - Creates tLEaP input script and executes it</span>
+<span class="sd">            - Converts coordinates to PDB format for visualization</span>
+<span class="sd">            - Handles both protein-only and protein-ligand systems</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -407,10 +403,16 @@
     <span class="n">comsolvate_pdbfile_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">_comsolvate.pdb&quot;</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">ChDir</span><span class="p">(</span><span class="n">save_dir</span><span class="p">):</span>
         <span class="n">shell_run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;tleap -f </span><span class="si">{</span><span class="n">leap_inputfile</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">write_file</span><span class="p">(</span><span class="n">com_topfile_path</span><span class="p">,</span> <span class="n">_get_strip_prmtop_str</span><span class="p">(</span><span class="n">File</span><span class="p">(</span><span class="n">com_topfile_path</span><span class="p">),</span> <span class="n">DEFAULT_STRIP_MASKS</span><span class="p">))</span>
-        <span class="n">write_file</span><span class="p">(</span><span class="n">pro_topfile_path</span><span class="p">,</span> <span class="n">_get_strip_prmtop_str</span><span class="p">(</span><span class="n">File</span><span class="p">(</span><span class="n">pro_topfile_path</span><span class="p">),</span> <span class="n">DEFAULT_STRIP_MASKS</span><span class="p">))</span>
+        <span class="n">write_file</span><span class="p">(</span>
+            <span class="n">com_topfile_path</span><span class="p">,</span> <span class="n">_get_strip_prmtop_str</span><span class="p">(</span><span class="n">File</span><span class="p">(</span><span class="n">com_topfile_path</span><span class="p">),</span> <span class="n">DEFAULT_STRIP_MASKS</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">write_file</span><span class="p">(</span>
+            <span class="n">pro_topfile_path</span><span class="p">,</span> <span class="n">_get_strip_prmtop_str</span><span class="p">(</span><span class="n">File</span><span class="p">(</span><span class="n">pro_topfile_path</span><span class="p">),</span> <span class="n">DEFAULT_STRIP_MASKS</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">ligand_file</span><span class="p">:</span>
-            <span class="n">write_file</span><span class="p">(</span><span class="n">lig_topfile_path</span><span class="p">,</span> <span class="n">_get_strip_prmtop_str</span><span class="p">(</span><span class="n">File</span><span class="p">(</span><span class="n">lig_topfile_path</span><span class="p">),</span> <span class="n">DEFAULT_STRIP_MASKS</span><span class="p">))</span>
+            <span class="n">write_file</span><span class="p">(</span>
+                <span class="n">lig_topfile_path</span><span class="p">,</span> <span class="n">_get_strip_prmtop_str</span><span class="p">(</span><span class="n">File</span><span class="p">(</span><span class="n">lig_topfile_path</span><span class="p">),</span> <span class="n">DEFAULT_STRIP_MASKS</span><span class="p">)</span>
+            <span class="p">)</span>
 
     <span class="n">shell_run</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;ambpdb -p </span><span class="si">{</span><span class="n">comsolvate_topfile_path</span><span class="si">}</span><span class="s2"> &lt; </span><span class="si">{</span><span class="n">comsolvate_crdfile_path</span><span class="si">}</span><span class="s2"> &gt; </span><span class="si">{</span><span class="n">comsolvate_pdbfile_path</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -428,7 +430,7 @@
 
 <div class="viewcode-block" id="BaseProcess">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.BaseProcess">[docs]</a>
-<span class="k">class</span> <span class="nc">BaseProcess</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseProcess</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for molecular dynamics simulation processes.</span>
 
 <span class="sd">    Provides common functionality for parsing MD input files and managing</span>
@@ -443,7 +445,7 @@
 
 <div class="viewcode-block" id="BaseProcess.__init__">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.BaseProcess.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span> <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span> <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the base MD process.</span>
 
 <span class="sd">        Args:</span>
@@ -464,7 +466,7 @@
 
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_get_input_config</span><span class="p">(</span><span class="n">input_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_input_config</span><span class="p">(</span><span class="n">input_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Parses Amber MD input file to extract configuration sections.</span>
 
 <span class="sd">        Analyzes an Amber MD input file and extracts all configuration sections</span>
@@ -506,7 +508,7 @@
 
 <div class="viewcode-block" id="BaseProcess.run">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.BaseProcess.run">[docs]</a>
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Executes the simulation process.</span>
 
 <span class="sd">        Args:</span>
@@ -526,7 +528,7 @@
 
 <div class="viewcode-block" id="MDProcess">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess">[docs]</a>
-<span class="k">class</span> <span class="nc">MDProcess</span><span class="p">(</span><span class="n">BaseProcess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MDProcess</span><span class="p">(</span><span class="n">BaseProcess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Molecular dynamics simulation process implementation.</span>
 
 <span class="sd">    Handles execution of Amber MD simulations including minimization, heating,</span>
@@ -550,7 +552,7 @@
 
 <div class="viewcode-block" id="MDProcess.__init__">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">input_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
         <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -591,7 +593,7 @@
 
 <div class="viewcode-block" id="MDProcess.run">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MDProcess.run">[docs]</a>
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">topology_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
         <span class="n">inpcrd_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
@@ -608,23 +610,20 @@
 <span class="sd">        Args:</span>
 <span class="sd">            topology_file (File): Amber topology file (.prmtop) for the system.</span>
 <span class="sd">            inpcrd_file (File): Input coordinate file (.inpcrd or .rst).</span>
-<span class="sd">            reference_file (File | str, optional): Reference structure for restrained simulations.</span>
-<span class="sd">                Defaults to None.</span>
-<span class="sd">            save_dir (str, optional): Directory to save simulation outputs.</span>
-<span class="sd">                Defaults to current working directory.</span>
-<span class="sd">            nohup (bool, optional): Whether to run in background with progress tracking.</span>
-<span class="sd">                Defaults to False.</span>
+<span class="sd">            reference_file (File | str, optional): Reference structure for restrained simulations. Defaults to None.</span>
+<span class="sd">            save_dir (str, optional): Directory to save simulation outputs. Defaults to current working directory.</span>
+<span class="sd">            nohup (bool, optional): Whether to run in background with progress tracking. Defaults to False.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            MDProcess: Self-reference with updated file paths and execution status.</span>
 
 <span class="sd">        Note:</span>
 <span class="sd">            The method automatically:</span>
-<span class="sd">            - Selects appropriate MD engine (PMEMD/SANDER) based on simulation type</span>
-<span class="sd">            - Generates output file paths based on process name</span>
-<span class="sd">            - Logs simulation parameters (steps, time step, total time)</span>
-<span class="sd">            - Provides real-time progress tracking for background runs</span>
-<span class="sd">            - Handles reference files for restrained simulations</span>
+<span class="sd">                - Selects appropriate MD engine (PMEMD/SANDER) based on simulation type</span>
+<span class="sd">                - Generates output file paths based on process name</span>
+<span class="sd">                - Logs simulation parameters (steps, time step, total time)</span>
+<span class="sd">                - Provides real-time progress tracking for background runs</span>
+<span class="sd">                - Handles reference files for restrained simulations</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            RuntimeError: If the simulation execution fails.</span>
@@ -674,7 +673,7 @@
 
 <div class="viewcode-block" id="MinimizeProcess">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MinimizeProcess">[docs]</a>
-<span class="k">class</span> <span class="nc">MinimizeProcess</span><span class="p">(</span><span class="n">MDProcess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MinimizeProcess</span><span class="p">(</span><span class="n">MDProcess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Energy minimization simulation process.</span>
 
 <span class="sd">    Specialized MD process for performing energy minimization using SANDER.</span>
@@ -689,7 +688,7 @@
 
 <div class="viewcode-block" id="MinimizeProcess.__init__">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.MinimizeProcess.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">input_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
         <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -713,7 +712,7 @@
 
 <div class="viewcode-block" id="NPTProcess">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.NPTProcess">[docs]</a>
-<span class="k">class</span> <span class="nc">NPTProcess</span><span class="p">(</span><span class="n">MDProcess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NPTProcess</span><span class="p">(</span><span class="n">MDProcess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Isothermal-isobaric (NPT) molecular dynamics process.</span>
 
 <span class="sd">    Performs MD simulation in the NPT ensemble where temperature and pressure</span>
@@ -721,13 +720,12 @@
 <span class="sd">    to maintain realistic density and pressure conditions.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        is_production (bool): Whether this is a production run requiring</span>
-<span class="sd">            background execution with progress tracking.</span>
+<span class="sd">        is_production (bool): Whether this is a production run requiring background execution with progress tracking.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="NPTProcess.__init__">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.NPTProcess.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span> <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">is_production</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the NPT simulation process.</span>
@@ -752,7 +750,7 @@
 
 <div class="viewcode-block" id="NVTProcess">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.NVTProcess">[docs]</a>
-<span class="k">class</span> <span class="nc">NVTProcess</span><span class="p">(</span><span class="n">MDProcess</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NVTProcess</span><span class="p">(</span><span class="n">MDProcess</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Canonical (NVT) molecular dynamics process.</span>
 
 <span class="sd">    Performs MD simulation in the NVT ensemble where temperature and volume</span>
@@ -760,13 +758,12 @@
 <span class="sd">    steps before switching to NPT conditions.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        is_production (bool): Whether this is a production run requiring</span>
-<span class="sd">            background execution with progress tracking.</span>
+<span class="sd">        is_production (bool): Whether this is a production run requiring background execution with progress tracking.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="NVTProcess.__init__">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.NVTProcess.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span> <span class="n">process_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">is_production</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the NVT simulation process.</span>
@@ -774,8 +771,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            input_file (File): Amber MD input file configured for NVT simulation.</span>
 <span class="sd">            process_name (str): Unique name for this NVT process.</span>
-<span class="sd">            is_production (bool, optional): Whether this is a production run.</span>
-<span class="sd">                Production runs use background execution. Defaults to False.</span>
+<span class="sd">            is_production (bool, optional): Whether this is a production run. Production runs use background execution. Defaults to False.</span>
 <span class="sd">            **kwargs: Additional attributes for process customization.</span>
 
 <span class="sd">        Note:</span>
@@ -792,7 +788,7 @@
 <div class="viewcode-block" id="run_simulation">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.run_simulation">[docs]</a>
 <span class="nd">@timeit</span>
-<span class="k">def</span> <span class="nf">run_simulation</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_simulation</span><span class="p">(</span>
     <span class="n">comsolvate_topfile</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
     <span class="n">comsolvate_crdfile</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
     <span class="n">process_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MDProcess</span><span class="p">],</span>
@@ -807,18 +803,16 @@
 <span class="sd">    Args:</span>
 <span class="sd">        comsolvate_topfile (File): Amber topology file for the solvated system.</span>
 <span class="sd">        comsolvate_crdfile (File): Initial coordinate file for the solvated system.</span>
-<span class="sd">        process_list (list[MDProcess]): List of MD processes to execute in order.</span>
-<span class="sd">            Each process contains its own input parameters and settings.</span>
-<span class="sd">        save_dir (str, optional): Base directory to save all simulation outputs.</span>
-<span class="sd">            Defaults to current working directory.</span>
+<span class="sd">        process_list (list[MDProcess]): List of MD processes to execute in order. Each process contains its own input parameters and settings.</span>
+<span class="sd">        save_dir (str, optional): Base directory to save all simulation outputs. Defaults to current working directory.</span>
 
 <span class="sd">    Note:</span>
 <span class="sd">        The function automatically:</span>
-<span class="sd">        - Creates separate subdirectories for each simulation process</span>
-<span class="sd">        - Chains coordinates between processes (output → input)</span>
-<span class="sd">        - Handles restrained simulations with appropriate reference structures</span>
-<span class="sd">        - Uses nohup for production runs to allow background execution</span>
-<span class="sd">        - Provides progress tracking for long simulations</span>
+<span class="sd">            - Creates separate subdirectories for each simulation process</span>
+<span class="sd">            - Chains coordinates between processes (output → input)</span>
+<span class="sd">            - Handles restrained simulations with appropriate reference structures</span>
+<span class="sd">            - Uses nohup for production runs to allow background execution</span>
+<span class="sd">            - Provides progress tracking for long simulations</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        MDProcess: The final completed simulation process in the workflow.</span>
@@ -849,7 +843,7 @@
 
 <div class="viewcode-block" id="create_energy_inputfile">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.create_energy_inputfile">[docs]</a>
-<span class="k">def</span> <span class="nf">create_energy_inputfile</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_energy_inputfile</span><span class="p">(</span>
     <span class="n">job_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">startframe</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">endframe</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -870,10 +864,8 @@
 <span class="sd">        startframe (int): Starting frame number from trajectory (1-indexed).</span>
 <span class="sd">        endframe (int): Ending frame number from trajectory (1-indexed).</span>
 <span class="sd">        step_size (int): Frame interval for analysis (e.g., 10 = every 10th frame).</span>
-<span class="sd">        decomp (bool, optional): Whether to perform per-residue energy decomposition.</span>
-<span class="sd">            Defaults to False.</span>
-<span class="sd">        save_dir (str, optional): Directory to save the input file.</span>
-<span class="sd">            Defaults to current working directory.</span>
+<span class="sd">        decomp (bool, optional): Whether to perform per-residue energy decomposition. Defaults to False.</span>
+<span class="sd">        save_dir (str, optional): Directory to save the input file. Defaults to current working directory.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        File: Generated MM-PBSA/MM-GBSA input file.</span>
@@ -913,7 +905,7 @@
 <div class="viewcode-block" id="run_energy_calculation">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.core.run_energy_calculation">[docs]</a>
 <span class="nd">@timeit</span>
-<span class="k">def</span> <span class="nf">run_energy_calculation</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_energy_calculation</span><span class="p">(</span>
     <span class="n">input_file</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
     <span class="n">comsolvate_topfile</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
     <span class="n">com_topfile</span><span class="p">:</span> <span class="n">File</span><span class="p">,</span>
@@ -937,12 +929,9 @@
 <span class="sd">        receptor_topfile (File): Topology file for the receptor/protein only.</span>
 <span class="sd">        ligand_topfile (File): Topology file for the ligand only.</span>
 <span class="sd">        traj_file (File): MD trajectory file (.nc or .dcd format).</span>
-<span class="sd">        save_dir (str, optional): Directory to save calculation results.</span>
-<span class="sd">            Defaults to current working directory.</span>
-<span class="sd">        energy_decompose (bool, optional): Whether per-residue decomposition was requested.</span>
-<span class="sd">            Defaults to False.</span>
-<span class="sd">        cpu_num (int, optional): Number of CPU cores for parallel calculation.</span>
-<span class="sd">            Defaults to system CPU_NUM constant.</span>
+<span class="sd">        save_dir (str, optional): Directory to save calculation results. Defaults to current working directory.</span>
+<span class="sd">        energy_decompose (bool, optional): Whether per-residue decomposition was requested. Defaults to False.</span>
+<span class="sd">        cpu_num (int, optional): Number of CPU cores for parallel calculation. Defaults to system CPU_NUM constant.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple[File, File]: Tuple containing (energy_results, decomp_results):</span>
@@ -955,10 +944,10 @@
 
 <span class="sd">    Note:</span>
 <span class="sd">        The calculation requires:</span>
-<span class="sd">        - MPI installation for parallel processing</span>
-<span class="sd">        - Proper trajectory format compatibility with topology files</span>
-<span class="sd">        - Sufficient memory for large trajectory analysis</span>
-<span class="sd">        - All topology files must be consistent with the trajectory</span>
+<span class="sd">            - MPI installation for parallel processing</span>
+<span class="sd">            - Proper trajectory format compatibility with topology files</span>
+<span class="sd">            - Sufficient memory for large trajectory analysis</span>
+<span class="sd">            - All topology files must be consistent with the trajectory</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>

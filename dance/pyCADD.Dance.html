@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyCADD.Dance package &mdash; pyCADD.Dance 2.0.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
@@ -145,18 +145,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pyCADD.Dance.algorithm.html">pyCADD.Dance.algorithm package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pyCADD.Dance.algorithm.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dance.algorithm.html#module-pyCADD.Dance.algorithm.DL">pyCADD.Dance.algorithm.DL module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.DL.MLP"><code class="docutils literal notranslate"><span class="pre">MLP</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.DL.MLP.__init__"><code class="docutils literal notranslate"><span class="pre">MLP.__init__()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.DL.MLP.forward"><code class="docutils literal notranslate"><span class="pre">MLP.forward()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.DL.MLP.get_params"><code class="docutils literal notranslate"><span class="pre">MLP.get_params()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.DL.MLP.initialize"><code class="docutils literal notranslate"><span class="pre">MLP.initialize()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.DL.MLP.predict"><code class="docutils literal notranslate"><span class="pre">MLP.predict()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.DL.MLP.predict_proba"><code class="docutils literal notranslate"><span class="pre">MLP.predict_proba()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="pyCADD.Dance.algorithm.html#pycadd-dance-algorithm-dl-module">pyCADD.Dance.algorithm.DL module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pyCADD.Dance.algorithm.html#module-pyCADD.Dance.algorithm.consensus">pyCADD.Dance.algorithm.consensus module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.Average"><code class="docutils literal notranslate"><span class="pre">Average</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pyCADD.Dance.algorithm.html#pyCADD.Dance.algorithm.consensus.Average.__init__"><code class="docutils literal notranslate"><span class="pre">Average.__init__()</span></code></a></li>
@@ -202,172 +191,249 @@
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Dancer">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dance.common.</span></span><span class="sig-name descname"><span class="pre">Dancer</span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Dancer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Dancer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Data analyzer for CADD
-数据预处理及分析器</p>
+<p>Data analyzer for CADD (Computer-Aided Drug Design).</p>
+<p>A comprehensive data preprocessing and analysis tool for molecular datasets
+in computer-aided drug design workflows. Handles dataset merging, preprocessing,
+and preparation for machine learning models.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Dancer.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Dancer.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Dancer.__init__" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Initialize the Dancer instance.</p>
+<p>Creates necessary directories and initializes data storage attributes.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Dancer.add_pos_dataset">
 <span class="sig-name descname"><span class="pre">add_pos_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Dancer.add_pos_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Dancer.add_pos_dataset" title="Link to this definition"></a></dt>
-<dd><p>增加正样本数据集</p>
-<section id="parameters">
-<h3>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>csv_path<span class="classifier">str</span></dt><dd><p>正样本数据集的csv文件路径</p>
+<dd><p>Add a positive sample dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>csv_path</strong> (<em>str</em>) – Path to the positive sample dataset CSV file.</p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Dancer.add_neg_dataset">
 <span class="sig-name descname"><span class="pre">add_neg_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Dancer.add_neg_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Dancer.add_neg_dataset" title="Link to this definition"></a></dt>
-<dd><p>增加负样本数据集</p>
-<section id="id1">
-<h3>Parameters<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>csv_path<span class="classifier">str</span></dt><dd><p>负样本数据集的csv文件路径</p>
+<dd><p>Add a negative sample dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>csv_path</strong> (<em>str</em>) – Path to the negative sample dataset CSV file.</p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Dancer.add_dataset">
 <span class="sig-name descname"><span class="pre">add_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Dancer.add_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Dancer.add_dataset" title="Link to this definition"></a></dt>
-<dd><p>增加数据集</p>
-<section id="id2">
-<h3>Parameters<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>csv_path<span class="classifier">str</span></dt><dd><p>数据集的csv文件路径</p>
+<dd><p>Add a dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>csv_path</strong> (<em>str</em>) – Path to the dataset CSV file.</p></li>
+<li><p><strong>*args</strong> – Additional arguments passed to _add_dataset.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments passed to _add_dataset.</p></li>
+</ul>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Dancer.get_merged_data">
 <span class="sig-name descname"><span class="pre">get_merged_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Dancer.get_merged_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Dancer.get_merged_data" title="Link to this definition"></a></dt>
-<dd><p>返回合并数据集</p>
+<dd><p>Return the merged dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The merged dataset DataFrame.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Dancer.prepare_data">
 <span class="sig-name descname"><span class="pre">prepare_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fill_nan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Dancer.prepare_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Dancer.prepare_data" title="Link to this definition"></a></dt>
-<dd><p>准备数据集</p>
-<section id="id3">
-<h3>Parameters<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>fill_nan<span class="classifier">bool</span></dt><dd><p>是否填充缺失值 默认为True</p>
-</dd>
-<dt><a href="#id4"><span class="problematic" id="id5">*</span></a>args, <a href="#id6"><span class="problematic" id="id7">**</span></a>kwargs</dt><dd><p>其他参数 传入self._fill_nan()
-value可指定填充值 默认0</p>
+<dd><p>Prepare the dataset for analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fill_nan</strong> (<em>bool</em>) – Whether to fill missing values. Defaults to True.</p></li>
+<li><p><strong>*args</strong> – Additional arguments passed to self._fill_nan().</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments passed to self._fill_nan().
+The ‘value’ parameter can specify the fill value (default 0).</p></li>
+</ul>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Dancer.save_pickle">
 <span class="sig-name descname"><span class="pre">save_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Dancer.save_pickle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Dancer.save_pickle" title="Link to this definition"></a></dt>
-<dd><p>保存数据集</p>
+<dd><p>Save dataset as pickle file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_name</strong> (<em>str</em>) – Name of the pickle file to save.</p></li>
+<li><p><strong>dataset</strong> (<em>DataFrame</em><em>, </em><em>optional</em>) – Dataset to save. Defaults to self.merged_data.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Dancer.save_csv">
 <span class="sig-name descname"><span class="pre">save_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Dancer.save_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Dancer.save_csv" title="Link to this definition"></a></dt>
-<dd><p>保存数据集</p>
+<dd><p>Save dataset as CSV file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_name</strong> (<em>str</em>) – Name of the CSV file to save.</p></li>
+<li><p><strong>dataset</strong> (<em>DataFrame</em><em>, </em><em>optional</em>) – Dataset to save. Defaults to self.merged_data.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Dancer.save">
 <span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Dancer.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Dancer.save" title="Link to this definition"></a></dt>
-<dd><p>保存数据集</p>
+<dd><p>Save dataset in the appropriate format based on file extension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_name</strong> (<em>str</em>) – Name of the file to save. Must end with .csv, .pickle, or .pkl.</p></li>
+<li><p><strong>dataset</strong> (<em>DataFrame</em><em>, </em><em>optional</em>) – Dataset to save. Defaults to self.merged_data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If file extension is not supported.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Matrix">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dance.common.</span></span><span class="sig-name descname"><span class="pre">Matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataframe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Matrix" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dance.common.</span></span><span class="sig-name descname"><span class="pre">Matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataframe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Matrix" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>结果矩阵</p>
+<p>Result matrix for molecular data analysis.</p>
+<p>A data structure for handling molecular datasets with train/test splitting
+and data preprocessing capabilities for machine learning workflows.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Matrix.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataframe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Matrix.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Matrix.__init__" title="Link to this definition"></a></dt>
-<dd><section id="id8">
-<h3>Parameters<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>dataframe<span class="classifier">DataFrame</span></dt><dd><p>数据DataFrame</p>
-</dd>
-<dt>test_size<span class="classifier">float</span></dt><dd><p>测试集比例</p>
-</dd>
-<dt>random_seed<span class="classifier">int</span></dt><dd><p>随机种子</p>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataframe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Matrix.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Matrix.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize Matrix with molecular data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataframe</strong> (<em>DataFrame</em>) – Input DataFrame containing molecular data.</p></li>
+<li><p><strong>test_size</strong> (<em>float</em>) – Proportion of data to use for testing. Defaults to 0.25.</p></li>
+<li><p><strong>random_seed</strong> (<em>int</em>) – Random seed for reproducible splits. Defaults to 42.</p></li>
+</ul>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Matrix.from_pickle">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dance.common.Matrix" title="pyCADD.Dance.common.Matrix"><span class="pre">Matrix</span></a></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Matrix.from_pickle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Matrix.from_pickle" title="Link to this definition"></a></dt>
-<dd><p>从pickle文件中读取结果矩阵</p>
-<section id="id9">
-<h3>Parameters<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>path<span class="classifier">str</span></dt><dd><p>pickle文件路径</p>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dance.common.Matrix" title="pyCADD.Dance.common.Matrix"><span class="pre">Matrix</span></a></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Matrix.from_pickle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Matrix.from_pickle" title="Link to this definition"></a></dt>
+<dd><p>Create Matrix instance from pickle file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – Path to the pickle file.</p></li>
+<li><p><strong>*args</strong> – Additional arguments passed to Matrix constructor.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments passed to Matrix constructor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matrix instance loaded from pickle file.</p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Matrix.from_csv">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dance.common.Matrix" title="pyCADD.Dance.common.Matrix"><span class="pre">Matrix</span></a></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Matrix.from_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Matrix.from_csv" title="Link to this definition"></a></dt>
-<dd><p>从csv文件中读取结果矩阵</p>
-<section id="id10">
-<h3>Parameters<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>path<span class="classifier">str</span></dt><dd><p>csv文件路径</p>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dance.common.Matrix" title="pyCADD.Dance.common.Matrix"><span class="pre">Matrix</span></a></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Matrix.from_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Matrix.from_csv" title="Link to this definition"></a></dt>
+<dd><p>Create Matrix instance from CSV file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – Path to the CSV file.</p></li>
+<li><p><strong>*args</strong> – Additional arguments passed to Matrix constructor.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments passed to Matrix constructor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matrix instance loaded from CSV file.</p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Matrix.from_splited_data">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_splited_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Matrix.from_splited_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Matrix.from_splited_data" title="Link to this definition"></a></dt>
-<dd><p>从划分好的数据中读取结果矩阵</p>
-<section id="id11">
-<h3>Parameters<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>train_data<span class="classifier">DataFrame</span></dt><dd><p>训练集数据</p>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_splited_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pyCADD.Dance.common.Matrix" title="pyCADD.Dance.common.Matrix"><span class="pre">Matrix</span></a></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Matrix.from_splited_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Matrix.from_splited_data" title="Link to this definition"></a></dt>
+<dd><p>Create Matrix instance from pre-split data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_data</strong> (<em>DataFrame</em>) – Training dataset.</p></li>
+<li><p><strong>test_data</strong> (<em>DataFrame</em>) – Testing dataset.</p></li>
+</ul>
 </dd>
-<dt>test_data<span class="classifier">DataFrame</span></dt><dd><p>测试集数据</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matrix instance with pre-split train and test data.</p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Matrix.split_train_test_data">
 <span class="sig-name descname"><span class="pre">split_train_test_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'activity'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Matrix.split_train_test_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Matrix.split_train_test_data" title="Link to this definition"></a></dt>
-<dd><p>划分训练集和测试集数据</p>
+<dd><p>Split data into training and testing sets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>test_size</strong> (<em>float</em><em>, </em><em>optional</em>) – Proportion of the dataset to include in the test split.
+If None, uses the instance’s test_size.</p></li>
+<li><p><strong>random_seed</strong> (<em>int</em><em>, </em><em>optional</em>) – Random seed for reproducible splits.
+If None, uses the instance’s random_seed.</p></li>
+<li><p><strong>label_col</strong> (<em>str</em>) – Name of the label column. Defaults to ‘activity’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple containing (train_data, test_data).</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Matrix.get_train_data">
 <span class="sig-name descname"><span class="pre">get_train_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'activity'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Matrix.get_train_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Matrix.get_train_data" title="Link to this definition"></a></dt>
-<dd><p>获取训练集数据</p>
+<dd><p>Get training data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>label_col</strong> (<em>str</em>) – Name of the label column. Defaults to ‘activity’.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Training dataset DataFrame.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Matrix.get_test_data">
 <span class="sig-name descname"><span class="pre">get_test_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'activity'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Matrix.get_test_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Matrix.get_test_data" title="Link to this definition"></a></dt>
-<dd><p>获取测试集数据</p>
+<dd><p>Get testing data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>label_col</strong> (<em>str</em>) – Name of the label column. Defaults to ‘activity’.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Testing dataset DataFrame.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -376,213 +442,266 @@ value可指定填充值 默认0</p>
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyCADD.Dance.common.</span></span><span class="sig-name descname"><span class="pre">Evaluator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dance.common.Matrix" title="pyCADD.Dance.common.Matrix"><span class="pre">Matrix</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'activity'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>模型性能评估器
-仅适用于非神经网络模型</p>
+<p>Model performance evaluator.</p>
+<p>A comprehensive evaluation toolkit for machine learning models in CADD workflows.
+Suitable for non-neural network models with cross-validation and test set evaluation.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pyCADD.Dance.common.Matrix" title="pyCADD.Dance.common.Matrix"><span class="pre">Matrix</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'activity'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.__init__" title="Link to this definition"></a></dt>
-<dd><section id="id12">
-<h3>Parameters<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>matrix<span class="classifier">Matrix</span></dt><dd><p>结果矩阵</p>
+<dd><p>Initialize the Evaluator with a data matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>matrix</strong> (<a class="reference internal" href="#pyCADD.Dance.common.Matrix" title="pyCADD.Dance.common.Matrix"><em>Matrix</em></a>) – Result matrix containing the molecular data.</p></li>
+<li><p><strong>label_col</strong> (<em>str</em>) – Name of the label column. Defaults to ‘activity’.</p></li>
+</ul>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.gbt_default_params">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gbt_default_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.gbt_default_params" title="Link to this definition"></a></dt>
-<dd><p>默认GBT参数空间</p>
+<dd><p>Get default GBT parameter space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary containing default Gradient Boosting Tree parameters.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.lr_default_params">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lr_default_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.lr_default_params" title="Link to this definition"></a></dt>
-<dd><p>默认LR参数空间</p>
+<dd><p>Get default Logistic Regression parameter space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary containing default Logistic Regression parameters.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.rf_default_params">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rf_default_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.rf_default_params" title="Link to this definition"></a></dt>
-<dd><p>默认RF参数空间</p>
+<dd><p>Get default Random Forest parameter space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary containing default Random Forest parameters.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.get_weights">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Series</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator.get_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.get_weights" title="Link to this definition"></a></dt>
-<dd><p>计算不平衡数据集中各类标签的权重</p>
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator.get_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.get_weights" title="Link to this definition"></a></dt>
+<dd><p>Calculate weights for each class label in imbalanced datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>y</strong> (<em>Series</em>) – Series containing class labels.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of weights for each sample, inversely proportional to class frequency.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.get_lr_default_params">
 <span class="sig-name descname"><span class="pre">get_lr_default_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator.get_lr_default_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.get_lr_default_params" title="Link to this definition"></a></dt>
-<dd><p>获取默认LR参数空间</p>
+<dd><p>Get default Logistic Regression parameter space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary containing default LR parameters.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.get_rf_default_params">
 <span class="sig-name descname"><span class="pre">get_rf_default_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator.get_rf_default_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.get_rf_default_params" title="Link to this definition"></a></dt>
-<dd><p>获取默认RF参数空间</p>
+<dd><p>Get default Random Forest parameter space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary containing default RF parameters.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.get_gbt_default_params">
 <span class="sig-name descname"><span class="pre">get_gbt_default_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator.get_gbt_default_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.get_gbt_default_params" title="Link to this definition"></a></dt>
-<dd><p>获取默认GBT参数空间</p>
+<dd><p>Get default Gradient Boosting Tree parameter space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary containing default GBT parameters.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.load_params">
 <span class="sig-name descname"><span class="pre">load_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator.load_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.load_params" title="Link to this definition"></a></dt>
-<dd><p>加载参数文件</p>
-<section id="id13">
-<h3>Parameters<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>path<span class="classifier">str</span></dt><dd><p>参数文件路径</p>
+<dd><p>Load parameters from file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path to the parameter file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary containing loaded parameters.</p>
 </dd>
 </dl>
-</section>
-<section id="returns">
-<h3>Returns<a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>params<span class="classifier">dict</span></dt><dd><p>参数字典</p>
-</dd>
-</dl>
-</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.save_params">
 <span class="sig-name descname"><span class="pre">save_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator.save_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.save_params" title="Link to this definition"></a></dt>
-<dd><p>保存参数文件</p>
-<section id="id14">
-<h3>Parameters<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>file_name<span class="classifier">str</span></dt><dd><p>参数文件名</p>
-</dd>
-<dt>params<span class="classifier">dict</span></dt><dd><p>参数字典</p>
+<dd><p>Save parameters to file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_name</strong> (<em>str</em>) – Name of the parameter file.</p></li>
+<li><p><strong>params</strong> (<em>dict</em>) – Dictionary containing parameters to save.</p></li>
+</ul>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.search_params">
 <span class="sig-name descname"><span class="pre">search_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'grid'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator.search_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.search_params" title="Link to this definition"></a></dt>
-<dd><p>对模型实施最佳超参数搜索</p>
-<section id="id15">
-<h3>Parameters<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>clf<span class="classifier">Any</span></dt><dd><p>分类器</p>
-</dd>
-<dt>params_grid<span class="classifier">dict</span></dt><dd><p>参数空间</p>
-</dd>
-<dt>method<span class="classifier">str</span></dt><dd><p>调优方法</p>
-</dd>
-</dl>
-<ul class="simple">
-<li><p>grid: 网格搜索</p></li>
-<li><p>random: 随机搜索</p></li>
+<dd><p>Perform hyperparameter search for the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>clf</strong> (<em>Any</em>) – Classifier instance.</p></li>
+<li><p><strong>params_grid</strong> (<em>dict</em>) – Parameter space dictionary.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Optimization method. Options:
+- ‘grid’: Grid search
+- ‘random’: Random search</p></li>
+<li><p><strong>*args</strong> – Additional arguments passed to hyperparam_tuning function.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments passed to hyperparam_tuning function.</p></li>
 </ul>
-<dl class="simple">
-<dt>args<span class="classifier">tuple</span></dt><dd><p>其他参数 传递给hyperparam_tuning函数</p>
 </dd>
-<dt>kwargs<span class="classifier">dict</span></dt><dd><p>其他参数 传递给hyperparam_tuning函数</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary containing the best parameters found.</p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.add_clf">
 <span class="sig-name descname"><span class="pre">add_clf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clf_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator.add_clf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.add_clf" title="Link to this definition"></a></dt>
-<dd><p>添加分类器实例到待评估的self.clfs字典属性中
-同名分类器将被覆盖</p>
-<section id="id16">
-<h3>Parameters<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>clf<span class="classifier">Any</span></dt><dd><p>分类器实例</p>
-</dd>
-<dt>clf_name<span class="classifier">str</span></dt><dd><p>分类器名称 如为None则使用clf的__class__.__name__</p>
+<dd><p>Add classifier instance to the evaluation dictionary.</p>
+<p>Classifiers with the same name will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>clf</strong> (<em>Any</em>) – Classifier instance to add.</p></li>
+<li><p><strong>clf_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name for the classifier. If None, uses clf.__class__.__name__.</p></li>
+</ul>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.del_clf">
 <span class="sig-name descname"><span class="pre">del_clf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clf_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator.del_clf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.del_clf" title="Link to this definition"></a></dt>
-<dd><p>删除分类器实例</p>
+<dd><p>Delete classifier instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>clf_name</strong> (<em>str</em>) – Name of the classifier to delete.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.get_clf">
 <span class="sig-name descname"><span class="pre">get_clf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clf_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator.get_clf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.get_clf" title="Link to this definition"></a></dt>
-<dd><p>使用名称索引 获取已添加的单个分类器实例</p>
+<dd><p>Get a single classifier instance by name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>clf_name</strong> (<em>str</em>) – Name of the classifier to retrieve.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The classifier instance.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.get_clfs_dict">
 <span class="sig-name descname"><span class="pre">get_clfs_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator.get_clfs_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.get_clfs_dict" title="Link to this definition"></a></dt>
-<dd><p>获取分类器实例字典</p>
+<dd><p>Get the dictionary of all classifier instances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary mapping classifier names to instances.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.print_classifier_info">
 <span class="sig-name descname"><span class="pre">print_classifier_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator.print_classifier_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.print_classifier_info" title="Link to this definition"></a></dt>
-<dd><p>打印已添加的分类器参数信息</p>
+<dd><p>Print parameter information for all added classifiers.</p>
+<p>Displays a formatted table showing classifier names, parameters, and their values.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.repeat_cv">
 <span class="sig-name descname"><span class="pre">repeat_cv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_repeats:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_folds:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_func:</span> <span class="pre">~typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">roc_auc_score&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_train_set_only:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator.repeat_cv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.repeat_cv" title="Link to this definition"></a></dt>
-<dd><p>对所有添加的分类器执行多重交叉验证</p>
-<section id="id17">
-<h3>Parameters<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>n_repeats<span class="classifier">int</span></dt><dd><p>多重交叉验证的次数</p>
+<dd><p>Perform repeated cross-validation on all added classifiers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_repeats</strong> (<em>int</em>) – Number of repetitions for cross-validation.</p></li>
+<li><p><strong>k_folds</strong> (<em>int</em>) – Number of folds for cross-validation.</p></li>
+<li><p><strong>random_seed</strong> (<em>int</em>) – Random seed for reproducible results.</p></li>
+<li><p><strong>score_func</strong> (<em>Callable</em>) – Evaluation function. Defaults to roc_auc_score.</p></li>
+<li><p><strong>use_train_set_only</strong> (<em>bool</em>) – Whether to use only training set for cross-validation.
+If False, uses the complete dataset for cross-validation.</p></li>
+</ul>
 </dd>
-<dt>k_folds<span class="classifier">int</span></dt><dd><p>交叉验证的折数</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>SCP results for single conformation performance</p></li>
+<li><p>clf_cv_results for cross-validation results of classifiers</p></li>
+</ul>
+</p>
 </dd>
-<dt>random_seed<span class="classifier">int</span></dt><dd><p>随机种子</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary containing evaluation results</p>
 </dd>
-<dt>score_func<span class="classifier">Callable</span></dt><dd><p>评估函数
-默认为roc_auc_score</p>
-</dd>
-<dt>use_train_set_only<span class="classifier">bool</span></dt><dd><p>是否只使用训练集进行交叉验证
-如为False 则在交叉验证中使用完整数据集</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If no classifiers have been added.</p>
 </dd>
 </dl>
-</section>
-<section id="id18">
-<h3>Returns<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>dict</dt><dd><p>评估结果字典
-SCP为单构象结果
-clf_cv_results为交叉验证结果</p>
-</dd>
-</dl>
-</section>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.print_cv_results">
 <span class="sig-name descname"><span class="pre">print_cv_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator.print_cv_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.print_cv_results" title="Link to this definition"></a></dt>
-<dd><p>打印交叉验证结果</p>
+<dd><p>Print cross-validation results.</p>
+<p>Displays formatted results including SCP scores and classifier performance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If no cross-validation has been performed.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pyCADD.Dance.common.Evaluator.testset_eval">
-<span class="sig-name descname"><span class="pre">testset_eval</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator.testset_eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.testset_eval" title="Link to this definition"></a></dt>
-<dd><p>使用测试集数据评估性能</p>
-<section id="id19">
-<h3>Returns<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>testset_results<span class="classifier">dict</span></dt><dd><p>分类器的评估结果</p>
+<span class="sig-name descname"><span class="pre">testset_eval</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/common.html#Evaluator.testset_eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.common.Evaluator.testset_eval" title="Link to this definition"></a></dt>
+<dd><p>Evaluate performance using test set data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary containing classifier evaluation results on the test set.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If no classifiers have been added.</p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 </dd></dl>
@@ -592,69 +711,51 @@ clf_cv_results为交叉验证结果</p>
 <span id="pycadd-dance-core-module"></span><h2>pyCADD.Dance.core module<a class="headerlink" href="#module-pyCADD.Dance.core" title="Link to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyCADD.Dance.core.hyperparam_tuning">
-<span class="sig-prename descclassname"><span class="pre">pyCADD.Dance.core.</span></span><span class="sig-name descname"><span class="pre">hyperparam_tuning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_gird</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'roc_auc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'grid'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dance/core.html#hyperparam_tuning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.core.hyperparam_tuning" title="Link to this definition"></a></dt>
-<dd><p>超参数调优</p>
-<section id="id20">
-<h3>Parameters<a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>model<span class="classifier">object</span></dt><dd><p>需要调优的模型</p>
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dance.core.</span></span><span class="sig-name descname"><span class="pre">hyperparam_tuning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_gird</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'roc_auc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'grid'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/core.html#hyperparam_tuning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.core.hyperparam_tuning" title="Link to this definition"></a></dt>
+<dd><p>Hyperparameter optimization for machine learning models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>Any</em>) – Model instance to optimize.</p></li>
+<li><p><strong>param_gird</strong> (<em>dict</em>) – Hyperparameter grid/distribution dictionary.</p></li>
+<li><p><strong>X</strong> (<em>DataFrame</em>) – Training feature data.</p></li>
+<li><p><strong>y</strong> (<em>Series</em>) – Training labels.</p></li>
+<li><p><strong>scoring</strong> (<em>str</em>) – Evaluation metric. Defaults to ‘roc_auc’.</p></li>
+<li><p><strong>cv</strong> (<em>int</em>) – Number of cross-validation splits. Defaults to 5.</p></li>
+<li><p><strong>n_jobs</strong> (<em>int</em>) – Number of parallel jobs. Defaults to -1 (use all processors).</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Optimization method. Options:
+- ‘grid’: Grid search
+- ‘random’: Random search</p></li>
+<li><p><strong>save_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – Directory to save parameter file. If None, no file is saved.</p></li>
+<li><p><strong>model_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the model for file naming.</p></li>
+</ul>
 </dd>
-<dt>param_grid<span class="classifier">dict</span></dt><dd><p>超参数网格</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary containing optimized model parameters.</p>
 </dd>
-<dt>X<span class="classifier">DataFrame</span></dt><dd><p>训练集</p>
-</dd>
-<dt>y<span class="classifier">Series</span></dt><dd><p>训练集标签</p>
-</dd>
-<dt>scoring<span class="classifier">str</span></dt><dd><p>评估标准</p>
-</dd>
-<dt>cv<span class="classifier">int</span></dt><dd><p>训练集分割数</p>
-</dd>
-<dt>n_jobs<span class="classifier">int</span></dt><dd><p>训练进程数</p>
-</dd>
-<dt>method<span class="classifier">str</span></dt><dd><p>调优方法
-* grid: 网格搜索
-* random: 随机搜索</p>
-</dd>
-<dt>save_dir<span class="classifier">str | None</span></dt><dd><p>参数文件保存路径 为None则不保存</p>
-</dd>
-<dt>model_name<span class="classifier">str</span></dt><dd><p>模型名称</p>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If method is not ‘grid’ or ‘random’.</p>
 </dd>
 </dl>
-</section>
-<section id="return">
-<h3>Return<a class="headerlink" href="#return" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>dict</dt><dd><p>调优后的模型参数</p>
-</dd>
-</dl>
-</section>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pyCADD.Dance.core.calc_scp_score">
-<span class="sig-prename descclassname"><span class="pre">pyCADD.Dance.core.</span></span><span class="sig-name descname"><span class="pre">calc_scp_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X:</span> <span class="pre">~pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_true:</span> <span class="pre">~pandas.core.series.Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_is_better:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_func:</span> <span class="pre">~typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">roc_auc_score&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dance/core.html#calc_scp_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.core.calc_scp_score" title="Link to this definition"></a></dt>
-<dd><p>获取单构象Performance计算ROC-AUC值</p>
-<section id="id21">
-<h3>Parameters<a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>X<span class="classifier">DataFrame</span></dt><dd><p>数据特征</p>
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dance.core.</span></span><span class="sig-name descname"><span class="pre">calc_scp_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X:</span> <span class="pre">~pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_true:</span> <span class="pre">~pandas.core.series.Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_is_better:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_func:</span> <span class="pre">~typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">roc_auc_score&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/core.html#calc_scp_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.core.calc_scp_score" title="Link to this definition"></a></dt>
+<dd><p>Calculate Single Conformation Performance (SCP) scores.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>DataFrame</em>) – Feature data with conformations as columns.</p></li>
+<li><p><strong>y_true</strong> (<em>Series</em>) – True labels.</p></li>
+<li><p><strong>lower_is_better</strong> (<em>bool</em>) – Whether the evaluation metric is a descending indicator.</p></li>
+<li><p><strong>score_func</strong> (<em>Callable</em>) – Evaluation function from sklearn.metrics. Defaults to roc_auc_score.</p></li>
+</ul>
 </dd>
-<dt>y_true<span class="classifier">Series</span></dt><dd><p>标签</p>
-</dd>
-<dt>lower_is_better<span class="classifier">bool</span></dt><dd><p>评估指标是否为下降性指标</p>
-</dd>
-<dt>score_func<span class="classifier">callable</span></dt><dd><p>评估方法
-即 sklearn.metrics 函数 默认为ROC-AUC</p>
-</dd>
-</dl>
-</section>
-<section id="id22">
-<h3>Return<a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>dict</dt><dd><p>{‘PDB’: SCP AUC}</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary mapping conformation names to their SCP scores.</p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 </section>
@@ -662,26 +763,31 @@ clf_cv_results为交叉验证结果</p>
 <span id="pycadd-dance-metrics-module"></span><h2>pyCADD.Dance.metrics module<a class="headerlink" href="#module-pyCADD.Dance.metrics" title="Link to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyCADD.Dance.metrics.nef_score">
-<span class="sig-prename descclassname"><span class="pre">pyCADD.Dance.metrics.</span></span><span class="sig-name descname"><span class="pre">nef_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyCADD/Dance/metrics.html#nef_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.metrics.nef_score" title="Link to this definition"></a></dt>
-<dd><p>计算NEF值</p>
-<section id="id23">
-<h3>Parameters<a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
-<dl class="simple">
-<dt>y_true<span class="classifier">array-like or pandas.Series</span></dt><dd><p>样本的真实标签</p>
+<span class="sig-prename descclassname"><span class="pre">pyCADD.Dance.metrics.</span></span><span class="sig-name descname"><span class="pre">nef_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="_modules/pyCADD/Dance/metrics.html#nef_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyCADD.Dance.metrics.nef_score" title="Link to this definition"></a></dt>
+<dd><p>Calculate Normalized Enrichment Factor (NEF) score.</p>
+<p>NEF measures the enrichment of active compounds in the top-ranked subset
+compared to random selection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> (<em>array-like</em><em> or </em><em>pd.Series</em>) – True binary labels (0 or 1) for samples.</p></li>
+<li><p><strong>y_score</strong> (<em>array-like</em><em> or </em><em>pd.Series</em>) – Predicted scores/probabilities for samples.</p></li>
+<li><p><strong>percent</strong> (<em>int</em><em>, </em><em>optional</em>) – Early enrichment percentage. Calculate NEF for top <cite>percent%</cite> of samples.
+If None, uses the ratio of actives to total samples (Ra = actives / total).</p></li>
+</ul>
 </dd>
-<dt>y_score<span class="classifier">array-like or pandas.Series</span></dt><dd><p>样本的预测得分(概率)</p>
-</dd>
-<dt>percent<span class="classifier">int</span></dt><dd><p>早期富集百分率 取前 <cite>percent%</cite> 的样本计算NEF值
-默认为None 将使用阳性样本在总样本中的比率 Ra = actives / total</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>NEF score as a float value.</p>
 </dd>
 </dl>
-</section>
 </dd></dl>
 
 </section>
 <section id="module-pyCADD.Dance">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyCADD.Dance" title="Link to this heading"></a></h2>
-<p>Data Analyzer for Computer-aid drug design</p>
+<p>Data Analyzer for Computer-aided drug design.</p>
+<p>This module provides tools for molecular data analysis and machine learning
+model evaluation in computer-aided drug design (CADD) workflows.</p>
 </section>
 </section>
 

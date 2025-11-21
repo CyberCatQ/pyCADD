@@ -1,0 +1,485 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyCADD.Dock.schrodinger.core &mdash; pyCADD.Dock 2.0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=c2377ec0"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            pyCADD.Dock
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pyCADD.Dock.html">pyCADD.Dock package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pyCADD.Dock.schrodinger.html">pyCADD.Dock.schrodinger package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../dock.html">Dock User Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">pyCADD.Dock</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyCADD.Dock.schrodinger.core</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyCADD.Dock.schrodinger.core</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.Dock.schrodinger.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">DockResultFile</span><span class="p">,</span> <span class="n">GridFile</span><span class="p">,</span> <span class="n">MaestroFile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.Dock.schrodinger.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">FORCE_FILED_DICT</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.Dock.schrodinger.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_format</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.utils.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChDir</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.utils.tool</span><span class="w"> </span><span class="kn">import</span> <span class="n">shell_run</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">Structure</span><span class="p">,</span> <span class="n">evaluate_asl</span><span class="p">,</span> <span class="n">logger</span>
+
+
+<div class="viewcode-block" id="split_complex">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.core.split_complex">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">split_complex</span><span class="p">(</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">MaestroFile</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">ligand_atom_indexes</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">ligand_asl</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">structure_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Structure</span><span class="p">,</span> <span class="n">Structure</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split the complex structure into receptor and ligand.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file (MaestroFile | str): Complex structure file object or path.</span>
+<span class="sd">        ligand_atom_indexes (list, optional): List of ligand atom indexes. Defaults to None.</span>
+<span class="sd">        ligand_asl (str, optional): ASL to identify ligand. Defaults to None.</span>
+<span class="sd">        structure_index (int, optional): Index of the structure to split. Defaults to 0.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: Ligand_atom_indexes and ligand_asl cannot be both None.</span>
+<span class="sd">        ValueError: Atom indexes or ASL identified multiple molecules or no atom.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple[Structure, Structure]: Receptor and Ligand structures.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">MaestroFile</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">file</span><span class="p">)</span>
+    <span class="n">st</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">structures</span><span class="p">[</span><span class="n">structure_index</span><span class="p">]</span>
+
+    <span class="n">atom_indexes</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">ligand_atom_indexes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">atom_indexes</span> <span class="o">=</span> <span class="n">ligand_atom_indexes</span>
+    <span class="k">elif</span> <span class="n">ligand_asl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">atom_indexes</span> <span class="o">=</span> <span class="n">evaluate_asl</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">ligand_asl</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please provide ligand_atom_indexes or ligand_asl.&quot;</span><span class="p">)</span>
+
+    <span class="n">mol_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">atom</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">molecule_number</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">atom_indexes</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mol_set</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Identified &quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mol_set</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;multiple molecules&quot;</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">mol_set</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;no atom&quot;</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot; with the ligand_atom_indexes or ligand_asl.&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="n">ligand_st</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">atom_indexes</span><span class="p">)</span>
+    <span class="n">receptor_st</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">receptor_st</span><span class="o">.</span><span class="n">deleteAtoms</span><span class="p">(</span><span class="n">atom_indexes</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">receptor_st</span><span class="p">,</span> <span class="n">ligand_st</span></div>
+
+
+
+<div class="viewcode-block" id="minimize">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.core.minimize">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">minimize</span><span class="p">(</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">MaestroFile</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">ph</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">7.4</span><span class="p">,</span>
+    <span class="n">force_field</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;OPLS4&quot;</span><span class="p">,</span> <span class="s2">&quot;OPLS3e&quot;</span><span class="p">,</span> <span class="s2">&quot;OPLS3&quot;</span><span class="p">,</span> <span class="s2">&quot;OPLS_2005&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;OPLS4&quot;</span><span class="p">,</span>
+    <span class="n">fill_side_chain</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">add_missing_loop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">del_water</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">watdist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
+    <span class="n">rmsd_cutoff</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span>
+    <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MaestroFile</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare the structure and run minimization using Schrodinger&#39;s prepwizard.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file (MaestroFile | str): file path or MaestroFile object to be prepared and minimized.</span>
+<span class="sd">        ph (float, optional): pH value to calculate protonation states. Defaults to 7.4.</span>
+<span class="sd">        force_field (str): force field to use. Defaults to &#39;OPLS4&#39;.</span>
+<span class="sd">        fill_side_chain (bool, optional): whether to fill side chain. Defaults to True.</span>
+<span class="sd">        add_missing_loop (bool, optional): whether to add missing loop. Defaults to True.</span>
+<span class="sd">        del_water (bool, optional): whether to delete water molecules. Defaults to True.</span>
+<span class="sd">        watdist (float, optional): how far from the ligand to delete water molecules. Set to 0.0 to delete all water molecules. Defaults to 5.0.</span>
+<span class="sd">        rmsd_cutoff (float, optional): RMSD cutoff for minimization. Defaults to 0.3.</span>
+<span class="sd">        save_dir (str, optional): directory to save the results. Defaults to None.</span>
+<span class="sd">        overwrite (bool, optional): whether to overwrite existing result files. Defaults to False.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: raise if the minimization process failed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        MaestroFile: minimized structure file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">MaestroFile</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">file</span><span class="p">)</span>
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">save_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">save_dir</span> <span class="k">else</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">metadata</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;minimized&quot;</span>
+    <span class="n">file_prefix</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">generate_file_name</span><span class="p">([</span><span class="s2">&quot;pdbid&quot;</span><span class="p">,</span> <span class="s2">&quot;ligand_name&quot;</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">])</span>
+
+    <span class="n">force_field</span> <span class="o">=</span> <span class="n">FORCE_FILED_DICT</span><span class="p">[</span><span class="n">force_field</span><span class="p">]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Prepare to prepare and minimize file: </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">minimized_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">.mae&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">overwrite</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">minimized_file</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File already existed: </span><span class="si">{</span><span class="n">minimized_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">MaestroFile</span><span class="p">(</span><span class="n">minimized_file</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
+
+    <span class="n">prepwizard</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;SCHRODINGER&quot;</span><span class="p">],</span> <span class="s2">&quot;utilities&quot;</span><span class="p">,</span> <span class="s2">&quot;prepwizard&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">ChDir</span><span class="p">(</span><span class="n">save_dir</span><span class="p">):</span>
+        <span class="n">prepwizard_command</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prepwizard</span><span class="si">}</span><span class="s2"> -f </span><span class="si">{</span><span class="n">force_field</span><span class="si">}</span><span class="s2"> -r </span><span class="si">{</span><span class="n">rmsd_cutoff</span><span class="si">}</span><span class="s2"> -propka_pH </span><span class="si">{</span><span class="n">ph</span><span class="si">}</span><span class="s2"> -disulfides -s -NOJOBID&quot;</span>
+        <span class="k">if</span> <span class="n">fill_side_chain</span><span class="p">:</span>
+            <span class="n">prepwizard_command</span> <span class="o">+=</span> <span class="s2">&quot; -fillsidechains&quot;</span>
+        <span class="k">if</span> <span class="n">add_missing_loop</span><span class="p">:</span>
+            <span class="n">prepwizard_command</span> <span class="o">+=</span> <span class="s2">&quot; -fillloops&quot;</span>
+        <span class="k">if</span> <span class="n">del_water</span><span class="p">:</span>
+            <span class="n">prepwizard_command</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; -watdist </span><span class="si">{</span><span class="n">watdist</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prepwizard_command</span> <span class="o">+=</span> <span class="s2">&quot; -keepfarwat&quot;</span>
+        <span class="n">_minimized_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">.mae&quot;</span>
+        <span class="n">prepwizard_command</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">_minimized_file</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">shell_run</span><span class="p">(</span><span class="n">prepwizard_command</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">_minimized_file</span><span class="p">,</span> <span class="n">minimized_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Minimization Process Failed: </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Minimized file saved: </span><span class="si">{</span><span class="n">minimized_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">MaestroFile</span><span class="p">(</span><span class="n">minimized_file</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="grid_generate">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.core.grid_generate">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">grid_generate</span><span class="p">(</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">MaestroFile</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">box_center</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">box_center_molnum</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">box_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="n">force_field</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;OPLS4&quot;</span><span class="p">,</span> <span class="s2">&quot;OPLS3e&quot;</span><span class="p">,</span> <span class="s2">&quot;OPLS3&quot;</span><span class="p">,</span> <span class="s2">&quot;OPLS_2005&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;OPLS4&quot;</span><span class="p">,</span>
+    <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GridFile</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate grid file for Glide docking.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file (MaestroFile | str): structure to generate grid file.</span>
+<span class="sd">        box_center (tuple[float, float, float], optional): center XYZ of the grid box. Defaults to None.</span>
+<span class="sd">        box_center_molnum (int, optional): the molecule number of the molecule that is set as the center.\</span>
+<span class="sd">            This molecule will be removed during the grid box generation process,\</span>
+<span class="sd">            and its centroid will be used as the center of the box.\</span>
+<span class="sd">            Will be ignored when box_center is set. Defaults to None.</span>
+<span class="sd">        box_size (int, optional): box size of grid. Defaults to 20.</span>
+<span class="sd">        force_field (str, optional): force field to use. Defaults to &#39;OPLS4&#39;.</span>
+<span class="sd">        save_dir (str, optional): directory to save the results. Defaults to None.</span>
+<span class="sd">        overwrite (bool, optional): whether to overwrite existing files. Defaults to False.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: raise if the grid generation process failed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        GridFile: grid file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">save_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">save_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">MaestroFile</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">file</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">file_ext</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mae&quot;</span><span class="p">,</span> <span class="s2">&quot;maegz&quot;</span><span class="p">]:</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">MaestroFile</span><span class="p">(</span>
+            <span class="n">convert_format</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;mae&quot;</span><span class="p">,</span> <span class="n">save_dir</span><span class="o">=</span><span class="n">file</span><span class="o">.</span><span class="n">file_dir</span><span class="p">),</span> <span class="n">metadata</span><span class="o">=</span><span class="n">file</span><span class="o">.</span><span class="n">metadata</span>
+        <span class="p">)</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">metadata</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;glide-grid&quot;</span>
+    <span class="n">file_prefix</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">generate_file_name</span><span class="p">([</span><span class="s2">&quot;pdbid&quot;</span><span class="p">,</span> <span class="s2">&quot;ligand_name&quot;</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">])</span>
+    <span class="n">grid_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">.zip&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Prepare to generate grid file: </span><span class="si">{</span><span class="n">grid_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">grid_file</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File already existed: </span><span class="si">{</span><span class="n">grid_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">GridFile</span><span class="p">(</span><span class="n">grid_file</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">ChDir</span><span class="p">(</span><span class="n">save_dir</span><span class="p">):</span>
+        <span class="n">input_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">.in&quot;</span>
+        <span class="n">job_name</span> <span class="o">=</span> <span class="n">file_prefix</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+        <span class="n">outsize</span> <span class="o">=</span> <span class="n">box_size</span> <span class="o">+</span> <span class="mi">10</span>
+
+        <span class="n">glide_grid_config</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;FORCEFIELD </span><span class="si">{</span><span class="n">force_field</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;GRIDFILE </span><span class="si">{</span><span class="n">grid_file</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;INNERBOX 10,10,10</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;OUTERBOX </span><span class="si">{</span><span class="n">outsize</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">outsize</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">outsize</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;RECEP_FILE </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">box_center</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">coord_x</span><span class="p">,</span> <span class="n">coord_y</span><span class="p">,</span> <span class="n">coord_z</span> <span class="o">=</span> <span class="n">box_center</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;box_center should be a tuple of 3 floats.&quot;</span><span class="p">)</span>
+            <span class="n">glide_grid_config</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;GRID_CENTER </span><span class="si">{</span><span class="n">coord_x</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">coord_y</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">coord_z</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Grid box center is set to </span><span class="si">{</span><span class="n">box_center</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">box_center_molnum</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">glide_grid_config</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;LIGAND_MOLECULE </span><span class="si">{</span><span class="n">box_center_molnum</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Grid box center is set to Molecule </span><span class="si">{</span><span class="n">box_center_molnum</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either box_center or box_center_molnum should be provided.&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">glide_grid_config</span><span class="p">)</span>
+
+        <span class="n">shell_run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;glide </span><span class="si">{</span><span class="n">input_file</span><span class="si">}</span><span class="s2"> -JOBNAME </span><span class="si">{</span><span class="n">job_name</span><span class="si">}</span><span class="s2"> -WAIT -NOJOBID &gt; </span><span class="si">{</span><span class="n">job_name</span><span class="si">}</span><span class="s2">.log 2&gt;&amp;1&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">grid_file</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">grid_file</span><span class="si">}</span><span class="s2"> Generation Failed.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Grid file generated: </span><span class="si">{</span><span class="n">grid_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">GridFile</span><span class="p">(</span><span class="n">grid_file</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="dock">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.core.dock">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dock</span><span class="p">(</span>
+    <span class="n">grid_file</span><span class="p">:</span> <span class="n">GridFile</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">ligand_file</span><span class="p">:</span> <span class="n">MaestroFile</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">force_field</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;OPLS4&quot;</span><span class="p">,</span> <span class="s2">&quot;OPLS3e&quot;</span><span class="p">,</span> <span class="s2">&quot;OPLS3&quot;</span><span class="p">,</span> <span class="s2">&quot;OPLS_2005&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;OPLS4&quot;</span><span class="p">,</span>
+    <span class="n">precision</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;SP&quot;</span><span class="p">,</span> <span class="s2">&quot;XP&quot;</span><span class="p">,</span> <span class="s2">&quot;HTVS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;SP&quot;</span><span class="p">,</span>
+    <span class="n">calc_rmsd</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">include_receptor</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DockResultFile</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform Glide ligand docking</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        grid_file (GridFile | str): grid file object or path.</span>
+<span class="sd">        ligand_file (MaestroFile | str): Ligand file object or path.</span>
+<span class="sd">        force_field (str, optional): force field to use. Defaults to &#39;OPLS4&#39;.</span>
+<span class="sd">        precision (str, optional): docking precision. Defaults to &#39;SP&#39;.</span>
+<span class="sd">        calc_rmsd (bool, optional): Whether to calculate RMSD with co-crystal ligand. If True, grid file must be generated from a complex. Defaults to False.</span>
+<span class="sd">        include_receptor (bool, optional): Whether to include receptor structure in the output file. Defaults to False.</span>
+<span class="sd">        save_dir (str, optional): directory to save the results. Results will be further saved in directory named PDBID. \</span>
+<span class="sd">            Using save_dir directly if PDBID is not provided. Defaults to current working directory.</span>
+<span class="sd">        overwrite (bool, optional): whether to overwrite existing files. Defaults to False.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: raise if the docking process failed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        DockResultFile: docking result file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">grid_file</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">grid_file</span> <span class="o">=</span> <span class="n">GridFile</span><span class="p">(</span><span class="n">grid_file</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ligand_file</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">ligand_file</span> <span class="o">=</span> <span class="n">MaestroFile</span><span class="p">(</span><span class="n">ligand_file</span><span class="p">)</span>
+
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">save_dir</span><span class="p">)</span> <span class="k">if</span> <span class="n">save_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">grid_file</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">pdbid</span><span class="p">)</span> <span class="k">if</span> <span class="n">grid_file</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">pdbid</span> <span class="k">else</span> <span class="n">save_dir</span>
+    <span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ligand_file</span><span class="o">.</span><span class="n">file_ext</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mae&quot;</span><span class="p">,</span> <span class="s2">&quot;maegz&quot;</span><span class="p">]:</span>
+        <span class="n">coverted_ligand_file</span> <span class="o">=</span> <span class="n">convert_format</span><span class="p">(</span>
+            <span class="n">ligand_file</span><span class="o">.</span><span class="n">file_path</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ligand_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">.maegz&quot;</span><span class="p">,</span>
+            <span class="n">save_dir</span><span class="o">=</span><span class="n">save_dir</span><span class="p">,</span>
+            <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ligand_file</span> <span class="o">=</span> <span class="n">MaestroFile</span><span class="p">(</span><span class="n">coverted_ligand_file</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">ligand_file</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">grid_file</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">metadata</span><span class="o">.</span><span class="n">docking_ligand_name</span> <span class="o">=</span> <span class="n">ligand_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+    <span class="n">metadata</span><span class="o">.</span><span class="n">precision</span> <span class="o">=</span> <span class="n">precision</span>
+    <span class="n">metadata</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;calc_rmsd&quot;</span><span class="p">,</span> <span class="nb">bool</span><span class="p">(</span><span class="n">calc_rmsd</span><span class="p">))</span>
+    <span class="n">metadata</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;include_receptor&quot;</span><span class="p">,</span> <span class="nb">bool</span><span class="p">(</span><span class="n">include_receptor</span><span class="p">))</span>
+    <span class="n">metadata</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;glide-dock&quot;</span>
+
+    <span class="n">file_prefix</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">generate_file_name</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;pdbid&quot;</span><span class="p">,</span> <span class="s2">&quot;ligand_name&quot;</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;docking_ligand_name&quot;</span><span class="p">,</span> <span class="s2">&quot;precision&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">dock_result_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">.maegz&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dock_result_file</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File already existed: </span><span class="si">{</span><span class="n">dock_result_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DockResultFile</span><span class="p">(</span><span class="n">dock_result_file</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">ChDir</span><span class="p">(</span><span class="n">save_dir</span><span class="p">):</span>
+        <span class="n">input_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">.in&quot;</span>
+        <span class="n">job_name</span> <span class="o">=</span> <span class="n">file_prefix</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+        <span class="n">output_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">job_name</span><span class="si">}</span><span class="s2">_pv.maegz&quot;</span> <span class="k">if</span> <span class="n">include_receptor</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">job_name</span><span class="si">}</span><span class="s2">_lib.maegz&quot;</span>
+
+        <span class="n">glide_dock_config</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;GRIDFILE </span><span class="si">{</span><span class="n">grid_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;LIGANDFILE </span><span class="si">{</span><span class="n">ligand_file</span><span class="o">.</span><span class="n">file_path</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;PRECISION </span><span class="si">{</span><span class="n">precision</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;FORCEFIELD </span><span class="si">{</span><span class="n">force_field</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">include_receptor</span><span class="p">:</span>
+            <span class="n">glide_dock_config</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;POSE_OUTTYPE ligandlib</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">calc_rmsd</span><span class="p">:</span>
+            <span class="n">glide_dock_config</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;CALC_INPUT_RMS True</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">precision</span> <span class="o">==</span> <span class="s2">&quot;XP&quot;</span><span class="p">:</span>
+            <span class="n">glide_dock_config</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;WRITE_XP_DESC False</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">glide_dock_config</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;POSTDOCK_XP_DELE 0.5</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">glide_dock_config</span><span class="p">)</span>
+
+        <span class="n">shell_run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;glide </span><span class="si">{</span><span class="n">input_file</span><span class="si">}</span><span class="s2"> -JOBNAME </span><span class="si">{</span><span class="n">job_name</span><span class="si">}</span><span class="s2"> -WAIT -NOJOBID &gt; </span><span class="si">{</span><span class="n">job_name</span><span class="si">}</span><span class="s2">.log 2&gt;&amp;1&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="n">dock_result_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Docking Failed: </span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">DockResultFile</span><span class="p">(</span><span class="n">dock_result_file</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span> <span class="n">exist</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Docking result file saved: </span><span class="si">{</span><span class="n">dock_result_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">DockResultFile</span><span class="p">(</span><span class="n">dock_result_file</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="keep_single_chain">
+<a class="viewcode-back" href="../../../../pyCADD.Dock.schrodinger.html#pyCADD.Dock.schrodinger.core.keep_single_chain">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">keep_single_chain</span><span class="p">(</span>
+    <span class="n">structure_file</span><span class="p">:</span> <span class="n">MaestroFile</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">by_resname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chain_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MaestroFile</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Keep single chain from a structure file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        structure_file (MaestroFile | str): Structure file object or path.</span>
+<span class="sd">        by_resname (str, optional): Residue or ligand name from the chain to be kept. Defaults to None.</span>
+<span class="sd">        chain_id (str, optional): Chain ID to be kept. Defaults to None.</span>
+<span class="sd">        save_dir (str, optional): Directory to save the results. Defaults to None.</span>
+<span class="sd">        overwrite (bool, optional): Whether to overwrite existing files. Defaults to False.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: Either chain_id or by_resname should be specified.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        MaestroFile: The structure file with single chain.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">save_dir</span> <span class="o">=</span> <span class="n">save_dir</span> <span class="k">if</span> <span class="n">save_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">structure_file</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">structure_file</span> <span class="o">=</span> <span class="n">MaestroFile</span><span class="p">(</span><span class="n">structure_file</span><span class="p">)</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">structure_file</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">metadata</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;keep-single-chain&quot;</span>
+
+    <span class="k">if</span> <span class="n">chain_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">by_resname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ligand</span> <span class="o">=</span> <span class="n">structure_file</span><span class="o">.</span><span class="n">find_ligands</span><span class="p">(</span><span class="n">specified_names</span><span class="o">=</span><span class="p">[</span><span class="n">by_resname</span><span class="p">])</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ligand</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ligand</span><span class="p">)</span><span class="si">}</span><span class="s2"> ligands named </span><span class="si">{</span><span class="n">by_resname</span><span class="si">}</span><span class="s2"> found in the structure file, and the first one will be kept.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Keep the chain structure of ligand </span><span class="si">{</span><span class="n">ligand</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">chain_id</span> <span class="o">=</span> <span class="n">ligand</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">chain</span>
+            <span class="n">metadata</span><span class="o">.</span><span class="n">ligand_name</span> <span class="o">=</span> <span class="n">by_resname</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Please specify either chain_id or by_resname&quot;</span><span class="p">)</span>
+    <span class="n">metadata</span><span class="o">.</span><span class="n">pdbid</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">structure_file</span><span class="o">.</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">-chain-</span><span class="si">{</span><span class="n">chain_id</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">file_prefix</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">generate_file_name</span><span class="p">([</span><span class="s2">&quot;pdbid&quot;</span><span class="p">,</span> <span class="s2">&quot;ligand_name&quot;</span><span class="p">])</span>
+    <span class="n">file_suffix</span> <span class="o">=</span> <span class="n">structure_file</span><span class="o">.</span><span class="n">file_suffix</span>
+    <span class="n">chain_structure_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_prefix</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">file_suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">overwrite</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">chain_structure_file</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File already existed: </span><span class="si">{</span><span class="n">chain_structure_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">MaestroFile</span><span class="p">(</span><span class="n">chain_structure_file</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span>
+    <span class="n">chain_structure</span> <span class="o">=</span> <span class="n">structure_file</span><span class="o">.</span><span class="n">get_chain_structure</span><span class="p">(</span><span class="n">chain_id</span><span class="o">=</span><span class="n">chain_id</span><span class="p">)</span>
+    <span class="n">chain_structure</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chain_structure_file</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">MaestroFile</span><span class="p">(</span><span class="n">chain_structure_file</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Yuhang Wu.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

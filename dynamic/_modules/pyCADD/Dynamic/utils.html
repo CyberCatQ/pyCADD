@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>pyCADD.Dynamic.utils &mdash; pyCADD.Dynamic 2.0.2 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -77,20 +77,20 @@
 <span class="sd">the molecular dynamics workflow.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="kn">import</span> <span class="n">sleep</span>
 
-<span class="kn">from</span> <span class="nn">pyCADD.utils.common</span> <span class="kn">import</span> <span class="n">File</span><span class="p">,</span> <span class="n">ChDir</span>
-<span class="kn">from</span> <span class="nn">pyCADD.utils.tool</span> <span class="kn">import</span> <span class="n">_get_progress</span><span class="p">,</span> <span class="n">shell_run</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.utils.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">File</span><span class="p">,</span> <span class="n">ChDir</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyCADD.utils.tool</span><span class="w"> </span><span class="kn">import</span> <span class="n">_get_progress</span><span class="p">,</span> <span class="n">shell_run</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="calc_am1bcc">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.utils.calc_am1bcc">[docs]</a>
-<span class="k">def</span> <span class="nf">calc_am1bcc</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calc_am1bcc</span><span class="p">(</span>
     <span class="n">structure_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">,</span>
     <span class="n">charge</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -108,8 +108,7 @@
 <span class="sd">        charge (int): Net charge of the molecule.</span>
 <span class="sd">        multiplicity (int, optional): Spin multiplicity of the molecule. Defaults to 1.</span>
 <span class="sd">        force_field (str, optional): Force field to assign atom types. Defaults to &quot;gaff2&quot;.</span>
-<span class="sd">        save_dir (str, optional): Directory to save the output MOL2 file.</span>
-<span class="sd">            Defaults to current working directory.</span>
+<span class="sd">        save_dir (str, optional): Directory to save the output MOL2 file. Defaults to current working directory.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        File: MOL2 file with AM1-BCC charges and GAFF2 atom types.</span>
@@ -141,7 +140,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_get_water_resnum</span><span class="p">(</span><span class="n">pdb_file</span><span class="p">:</span> <span class="n">File</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_water_resnum</span><span class="p">(</span><span class="n">pdb_file</span><span class="p">:</span> <span class="n">File</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extracts residue numbers of water molecules from solvated PDB file.</span>
 
 <span class="sd">    Parses a solvated system PDB file to identify and return the residue numbers</span>
@@ -170,7 +169,7 @@
 
 <div class="viewcode-block" id="run_parmchk2">
 <a class="viewcode-back" href="../../../pyCADD.Dynamic.html#pyCADD.Dynamic.utils.run_parmchk2">[docs]</a>
-<span class="k">def</span> <span class="nf">run_parmchk2</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_parmchk2</span><span class="p">(</span>
     <span class="n">mol2_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">File</span><span class="p">,</span>
     <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">File</span><span class="p">:</span>
@@ -183,8 +182,7 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        mol2_file_path (str | File): File or Path to MOL2 file with assigned atom types (from antechamber).</span>
-<span class="sd">        save_dir (str, optional): Directory to save the frcmod parameter file.</span>
-<span class="sd">            Defaults to current working directory.</span>
+<span class="sd">        save_dir (str, optional): Directory to save the frcmod parameter file. Defaults to current working directory.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        File: Generated frcmod file containing missing force field parameters.</span>
@@ -209,7 +207,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_trace_progress</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_trace_progress</span><span class="p">(</span><span class="n">output_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tracks and displays progress of a running MD simulation.</span>
 
 <span class="sd">    Monitors a molecular dynamics simulation by parsing the output file to extract</span>
@@ -222,10 +220,10 @@
 
 <span class="sd">    Note:</span>
 <span class="sd">        The function monitors the output file by:</span>
-<span class="sd">        - Looking for &quot;NSTEP&quot; lines to get current step number</span>
-<span class="sd">        - Looking for &quot;Final&quot; keyword to detect completion</span>
-<span class="sd">        - Updating a progress bar every second</span>
-<span class="sd">        - Automatically stopping when simulation finishes</span>
+<span class="sd">            - Looking for &quot;NSTEP&quot; lines to get current step number</span>
+<span class="sd">            - Looking for &quot;Final&quot; keyword to detect completion</span>
+<span class="sd">            - Updating a progress bar every second</span>
+<span class="sd">            - Automatically stopping when simulation finishes</span>
 
 <span class="sd">        This is typically used with background (nohup) simulations to provide</span>
 <span class="sd">        real-time feedback on simulation progress.</span>
