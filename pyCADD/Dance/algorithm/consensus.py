@@ -6,210 +6,242 @@ from pandas import DataFrame, Series
 
 
 class _Consensus:
-    '''
-    共识算法基类
-    新的共识性方法(基于公式的方法)应该继承此类
-    '''
+    """Base class for consensus algorithms.
 
-    def __init__(self, lower_is_better=False):
-        '''
-        Parameters
-        ----------
-        lower_is_better : bool
-            数据特征是否为下降性指标
-        '''
+    New consensus methods (formula-based methods) should inherit from this class.
+    Provides a common interface for consensus-based molecular screening approaches.
+    """
+
+    def __init__(self, lower_is_better: bool = False) -> None:
+        """Initialize consensus algorithm.
+
+        Args:
+            lower_is_better (bool): Whether data features represent descending indicators
+                (e.g., lower binding energy is better).
+        """
         self.result = None
         self.lower_is_better = lower_is_better
 
         self.params = {
-            'class' : 'Consensus Strategy',
-            'lower_is_better': self.lower_is_better,
-            }
+            "class": "Consensus Strategy",
+            "lower_is_better": self.lower_is_better,
+        }
 
-    def get_params(self):
-        '''
-        获取参数 为兼容sklearn的参数设计
-        '''
+    def get_params(self) -> dict:
+        """Get parameters for sklearn compatibility.
+
+        Returns:
+            Dictionary containing algorithm parameters.
+        """
         return self.params
 
-    def fit(self):
-        '''
-        共识算法拟合 待重载实现
-        '''
+    def fit(self) -> None:
+        """Fit the consensus algorithm.
+
+        To be overridden by subclasses with specific implementation.
+
+        Raises:
+            NotImplementedError: If not implemented by subclass.
+        """
         raise NotImplementedError
 
-    def predict(self, X: DataFrame, y: Series = None, limit_num: int = None):
-        '''
-        按照算法进行预测
+    def predict(self, X: DataFrame, y: Series = None, limit_num: int = None) -> Series:
+        """Make predictions using the consensus algorithm.
 
-        Parameters
-        ----------
-        X : DataFrame
-            输入数据
-        y : Series
-            输入数据的标签
-        limit_num : int
-            预测结果的数量n 排名前n的结果将被断言为阳性
+        Args:
+            X (DataFrame): Input feature data.
+            y (Series, optional): Input data labels (used to determine number of positives if limit_num is None).
+            limit_num (int, optional): Number of top-ranked results to predict as positive.
+                If None, uses the number of positive samples in y.
 
-        Returns
-        -------
-        Series
-            预测结果
-        '''
-        # 共识性方法实际并不进行拟合
-        # 而是根据公式计算出预测结果
+        Returns:
+            Series containing binary predictions (0 or 1).
+
+        Raises:
+            RuntimeError: If result is None when trying to predict.
+            ValueError: If y is required but not provided when limit_num is None.
+        """
+        # Consensus methods don't actually perform fitting
+        # but calculate predictions based on formulas
 
         if X is not None:
             self.fit(X, y)
         if self.result is None:
             raise RuntimeError(
-                f'Result is None while using {self.__class__.__name__} method to predict. X is required.')
+                f"Result is None while using {self.__class__.__name__} method to predict. X is required."
+            )
 
         _predict_df = self.result.reset_index()
-        _predict_df.columns = ['index', 'probability']
-        _predict_df.sort_values(by='probability', ascending=False, inplace=True)
-        _predict_df['prediction'] = np.nan
+        _predict_df.columns = ["index", "probability"]
+        _predict_df.sort_values(by="probability", ascending=False, inplace=True)
+        _predict_df["prediction"] = np.nan
 
         if limit_num is None:
             if y is None:
-                raise ValueError('y is required when limit_num is None.')
+                raise ValueError("y is required when limit_num is None.")
             print(
-                f'No limit_num specified, TOP {y.sum()} results (same as the number of true positive samples) will be predicted as positive.')
+                f"No limit_num specified, TOP {y.sum()} results (same as the number of true positive samples) will be predicted as positive."
+            )
             limit_num = y.sum()
 
         _predict_df.iloc[:limit_num, -1] = 1
         _predict_df.iloc[limit_num:, -1] = 0
 
         _predict_df.sort_index(inplace=True)
-        _predict_df.set_index('index', inplace=True)
+        _predict_df.set_index("index", inplace=True)
 
-        return _predict_df.loc[:, 'prediction']
+        return _predict_df.loc[:, "prediction"]
 
-    def predict_proba(self, X: DataFrame = None, y: Series = None):
-        '''
-        按照算法进行概率预测
-        '''
-        # 共识性方法实际并不进行拟合
-        # 而是根据公式计算出预测结果 没有概率
-        # 直接返回计算结果的Numpy array
+    def predict_proba(self, X: DataFrame = None, y: Series = None) -> np.ndarray:
+        """Make probability predictions using the consensus algorithm.
+
+        Args:
+            X (DataFrame, optional): Input feature data.
+            y (Series, optional): Input data labels (for compatibility).
+
+        Returns:
+            Numpy array with shape (n_samples, 2) containing probabilities.
+            Column 0: probability of negative class
+            Column 1: probability of positive class (consensus scores)
+
+        Raises:
+            RuntimeError: If result is None when trying to predict.
+        """
+        # Consensus methods don't actually perform fitting
+        # but calculate results based on formulas - no actual probabilities
+        # Directly return calculated results as Numpy array
 
         if X is not None:
             self.fit(X, y)
         if self.result is None:
             raise RuntimeError(
-                f'Result is None while using {self.__class__.__name__} method to predict. X is required.')
+                f"Result is None while using {self.__class__.__name__} method to predict. X is required."
+            )
 
-        # array [[name, value], [name, value], ...]
-        # 为兼容在sklearn中的predict_proba 第0维度为样本名(sklearn中为预测值) 第1维度为值(sklearn中为概率)
-        # 第1维度为主要排序的维度 并用于生成AUC等
+        # Array format: [[name, value], [name, value], ...]
+        # For sklearn predict_proba compatibility: dimension 0 = sample name (prediction in sklearn), dimension 1 = value (probability in sklearn)
+        # Dimension 1 is the primary sorting dimension and used for generating AUC etc.
         return pd.DataFrame(self.result).reset_index().to_numpy()
 
 
 class Average(_Consensus):
-    '''
-    算数平均值模型
-    算术平均数定义为：
-        平均数 = 求和(x_i) / 总数
-    '''
+    """Arithmetic mean consensus model.
 
-    def __init__(self, lower_is_better=False):
+    Calculates arithmetic mean of molecular descriptor values across conformations.
+    Arithmetic mean is defined as: mean = sum(x_i) / count
+    """
+
+    def __init__(self, lower_is_better: bool = False) -> None:
+        """Initialize arithmetic mean consensus algorithm.
+
+        Args:
+            lower_is_better (bool): Whether lower values indicate better performance.
+        """
         super().__init__(lower_is_better)
         self.result = None
-        self.params.update({'method': 'Arithmetic mean'})
+        self.params.update({"method": "Arithmetic mean"})
 
-    def fit(self, X: DataFrame, y: Series = None, ignore_nan: bool = True):
-        '''
-        计算算数平均
-        Parameters
-        ----------
-        X : DataFrame
-            数据特征 即用于计算平均值的数据
-        y : Series
-            数据标签 实际不使用在当前计算中 为了兼容性而存在
-        ignore_nan : bool
-            是否忽视缺失值(所有0值被视为缺失值)
-        '''
-        # 在预处理阶段 X的所有NaN被填充为0
-        # 在计算阶段 X的所有0被重新填充为NaN 在计算Mean时将被忽略
+    def fit(self, X: DataFrame, y: Series = None, ignore_nan: bool = True) -> None:
+        """Calculate arithmetic mean across conformations.
+
+        Args:
+            X (DataFrame): Feature data containing molecular descriptors across conformations.
+            y (Series, optional): Data labels (not used in calculation, exists for compatibility).
+            ignore_nan (bool): Whether to ignore missing values (all 0 values are treated as missing).
+        """
+        # In preprocessing stage, all NaN in X are filled with 0
+        # In calculation stage, all 0s in X are refilled as NaN and ignored during mean calculation
         X = X.replace(0, np.nan) if ignore_nan else X
 
-        # mean计算自动忽略NaN
+        # mean calculation automatically ignores NaN
         self.result = X.mean(axis=1)
         if self.lower_is_better:
             self.result = -1 * self.result
 
 
 class Mean(Average):
-    '''
-    算术平均值模型
-    Mean作为Average的别称
-    '''
+    """Arithmetic mean consensus model.
+
+    Alias for the Average class providing the same arithmetic mean functionality.
+    """
 
 
 class Geo_Average(_Consensus):
-    '''
-    几何平均值模型
-    几何平均值定义为：
-        几何平均数 = 连续乘积(x_i)^(1/n)
-    '''
+    """Geometric mean consensus model.
 
-    def __init__(self, lower_is_better=False):
+    Calculates geometric mean of molecular descriptor values across conformations.
+    Geometric mean is defined as: geo_mean = (product(x_i))^(1/n)
+    """
+
+    def __init__(self, lower_is_better: bool = False) -> None:
+        """Initialize geometric mean consensus algorithm.
+
+        Args:
+            lower_is_better (bool): Whether lower values indicate better performance.
+        """
         super().__init__(lower_is_better)
         self.result = None
-        self.params.update({'method': 'Geometric mean'})
+        self.params.update({"method": "Geometric mean"})
 
-    def fit(self, X: DataFrame, y: Series = None, ignore_nan: bool = True):
-        '''
-        计算几何平均
-        取绝对值进行计算后 再赋予符号
-        Parameters
-        ----------
-        X : DataFrame
-            数据特征 即用于计算平均值的数据
-        y : Series
-            数据标签 实际不使用在当前计算中 为了兼容性而存在
-        ignore_nan : bool
-            是否忽视缺失值(所有0值被视为缺失值)
-        '''
-        # 在预处理阶段 X的所有NaN被填充为0
-        # 在计算阶段 X的所有0被重新填充为NaN 在计算Mean时将被忽略
+    def fit(self, X: DataFrame, y: Series = None, ignore_nan: bool = True) -> None:
+        """Calculate geometric mean across conformations.
+
+        Takes absolute values for calculation, then applies sign.
+
+        Args:
+            X (DataFrame): Feature data containing molecular descriptors across conformations.
+            y (Series, optional): Data labels (not used in calculation, exists for compatibility).
+            ignore_nan (bool): Whether to ignore missing values (all 0 values are treated as missing).
+        """
+        # In preprocessing stage, all NaN in X are filled with 0
+        # In calculation stage, all 0s in X are refilled as NaN and ignored during calculation
         X = X.replace(0, np.nan) if ignore_nan else X
 
-        # 取绝对值进行计算后 再赋予符号
+        # Take absolute values for calculation, then apply sign
         self.result = Series(
             pow(
-                # 绝对值连续乘积
+                # Absolute value continuous product
                 X.prod(axis=1).abs(),
-                # 开项数次根
-                1/X.notna().sum(axis=1)
+                # Take nth root where n is the number of valid values
+                1 / X.notna().sum(axis=1),
             ),
-            name='GEO'
+            name="GEO",
         )
 
         self.result = self.result if self.lower_is_better else -1 * self.result
 
 
 class GeoMean(Geo_Average):
-    '''
-    几何平均值模型
-    GeoMean作为Geo_Average的别称
-    '''
+    """Geometric mean consensus model.
+
+    Alias for the Geo_Average class providing the same geometric mean functionality.
+    """
 
 
 class Minimum(_Consensus):
-    '''
-    最小值模型
-    '''
+    """Minimum value consensus model.
 
-    def __init__(self, lower_is_better=False):
+    Selects the minimum value across conformations for each molecule.
+    """
+
+    def __init__(self, lower_is_better: bool = False) -> None:
+        """Initialize minimum value consensus algorithm.
+
+        Args:
+            lower_is_better (bool): Whether lower values indicate better performance.
+        """
         super().__init__(lower_is_better)
         self.result = None
-        self.params.update({'method': 'Minimum'})
+        self.params.update({"method": "Minimum"})
 
-    def fit(self, X: DataFrame, y: Series = None, ignore_nan: bool = True):
-        '''
-        取得最小值
-        '''
+    def fit(self, X: DataFrame, y: Series = None, ignore_nan: bool = True) -> None:
+        """Calculate minimum values across conformations.
+
+        Args:
+            X (DataFrame): Feature data containing molecular descriptors across conformations.
+            y (Series, optional): Data labels (not used in calculation, exists for compatibility).
+            ignore_nan (bool): Whether to ignore missing values (all 0 values are treated as missing).
+        """
         X = X.replace(0, np.nan) if ignore_nan else X
         self.result = X.min(axis=1)
         if self.lower_is_better:
@@ -217,103 +249,99 @@ class Minimum(_Consensus):
 
 
 class Maximum(_Consensus):
-    '''
-    最大值模型
-    '''
+    """Maximum value consensus model.
 
-    def __init__(self, X=None, y=None, lower_is_better=False):
-        super().__init__(X, y, lower_is_better)
+    Selects the maximum value across conformations for each molecule.
+    """
+
+    def __init__(self, lower_is_better: bool = False) -> None:
+        """Initialize maximum value consensus algorithm.
+
+        Args:
+            lower_is_better (bool): Whether lower values indicate better performance.
+        """
+        super().__init__(lower_is_better)
         self.result = None
-        self.params.update({'method': 'Maximum'})
+        self.params.update({"method": "Maximum"})
 
-    def fit(self, X: DataFrame, y: Series = None, ignore_nan: bool = True):
-        '''
-        取得最大值
-        '''
+    def fit(self, X: DataFrame, y: Series = None, ignore_nan: bool = True) -> None:
+        """Calculate maximum values across conformations.
+
+        Args:
+            X (DataFrame): Feature data containing molecular descriptors across conformations.
+            y (Series, optional): Data labels (not used in calculation, exists for compatibility).
+            ignore_nan (bool): Whether to ignore missing values (all 0 values are treated as missing).
+        """
         X = X.replace(0, np.nan) if ignore_nan else X
         self.result = X.max(axis=1)
         if self.lower_is_better:
             self.result = -1 * self.result
 
-# 函数接口
+
+# Functional interfaces
 
 
-def average(data: DataFrame, method: Literal['ave', 'geo'] = 'ave'):
-    '''
-    平均值算法 : 计算并生成DataFrame对接数据的平均值列  
-    ave 算数平均
-    geo 几何平均
+def average(data: DataFrame, method: Literal["ave", "geo"] = "ave") -> Series:
+    """Calculate average values across molecular conformations.
 
-    Parameters
-    ----------
-    data : DataFrame
-        待计算数据
-    method : str
-        平均值计算方法 ( 算术平均值ave | 几何平均值geo )
+    Provides functional interface for average calculations:
+    - 'ave': Arithmetic mean
+    - 'geo': Geometric mean
 
-    Return
-    ----------
-    Series
-        平均值结果数据列
-    '''
-    if method.upper() == 'AVE':
-        return Series(data.mean(axis=1), name='AVE')
-    elif method.upper() == 'GEO':
-        # 首先消除符号再计算几何平均
-        # 最后添加符号
-        return Series(- pow(data.prod(axis=1).abs(), 1/data.notna().sum(axis=1)), name='GEO')
+    Args:
+        data (DataFrame): DataFrame containing molecular data to calculate averages from.
+        method (str): Average calculation method ('ave' for arithmetic mean | 'geo' for geometric mean).
+
+    Returns:
+        Series containing average values.
+
+    Raises:
+        RuntimeError: If method is not 'ave' or 'geo'.
+    """
+    if method.upper() == "AVE":
+        return Series(data.mean(axis=1), name="AVE")
+    elif method.upper() == "GEO":
+        # First eliminate signs then calculate geometric mean
+        # Finally add sign
+        return Series(-pow(data.prod(axis=1).abs(), 1 / data.notna().sum(axis=1)), name="GEO")
     else:
-        raise RuntimeError('Invalid average value method.')
+        raise RuntimeError("Invalid average value method.")
 
 
-def minimum(data: DataFrame):
-    '''
-    最小值(最优评分) : 提取DataFrame数据列中的最小值(如最佳对接分数)
+def minimum(data: DataFrame) -> Series:
+    """Extract minimum values (best scores) from DataFrame columns.
 
-    Parameters
-    ----------
-    data : DataFrame
-        待计算数据
+    Useful for extracting optimal scores such as best docking scores.
 
-    Return
-    ----------
-    Series
-        最小值结果数据列
-    '''
-    return Series(data.min(axis=1), name='MIN')
+    Args:
+        data (DataFrame): DataFrame containing molecular data to extract minimums from.
+
+    Returns:
+        Series containing minimum values for each row.
+    """
+    return Series(data.min(axis=1), name="MIN")
 
 
-def maximum(data: DataFrame):
-    '''
-    最大值 : 提取DataFrame数据列中的最大值
+def maximum(data: DataFrame) -> Series:
+    """Extract maximum values from DataFrame columns.
 
-    Parameters
-    ----------
-    data : DataFrame
-        待计算数据
+    Args:
+        data (DataFrame): DataFrame containing molecular data to extract maximums from.
 
-    Return
-    ----------
-    Series
-        最大值结果数据列
-    '''
-    return Series(data.max(axis=1), name='MAX')
+    Returns:
+        Series containing maximum values for each row.
+    """
+    return Series(data.max(axis=1), name="MAX")
 
 
-def std(data: DataFrame, axis: int = 1):
-    '''
-    计算标准偏差
+def std(data: DataFrame, axis: int = 1) -> Series:
+    """Calculate standard deviation.
 
-    Parameters
-    ----------
-    data : DataFrame
-        待计算数据
-    axis : int
-        计算坐标轴 row: 0, column: 1
+    Args:
+        data (DataFrame): DataFrame containing molecular data to calculate standard deviation from.
+        axis (int): Calculation axis (0 for rows, 1 for columns).
 
-    Return
-    ----------
-    Series
-        标准差结果数据列
-    '''
-    return Series(data.std(axis=axis), name='std')
+    Returns:
+        Series containing standard deviation values.
+    """
+    return Series(data.std(axis=axis), name="std")

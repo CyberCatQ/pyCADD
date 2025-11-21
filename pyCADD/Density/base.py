@@ -175,8 +175,7 @@ class Gauss:
         Args:
             gas_mol2_block (str): MOL2 format string containing gas-phase RESP charges.
             solvent_mol2_block (str): MOL2 format string containing solvent-phase RESP charges.
-            delta (float, optional): Interpolation parameter (0.0 = pure gas, 1.0 = pure solvent).
-                Defaults to 0.5 for equal weighting.
+            delta (float, optional): Interpolation parameter (0.0 = pure gas, 1.0 = pure solvent). Defaults to 0.5 for equal weighting.
 
         Returns:
             str: MOL2 format string with interpolated RESP2 charges.
@@ -230,13 +229,10 @@ class Gauss:
             dft (str, optional): DFT functional name. Defaults to "B3LYP".
             basis_set (str, optional): Basis set specification. Defaults to "6-31g*".
             solvent (str, optional): Solvent for implicit solvation model. Defaults to "water".
-            loose (bool, optional): Whether to use loose convergence criteria for faster optimization.
-                Defaults to True.
-            dispersion_correct (bool, optional): Whether to apply dispersion correction (GD3BJ).
-                Defaults to False.
+            loose (bool, optional): Whether to use loose convergence criteria for faster optimization. Defaults to True.
+            dispersion_correct (bool, optional): Whether to apply dispersion correction (GD3BJ). Defaults to False.
             td (bool, optional): Whether to perform time-dependent DFT optimization. Defaults to False.
-            freq (bool, optional): Whether to calculate vibrational frequencies after optimization.
-                Defaults to False.
+            freq (bool, optional): Whether to calculate vibrational frequencies after optimization. Defaults to False.
             mem_use (str, optional): Memory allocation string. Defaults to "4GB".
             cpu_num (int, optional): Number of processors to use. Defaults to 4.
             save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.
@@ -304,13 +300,10 @@ class Gauss:
             multiplicity (int, optional): Spin multiplicity. Defaults to 1.
             dft (str, optional): DFT functional name. Defaults to "B3LYP".
             basis_set (str, optional): Basis set specification. Defaults to "6-31g*".
-            solvent (str, optional): Solvent for implicit solvation model. Defaults to "water".
-                Set to None for gas-phase calculation.
-            dispersion_correct (bool, optional): Whether to apply dispersion correction (GD3BJ).
-                Defaults to False.
+            solvent (str, optional): Solvent for implicit solvation model. Defaults to "water". Set to None for gas-phase calculation.
+            dispersion_correct (bool, optional): Whether to apply dispersion correction (GD3BJ). Defaults to False.
             td (bool, optional): Whether to perform time-dependent DFT calculation. Defaults to False.
-            esp_calculate (bool, optional): Whether to calculate electrostatic potential for RESP
-                charge fitting. Defaults to False.
+            esp_calculate (bool, optional): Whether to calculate electrostatic potential for RESP charge fitting. Defaults to False.
             mem_use (str, optional): Memory allocation string. Defaults to "4GB".
             cpu_num (int, optional): Number of processors to use. Defaults to 4.
             save_dir (str, optional): Directory to save calculation result files. If None, saves in current directory.
@@ -396,10 +389,10 @@ class Gauss:
 
         Note:
             The complete workflow includes:
-            1. Geometry optimization with loose convergence
-            2. Single-point energy calculation with ESP analysis
-            3. RESP charge fitting using antechamber
-            4. Merging charges back into original molecular structure
+                1. Geometry optimization with loose convergence
+                2. Single-point energy calculation with ESP analysis
+                3. RESP charge fitting using antechamber
+                4. Merging charges back into original molecular structure
             Output file is named "{structure_prefix}_resp.mol2".
         """
         structure_file = File(structure_file)
@@ -485,11 +478,11 @@ class Gauss:
 
         Note:
             The complete workflow includes:
-            1. Geometry optimization with loose convergence
-            2. Gas-phase single-point energy calculation with ESP analysis
-            3. Solvent-phase single-point energy calculation with ESP analysis
-            4. RESP charge fitting for both phases using antechamber
-            5. Interpolation of charges using RESP2 formula: (1-δ)*RESP_gas + δ*RESP_solvent
+                1. Geometry optimization with loose convergence
+                2. Gas-phase single-point energy calculation with ESP analysis
+                3. Solvent-phase single-point energy calculation with ESP analysis
+                4. RESP charge fitting for both phases using antechamber
+                5. Interpolation of charges using RESP2 formula: (1-δ)*RESP_gas + δ*RESP_solvent
             Output files include individual gas/solvent RESP files and final RESP2 file.
         """
         structure_file = File(structure_file)

@@ -1,5 +1,3 @@
-from typing import List, Union
-
 from pyCADD.utils.common import File
 
 from .const import AMINO_ACIDS, ATOM_RECORDS
@@ -255,7 +253,7 @@ class PDBFile(File):
                 result_list.append(lig_dict)
         return result_list
 
-    def get_lines(self, return_str: bool = False) -> Union[list, str]:
+    def get_lines(self, return_str: bool = False) -> list | str:
         """Get the pdb file content as a list of lines or a string
 
         Args:
@@ -270,7 +268,7 @@ class PDBFile(File):
             else "\n".join(self.pdb_parser.get_str_list())
         )
 
-    def get_chain(self, chain_id: str, return_str: bool = False) -> Union[list, str]:
+    def get_chain(self, chain_id: str, return_str: bool = False) -> list | str:
         """Get the pdb file content of a single chain
 
         Args:
@@ -396,20 +394,6 @@ class EnsembleInputFile(File):
         Args:
             yaml_file (str): yaml file path
 
-
-        yaml examples:
-            ```
-            P10275:
-                1XJ7: DHT
-                1XQ3:
-                - R18
-                2AM9:
-                - TES
-                - DTT
-                2YLP:
-                - TES
-                - '056'
-
         Returns:
             EnsembleInputFile: instance of EnsembleInputFile
         """
@@ -461,7 +445,7 @@ class EnsembleInputFile(File):
         """
         self.mappings = self.parse_file(file_path).mappings
 
-    def get_pairs_list(self) -> List[tuple]:
+    def get_pairs_list(self) -> list[tuple]:
         """Get the list of pairs. Pairs are defined as (pdb, ligand)
 
         Returns:
@@ -471,7 +455,7 @@ class EnsembleInputFile(File):
             self.read(self.file_path)
         return [(item["pdb"], item["ligand"]) for item in self.mappings]
 
-    def get_pdbid_list(self) -> List[str]:
+    def get_pdbid_list(self) -> list[str]:
         """Get the list of unique pdb ids
 
         Returns:
@@ -481,7 +465,7 @@ class EnsembleInputFile(File):
             self.read(self.file_path)
         return sorted(set([item["pdb"] for item in self.mappings]))
 
-    def get_ligand_list(self) -> List[str]:
+    def get_ligand_list(self) -> list[str]:
         """Get the list of unique ligands
 
         Returns:

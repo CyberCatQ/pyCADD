@@ -1,5 +1,4 @@
 import os
-from typing import List, Union
 
 import pandas as pd
 
@@ -10,16 +9,16 @@ from . import logger
 
 
 def extract_docking_data(
-    docking_result_file: Union[DockResultFile, str], data_config: DataConfig = None
-) -> List[dict]:
+    docking_result_file: DockResultFile | str, data_config: DataConfig = None
+) -> list[dict]:
     """Extract docking data from a docking result file.
 
     Args:
-        docking_result_file (Union[DockResultFile, str]): docking result file or path to the file.
+        docking_result_file (DockResultFile | str): docking result file or path to the file.
         data_config (DataConfig, optional): data extracting config. By default, the configuration corresponding to the docking precision is used.
 
     Returns:
-        List[dict]: docking result data list.
+        list[dict]: docking result data list.
     """
     if isinstance(docking_result_file, str):
         docking_result_file = DockResultFile(docking_result_file)
@@ -46,7 +45,7 @@ def extract_docking_data(
 
 
 def save_docking_data(
-    docking_result_file: Union[DockResultFile, str],
+    docking_result_file: DockResultFile | str,
     data_config: DataConfig = None,
     save_dir: str = None,
     overwrite: bool = False,
@@ -54,7 +53,7 @@ def save_docking_data(
     """Save docking data to a CSV file. The file name is the same as the docking result file.
 
     Args:
-        docking_result_file (Union[DockResultFile, str]): docking result file or path to the file.
+        docking_result_file (DockResultFile | str): docking result file or path to the file.
         data_config (DataConfig, optional): data extracting config. By default, the configuration corresponding to the docking precision is used.
         save_dir (str, optional): directory to save the data. Defaults to None.
         overwrite (bool, optional): whether to overwrite the existing file. Defaults to False.

@@ -1,7 +1,6 @@
 import os
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import List, Union, Any
 
 from pyCADD.utils.common import File
 
@@ -135,7 +134,7 @@ class MetaData:
     class NoDefault:
         pass
 
-    def get(self, attr, default=NoDefault) -> Any:
+    def get(self, attr, default=NoDefault):
         """Get the attribute value
 
         Args:
@@ -143,7 +142,7 @@ class MetaData:
             default (any): default value that will be returned if the attribute is not found; without it, an AttributeError will be raised in this case.
 
         Returns:
-            any: attribute value. If the attribute is not found, return provided default value.
+            Any: attribute value. If the attribute is not found, return provided default value.
         """
         if default is self.NoDefault:
             return getattr(self, attr)
@@ -235,7 +234,7 @@ class MaestroFile(BaseMaestroFile):
         return StructureReader(self.file_path)
 
     @property
-    def structures(self) -> List[Structure]:
+    def structures(self) -> list[Structure]:
         return [st for st in self.st_reader]
 
     def __str__(self) -> str:
@@ -272,7 +271,7 @@ class MaestroFile(BaseMaestroFile):
         """
         return self.structures[structure_index].chain[chain_id].extractStructure()
 
-    def get_residue(self, resnum: int, structure_index: int = 0) -> Union[struc._Residue, None]:
+    def get_residue(self, resnum: int, structure_index: int = 0) -> struc._Residue:
         """Get the Residue object from the structure
 
         Args:
@@ -288,7 +287,7 @@ class MaestroFile(BaseMaestroFile):
 
     def get_molecule_by_res(
         self, resnum: int = None, structure_index: int = 0
-    ) -> Union[struc._Molecule, None]:
+    ) -> struc._Molecule:
         """Get the Molecule object from the structure by residue number.
 
         Args:
@@ -303,7 +302,7 @@ class MaestroFile(BaseMaestroFile):
             return None
         return self.structures[structure_index].molecule[res.molecule_number]
 
-    def get_covalent_bond(self, resnum: int, structure_index: int = 0) -> Union[list, None]:
+    def get_covalent_bond(self, resnum: int, structure_index: int = 0) -> list:
         """
         Get list of covalent bond(s) between query molecule and other residues.
         Return None if no covalent bond is found.
@@ -352,7 +351,7 @@ class MaestroFile(BaseMaestroFile):
         allow_amino_acid_only_molecules: bool = False,
         allow_ion_only_molecules: bool = False,
         structure_index: int = 0,
-    ) -> List[LigandSearched]:
+    ) -> list[LigandSearched]:
         """Find all ligands from the structure file
 
         Args:
@@ -435,7 +434,7 @@ class DockResultFile(MaestroFile):
             return self.structures[1]
         return self.structures[0]
 
-    def get_raw_results(self) -> List[dict]:
+    def get_raw_results(self) -> list[dict]:
         """Get the raw docking result information of all structures
 
         Returns:
@@ -443,7 +442,7 @@ class DockResultFile(MaestroFile):
         """
         return [{k: v for k, v in st.property.items()} for st in self.structures]
 
-    def get_results(self) -> List[dict]:
+    def get_results(self) -> list[dict]:
         """Get the docking result information of all structures
 
         Returns:

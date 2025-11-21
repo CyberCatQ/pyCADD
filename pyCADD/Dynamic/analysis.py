@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 def _calc_rmsd(
-    trajectory: Any, mask: str = "@CA", reference: Any = 0, save_dir: str = None, *args, **kwargs
+    trajectory: pt.Trajectory, mask: str = "@CA", reference: int = 0, save_dir: str = None, *args, **kwargs
 ) -> ndarray:
     """Calculates Root Mean Square Deviation (RMSD) for a molecular trajectory.
 
@@ -30,9 +30,9 @@ def _calc_rmsd(
     for the specified atoms.
 
     Args:
-        trajectory (Any): PyTraj trajectory object containing molecular dynamics data.
+        trajectory (pt.Trajectory): PyTraj trajectory object containing molecular dynamics data.
         mask (str, optional): Atom selection mask for RMSD calculation. Defaults to "@CA" (alpha carbons).
-        reference (Any, optional): Reference frame or structure for RMSD calculation. Defaults to 0 (first frame).
+        reference (int, optional): Reference frame or structure for RMSD calculation. Defaults to 0 (first frame).
         save_dir (str, optional): Directory to save results. Defaults to current working directory.
         *args: Additional positional arguments passed to pytraj.rmsd.
         **kwargs: Additional keyword arguments passed to pytraj.rmsd.
@@ -54,7 +54,7 @@ def _calc_rmsd(
 
 
 def _calc_rmsf(
-    trajectory: Any,
+    trajectory: pt.Trajectory,
     mask: str = "@CA",
     options: str = "byres",
     save_dir: str = None,
@@ -92,7 +92,7 @@ def _calc_rmsf(
 
 
 def _calc_hbond(
-    trajectory: Any,
+    trajectory: pt.Trajectory,
     mask: str = ":*",
     distance: float = 3.0,
     angle: float = 135,
@@ -108,7 +108,7 @@ def _calc_hbond(
     both PyTraj and cpptraj tools.
 
     Args:
-        trajectory (Any): PyTraj trajectory object containing molecular dynamics data.
+        trajectory (pt.Trajectory): PyTraj trajectory object containing molecular dynamics data.
         mask (str, optional): Amber-style atom selection mask. Defaults to ":*" (all residues).
         distance (float, optional): Distance cutoff for H-bond detection in Angstroms. Defaults to 3.0.
         angle (float, optional): Angle cutoff for H-bond detection in degrees. Defaults to 135.
@@ -123,11 +123,11 @@ def _calc_hbond(
 
     Note:
         Generates multiple output files:
-        - HBOND_RESULTS.dat: Average H-bond statistics
-        - HBOND_NUM_TIME.csv: Number of H-bonds vs time
-        - HBOND_DIS_RESULTS.csv: H-bond distances over time
-        - HBOND_ANG_RESULTS.csv: H-bond angles over time
-        - lifetime.dat: H-bond lifetime statistics from cpptraj
+            - HBOND_RESULTS.dat: Average H-bond statistics
+            - HBOND_NUM_TIME.csv: Number of H-bonds vs time
+            - HBOND_DIS_RESULTS.csv: H-bond distances over time
+            - HBOND_ANG_RESULTS.csv: H-bond angles over time
+            - lifetime.dat: H-bond lifetime statistics from cpptraj
     """
     save_dir = save_dir or os.getcwd()
     os.makedirs(save_dir, exist_ok=True)
@@ -175,7 +175,7 @@ def _calc_hbond(
 
 
 def _trace_distance(
-    trajectory: Any, mask: str, save: bool = False, save_dir: str = None, *args, **kwargs
+    trajectory: pt.Trajectory, mask: str, save: bool = False, save_dir: str = None, *args, **kwargs
 ) -> ndarray:
     """Traces distances between specified atoms throughout the trajectory.
 
@@ -184,7 +184,7 @@ def _trace_distance(
     interactions or conformational changes.
 
     Args:
-        trajectory (Any): PyTraj trajectory object containing molecular dynamics data.
+        trajectory (pt.Trajectory): PyTraj trajectory object containing molecular dynamics data.
         mask (str): Amber-style atom selection mask defining the distance measurement.
             Format: "atom1 atom2" for distance between two atoms.
         save (bool, optional): Whether to save results to CSV file. Defaults to False.
@@ -209,7 +209,7 @@ def _trace_distance(
 
 
 def _trace_angle(
-    trajectory: Any, mask: str, save: bool = False, save_dir: str = None, *args, **kwargs
+    trajectory: pt.Trajectory, mask: str, save: bool = False, save_dir: str = None, *args, **kwargs
 ) -> ndarray:
     """Traces angles between specified atoms throughout the trajectory.
 
@@ -218,7 +218,7 @@ def _trace_angle(
     bond angles, or dihedral angles.
 
     Args:
-        trajectory (Any): PyTraj trajectory object containing molecular dynamics data.
+        trajectory (pt.Trajectory): PyTraj trajectory object containing molecular dynamics data.
         mask (str): Amber-style atom selection mask defining the angle measurement.
             Format: "atom1 atom2 atom3" for angle between three atoms.
         save (bool, optional): Whether to save results to CSV file. Defaults to False.
@@ -299,8 +299,7 @@ def _extract_frame(traj: pt.Trajectory, frame_indices: list[int], save_dir: str 
     Args:
         traj (pt.Trajectory): PyTraj trajectory object to extract frames from.
         frame_indices (list[int]): List of frame indices to extract from the trajectory.
-        save_dir (str, optional): Directory to save extracted PDB files. 
-            Defaults to current working directory.
+        save_dir (str, optional): Directory to save extracted PDB files.  Defaults to current working directory.
 
     Returns:
         list: List of file paths to the extracted PDB files.

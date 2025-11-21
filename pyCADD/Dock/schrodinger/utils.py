@@ -1,6 +1,5 @@
 import os
 import signal
-from typing import Tuple, Union
 
 import pandas as pd
 
@@ -128,8 +127,8 @@ def convert_format(
 
 
 def get_centroid(
-    file: Union[MaestroFile, Structure, str], structure_index: int = 0
-) -> Tuple[float, float, float]:
+    file: list[MaestroFile, Structure, str], structure_index: int = 0
+) -> tuple[float, float, float]:
     """Get the centroid of a structure file.
 
     Args:
